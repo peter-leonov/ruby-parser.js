@@ -45,13 +45,13 @@ b4_locations_if([[
 * <code>]b4_position_type[</code> class, denote a point in the input.
 * Locations represent a part of the input through the beginning
 * and ending positions.  */
-function ]b4_location_type[ (begin, end) {
+function Location (begin, end) {
   /** The first, inclusive, position in the range.  */
   this.begin = begin;
   this.end = end;
 }
 
-]b4_location_type[.prototype.toString = function () {
+Location.prototype.toString = function () {
   if (this.begin === this.end)
     return "" + begin;
 
@@ -74,12 +74,12 @@ function b4_parser_class_name ()
   b4_token_enums(b4_tokens)
 
   b4_locations_if([
-  private b4_location_type yylloc (YYStack rhs, int n)
+  private Location yylloc (YYStack rhs, int n)
   {
     if (n > 0)
-      return new b4_location_type[(]rhs.locationAt(n-1).begin, rhs.locationAt(0).end);
+      return new Location(rhs.locationAt(n-1).begin, rhs.locationAt(0).end);
     else
-      return new b4_location_type[(]rhs.locationAt(0).end, rhs.locationAt(0).end);
+      return new Location(rhs.locationAt(0).end, rhs.locationAt(0).end);
   }])
 
 
@@ -103,16 +103,16 @@ function b4_parser_class_name ()
   private final int yylex () b4_maybe_throws([b4_lex_throws]) [{
     return yylexer.yylex ();
   }
-  protected final void yyerror (]b4_locations_if([b4_location_type[ loc, ]])[String s) {
+  protected final void yyerror (]b4_locations_if([Location[ loc, ]])[String s) {
     yylexer.yyerror (]b4_locations_if([loc, ])[s);
   }
 
   ]b4_locations_if([
   protected final void yyerror (String s) {
-    yylexer.yyerror ((]b4_location_type[)null, s);
+    yylexer.yyerror ((Location)null, s);
   }
   protected final void yyerror (]b4_position_type[ loc, String s) {
-    yylexer.yyerror (new ]b4_location_type[ (loc), s);
+    yylexer.yyerror (new Location (loc), s);
   }])
 
   [protected final void yycdebug (String s) {
@@ -122,14 +122,14 @@ function b4_parser_class_name ()
 
   private final class YYStack {
     private int[] stateStack = new int[16];
-    ]b4_locations_if([[private ]b4_location_type[[] locStack = new ]b4_location_type[[16];]])[
+    ]b4_locations_if([[private Location[] locStack = new Location[16];]])[
     private ]b4_yystype[[] valueStack = new ]b4_yystype[[16];
 
     public int size = 16;
     public int height = -1;
 
     public final void push (int state, ]b4_yystype[ value]dnl
-			    b4_locations_if([, ]b4_location_type[ loc])[) {
+			    b4_locations_if([, Location loc])[) {
       height++;
       if (size == height)
         {
@@ -137,7 +137,7 @@ function b4_parser_class_name ()
 	  System.arraycopy (stateStack, 0, newStateStack, 0, height);
 	  stateStack = newStateStack;
 	  ]b4_locations_if([[
-	  ]b4_location_type[[] newLocStack = new ]b4_location_type[[size * 2];
+	  Location[] newLocStack = new Location[size * 2];
 	  System.arraycopy (locStack, 0, newLocStack, 0, height);
 	  locStack = newLocStack;]])
 
@@ -170,7 +170,7 @@ function b4_parser_class_name ()
       return stateStack[height - i];
     }
 
-    ]b4_locations_if([[public final ]b4_location_type[ locationAt (int i) {
+    ]b4_locations_if([[public final Location locationAt (int i) {
       return locStack[height - i];
     }
 
@@ -230,7 +230,7 @@ function b4_parser_class_name ()
   private int yyaction (int yyn, YYStack yystack, int yylen) ]b4_maybe_throws([b4_throws])[
   {
     ]b4_yystype[ yyval;
-    ]b4_locations_if([b4_location_type[ yyloc = yylloc (yystack, yylen);]])[
+    ]b4_locations_if([Location[ yyloc = yylloc (yystack, yylen);]])[
 
     /* If YYLEN is nonzero, implement the default value of the action:
        `$$ = $1'.  Otherwise, use the top of the stack.
@@ -342,13 +342,13 @@ function b4_parser_class_name ()
     /* Error handling.  */
     int yynerrs_ = 0;
     ]b4_locations_if([/// The location where the error started.
-    ]b4_location_type[ yyerrloc = null;
+    Location yyerrloc = null;
 
-    /// ]b4_location_type[ of the lookahead.
-    ]b4_location_type[ yylloc = new ]b4_location_type[ (null, null);
+    /// Location of the lookahead.
+    Location yylloc = new Location (null, null);
 
     /// @@$.
-    ]b4_location_type[ yyloc;])
+    Location yyloc;])
 
     /// Semantic value of the lookahead.
     b4_yystype[ yylval = null;
@@ -394,7 +394,7 @@ b4_dollar_popdef])[]dnl
 	    yycdebug ("Reading a token: ");
 	    yychar = yylex ();]
             b4_locations_if([[
-	    yylloc = new ]b4_location_type[(yylexer.getStartPos (),
+	    yylloc = new Location(yylexer.getStartPos (),
 				            yylexer.getEndPos ());]])
             yylval = yylexer.getLVal ();[
           }
