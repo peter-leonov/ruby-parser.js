@@ -39,7 +39,7 @@ b4_percent_code_get([[imports]])
 
 
 
-b4_locations_if([[
+
 /**
 * A class defining a pair of positions.  Positions, defined by the
 * <code>Position</code> class, denote a point in the input.
@@ -57,7 +57,7 @@ Location.prototype.toString = function () {
 
   return this.begin + "-" + this.end;
 }
-]])
+
 
 
 
@@ -73,14 +73,14 @@ function b4_parser_class_name ()
 
   b4_token_enums(b4_tokens)
 
-  b4_locations_if([
+  
   private Location yylloc (YYStack rhs, int n)
   {
     if (n > 0)
       return new Location(rhs.locationAt(n-1).begin, rhs.locationAt(0).end);
     else
       return new Location(rhs.locationAt(0).end, rhs.locationAt(0).end);
-  }])
+  }
 
 
   [// b4_parse_param_vars]
@@ -103,17 +103,17 @@ function b4_parser_class_name ()
   private final int yylex () b4_maybe_throws([b4_lex_throws]) [{
     return yylexer.yylex ();
   }
-  protected final void yyerror (]b4_locations_if([Location[ loc, ]])[String s) {
-    yylexer.yyerror (]b4_locations_if([loc, ])[s);
+  protected final void yyerror (][Location loc, ][String s) {
+    yylexer.yyerror (]loc, [s);
   }
 
-  ]b4_locations_if([
+  ]
   protected final void yyerror (String s) {
     yylexer.yyerror ((Location)null, s);
   }
   protected final void yyerror (Position loc, String s) {
     yylexer.yyerror (new Location (loc), s);
-  }])
+  }
 
   [protected final void yycdebug (String s) {
     if (yydebug > 0)
@@ -122,24 +122,24 @@ function b4_parser_class_name ()
 
   private final class YYStack {
     private int[] stateStack = new int[16];
-    ]b4_locations_if([[private Location[] locStack = new Location[16];]])[
+    private Location[] locStack = new Location[16];
     private ]b4_yystype[[] valueStack = new ]b4_yystype[[16];
 
     public int size = 16;
     public int height = -1;
 
     public final void push (int state, ]b4_yystype[ value]dnl
-			    b4_locations_if([, Location loc])[) {
+			    , Location loc[) {
       height++;
       if (size == height)
         {
 	  int[] newStateStack = new int[size * 2];
 	  System.arraycopy (stateStack, 0, newStateStack, 0, height);
 	  stateStack = newStateStack;
-	  ]b4_locations_if([[
+	  ][
 	  Location[] newLocStack = new Location[size * 2];
 	  System.arraycopy (locStack, 0, newLocStack, 0, height);
-	  locStack = newLocStack;]])
+	  locStack = newLocStack;]
 
 	  b4_yystype[[] newValueStack = new ]b4_yystype[[size * 2];
 	  System.arraycopy (valueStack, 0, newValueStack, 0, height);
@@ -149,7 +149,7 @@ function b4_parser_class_name ()
 	}
 
       stateStack[height] = state;
-      ]b4_locations_if([[locStack[height] = loc;]])[
+      locStack[height] = loc;
       valueStack[height] = value;
     }
 
@@ -161,7 +161,7 @@ function b4_parser_class_name ()
       // Avoid memory leaks... garbage collection is a white lie!
       if (num > 0) {
 	java.util.Arrays.fill (valueStack, height - num + 1, height + 1, null);
-        ]b4_locations_if([[java.util.Arrays.fill (locStack, height - num + 1, height + 1, null);]])[
+        ][java.util.Arrays.fill (locStack, height - num + 1, height + 1, null);][
       }
       height -= num;
     }
@@ -170,11 +170,11 @@ function b4_parser_class_name ()
       return stateStack[height - i];
     }
 
-    ]b4_locations_if([[public final Location locationAt (int i) {
+    ][public final Location locationAt (int i) {
       return locStack[height - i];
     }
 
-    ]])[public final ]b4_yystype[ valueAt (int i) {
+    ][public final ]b4_yystype[ valueAt (int i) {
       return valueStack[height - i];
     }
 
@@ -230,7 +230,7 @@ function b4_parser_class_name ()
   private int yyaction (int yyn, YYStack yystack, int yylen) ]b4_maybe_throws([b4_throws])[
   {
     ]b4_yystype[ yyval;
-    ]b4_locations_if([Location[ yyloc = yylloc (yystack, yylen);]])[
+    ]Location[ yyloc = yylloc (yystack, yylen);][
 
     /* If YYLEN is nonzero, implement the default value of the action:
        `$$ = $1'.  Otherwise, use the top of the stack.
@@ -251,7 +251,7 @@ function b4_parser_class_name ()
 	default: break;
       }
 
-    yy_symbol_print ("-> $$ =", yyr1_[yyn], yyval]b4_locations_if([, yyloc])[);
+    yy_symbol_print ("-> $$ =", yyr1_[yyn], yyval], yyloc[);
 
     yystack.pop (yylen);
     yylen = 0;
@@ -265,7 +265,7 @@ function b4_parser_class_name ()
     else
       yystate = yydefgoto_[yyn - yyntokens_];
 
-    yystack.push (yystate, yyval]b4_locations_if([, yyloc])[);
+    yystack.push (yystate, yyval], yyloc[);
     return YYNEWSTATE;
   }
 
@@ -310,12 +310,12 @@ function b4_parser_class_name ()
 
   private void yy_symbol_print (String s, int yytype,
 			         ]b4_yystype[ yyvaluep]dnl
-				 b4_locations_if([, Object yylocationp])[)
+				 , Object yylocationp[)
   {
     if (yydebug > 0)
     yycdebug (s + (yytype < yyntokens_ ? " token " : " nterm ")
-	      + yytname_[yytype] + " ("]b4_locations_if([
-	      + yylocationp + ": "])[
+	      + yytname_[yytype] + " ("]
+	      + yylocationp + ": "[
 	      + (yyvaluep == null ? "(null)" : yyvaluep.toString ()) + ")");
   }
 
@@ -341,14 +341,14 @@ function b4_parser_class_name ()
 
     /* Error handling.  */
     int yynerrs_ = 0;
-    ]b4_locations_if([/// The location where the error started.
+    ]/// The location where the error started.
     Location yyerrloc = null;
 
     /// Location of the lookahead.
     Location yylloc = new Location (null, null);
 
     /// @@$.
-    Location yyloc;])
+    Location yyloc;
 
     /// Semantic value of the lookahead.
     b4_yystype[ yylval = null;
@@ -363,7 +363,7 @@ b4_user_initial_action
 b4_dollar_popdef])[]dnl
 
   [  /* Initialize the stack.  */
-    yystack.push (yystate, yylval]b4_locations_if([, yylloc])[);
+    yystack.push (yystate, yylval], yylloc[);
 
     int label = YYNEWSTATE;
     for (;;)
@@ -393,9 +393,9 @@ b4_dollar_popdef])[]dnl
           {
 	    yycdebug ("Reading a token: ");
 	    yychar = yylex ();]
-            b4_locations_if([[
+            [
 	    yylloc = new Location(yylexer.getStartPos (),
-				            yylexer.getEndPos ());]])
+				            yylexer.getEndPos ());]
             yylval = yylexer.getLVal ();[
           }
 
@@ -409,7 +409,7 @@ b4_dollar_popdef])[]dnl
           {
 	    yytoken = yytranslate_ (yychar);
 	    yy_symbol_print ("Next token is", yytoken,
-			     yylval]b4_locations_if([, yylloc])[);
+			     yylval], yylloc[);
           }
 
         /* If the proper action on seeing token YYTOKEN is to reduce or to
@@ -434,7 +434,7 @@ b4_dollar_popdef])[]dnl
           {
             /* Shift the lookahead token.  */
 	    yy_symbol_print ("Shifting", yytoken,
-			     yylval]b4_locations_if([, yylloc])[);
+			     yylval], yylloc[);
 
             /* Discard the token being shifted.  */
             yychar = yyempty_;
@@ -445,7 +445,7 @@ b4_dollar_popdef])[]dnl
               --yyerrstatus_;
 
             yystate = yyn;
-            yystack.push (yystate, yylval]b4_locations_if([, yylloc])[);
+            yystack.push (yystate, yylval], yylloc[);
             label = YYNEWSTATE;
           }
         break;
@@ -480,10 +480,10 @@ b4_dollar_popdef])[]dnl
             ++yynerrs_;
             if (yychar == yyempty_)
               yytoken = yyempty_;
-            yyerror (]b4_locations_if([yylloc, ])[yysyntax_error (yystate, yytoken));
+            yyerror (]yylloc, [yysyntax_error (yystate, yytoken));
           }
 
-        ]b4_locations_if([yyerrloc = yylloc;])[
+        ]yyerrloc = yylloc;[
         if (yyerrstatus_ == 3)
           {
 	    /* If just tried and failed to reuse lookahead token after an
@@ -509,7 +509,7 @@ b4_dollar_popdef])[]dnl
       `---------------------------------------------------*/
       case YYERROR:
 
-        ]b4_locations_if([yyerrloc = yystack.locationAt (yylen - 1);])[
+        ]yyerrloc = yystack.locationAt (yylen - 1);[
         /* Do not reclaim the symbols of the rule which action triggered
            this YYERROR.  */
         yystack.pop (yylen);
@@ -542,26 +542,26 @@ b4_dollar_popdef])[]dnl
 	    if (yystack.height == 0)
 	      return false;
 
-	    ]b4_locations_if([yyerrloc = yystack.locationAt (0);])[
+	    ]yyerrloc = yystack.locationAt (0);[
 	    yystack.pop ();
 	    yystate = yystack.stateAt (0);
 	    if (yydebug > 0)
 	      yystack.print (yyDebugStream);
           }
 
-	]b4_locations_if([
+	]
 	/* Muck with the stack to setup for yylloc.  */
 	yystack.push (0, null, yylloc);
 	yystack.push (0, null, yyerrloc);
         yyloc = yylloc (yystack, 2);
-	yystack.pop (2);])[
+	yystack.pop (2);[
 
         /* Shift the error token.  */
         yy_symbol_print ("Shifting", yystos_[yyn],
-			 yylval]b4_locations_if([, yyloc])[);
+			 yylval], yyloc[);
 
         yystate = yyn;
-	yystack.push (yyn, yylval]b4_locations_if([, yyloc])[);
+	yystack.push (yyn, yylval], yyloc[);
         label = YYNEWSTATE;
         break;
 
@@ -789,8 +789,8 @@ b4_dollar_popdef])[]dnl
     for (int yyi = 0; yyi < yynrhs; yyi++)
       yy_symbol_print ("   $" + (yyi + 1) + " =",
 		       yyrhs_[yyprhs_[yyrule] + yyi],
-		       ]b4_rhs_value(yynrhs, yyi + 1)b4_locations_if([,
-		       b4_rhs_location(yynrhs, yyi + 1)])[);
+		       ]b4_rhs_value(yynrhs, yyi + 1),
+		       b4_rhs_location(yynrhs, yyi + 1)[);
   }
 
   /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
