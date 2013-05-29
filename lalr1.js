@@ -42,7 +42,7 @@ b4_percent_code_get([[imports]])
 b4_locations_if([[
 /**
 * A class defining a pair of positions.  Positions, defined by the
-* <code>]b4_position_type[</code> class, denote a point in the input.
+* <code>Position</code> class, denote a point in the input.
 * Locations represent a part of the input through the beginning
 * and ending positions.  */
 function Location (begin, end) {
@@ -111,7 +111,7 @@ function b4_parser_class_name ()
   protected final void yyerror (String s) {
     yylexer.yyerror ((Location)null, s);
   }
-  protected final void yyerror (]b4_position_type[ loc, String s) {
+  protected final void yyerror (Position loc, String s) {
     yylexer.yyerror (new Location (loc), s);
   }])
 

@@ -132,9 +132,6 @@ m4_define([b4_lex_throws], [b4_percent_define_get([[lex_throws]])])
 b4_percent_define_default([[throws]], [])
 m4_define([b4_throws], [b4_percent_define_get([[throws]])])
 
-b4_percent_define_default([[api.position.type]], [Position])
-m4_define([b4_position_type], [b4_percent_define_get([[api.position.type]])])
-
 
 ## ----------------- ##
 ## Semantic Values.  ##
