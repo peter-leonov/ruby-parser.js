@@ -27,15 +27,16 @@ b4_copyright([Skeleton implementation for Bison LALR(1) parsers in JavaScript],
              [2007-2013])
 
 b4_percent_define_ifdef([package], [package b4_percent_define_get([package]);
-])[/* First part of user declarations.  */
-]b4_pre_prologue
+])
+/* First part of user declarations.  */
+b4_pre_prologue
 b4_percent_code_get([[imports]])
-[/**
- * A Bison parser, automatically generated from <tt>]m4_bpatsubst(b4_file_name, [^"\(.*\)"$], [\1])[</tt>.
+/**
+ * A Bison parser, automatically generated from <tt>m4_bpatsubst(b4_file_name, [^"\(.*\)"$], [\1])</tt>.
  *
  * @@author LALR (1) parser skeleton written by Paolo Bonzini.
  */
-]
+
 
 
 b4_locations_if([[
@@ -59,26 +60,27 @@ function ]b4_location_type[ (begin, end) {
 ]])
 
 
-[function ]b4_parser_class_name[ ()][
+
+function b4_parser_class_name ()
 {
-  ]b4_identification[
+  b4_identification
 
   /** True if verbose error messages are enabled.  */
-  var errorVerbose = ]b4_flag_value([error_verbose]);
+  var errorVerbose = b4_flag_value([error_verbose]);
 
-[  /** Token returned by the scanner to signal the end of its input.  */
-  var EOF = 0;]
+  /** Token returned by the scanner to signal the end of its input.  */
+  var EOF = 0;
 
-b4_token_enums(b4_tokens)
+  b4_token_enums(b4_tokens)
 
-  b4_locations_if([[
-  private ]b4_location_type[ yylloc (YYStack rhs, int n)
+  b4_locations_if([
+  private b4_location_type yylloc (YYStack rhs, int n)
   {
     if (n > 0)
-      return new ]b4_location_type[(rhs.locationAt(n-1).begin, rhs.locationAt(0).end);
+      return new b4_location_type[(]rhs.locationAt(n-1).begin, rhs.locationAt(0).end);
     else
-      return new ]b4_location_type[(rhs.locationAt(0).end, rhs.locationAt(0).end);
-  }]])[
+      return new b4_location_type[(]rhs.locationAt(0).end, rhs.locationAt(0).end);
+  }])
 
   ]])[/** The object doing lexical analysis for us.  */
   private Lexer yylexer;
