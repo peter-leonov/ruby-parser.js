@@ -74,8 +74,7 @@ function b4_parser_class_name ()
   b4_token_enums(b4_tokens)
 
   b4_locations_if([
-  // YYStack rhs, int n
-  function yylloc (rhs, n)
+  private b4_location_type yylloc (YYStack rhs, int n)
   {
     if (n > 0)
       return new b4_location_type[(]rhs.locationAt(n-1).begin, rhs.locationAt(0).end);
