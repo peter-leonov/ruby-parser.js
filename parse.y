@@ -1,3 +1,6 @@
+%{
+	alert(123)
+%}
 %pure_parser
 
 %language "java"
