@@ -33,47 +33,10 @@ m4_define([b4_list2],
 	  [$1[]m4_ifval(m4_quote($1), [m4_ifval(m4_quote($2), [[, ]])])[]$2])
 
 
-# b4_percent_define_get3(DEF, PRE, POST, NOT)
-# -------------------------------------------
-# Expand to the value of DEF surrounded by PRE and POST if it's %define'ed,
-# otherwise NOT.
-m4_define([b4_percent_define_get3],
-	  [m4_ifval(m4_quote(b4_percent_define_get([$1])),
-		[$2[]b4_percent_define_get([$1])[]$3], [$4])])
-
-
 
 # b4_flag_value(BOOLEAN-FLAG)
 # ---------------------------
 m4_define([b4_flag_value], [b4_flag_if([$1], [true], [false])])
-
-
-# b4_public_if(TRUE, FALSE)
-# -------------------------
-b4_percent_define_default([[public]], [[false]])
-m4_define([b4_public_if],
-[b4_percent_define_flag_if([public], [$1], [$2])])
-
-
-# b4_abstract_if(TRUE, FALSE)
-# ---------------------------
-b4_percent_define_default([[abstract]], [[false]])
-m4_define([b4_abstract_if],
-[b4_percent_define_flag_if([abstract], [$1], [$2])])
-
-
-# b4_final_if(TRUE, FALSE)
-# ---------------------------
-b4_percent_define_default([[final]], [[false]])
-m4_define([b4_final_if],
-[b4_percent_define_flag_if([final], [$1], [$2])])
-
-
-# b4_strictfp_if(TRUE, FALSE)
-# ---------------------------
-b4_percent_define_default([[strictfp]], [[false]])
-m4_define([b4_strictfp_if],
-[b4_percent_define_flag_if([strictfp], [$1], [$2])])
 
 
 # b4_lexer_if(TRUE, FALSE)
@@ -86,10 +49,10 @@ m4_define([b4_lexer_if],
 # -----------------
 m4_define([b4_identification],
 [  /** Version number for the Bison executable that generated this parser.  */
-  public static final String bisonVersion = "b4_version";
+  var bisonVersion = "b4_version";
 
   /** Name of the skeleton that generated this parser.  */
-  public static final String bisonSkeleton = b4_skeleton;
+  var bisonSkeleton = b4_skeleton;
 ])
 
 
