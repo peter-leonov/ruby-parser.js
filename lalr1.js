@@ -67,7 +67,7 @@ function ]b4_location_type[ (begin, end) {
   var errorVerbose = ]b4_flag_value([error_verbose]);
 
 [  /** Token returned by the scanner to signal the end of its input.  */
-  public static final int EOF = 0;]
+  var EOF = 0;]
 
 b4_token_enums(b4_tokens)
 
