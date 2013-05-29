@@ -89,8 +89,7 @@ m4_define([b4_null], [null])
 # ---------------------------------------
 # Output the definition of this token as an enum.
 m4_define([b4_token_enum],
-[  /** Token number, to be returned by the scanner.  */
-  public static final int $1 = $2;
+[  '$1': $2,
 ])
 
 
@@ -100,7 +99,11 @@ m4_define([b4_token_enum],
 m4_define([b4_token_enums],
 [m4_if([$#$1], [1], [],
 [/* Tokens.  */
+/** Token numbers, to be returned by the scanner.  */
+var TOKENS = {
 m4_map([b4_token_enum], [$@])])
+  ' ': 0 /* comma terminator, needs to be avoided */
+}
 ])
 
 # b4-case(ID, CODE)
