@@ -94,20 +94,11 @@ function b4_parser_class_name ()
     
   [// b4_parse_param_cons]
 
-  var yydebug = 0;
-
-  /**
-   * Answer the verbosity of the debugging output; 0 means that all kinds of
-   * output from the parser are suppressed.
-   */
-  public final int getDebugLevel() { return yydebug; }
-
   /**
    * Set the verbosity of the debugging output; 0 means that all kinds of
    * output from the parser are suppressed.
-   * @@param level The verbosity level for debugging output.
    */
-  public final void setDebugLevel(int level) { yydebug = level; }
+  var yydebug = 0;
 
   private final int yylex () b4_maybe_throws([b4_lex_throws]) [{
     return yylexer.yylex ();
