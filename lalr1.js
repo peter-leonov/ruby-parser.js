@@ -82,45 +82,19 @@ function b4_parser_class_name ()
       return new b4_location_type[(]rhs.locationAt(0).end, rhs.locationAt(0).end);
   }])
 
-  ]])[/** The object doing lexical analysis for us.  */
-  private Lexer yylexer;
-  ]
-  b4_parse_param_vars
 
-b4_lexer_if([[
-  /**
-   * Instantiates the Bison-generated parser.
-   */
-  public ]b4_parser_class_name (b4_parse_param_decl([b4_lex_param_decl])[) {
-    this.yylexer = new YYLexer(]b4_lex_param_call[);
-    ]b4_parse_param_cons[
-  }
-]])
+  [// b4_parse_param_vars]
 
   /**
    * Instantiates the Bison-generated parser.
    * @@param yylexer The scanner that will supply tokens to the parser.
    */
-  b4_lexer_if([[protected]], [[public]]) b4_parser_class_name[ (]b4_parse_param_decl([[Lexer yylexer]])[) {
-    this.yylexer = yylexer;
-    ]b4_parse_param_cons[
-  }
+  
+  this.yylexer = yylexer;
+    
+  [// b4_parse_param_cons]
 
-  private java.io.PrintStream yyDebugStream = System.err;
-
-  /**
-   * Return the <tt>PrintStream</tt> on which the debugging output is
-   * printed.
-   */
-  public final java.io.PrintStream getDebugStream () { return yyDebugStream; }
-
-  /**
-   * Set the <tt>PrintStream</tt> on which the debug output is printed.
-   * @@param s The stream that is used for debugging output.
-   */
-  public final void setDebugStream(java.io.PrintStream s) { yyDebugStream = s; }
-
-  private int yydebug = 0;
+  var yydebug = 0;
 
   /**
    * Answer the verbosity of the debugging output; 0 means that all kinds of
@@ -135,7 +109,7 @@ b4_lexer_if([[
    */
   public final void setDebugLevel(int level) { yydebug = level; }
 
-  private final int yylex () ]b4_maybe_throws([b4_lex_throws]) [{
+  private final int yylex () b4_maybe_throws([b4_lex_throws]) [{
     return yylexer.yylex ();
   }
   protected final void yyerror (]b4_locations_if([b4_location_type[ loc, ]])[String s) {
