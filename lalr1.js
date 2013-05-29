@@ -36,56 +36,35 @@ b4_percent_code_get([[imports]])
  * @@author LALR (1) parser skeleton written by Paolo Bonzini.
  */
 ]
+
+
+b4_locations_if([[
+/**
+* A class defining a pair of positions.  Positions, defined by the
+* <code>]b4_position_type[</code> class, denote a point in the input.
+* Locations represent a part of the input through the beginning
+* and ending positions.  */
+function ]b4_location_type[ (begin, end) {
+  /** The first, inclusive, position in the range.  */
+  this.begin = begin;
+  this.end = end;
+}
+
+]b4_location_type[.prototype.toString = function () {
+  if (this.begin === this.end)
+    return "" + begin;
+
+  return this.begin + "-" + this.end;
+}
+]])
+
+
 [function ]b4_parser_class_name[ ()][
 {
   ]b4_identification[
 
   /** True if verbose error messages are enabled.  */
-  public boolean errorVerbose = ]b4_flag_value([error_verbose]);
-
-b4_locations_if([[
-  /**
-   * A class defining a pair of positions.  Positions, defined by the
-   * <code>]b4_position_type[</code> class, denote a point in the input.
-   * Locations represent a part of the input through the beginning
-   * and ending positions.  */
-  public class ]b4_location_type[ {
-    /** The first, inclusive, position in the range.  */
-    public ]b4_position_type[ begin;
-
-    /** The first position beyond the range.  */
-    public ]b4_position_type[ end;
-
-    /**
-     * Create a <code>]b4_location_type[</code> denoting an empty range located at
-     * a given point.
-     * @@param loc The position at which the range is anchored.  */
-    public ]b4_location_type[ (]b4_position_type[ loc) {
-      this.begin = this.end = loc;
-    }
-
-    /**
-     * Create a <code>]b4_location_type[</code> from the endpoints of the range.
-     * @@param begin The first position included in the range.
-     * @@param end   The first position beyond the range.  */
-    public ]b4_location_type[ (]b4_position_type[ begin, ]b4_position_type[ end) {
-      this.begin = begin;
-      this.end = end;
-    }
-
-    /**
-     * Print a representation of the location.  For this to be correct,
-     * <code>]b4_position_type[</code> should override the <code>equals</code>
-     * method.  */
-    public String toString () {
-      if (begin.equals (end))
-        return begin.toString ();
-      else
-        return begin.toString () + "-" + end.toString ();
-    }
-  }
-
-]])
+  var errorVerbose = ]b4_flag_value([error_verbose]);
 
 [  /** Token returned by the scanner to signal the end of its input.  */
   public static final int EOF = 0;]
@@ -98,7 +77,7 @@ b4_token_enums(b4_tokens)
     if (n > 0)
       return new ]b4_location_type[ (rhs.locationAt (n-1).begin, rhs.locationAt (0).end);
     else
-      return new ]b4_location_type[ (rhs.locationAt (0).end);
+      return new ]b4_location_type[ (rhs.locationAt (0).end, rhs.locationAt (0).end);
   }]])[
 
   /**
