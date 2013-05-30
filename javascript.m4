@@ -45,17 +45,6 @@ m4_define([b4_lexer_if],
 [b4_percent_code_ifdef([[lexer]], [$1], [$2])])
 
 
-# b4_identification
-# -----------------
-m4_define([b4_identification],
-[  /** Version number for the Bison executable that generated this parser.  */
-  var bisonVersion = "b4_version";
-
-  /** Name of the skeleton that generated this parser.  */
-  var bisonSkeleton = b4_skeleton;
-])
-
-
 ## ------------ ##
 ## Data types.  ##
 ## ------------ ##

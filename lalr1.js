@@ -118,7 +118,7 @@ function YYParser (yylexer)
 
 
 
-  ]b4_identification[
+
 
   /** True if verbose error messages are enabled.  */
   var errorVerbose = ]b4_flag_value([error_verbose])[;
@@ -801,6 +801,12 @@ b4_dollar_popdef])[]dnl
 b4_percent_code_get[]dnl
 
 }
+
+// Version number for the Bison executable that generated this parser.
+YYParser.bisonVersion = "b4_version";
+
+// Name of the skeleton that generated this parser.
+YYParser.bisonSkeleton = b4_skeleton;
 
 b4_epilogue
 b4_output_end()
