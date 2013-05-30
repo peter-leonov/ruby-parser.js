@@ -296,15 +296,21 @@ function YYParser (yylexer)
   | Print this symbol on YYOUTPUT.  |
   `--------------------------------*/
 
-  private void yy_symbol_print (String s, int yytype,
-        yyvaluep]dnl
-				 , Object yylocationp[)
+  function yy_symbol_print(message, yytype, yyvaluep, yylocationp)
   {
-    if (yydebug)
-    yycdebug (s + (yytype < yyntokens_ ? " token " : " nterm ")
-	      + yytname_[yytype] + " ("]
-	      + yylocationp + ": "[
-	      + (yyvaluep == null ? "(null)" : yyvaluep.toString ()) + ")");
+    if (!yydebug)
+      return;
+    
+    yycdebug
+    (
+      message
+      + (yytype < yyntokens_ ? " token " : " nterm ")
+      + yytname_[yytype]
+      + " ("
+      + yylocationp + ": "
+      + (yyvaluep == null ? "(null)" : yyvaluep.toString())
+      + ")"
+    );
   }
 
   /**
