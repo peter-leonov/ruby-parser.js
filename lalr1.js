@@ -108,12 +108,12 @@ function YYParser ()
   }
 
   
-  protected final void yyerror (String s) {
-    yylexer.yyerror ((Location)null, s);
-  }
-  protected final void yyerror (Position loc, String s) {
-    yylexer.yyerror (new Location (loc), s);
-  }
+
+
+
+
+
+
 
   [protected final void yycdebug (String s) {
     if (yydebug > 0)
