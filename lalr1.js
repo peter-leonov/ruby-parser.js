@@ -83,7 +83,7 @@ function YYParser ()
   }
 
 
-  [// b4_parse_param_vars]
+
 
   /**
    * Instantiates the Bison-generated parser.
@@ -91,8 +91,8 @@ function YYParser ()
    */
   
   this.yylexer = yylexer;
-    
-  [// b4_parse_param_cons]
+
+
 
   /**
    * Set the verbosity of the debugging output; 0 means that all kinds of
