@@ -108,7 +108,7 @@ function YYStack ()
     }
   }
   
-  this.locationFromNthItem = function locationFromNthItem (n)
+  this.locationFromNthItemToCurrent = function locationFromNthItemToCurrent (n)
   {
     if (n > 0)
       return new Location(locationAt(n-1).begin, locationAt(0).end);
@@ -208,7 +208,7 @@ function YYParser (yylexer)
 
   function yyaction (yyn, yystack, yylen) // int yyn, YYStack yystack, int yylen
   {
-    var yyloc = yystack.locationFromNthItem(yylen);
+    var yyloc = yystack.locationFromNthItemToCurrent(yylen);
 
     /* If YYLEN is nonzero, implement the default value of the action:
        `$$ = $1'.  Otherwise, use the top of the stack.
