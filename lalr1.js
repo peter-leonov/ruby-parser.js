@@ -120,11 +120,11 @@ function YYParser ()
       console.log(message);
   }
 
-  private final class YYStack {
-    private int[] stateStack = new int[16];
-    private Location[] locStack = new Location[16];
-    var valueStack = new Array(16);
-
+  function YYStack ()
+  {
+    var stateStack = [];
+    var locStack = [];
+    var valueStack = [];
 
 
 
