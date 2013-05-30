@@ -107,6 +107,14 @@ function YYStack ()
       console.log(' ' + stateStack[i]);
     }
   }
+  
+  this.locationFromNthItem = function locationFromNthItem (n)
+  {
+    if (n > 0)
+      return new Location(locationAt(n-1).begin, locationAt(0).end);
+    else
+      return new Location(locationAt(0).end, locationAt(0).end);
+  }
 }
 
 // Instantiates the Bison-generated parser.
@@ -114,7 +122,6 @@ function YYParser (yylexer)
 {
   // The scanner that will supply tokens to the parser.
   this.yylexer = yylexer;
-
 
 
 
@@ -129,13 +136,6 @@ function YYParser (yylexer)
   ]b4_token_enums(b4_tokens)[
 
   
-  function createLocationFromNthStackItem (yystack, n)
-  {
-    if (n > 0)
-      return new Location(yystack.locationAt(n-1).begin, yystack.locationAt(0).end);
-    else
-      return new Location(yystack.locationAt(0).end, yystack.locationAt(0).end);
-  }
 
 
 
@@ -208,7 +208,7 @@ function YYParser (yylexer)
 
   function yyaction (yyn, yystack, yylen) // int yyn, YYStack yystack, int yylen
   {
-    var yyloc = createLocationFromNthStackItem(yystack, yylen);
+    var yyloc = yystack.locationFromNthItem(yylen);
 
     /* If YYLEN is nonzero, implement the default value of the action:
        `$$ = $1'.  Otherwise, use the top of the stack.
