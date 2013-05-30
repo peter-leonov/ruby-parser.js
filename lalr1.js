@@ -397,7 +397,7 @@ b4_dollar_popdef])[]dnl
           {
 	    yytoken = yytranslate_ (yychar);
 	    yy_symbol_print ("Next token is", yytoken,
-			     yylval], yylloc[);
+			     yylval, yylloc);
           }
 
         /* If the proper action on seeing token YYTOKEN is to reduce or to
@@ -422,7 +422,7 @@ b4_dollar_popdef])[]dnl
           {
             /* Shift the lookahead token.  */
 	    yy_symbol_print ("Shifting", yytoken,
-			     yylval], yylloc[);
+			     yylval, yylloc);
 
             /* Discard the token being shifted.  */
             yychar = yyempty_;
@@ -546,7 +546,7 @@ b4_dollar_popdef])[]dnl
 
         /* Shift the error token.  */
         yy_symbol_print ("Shifting", yystos_[yyn],
-			 yylval], yyloc[);
+			 yylval, yyloc);
 
         yystate = yyn;
 	yystack.push (yyn, yylval], yyloc[);
@@ -777,8 +777,8 @@ b4_dollar_popdef])[]dnl
     for (int yyi = 0; yyi < yynrhs; yyi++)
       yy_symbol_print ("   $" + (yyi + 1) + " =",
 		       yyrhs_[yyprhs_[yyrule] + yyi],
-		       ]b4_rhs_value(yynrhs, yyi + 1),
-		       b4_rhs_location(yynrhs, yyi + 1)[);
+		       ]b4_rhs_value(yynrhs, yyi + 1)[,
+		       ]b4_rhs_location(yynrhs, yyi + 1)[);
   }
 
   /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
