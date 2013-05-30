@@ -125,70 +125,70 @@ function YYParser ()
     private Location[] locStack = new Location[16];
     var valueStack = new Array(16);
 
-    public int size = 16;
-    public int height = -1;
+
+
 
     function push (state, value, location)
     {
-      height++;
-      if (size == height)
-      {
-        var newStateStack = new Array(size * 2);
-        System.arraycopy(stateStack, 0, newStateStack, 0, height);
-        stateStack = newStateStack;
 
-        var newLocStack = new Array(size * 2);
-        System.arraycopy(locStack, 0, newLocStack, 0, height);
-        locStack = newLocStack;
 
-        var newValueStack = new Array(size * 2);
-        System.arraycopy (valueStack, 0, newValueStack, 0, height);
-        valueStack = newValueStack;
 
-        size *= 2;
-      }
 
-      stateStack[height] = state;
-      locStack[height] = location;
-      valueStack[height] = value;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      stateStack.push(state);
+      locStack.push(location);
+      valueStack.push(value);
     }
 
-    public final void pop () {
-      pop (1);
+
+
+
+
+    function pop (num)
+    {
+      if (num <= 0)
+        return;
+
+      valueStack.length -= num;
+      locStack.length -= num;
+      stateStack.length -= num; // TODO: original code lacks this line
+
     }
 
-    public final void pop (int num) {
-      // Avoid memory leaks... garbage collection is a white lie!
-      if (num > 0) {
-	java.util.Arrays.fill (valueStack, height - num + 1, height + 1, null);
-        ][java.util.Arrays.fill (locStack, height - num + 1, height + 1, null);][
-      }
-      height -= num;
+    function stateAt (i) {
+      return stateStack[stateStack.length - i];
     }
 
-    public final int stateAt (int i) {
-      return stateStack[height - i];
+    function locationAt (i) {
+      return locStack[locStack.length - i];
     }
 
-    ][public final Location locationAt (int i) {
-      return locStack[height - i];
-    }
-
-    ][function valueAt (i) {
-      return valueStack[height - i];
+    function valueAt (i) {
+      return valueStack[valueStack.length - i];
     }
 
     // Print the state stack on the debug stream.
-    public void print (java.io.PrintStream out)
+    public void print ()
     {
-      out.print ("Stack now");
+      console.log("Stack now");
 
-      for (int i = 0; i <= height; i++)
-        {
-	  out.print (' ');
-	  out.print (stateStack[i]);
-        }
-      out.println ();
+      for (int i = 0; i <= stateStack.length; i++)
+      {
+        console.log(' ' + stateStack[i]);
+      }
     }
   }
 
@@ -539,11 +539,11 @@ b4_dollar_popdef])[]dnl
 	      }
 
 	    /* Pop the current state because it cannot handle the error token.  */
-	    if (yystack.height == 0)
+	    if (yystack.stateStack.length == 0)
 	      return false;
 
 	    ]yyerrloc = yystack.locationAt (0);[
-	    yystack.pop ();
+	    yystack.pop (1);
 	    yystate = yystack.stateAt (0);
 	    if (yydebug)
 	      yystack.print (yyDebugStream);
