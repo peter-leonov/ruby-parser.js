@@ -351,12 +351,12 @@ function YYParser ()
     Location yyloc;
 
     /// Semantic value of the lookahead.
-    var[ yylval = null;
+    var yylval = null;
 
     yycdebug ("Starting parse\n");
     yyerrstatus_ = 0;
 
-]m4_ifdef([b4_initial_action], [
+m4_ifdef([b4_initial_action], [
 b4_dollar_pushdef([yylval], [], [yylloc])dnl
 /* User initialization code.  */
 b4_user_initial_action
