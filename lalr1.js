@@ -100,7 +100,7 @@ function YYParser ()
    */
   var yydebug = 0;
 
-  private final int yylex () [{
+  function yylex () {
     return yylexer.yylex ();
   }
   protected final void yyerror (Location loc, String s) {
