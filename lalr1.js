@@ -94,11 +94,11 @@ function YYParser ()
 
 
 
-  /**
-   * Set the verbosity of the debugging output; 0 means that all kinds of
-   * output from the parser are suppressed.
-   */
-  var yydebug = 0;
+
+
+
+
+  var yydebug = false;
 
   function yylex () {
     return yylexer.yylex();
@@ -115,9 +115,9 @@ function YYParser ()
 
 
 
-  [protected final void yycdebug (String s) {
-    if (yydebug > 0)
-      yyDebugStream.println (s);
+  function yycdebug (message) {
+    if (yydebug)
+      console.log(message);
   }
 
   private final class YYStack {
@@ -312,7 +312,7 @@ function YYParser ()
 			         ]b4_yystype[ yyvaluep]dnl
 				 , Object yylocationp[)
   {
-    if (yydebug > 0)
+    if (yydebug)
     yycdebug (s + (yytype < yyntokens_ ? " token " : " nterm ")
 	      + yytname_[yytype] + " ("]
 	      + yylocationp + ": "[
@@ -373,7 +373,7 @@ b4_dollar_popdef])[]dnl
 	   pushed when we come here.  */
       case YYNEWSTATE:
         yycdebug ("Entering state " + yystate + "\n");
-        if (yydebug > 0)
+        if (yydebug)
           yystack.print (yyDebugStream);
 
         /* Accept?  */
@@ -545,7 +545,7 @@ b4_dollar_popdef])[]dnl
 	    ]yyerrloc = yystack.locationAt (0);[
 	    yystack.pop ();
 	    yystate = yystack.stateAt (0);
-	    if (yydebug > 0)
+	    if (yydebug)
 	      yystack.print (yyDebugStream);
           }
 
@@ -776,7 +776,7 @@ b4_dollar_popdef])[]dnl
   // Report on the debug stream that the rule yyrule is going to be reduced.
   private void yy_reduce_print (int yyrule, YYStack yystack)
   {
-    if (yydebug == 0)
+    if (!yydebug)
       return;
 
     int yylno = yyrline_[yyrule];
