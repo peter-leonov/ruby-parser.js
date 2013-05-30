@@ -61,7 +61,7 @@ Location.prototype.toString = function () {
 
 
 
-function b4_parser_class_name ()
+function YYParser ()
 {
   b4_identification
 
