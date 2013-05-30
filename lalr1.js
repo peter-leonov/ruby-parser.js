@@ -58,44 +58,21 @@ Location.prototype.toString = function () {
   return this.begin + "-" + this.end;
 }
 
+
 function YYStack ()
 {
   var stateStack = [];
   var locStack = [];
   var valueStack = [];
 
-
-
-  function push (state, value, location)
+  this.push = function push (state, value, location)
   {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     stateStack.push(state);
     locStack.push(location);
     valueStack.push(value);
   }
 
-
-
-
-
-  function pop (num)
+  this.pop = function pop (num)
   {
     if (num <= 0)
       return;
@@ -103,27 +80,29 @@ function YYStack ()
     valueStack.length -= num;
     locStack.length -= num;
     stateStack.length -= num; // TODO: original code lacks this line
-
   }
 
-  function stateAt (i) {
+  this.stateAt = function stateAt (i)
+  {
     return stateStack[stateStack.length - i];
   }
 
-  function locationAt (i) {
+  this.locationAt = function locationAt (i)
+  {
     return locStack[locStack.length - i];
   }
 
-  function valueAt (i) {
+  this.valueAt = function valueAt (i)
+  {
     return valueStack[valueStack.length - i];
   }
 
   // Print the state stack on the debug stream.
-  function print ()
+  this.print = function print ()
   {
     console.log("Stack now");
 
-    for (int i = 0; i <= stateStack.length; i++)
+    for (var i = 0; i <= stateStack.length; i++)
     {
       console.log(' ' + stateStack[i]);
     }
