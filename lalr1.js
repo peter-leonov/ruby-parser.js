@@ -103,8 +103,8 @@ function YYParser ()
   function yylex () {
     return yylexer.yylex();
   }
-  protected final void yyerror (Location loc, String s) {
-    yylexer.yyerror (loc, s);
+  function yyerror (location, message) {
+    yylexer.yyerror(location, message);
   }
 
   
