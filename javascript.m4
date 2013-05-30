@@ -91,13 +91,13 @@ m4_define([b4_token_enums],
 /** Token numbers, to be returned by the scanner.  */
 var TOKENS = {
 m4_map([b4_token_enum], [$@])])
-  ' ': 0 /* comma terminator, needs to be avoided */
+  'terminator': 0 /* comma terminator, needs to be avoided */
 };
 ])
 
 # b4-case(ID, CODE)
 # -----------------
-m4_define([b4_case], [  $1: function ()
+m4_define([b4_case], [  '$1': function ()
     $2,
 ])
 

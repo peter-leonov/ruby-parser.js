@@ -195,8 +195,9 @@ function YYParser (yylexer)
   var YYERRLAB1 = 7;
   var YYRETURN = 8;
 
+  var yyntokens_ = ]b4_tokens_number[;
+  
   var yyerrstatus_ = 0;
-
   /**
    * Return whether error recovery is being done.  In this state, the parser
    * reads token until it reaches a known state, and then restarts normal
@@ -205,6 +206,13 @@ function YYParser (yylexer)
   {
     return yyerrstatus_ == 0;
   }
+  
+  var actionsTable =
+  {
+    ]b4_user_actions[
+    'terminator': function noop (){} /* comma terminator, needs to be avoided */
+  }
+
 
   function yyaction (yyn, yystack, yylen) // int yyn, YYStack yystack, int yylen
   {
@@ -222,29 +230,26 @@ function YYParser (yylexer)
     else
       yyval = yystack.valueAt(0);
 
-    yy_reduce_print (yyn, yystack);
+    yy_reduce_print(yyn, yystack);  // TODO: step into
 
-    switch (yyn)
-      {
-	]b4_user_actions[
-	default: break;
-      }
+    var actionClosure = actionsTable[yyn]
+    if (actionClosure)
+      actionClosure()
 
-    yy_symbol_print ("-> $$ =", yyr1_[yyn], yyval], yyloc[);
+    yy_symbol_print("-> $$ =", yyr1_[yyn], yyval, yyloc); // TODO: step into
 
-    yystack.pop (yylen);
+    yystack.pop(yylen);
     yylen = 0;
 
-    /* Shift the result of the reduction.  */
+    // Shift the result of the reduction.
     yyn = yyr1_[yyn];
-    int yystate = yypgoto_[yyn - yyntokens_] + yystack.stateAt (0);
-    if (0 <= yystate && yystate <= yylast_
-	&& yycheck_[yystate] == yystack.stateAt (0))
+    var yystate = yypgoto_[yyn - yyntokens_] + yystack.stateAt(0);
+    if (0 <= yystate && yystate <= yylast_ && yycheck_[yystate] == yystack.stateAt(0))
       yystate = yytable_[yystate];
     else
       yystate = yydefgoto_[yyn - yyntokens_];
 
-    yystack.push (yystate, yyval], yyloc[);
+    yystack.push(yystate, yyval, yyloc);
     return YYNEWSTATE;
   }
 
@@ -667,7 +672,7 @@ b4_dollar_popdef])[]dnl
   };
 
   /* YYPGOTO[NTERM-NUM].  */
-  private static final ]b4_int_type_for([b4_pgoto])[ yypgoto_[] =
+  var yypgoto_ =
   {
     ]b4_pgoto[
   };
@@ -681,7 +686,7 @@ b4_dollar_popdef])[]dnl
 
   /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
      positive, shift that token.  If negative, reduce the rule which
-     number is the opposite.  If YYTABLE_NINF_, syntax error.  */
+     number is the opposite.  If yytable_NINF_, syntax error.  */
   private static final ]b4_int_type_for([b4_table])[ yytable_ninf_ = ]b4_table_ninf[;
   private static final ]b4_int_type_for([b4_table])[
   yytable_[] =
@@ -792,7 +797,6 @@ b4_dollar_popdef])[]dnl
   private static final int yyfinal_ = ]b4_final_state_number[;
   private static final int yyterror_ = 1;
   private static final int yyerrcode_ = 256;
-  private static final int yyntokens_ = ]b4_tokens_number[;
 
   private static final int yyuser_token_number_max_ = ]b4_user_token_number_max[;
   private static final int yyundef_token_ = ]b4_undef_token_number[;
