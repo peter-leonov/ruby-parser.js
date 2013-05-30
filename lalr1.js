@@ -109,9 +109,15 @@ function YYStack ()
   }
 }
 
-
-function YYParser ()
+// Instantiates the Bison-generated parser.
+function YYParser (yylexer)
 {
+  // The scanner that will supply tokens to the parser.
+  this.yylexer = yylexer;
+
+
+
+
   ]b4_identification[
 
   /** True if verbose error messages are enabled.  */
@@ -134,12 +140,6 @@ function YYParser ()
 
 
 
-  /**
-   * Instantiates the Bison-generated parser.
-   * @@param yylexer The scanner that will supply tokens to the parser.
-   */
-  
-  this.yylexer = yylexer;
 
 
 
