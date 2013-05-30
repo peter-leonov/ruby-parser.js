@@ -320,67 +320,67 @@ function YYParser (yylexer)
    * @@return <tt>true</tt> if the parsing succeeds.  Note that this does not
    *          imply that there were no syntax errors.
    */
-  public boolean parse ()][
+  function parse ()
   {
     /// Lookahead and lookahead in internal form.
-    int yychar = yyempty_;
-    int yytoken = 0;
+    var yychar = yyempty_;
+    var yytoken = 0;
 
     /* State.  */
-    int yyn = 0;
-    int yylen = 0;
-    int yystate = 0;
+    var yyn = 0;
+    var yylen = 0;
+    var yystate = 0;
 
     var yystack = new YYStack();
 
     /* Error handling.  */
     int yynerrs_ = 0;
-    ]/// The location where the error started.
-    Location yyerrloc = null;
+    /// The location where the error started.
+    var yyerrloc = null;
 
     /// Location of the lookahead.
-    Location yylloc = new Location (null, null);
+    var yylloc = new Location(null, null);
 
     /// @@$.
-    Location yyloc;
+    var yyloc;
 
     /// Semantic value of the lookahead.
     var yylval = null;
 
-    yycdebug ("Starting parse\n");
+    yycdebug("Starting parse");
     yyerrstatus_ = 0;
 
-m4_ifdef([b4_initial_action], [
-b4_dollar_pushdef([yylval], [], [yylloc])dnl
-/* User initialization code.  */
-b4_user_initial_action
-b4_dollar_popdef])[]dnl
 
-  [  /* Initialize the stack.  */
-    yystack.push (yystate, yylval], yylloc[);
+    /* Initialize the stack.  */
+    yystack.push(yystate, yylval, yylloc);
 
     int label = YYNEWSTATE;
     for (;;)
-      switch (label)
-      {
-        /* New state.  Unlike in the C/C++ skeletons, the state is already
-	   pushed when we come here.  */
+    switch (label)
+    {
+      //----------------.
+      // New state.     |
+      //---------------/
       case YYNEWSTATE:
-        yycdebug ("Entering state " + yystate + "\n");
-        if (yydebug)
-          yystack.print (yyDebugStream);
+        // Unlike in the C/C++ skeletons, the state is already pushed when we come here.
 
-        /* Accept?  */
+        yycdebug("Entering state " + yystate);
+        if (yydebug)
+          yystack.print();
+
+        // Accept?
         if (yystate == yyfinal_)
           return true;
 
-        /* Take a decision.  First try without lookahead.  */
+        // Take a decision.
+        // First try without lookahead.
         yyn = yypact_[yystate];
         if (yy_pact_value_is_default_ (yyn))
-          {
-            label = YYDEFAULT;
-	    break;
-          }
+        {
+          // goto
+          label = YYDEFAULT;
+          break; 
+        }
 
         // Read a lookahead token.
         if (yychar == yyempty_)
@@ -389,64 +389,77 @@ b4_dollar_popdef])[]dnl
           yychar = yylexer.yylex();
 
           yylloc = new Location(yylexer.getStartPos(), yylexer.getEndPos());
-          yylval = yylexer.getLVal ();
+          yylval = yylexer.getLVal();
         }
 
 
-        /* Convert token to internal form.  */
+        // Convert token to internal form.
         if (yychar <= EOF)
-          {
-	    yychar = yytoken = EOF;
-	    yycdebug ("Now at end of input.\n");
-          }
+        {
+          yychar = yytoken = EOF;
+          yycdebug("Now at end of input.");
+        }
         else
-          {
-	    yytoken = yytranslate_ (yychar);
-	    yy_symbol_print ("Next token is", yytoken,
-			     yylval, yylloc);
-          }
+        {
+          yytoken = yytranslate_(yychar);
+          yy_symbol_print("Next token is", yytoken, yylval, yylloc);
+        }
 
-        /* If the proper action on seeing token YYTOKEN is to reduce or to
-           detect an error, take that action.  */
+        // If the proper action on seeing token YYTOKEN
+        // is to reduce or to detect an error, take that action.
         yyn += yytoken;
         if (yyn < 0 || yylast_ < yyn || yycheck_[yyn] != yytoken)
+        {
+          // goto
           label = YYDEFAULT;
-
-        /* <= 0 means reduce or error.  */
+          break;
+        }
+        // <= 0 means reduce or error.
         else if ((yyn = yytable_[yyn]) <= 0)
+        {
+          if (yy_table_value_is_error_(yyn))
           {
-	    if (yy_table_value_is_error_ (yyn))
-	      label = YYERRLAB;
-	    else
-	      {
-	        yyn = -yyn;
-	        label = YYREDUCE;
-	      }
+            // goto
+            label = YYERRLAB;
+            break;
           }
+          else
+          {
+            yyn = -yyn;
+
+            // goto
+            label = YYREDUCE;
+            break;
+          }
+        }
 
         else
-          {
-            /* Shift the lookahead token.  */
-	    yy_symbol_print ("Shifting", yytoken,
-			     yylval, yylloc);
+        {
+          // Shift the lookahead token.
+          yy_symbol_print("Shifting", yytoken, yylval, yylloc);
 
-            /* Discard the token being shifted.  */
-            yychar = yyempty_;
+          // Discard the token being shifted.
+          yychar = yyempty_;
 
-            /* Count tokens shifted since error; after three, turn off error
-               status.  */
-            if (yyerrstatus_ > 0)
-              --yyerrstatus_;
+          // Count tokens shifted since error;
+          // after three, turn off error status.
+          if (yyerrstatus_ > 0)
+            --yyerrstatus_;
 
-            yystate = yyn;
-            yystack.push(yystate, yylval], yylloc[);
-            label = YYNEWSTATE;
-          }
+          yystate = yyn;
+          yystack.push(yystate, yylval, yylloc);
+
+          //goto
+          label = YYNEWSTATE;
+          break;
+        }
+
+        // won't reach here
         break;
 
-      /*-----------------------------------------------------------.
-      | yydefault -- do the default action for the current state.  |
-      `-----------------------------------------------------------*/
+      //-----------------------------------------------------------.
+      // yydefault -- do the default action for the current state. |
+      //----------------------------------------------------------/
       case YYDEFAULT:
         yyn = yydefact_[yystate];
         if (yyn == 0)
@@ -455,118 +468,129 @@ b4_dollar_popdef])[]dnl
           label = YYREDUCE;
         break;
 
-      /*-----------------------------.
-      | yyreduce -- Do a reduction.  |
-      `-----------------------------*/
+      //------------------------------------.
+      //  yyreduce -- Do a reduction.       |
+      //-----------------------------------/
       case YYREDUCE:
         yylen = yyr2_[yyn];
-        label = yyaction (yyn, yystack, yylen);
-	yystate = yystack.stateAt (0);
+        label = yyaction(yyn, yystack, yylen);
+        yystate = yystack.stateAt(0);
+        // goto label
         break;
 
-      /*------------------------------------.
-      | yyerrlab -- here on detecting error |
-      `------------------------------------*/
+      //-------------------------------------.
+      // yyerrlab -- here on detecting error |
+      //------------------------------------/
       case YYERRLAB:
-        /* If not already recovering from an error, report this error.  */
+        // If not already recovering from an error, report this error.
         if (yyerrstatus_ == 0)
-          {
-            ++yynerrs_;
-            if (yychar == yyempty_)
-              yytoken = yyempty_;
-            yyerror (]yylloc, [yysyntax_error (yystate, yytoken));
-          }
+        {
+          ++yynerrs_;
+          if (yychar == yyempty_)
+            yytoken = yyempty_;
+          yyerror(yylloc, yysyntax_error(yystate, yytoken));
+        }
 
-        ]yyerrloc = yylloc;[
+        yyerrloc = yylloc;
         if (yyerrstatus_ == 3)
+        {
+          // If just tried and failed to reuse lookahead token
+          // after an error, discard it.
+
+          if (yychar <= EOF)
           {
-	    /* If just tried and failed to reuse lookahead token after an
-	     error, discard it.  */
-
-	    if (yychar <= EOF)
-	      {
-	      /* Return failure if at end of input.  */
-	      if (yychar == EOF)
-	        return false;
-	      }
-	    else
-	      yychar = yyempty_;
+            // Return failure if at end of input.
+            if (yychar == EOF)
+              return false;
           }
+          else
+            yychar = yyempty_;
+        }
 
-        /* Else will try to reuse lookahead token after shifting the error
-           token.  */
+        // Else will try to reuse lookahead token
+        // after shifting the error token.
+
+        // goto
         label = YYERRLAB1;
         break;
 
-      /*---------------------------------------------------.
-      | errorlab -- error raised explicitly by YYERROR.  |
-      `---------------------------------------------------*/
+      //--------------------------------------------------.
+      // errorlab -- error raised explicitly by YYERROR.  |
+      //-------------------------------------------------/
       case YYERROR:
 
-        ]yyerrloc = yystack.locationAt (yylen - 1);[
-        /* Do not reclaim the symbols of the rule which action triggered
-           this YYERROR.  */
-        yystack.pop (yylen);
+        yyerrloc = yystack.locationAt(yylen - 1);
+        // Do not reclaim the symbols of the rule
+        // which action triggered this YYERROR.
+        yystack.pop(yylen);
         yylen = 0;
-        yystate = yystack.stateAt (0);
+        yystate = yystack.stateAt(0);
         label = YYERRLAB1;
         break;
 
-      /*-------------------------------------------------------------.
-      | yyerrlab1 -- common code for both syntax error and YYERROR.  |
-      `-------------------------------------------------------------*/
+      //--------------------------------------------------------------.
+      // yyerrlab1 -- common code for both syntax error and YYERROR.  |
+      //-------------------------------------------------------------/
       case YYERRLAB1:
-        yyerrstatus_ = 3;	/* Each real token shifted decrements this.  */
+        yyerrstatus_ = 3; // Each real token shifted decrements this.
 
         for (;;)
+        {
+          yyn = yypact_[yystate];
+          if (!yy_pact_value_is_default_(yyn))
           {
-	    yyn = yypact_[yystate];
-	    if (!yy_pact_value_is_default_ (yyn))
-	      {
-	        yyn += yyterror_;
-	        if (0 <= yyn && yyn <= yylast_ && yycheck_[yyn] == yyterror_)
-	          {
-	            yyn = yytable_[yyn];
-	            if (0 < yyn)
-		      break;
-	          }
-	      }
-
-	    /* Pop the current state because it cannot handle the error token.  */
-	    if (yystack.stateStack.length == 0)
-	      return false;
-
-	    ]yyerrloc = yystack.locationAt (0);[
-	    yystack.pop (1);
-	    yystate = yystack.stateAt (0);
-	    if (yydebug)
-	      yystack.print (yyDebugStream);
+            yyn += yyterror_;
+            if (0 <= yyn && yyn <= yylast_ && yycheck_[yyn] == yyterror_)
+            {
+              yyn = yytable_[yyn];
+              if (0 < yyn)
+                break;
+            }
           }
 
-	]
-	/* Muck with the stack to setup for yylloc.  */
-	yystack.push (0, null, yylloc);
-	yystack.push (0, null, yyerrloc);
-        yyloc = yylloc (yystack, 2);
-	yystack.pop (2);[
+          // Pop the current state because it cannot handle the error token.
+          if (yystack.stateStack.length == 0)
+          {
+            return false;
+          }
 
-        /* Shift the error token.  */
-        yy_symbol_print ("Shifting", yystos_[yyn],
-			 yylval, yyloc);
+          yyerrloc = yystack.locationAt(0);
+          yystack.pop(1);
+          yystate = yystack.stateAt(0);
+          if (yydebug)
+          {
+            yystack.print (yyDebugStream);
+          }
+        }
+
+
+        // Muck with the stack to setup for yylloc.
+        yystack.push(0, null, yylloc);
+        yystack.push(0, null, yyerrloc);
+        yyloc = yylloc(yystack, 2);
+        yystack.pop(2);
+
+        // Shift the error token.
+        yy_symbol_print("Shifting", yystos_[yyn], yylval, yyloc);
 
         yystate = yyn;
-	yystack.push (yyn, yylval], yyloc[);
+        yystack.push(yyn, yylval, yyloc);
+        // goto
         label = YYNEWSTATE;
         break;
 
-        /* Accept.  */
+      //--------------------------.
+      // Accept.                  |
+      //-------------------------/
       case YYACCEPT:
         return true;
 
-        /* Abort.  */
+      //----------------------.
+      // Abort.               |
+      //---------------------/
       case YYABORT:
         return false;
-      }
+    }
   }
 
   // Generate an error message.
