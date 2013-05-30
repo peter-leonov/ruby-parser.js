@@ -74,12 +74,12 @@ function YYParser ()
   b4_token_enums(b4_tokens)
 
   
-  function yylloc (rhs, n) // YYStack rhs, int n
+  function yylloc (yystack, n)
   {
     if (n > 0)
-      return new Location(rhs.locationAt(n-1).begin, rhs.locationAt(0).end);
+      return new Location(yystack.locationAt(n-1).begin, yystack.locationAt(0).end);
     else
-      return new Location(rhs.locationAt(0).end, rhs.locationAt(0).end);
+      return new Location(yystack.locationAt(0).end, yystack.locationAt(0).end);
   }
 
 
