@@ -103,11 +103,11 @@ function YYParser ()
   private final int yylex () [{
     return yylexer.yylex ();
   }
-  protected final void yyerror (][Location loc, ][String s) {
-    yylexer.yyerror (]loc, [s);
+  protected final void yyerror (Location loc, String s) {
+    yylexer.yyerror (loc, s);
   }
 
-  ]
+  
   protected final void yyerror (String s) {
     yylexer.yyerror ((Location)null, s);
   }
