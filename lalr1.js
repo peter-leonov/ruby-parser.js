@@ -216,13 +216,13 @@ function YYParser ()
   var YYERRLAB1 = 7;
   var YYRETURN = 8;
 
-  private int yyerrstatus_ = 0;
+  var yyerrstatus_ = 0;
 
   /**
    * Return whether error recovery is being done.  In this state, the parser
    * reads token until it reaches a known state, and then restarts normal
    * operation.  */
-  public final boolean recovering ()
+  function recovering ()
   {
     return yyerrstatus_ == 0;
   }
