@@ -149,9 +149,9 @@ function YYParser (yylexer)
 
   var yydebug = false;
 
-  function yylex () {
-    return yylexer.yylex();
-  }
+
+
+
   function yyerror (location, message) {
     yylexer.yyerror(location, message);
   }
@@ -371,8 +371,8 @@ b4_dollar_popdef])[]dnl
         if (yychar == yyempty_)
           {
 	    yycdebug ("Reading a token: ");
-	    yychar = yylex ();]
-            [
+	    yychar = yylexer.yylex();
+
 	    yylloc = new Location(yylexer.getStartPos (),
 				            yylexer.getEndPos ());]
             yylval = yylexer.getLVal ();[
