@@ -112,8 +112,9 @@ function YYStack ()
   {
     if (n > 0)
       return new Location(locationAt(n-1).begin, locationAt(0).end);
-    else
-      return new Location(locationAt(0).end, locationAt(0).end);
+    
+    var end = locationAt(0).end
+    return new Location(end, end);
   }
 }
 
@@ -122,7 +123,6 @@ function YYParser (yylexer)
 {
   // The scanner that will supply tokens to the parser.
   this.yylexer = yylexer;
-
 
 
 
