@@ -128,28 +128,28 @@ function YYParser ()
     public int size = 16;
     public int height = -1;
 
-    public final void push (int state, value]dnl
-			    , Location loc[) {
+    function push (state, value, location)
+    {
       height++;
       if (size == height)
-        {
-	  int[] newStateStack = new int[size * 2];
-	  System.arraycopy (stateStack, 0, newStateStack, 0, height);
-	  stateStack = newStateStack;
-	  ][
-	  Location[] newLocStack = new Location[size * 2];
-	  System.arraycopy (locStack, 0, newLocStack, 0, height);
-	  locStack = newLocStack;]
+      {
+        var newStateStack = new Array(size * 2);
+        System.arraycopy(stateStack, 0, newStateStack, 0, height);
+        stateStack = newStateStack;
 
-	  var newValueStack = new Array(size * 2);
-	  System.arraycopy (valueStack, 0, newValueStack, 0, height);
-	  valueStack = newValueStack;
+        var newLocStack = new Array(size * 2);
+        System.arraycopy(locStack, 0, newLocStack, 0, height);
+        locStack = newLocStack;
 
-	  size *= 2;
-	}
+        var newValueStack = new Array(size * 2);
+        System.arraycopy (valueStack, 0, newValueStack, 0, height);
+        valueStack = newValueStack;
+
+        size *= 2;
+      }
 
       stateStack[height] = state;
-      locStack[height] = loc;
+      locStack[height] = location;
       valueStack[height] = value;
     }
 
