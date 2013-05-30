@@ -195,26 +195,26 @@ function YYParser ()
   /**
    * Returned by a Bison action in order to stop the parsing process and
    * return success (<tt>true</tt>).  */
-  public static final int YYACCEPT = 0;
+  var YYACCEPT = 0;
 
   /**
    * Returned by a Bison action in order to stop the parsing process and
    * return failure (<tt>false</tt>).  */
-  public static final int YYABORT = 1;
+  var YYABORT = 1;
 
   /**
    * Returned by a Bison action in order to start error recovery without
    * printing an error message.  */
-  public static final int YYERROR = 2;
+  var YYERROR = 2;
 
   // Internal return codes that are not supported for user semantic
   // actions.
-  private static final int YYERRLAB = 3;
-  private static final int YYNEWSTATE = 4;
-  private static final int YYDEFAULT = 5;
-  private static final int YYREDUCE = 6;
-  private static final int YYERRLAB1 = 7;
-  private static final int YYRETURN = 8;
+  var YYERRLAB = 3;
+  var YYNEWSTATE = 4;
+  var YYDEFAULT = 5;
+  var YYREDUCE = 6;
+  var YYERRLAB1 = 7;
+  var YYRETURN = 8;
 
   private int yyerrstatus_ = 0;
 
@@ -337,7 +337,7 @@ function YYParser ()
     int yylen = 0;
     int yystate = 0;
 
-    YYStack yystack = new YYStack ();
+    var yystack = new YYStack();
 
     /* Error handling.  */
     int yynerrs_ = 0;
