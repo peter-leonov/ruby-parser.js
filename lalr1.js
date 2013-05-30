@@ -227,7 +227,7 @@ function YYParser ()
     return yyerrstatus_ == 0;
   }
 
-  private int yyaction (int yyn, YYStack yystack, int yylen) ]b4_maybe_throws([b4_throws])[
+  private int yyaction (int yyn, YYStack yystack, int yylen)
   {
     var yyval;
     ]Location[ yyloc = yylloc (yystack, yylen);][

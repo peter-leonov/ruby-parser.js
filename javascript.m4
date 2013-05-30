@@ -242,11 +242,3 @@ m4_define([b4_var_decls],
 ], [$@])])
 m4_define([b4_var_decl],
 	  [    protected final $1;])
-
-
-
-# b4_maybe_throws(THROWS)
-# -----------------------
-# Expand to either an empty string or "throws THROWS".
-m4_define([b4_maybe_throws],
-	  [m4_ifval($1, [throws $1])])
