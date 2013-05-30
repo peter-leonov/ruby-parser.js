@@ -100,7 +100,7 @@ function YYParser ()
    */
   var yydebug = 0;
 
-  private final int yylex () b4_maybe_throws([b4_lex_throws]) [{
+  private final int yylex () [{
     return yylexer.yylex ();
   }
   protected final void yyerror (][Location loc, ][String s) {
@@ -326,7 +326,7 @@ function YYParser ()
    * @@return <tt>true</tt> if the parsing succeeds.  Note that this does not
    *          imply that there were no syntax errors.
    */
-  public boolean parse () ]b4_maybe_throws([b4_list2([b4_lex_throws], [b4_throws])])[
+  public boolean parse ()][
   {
     /// Lookahead and lookahead in internal form.
     int yychar = yyempty_;
