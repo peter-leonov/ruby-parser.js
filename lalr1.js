@@ -101,7 +101,7 @@ function YYParser ()
   var yydebug = 0;
 
   function yylex () {
-    return yylexer.yylex ();
+    return yylexer.yylex();
   }
   protected final void yyerror (Location loc, String s) {
     yylexer.yyerror (loc, s);
