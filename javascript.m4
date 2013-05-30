@@ -117,9 +117,6 @@ m4_define([b4_case], [  $1: function ()
 ## Default values.  ##
 ## ---------------- ##
 
-m4_define([b4_yystype], [b4_percent_define_get([[stype]])])
-b4_percent_define_default([[stype]], [[Object]])
-
 # %name-prefix
 m4_define_default([b4_prefix], [[YY]])
 

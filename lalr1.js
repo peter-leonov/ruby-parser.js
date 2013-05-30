@@ -123,12 +123,12 @@ function YYParser ()
   private final class YYStack {
     private int[] stateStack = new int[16];
     private Location[] locStack = new Location[16];
-    private ]b4_yystype[[] valueStack = new ]b4_yystype[[16];
+    var valueStack = new Array(16);
 
     public int size = 16;
     public int height = -1;
 
-    public final void push (int state, ]b4_yystype[ value]dnl
+    public final void push (int state, value]dnl
 			    , Location loc[) {
       height++;
       if (size == height)
@@ -141,7 +141,7 @@ function YYParser ()
 	  System.arraycopy (locStack, 0, newLocStack, 0, height);
 	  locStack = newLocStack;]
 
-	  b4_yystype[[] newValueStack = new ]b4_yystype[[size * 2];
+	  var newValueStack = new Array(size * 2);
 	  System.arraycopy (valueStack, 0, newValueStack, 0, height);
 	  valueStack = newValueStack;
 
@@ -174,7 +174,7 @@ function YYParser ()
       return locStack[height - i];
     }
 
-    ][public final ]b4_yystype[ valueAt (int i) {
+    ][function valueAt (i) {
       return valueStack[height - i];
     }
 
@@ -229,7 +229,7 @@ function YYParser ()
 
   private int yyaction (int yyn, YYStack yystack, int yylen) ]b4_maybe_throws([b4_throws])[
   {
-    ]b4_yystype[ yyval;
+    var yyval;
     ]Location[ yyloc = yylloc (yystack, yylen);][
 
     /* If YYLEN is nonzero, implement the default value of the action:
@@ -309,7 +309,7 @@ function YYParser ()
   `--------------------------------*/
 
   private void yy_symbol_print (String s, int yytype,
-			         ]b4_yystype[ yyvaluep]dnl
+        yyvaluep]dnl
 				 , Object yylocationp[)
   {
     if (yydebug)
@@ -351,7 +351,7 @@ function YYParser ()
     Location yyloc;
 
     /// Semantic value of the lookahead.
-    b4_yystype[ yylval = null;
+    var[ yylval = null;
 
     yycdebug ("Starting parse\n");
     yyerrstatus_ = 0;
