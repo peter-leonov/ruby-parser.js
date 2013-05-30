@@ -58,7 +58,77 @@ Location.prototype.toString = function () {
   return this.begin + "-" + this.end;
 }
 
+function YYStack ()
+{
+  var stateStack = [];
+  var locStack = [];
+  var valueStack = [];
 
+
+
+  function push (state, value, location)
+  {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    stateStack.push(state);
+    locStack.push(location);
+    valueStack.push(value);
+  }
+
+
+
+
+
+  function pop (num)
+  {
+    if (num <= 0)
+      return;
+
+    valueStack.length -= num;
+    locStack.length -= num;
+    stateStack.length -= num; // TODO: original code lacks this line
+
+  }
+
+  function stateAt (i) {
+    return stateStack[stateStack.length - i];
+  }
+
+  function locationAt (i) {
+    return locStack[locStack.length - i];
+  }
+
+  function valueAt (i) {
+    return valueStack[valueStack.length - i];
+  }
+
+  // Print the state stack on the debug stream.
+  function print ()
+  {
+    console.log("Stack now");
+
+    for (int i = 0; i <= stateStack.length; i++)
+    {
+      console.log(' ' + stateStack[i]);
+    }
+  }
+}
 
 
 function YYParser ()
@@ -120,77 +190,7 @@ function YYParser ()
       console.log(message);
   }
 
-  function YYStack ()
-  {
-    var stateStack = [];
-    var locStack = [];
-    var valueStack = [];
 
-
-
-    function push (state, value, location)
-    {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      stateStack.push(state);
-      locStack.push(location);
-      valueStack.push(value);
-    }
-
-
-
-
-
-    function pop (num)
-    {
-      if (num <= 0)
-        return;
-
-      valueStack.length -= num;
-      locStack.length -= num;
-      stateStack.length -= num; // TODO: original code lacks this line
-
-    }
-
-    function stateAt (i) {
-      return stateStack[stateStack.length - i];
-    }
-
-    function locationAt (i) {
-      return locStack[locStack.length - i];
-    }
-
-    function valueAt (i) {
-      return valueStack[valueStack.length - i];
-    }
-
-    // Print the state stack on the debug stream.
-    function print ()
-    {
-      console.log("Stack now");
-
-      for (int i = 0; i <= stateStack.length; i++)
-      {
-        console.log(' ' + stateStack[i]);
-      }
-    }
-  }
 
   /**
    * Returned by a Bison action in order to stop the parsing process and
