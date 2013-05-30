@@ -103,7 +103,7 @@ m4_define([b4_token_enums],
 var TOKENS = {
 m4_map([b4_token_enum], [$@])])
   ' ': 0 /* comma terminator, needs to be avoided */
-}
+};
 ])
 
 # b4-case(ID, CODE)
