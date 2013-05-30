@@ -28,11 +28,11 @@ b4_copyright([Skeleton implementation for Bison LALR(1) parsers in JavaScript],
 
 b4_percent_define_ifdef([package], [package b4_percent_define_get([package]);
 ])
-/* First part of user declarations.  */
-b4_pre_prologue
-b4_percent_code_get([[imports]])
+[/* First part of user declarations.  */
+]b4_pre_prologue[
+]b4_percent_code_get([[imports]])[
 /**
- * A Bison parser, automatically generated from <tt>m4_bpatsubst(b4_file_name, [^"\(.*\)"$], [\1])</tt>.
+ * A Bison parser, automatically generated from <tt>]m4_bpatsubst(b4_file_name, [^"\(.*\)"$], [\1])[</tt>.
  *
  * @@author LALR (1) parser skeleton written by Paolo Bonzini.
  */
@@ -63,15 +63,15 @@ Location.prototype.toString = function () {
 
 function YYParser ()
 {
-  b4_identification
+  ]b4_identification[
 
   /** True if verbose error messages are enabled.  */
-  var errorVerbose = b4_flag_value([error_verbose]);
+  var errorVerbose = ]b4_flag_value([error_verbose])[;
 
   /** Token returned by the scanner to signal the end of its input.  */
   var EOF = 0;
 
-  b4_token_enums(b4_tokens)
+  ]b4_token_enums(b4_tokens)[
 
   
   function yylloc (yystack, n)
