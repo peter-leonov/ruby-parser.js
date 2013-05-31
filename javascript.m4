@@ -57,8 +57,8 @@ m4_define([b4_token_enums],
 
 # b4-case(ID, CODE)
 # -----------------
-m4_define([b4_case], [  '$1': function ()
-    $2,
+m4_define([b4_case], [  '$1': function (yystack) {
+    $2; return yystack},
 ])
 
 m4_define([b4_list_of_actions], [m4_join([,

@@ -133,7 +133,7 @@ function YYParser (yylexer)
 
 
   // True if verbose error messages are enabled.
-  var errorVerbose = ]b4_flag_value([error_verbose])[;
+  var errorVerbose = true;
 
   // Token returned by the scanner to signal the end of its input.
   var EOF = 0;
@@ -223,7 +223,7 @@ function YYParser (yylexer)
 
     var actionClosure = actionsTable[yyn]
     if (actionClosure)
-      actionClosure()
+      actionClosure(yystack)
 
     yy_symbol_print("-> $$ =", yyr1_[yyn], yyval, yyloc); // TODO: step into
 

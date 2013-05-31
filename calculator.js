@@ -207,50 +207,50 @@ function YYParser (yylexer)
   var yyval;
   var actionsTable =
   {
-      '2': function ()
+      '2': function (yystack) {
     /* Line 203 of lalr1.js  */
 /* Line 45 of "calculator.y"  */
-    {return (yystack.valueAt(2-(1)));},
-  '3': function ()
+    {return (yystack.valueAt(2-(1)));}; return yystack},
+  '3': function (yystack) {
     /* Line 203 of lalr1.js  */
 /* Line 50 of "calculator.y"  */
-    {yyval = (yystack.valueAt(3-(1))) + (yystack.valueAt(3-(3)));},
-  '4': function ()
+    {yyval = (yystack.valueAt(3-(1))) + (yystack.valueAt(3-(3)));}; return yystack},
+  '4': function (yystack) {
     /* Line 203 of lalr1.js  */
 /* Line 52 of "calculator.y"  */
-    {yyval = (yystack.valueAt(3-(1))) - (yystack.valueAt(3-(3)));},
-  '5': function ()
+    {yyval = (yystack.valueAt(3-(1))) - (yystack.valueAt(3-(3)));}; return yystack},
+  '5': function (yystack) {
     /* Line 203 of lalr1.js  */
 /* Line 54 of "calculator.y"  */
-    {yyval = (yystack.valueAt(3-(1))) * (yystack.valueAt(3-(3)));},
-  '6': function ()
+    {yyval = (yystack.valueAt(3-(1))) * (yystack.valueAt(3-(3)));}; return yystack},
+  '6': function (yystack) {
     /* Line 203 of lalr1.js  */
 /* Line 56 of "calculator.y"  */
-    {yyval = (yystack.valueAt(3-(1))) / (yystack.valueAt(3-(3)));},
-  '7': function ()
+    {yyval = (yystack.valueAt(3-(1))) / (yystack.valueAt(3-(3)));}; return yystack},
+  '7': function (yystack) {
     /* Line 203 of lalr1.js  */
 /* Line 58 of "calculator.y"  */
-    {yyval = Math.pow((yystack.valueAt(3-(1))), (yystack.valueAt(3-(3))));},
-  '8': function ()
+    {yyval = Math.pow((yystack.valueAt(3-(1))), (yystack.valueAt(3-(3))));}; return yystack},
+  '8': function (yystack) {
     /* Line 203 of lalr1.js  */
 /* Line 60 of "calculator.y"  */
-    {yyval = -(yystack.valueAt(2-(2)));},
-  '9': function ()
+    {yyval = -(yystack.valueAt(2-(2)));}; return yystack},
+  '9': function (yystack) {
     /* Line 203 of lalr1.js  */
 /* Line 62 of "calculator.y"  */
-    {yyval = (yystack.valueAt(3-(2)));},
-  '10': function ()
+    {yyval = (yystack.valueAt(3-(2)));}; return yystack},
+  '10': function (yystack) {
     /* Line 203 of lalr1.js  */
 /* Line 64 of "calculator.y"  */
-    {yyval = Number(yyval);},
-  '11': function ()
+    {yyval = Number(yyval);}; return yystack},
+  '11': function (yystack) {
     /* Line 203 of lalr1.js  */
 /* Line 66 of "calculator.y"  */
-    {yyval = Math.E;},
-  '12': function ()
+    {yyval = Math.E;}; return yystack},
+  '12': function (yystack) {
     /* Line 203 of lalr1.js  */
 /* Line 68 of "calculator.y"  */
-    {yyval = Math.PI;}
+    {yyval = Math.PI;}; return yystack}
   }
 
   function yyaction (yyn, yystack, yylen) // int yyn, YYStack yystack, int yylen
@@ -273,7 +273,7 @@ function YYParser (yylexer)
 
     var actionClosure = actionsTable[yyn]
     if (actionClosure)
-      actionClosure()
+      actionClosure(yystack)
 
     yy_symbol_print("-> $$ =", yyr1_[yyn], yyval, yyloc); // TODO: step into
 
@@ -590,7 +590,7 @@ function YYParser (yylexer)
           // Pop the current state because it cannot handle the error token.
           if (yystack.height() == 0)
           {
-            return false;
+            return 'empty stack while handling error';
           }
 
           yyerrloc = yystack.locationAt(0);
