@@ -181,56 +181,56 @@ function YYParser (yylexer)
     return yyerrstatus_ == 0;
   }
 
-  var yyval;
+  var yyval, yystack;
   var actionsTable =
   {
-      '2': function (yystack) {
+      '2': function ()
     /* Line 223 of lalr1.js  */
 /* Line 24 of "calculator.y"  */
-    {result = (yystack.valueAt(2-(1)));}; return yystack},
-  '3': function (yystack) {
+    {result = (yystack.valueAt(2-(1)));},
+  '3': function ()
     /* Line 223 of lalr1.js  */
 /* Line 29 of "calculator.y"  */
-    {yyval = (yystack.valueAt(3-(1))) + (yystack.valueAt(3-(3)));}; return yystack},
-  '4': function (yystack) {
+    {yyval = (yystack.valueAt(3-(1))) + (yystack.valueAt(3-(3)));},
+  '4': function ()
     /* Line 223 of lalr1.js  */
 /* Line 31 of "calculator.y"  */
-    {yyval = (yystack.valueAt(3-(1))) - (yystack.valueAt(3-(3)));}; return yystack},
-  '5': function (yystack) {
+    {yyval = (yystack.valueAt(3-(1))) - (yystack.valueAt(3-(3)));},
+  '5': function ()
     /* Line 223 of lalr1.js  */
 /* Line 33 of "calculator.y"  */
-    {yyval = (yystack.valueAt(3-(1))) * (yystack.valueAt(3-(3)));}; return yystack},
-  '6': function (yystack) {
+    {yyval = (yystack.valueAt(3-(1))) * (yystack.valueAt(3-(3)));},
+  '6': function ()
     /* Line 223 of lalr1.js  */
 /* Line 35 of "calculator.y"  */
-    {yyval = (yystack.valueAt(3-(1))) / (yystack.valueAt(3-(3)));}; return yystack},
-  '7': function (yystack) {
+    {yyval = (yystack.valueAt(3-(1))) / (yystack.valueAt(3-(3)));},
+  '7': function ()
     /* Line 223 of lalr1.js  */
 /* Line 37 of "calculator.y"  */
-    {yyval = Math.pow((yystack.valueAt(3-(1))), (yystack.valueAt(3-(3))));}; return yystack},
-  '8': function (yystack) {
+    {yyval = Math.pow((yystack.valueAt(3-(1))), (yystack.valueAt(3-(3))));},
+  '8': function ()
     /* Line 223 of lalr1.js  */
 /* Line 39 of "calculator.y"  */
-    {yyval = -(yystack.valueAt(2-(2)));}; return yystack},
-  '9': function (yystack) {
+    {yyval = -(yystack.valueAt(2-(2)));},
+  '9': function ()
     /* Line 223 of lalr1.js  */
 /* Line 41 of "calculator.y"  */
-    {yyval = (yystack.valueAt(3-(2)));}; return yystack},
-  '10': function (yystack) {
+    {yyval = (yystack.valueAt(3-(2)));},
+  '10': function ()
     /* Line 223 of lalr1.js  */
 /* Line 43 of "calculator.y"  */
-    {yyval = Number(yyval);}; return yystack},
-  '11': function (yystack) {
+    {yyval = Number(yyval);},
+  '11': function ()
     /* Line 223 of lalr1.js  */
 /* Line 45 of "calculator.y"  */
-    {yyval = Math.E;}; return yystack},
-  '12': function (yystack) {
+    {yyval = Math.E;},
+  '12': function ()
     /* Line 223 of lalr1.js  */
 /* Line 47 of "calculator.y"  */
-    {yyval = Math.PI;}; return yystack}
+    {yyval = Math.PI;}
   }
 
-  function yyaction (yyn, yystack, yylen) // int yyn, YYStack yystack, int yylen
+  function yyaction (yyn, yylen)
   {
     var yyloc = yystack.locationFromNthItemToCurrent(yylen);
 
@@ -287,7 +287,7 @@ function YYParser (yylexer)
     var yylen = 0;
     var yystate = 0;
 
-    var yystack = new YYStack();
+    yystack = new YYStack();
 
     /* Error handling.  */
     var yynerrs_ = 0;
@@ -428,7 +428,7 @@ function YYParser (yylexer)
       //-----------------------------------/
       case YYREDUCE:
         yylen = yyr2_[yyn];
-        label = yyaction(yyn, yystack, yylen);
+        label = yyaction(yyn, yylen);
         yystate = yystack.stateAt(0);
         // goto label
         break;

@@ -40,8 +40,8 @@ m4_define([b4_token_enums],
 
 
 # b4-case(ID, CODE)
-m4_define([b4_case], [  '$1': function (yystack) {
-    $2; return yystack},
+m4_define([b4_case], [  '$1': function ()
+    $2,
 ])
 
 
@@ -217,13 +217,13 @@ function YYParser (yylexer)
     return yyerrstatus_ == 0;
   }
 
-  var yyval;
+  var yyval, yystack;
   var actionsTable =
   {
     ]b4_list_of_actions[
   }
 
-  function yyaction (yyn, yystack, yylen) // int yyn, YYStack yystack, int yylen
+  function yyaction (yyn, yylen)
   {
     var yyloc = yystack.locationFromNthItemToCurrent(yylen);
 
@@ -280,7 +280,7 @@ function YYParser (yylexer)
     var yylen = 0;
     var yystate = 0;
 
-    var yystack = new YYStack();
+    yystack = new YYStack();
 
     /* Error handling.  */
     var yynerrs_ = 0;
@@ -421,7 +421,7 @@ function YYParser (yylexer)
       //-----------------------------------/
       case YYREDUCE:
         yylen = yyr2_[yyn];
-        label = yyaction(yyn, yystack, yylen);
+        label = yyaction(yyn, yylen);
         yystate = yystack.stateAt(0);
         // goto label
         break;
