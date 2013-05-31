@@ -104,7 +104,8 @@ function YYStack ()
   {
     return valueStack[valueStack.length-1 - i];
   }
-  
+
+  // used in debug mode or in an error recovery mode only
   this.height = function height ()
   {
     return stateStack.length-1;
@@ -183,47 +184,47 @@ function YYParser (yylexer)
   var actionsTable =
   {
       '2': function ()
-    /* Line 221 of lalr1.js  */
+    /* Line 222 of lalr1.js  */
 /* Line 24 of "calculator.y"  */
     {result = (yystack.valueAt(2-(1)));},
   '3': function ()
-    /* Line 221 of lalr1.js  */
+    /* Line 222 of lalr1.js  */
 /* Line 29 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) + (yystack.valueAt(3-(3)));},
   '4': function ()
-    /* Line 221 of lalr1.js  */
+    /* Line 222 of lalr1.js  */
 /* Line 31 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) - (yystack.valueAt(3-(3)));},
   '5': function ()
-    /* Line 221 of lalr1.js  */
+    /* Line 222 of lalr1.js  */
 /* Line 33 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) * (yystack.valueAt(3-(3)));},
   '6': function ()
-    /* Line 221 of lalr1.js  */
+    /* Line 222 of lalr1.js  */
 /* Line 35 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) / (yystack.valueAt(3-(3)));},
   '7': function ()
-    /* Line 221 of lalr1.js  */
+    /* Line 222 of lalr1.js  */
 /* Line 37 of "calculator.y"  */
     {yyval = Math.pow((yystack.valueAt(3-(1))), (yystack.valueAt(3-(3))));},
   '8': function ()
-    /* Line 221 of lalr1.js  */
+    /* Line 222 of lalr1.js  */
 /* Line 39 of "calculator.y"  */
     {yyval = -(yystack.valueAt(2-(2)));},
   '9': function ()
-    /* Line 221 of lalr1.js  */
+    /* Line 222 of lalr1.js  */
 /* Line 41 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(2)));},
   '10': function ()
-    /* Line 221 of lalr1.js  */
+    /* Line 222 of lalr1.js  */
 /* Line 43 of "calculator.y"  */
     {yyval = Number(yyval);},
   '11': function ()
-    /* Line 221 of lalr1.js  */
+    /* Line 222 of lalr1.js  */
 /* Line 45 of "calculator.y"  */
     {yyval = Math.E;},
   '12': function ()
-    /* Line 221 of lalr1.js  */
+    /* Line 222 of lalr1.js  */
 /* Line 47 of "calculator.y"  */
     {yyval = Math.PI;}
   }
@@ -320,7 +321,7 @@ function YYParser (yylexer)
         // Unlike in the C/C++ skeletons, the state is already pushed when we come here.
 
         yycdebug("Entering state " + yystate);
-        yystack_print(yystack)
+        this_parser.yystack_print(yystack)
 
         // Accept?
         if (yystate == yyfinal_)
@@ -516,7 +517,7 @@ function YYParser (yylexer)
           yyerrloc = yystack.locationAt(0);
           yystack.pop(1);
           yystate = yystack.stateAt(0);
-          yystack_print(yystack)
+          this_parser.yystack_print(yystack)
         }
 
 
@@ -546,20 +547,6 @@ function YYParser (yylexer)
       //---------------------/
       case YYABORT:
         return false;
-    }
-  }
-
-
-  function yystack_print (yystack)
-  {
-    if (!yydebug)
-      return;
-    
-    console.log("Stack now");
-
-    for (var i = 0, ih = yystack.height(); i <= ih; i++)
-    {
-      console.log(' ' + yystack.stateAt(i));
     }
   }
 
@@ -931,6 +918,20 @@ YYParser.prototype =
     }
   },
 
+  yystack_print: function yystack_print ()
+  {
+    if (!this.yydebug)
+      return;
+    
+    console.log("Stack now");
+
+    var yystack = this.yystack
+    for (var i = 0, ih = yystack.height(); i <= ih; i++)
+    {
+      console.log(' ' + yystack.stateAt(i));
+    }
+  },
+
   yycdebug: function yycdebug (message)
   {
     if (!this.yydebug)
@@ -960,7 +961,7 @@ YYParser.TOKENS =
   'UMINUS': 264
 };
 
-/* Line 902 of lalr1.js  */
+/* Line 903 of lalr1.js  */
 /* Line 50 of "calculator.y"  */
 
 
@@ -1030,7 +1031,7 @@ var lexer = new Lexer
   [T.NUMBER, '2'],
   [T.MULT, '*'],
   [T.NUMBER, '3'],
-  // [T.R, ')'],
+  [T.R, ')'],
   [T.MULT, '*'],
   [T.NUMBER, '1'],
   [T.R, ')'],

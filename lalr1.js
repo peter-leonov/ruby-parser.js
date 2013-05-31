@@ -140,7 +140,8 @@ function YYStack ()
   {
     return valueStack[valueStack.length-1 - i];
   }
-  
+
+  // used in debug mode or in an error recovery mode only
   this.height = function height ()
   {
     return stateStack.length-1;
@@ -313,7 +314,7 @@ function YYParser (yylexer)
         // Unlike in the C/C++ skeletons, the state is already pushed when we come here.
 
         yycdebug("Entering state " + yystate);
-        yystack_print(yystack)
+        this_parser.yystack_print(yystack)
 
         // Accept?
         if (yystate == yyfinal_)
@@ -509,7 +510,7 @@ function YYParser (yylexer)
           yyerrloc = yystack.locationAt(0);
           yystack.pop(1);
           yystate = yystack.stateAt(0);
-          yystack_print(yystack)
+          this_parser.yystack_print(yystack)
         }
 
 
@@ -539,20 +540,6 @@ function YYParser (yylexer)
       //---------------------/
       case YYABORT:
         return false;
-    }
-  }
-
-
-  function yystack_print (yystack)
-  {
-    if (!yydebug)
-      return;
-    
-    console.log("Stack now");
-
-    for (var i = 0, ih = yystack.height(); i <= ih; i++)
-    {
-      console.log(' ' + yystack.stateAt(i));
     }
   }
 
@@ -873,6 +860,20 @@ YYParser.prototype =
         return "end of input";
 
       return yystr;
+    }
+  },
+
+  yystack_print: function yystack_print ()
+  {
+    if (!this.yydebug)
+      return;
+    
+    console.log("Stack now");
+
+    var yystack = this.yystack
+    for (var i = 0, ih = yystack.height(); i <= ih; i++)
+    {
+      console.log(' ' + yystack.stateAt(i));
     }
   },
 

@@ -115,7 +115,7 @@ var lexer = new Lexer
   [T.NUMBER, '2'],
   [T.MULT, '*'],
   [T.NUMBER, '3'],
-  // [T.R, ')'],
+  [T.R, ')'],
   [T.MULT, '*'],
   [T.NUMBER, '1'],
   [T.R, ')'],
