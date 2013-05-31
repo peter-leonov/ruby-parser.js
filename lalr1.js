@@ -698,11 +698,13 @@ function YYParser (yylexer)
   }
 
   // YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing STATE-NUM.
-  private static final ]b4_int_type_for([b4_pact])[ yypact_ninf_ = ]b4_pact_ninf[;
-  private static final ]b4_int_type_for([b4_pact])[ yypact_[] =
-  {
-    ]b4_pact[
-  };
+  var yypact_ninf_ = ]b4_pact_ninf[;
+  var yypact_ =
+  [
+    //]]
+    b4_pact
+    //[[
+  ];
 
   /* YYDEFACT[S] -- default reduction number in state S.  Performed when
      YYTABLE doesn't specify something else to do.  Zero means the
