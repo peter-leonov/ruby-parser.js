@@ -107,6 +107,8 @@ return Lexer
 
 })();
 
+this.console = {log: print}
+
 var t = YYParser.TOKENS
 
 var lexer = new Lexer

@@ -145,7 +145,7 @@ function YYParser (yylexer)
   // Token returned by the scanner to signal the end of its input.
   var EOF = 0;
 
-  var yydebug = false;
+  var yydebug = true;
 
 
 
@@ -598,7 +598,7 @@ function YYParser (yylexer)
           yystate = yystack.stateAt(0);
           if (yydebug)
           {
-            yystack.print(yyDebugStream);
+            yystack.print();
           }
         }
 
@@ -1012,6 +1012,8 @@ Lexer.prototype =
 return Lexer
 
 })();
+
+this.console = {log: print}
 
 var t = YYParser.TOKENS
 
