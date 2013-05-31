@@ -209,47 +209,47 @@ function YYParser (yylexer)
   {
       '2': function (yystack) {
     /* Line 203 of lalr1.js  */
-/* Line 45 of "calculator.y"  */
+/* Line 24 of "calculator.y"  */
     {result = (yystack.valueAt(2-(1)));}; return yystack},
   '3': function (yystack) {
     /* Line 203 of lalr1.js  */
-/* Line 50 of "calculator.y"  */
+/* Line 29 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) + (yystack.valueAt(3-(3)));}; return yystack},
   '4': function (yystack) {
     /* Line 203 of lalr1.js  */
-/* Line 52 of "calculator.y"  */
+/* Line 31 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) - (yystack.valueAt(3-(3)));}; return yystack},
   '5': function (yystack) {
     /* Line 203 of lalr1.js  */
-/* Line 54 of "calculator.y"  */
+/* Line 33 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) * (yystack.valueAt(3-(3)));}; return yystack},
   '6': function (yystack) {
     /* Line 203 of lalr1.js  */
-/* Line 56 of "calculator.y"  */
+/* Line 35 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) / (yystack.valueAt(3-(3)));}; return yystack},
   '7': function (yystack) {
     /* Line 203 of lalr1.js  */
-/* Line 58 of "calculator.y"  */
+/* Line 37 of "calculator.y"  */
     {yyval = Math.pow((yystack.valueAt(3-(1))), (yystack.valueAt(3-(3))));}; return yystack},
   '8': function (yystack) {
     /* Line 203 of lalr1.js  */
-/* Line 60 of "calculator.y"  */
+/* Line 39 of "calculator.y"  */
     {yyval = -(yystack.valueAt(2-(2)));}; return yystack},
   '9': function (yystack) {
     /* Line 203 of lalr1.js  */
-/* Line 62 of "calculator.y"  */
+/* Line 41 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(2)));}; return yystack},
   '10': function (yystack) {
     /* Line 203 of lalr1.js  */
-/* Line 64 of "calculator.y"  */
+/* Line 43 of "calculator.y"  */
     {yyval = Number(yyval);}; return yystack},
   '11': function (yystack) {
     /* Line 203 of lalr1.js  */
-/* Line 66 of "calculator.y"  */
+/* Line 45 of "calculator.y"  */
     {yyval = Math.E;}; return yystack},
   '12': function (yystack) {
     /* Line 203 of lalr1.js  */
-/* Line 68 of "calculator.y"  */
+/* Line 47 of "calculator.y"  */
     {yyval = Math.PI;}; return yystack}
   }
 
@@ -873,8 +873,8 @@ function YYParser (yylexer)
   var yyrline_ =
   [
     //]
-         0,    44,    44,    49,    51,    53,    55,    57,    59,    61,
-      63,    65,    67
+         0,    23,    23,    28,    30,    32,    34,    36,    38,    40,
+      42,    44,    46
     //[
   ];
 
@@ -979,7 +979,7 @@ YYParser.TOKENS =
 
 
 /* Line 874 of lalr1.js  */
-/* Line 71 of "calculator.y"  */
+/* Line 50 of "calculator.y"  */
 
 
 var T = YYParser.TOKENS

@@ -1,31 +1,10 @@
 %{
 var result
 %}
-%pure_parser
 
-%language "java"
+
 %skeleton "./lalr1.js"
 %output "calculator.js"
-
-/* description: Parses end evaluates mathematical expressions. */
-
-/* lexical grammar */
-// %lex
-// %%
-// \s+                   {/* skip whitespace */}
-// [0-9]+("."[0-9]+)?\b  {return 'NUMBER';}
-// "*"                   {return '*';}
-// "/"                   {return '/';}
-// "-"                   {return '-';}
-// "+"                   {return '+';}
-// "^"                   {return '^';}
-// "("                   {return '(';}
-// ")"                   {return ')';}
-// "PI"                  {return 'PI';}
-// "E"                   {return 'E';}
-// <<EOF>>               {return 'EOF';}
-// 
-// /lex
 
 /* operator associations and precedence */
 
