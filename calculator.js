@@ -124,11 +124,19 @@ function YYStack ()
 // Instantiates the Bison-generated parser.
 function YYParser (yylexer)
 {
-  // one to rule them all
-  var this_parser = this
+  // enabling debug will switch these functions to the usefull variants
+  function yy_reduce_print (yyn) {}
+  function yy_symbol_print (message, yytype, yyvaluep, yylocationp) {}
+  function yystack_print (yystack) {}
+  function yycdebug (message) {}
   
-  // log every action, reduction, etc.
-  this.yydebug = false;
+  this.enableDebug = function enableDebug ()
+  {
+    yy_reduce_print = this.yy_reduce_print.bind(this)
+    yy_symbol_print = this.yy_symbol_print.bind(this)
+    yystack_print   = this.yystack_print.bind(this)
+    yycdebug        = this.yycdebug.bind(this)
+  }
   
   // The scanner that will supply tokens to the parser.
   this.yylexer = yylexer;
@@ -179,47 +187,47 @@ function YYParser (yylexer)
   var actionsTable =
   {
       '2': function ()
-    /* Line 217 of lalr1.js  */
+    /* Line 225 of lalr1.js  */
 /* Line 24 of "calculator.y"  */
     {result = (yystack.valueAt(2-(1)));},
   '3': function ()
-    /* Line 217 of lalr1.js  */
+    /* Line 225 of lalr1.js  */
 /* Line 29 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) + (yystack.valueAt(3-(3)));},
   '4': function ()
-    /* Line 217 of lalr1.js  */
+    /* Line 225 of lalr1.js  */
 /* Line 31 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) - (yystack.valueAt(3-(3)));},
   '5': function ()
-    /* Line 217 of lalr1.js  */
+    /* Line 225 of lalr1.js  */
 /* Line 33 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) * (yystack.valueAt(3-(3)));},
   '6': function ()
-    /* Line 217 of lalr1.js  */
+    /* Line 225 of lalr1.js  */
 /* Line 35 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) / (yystack.valueAt(3-(3)));},
   '7': function ()
-    /* Line 217 of lalr1.js  */
+    /* Line 225 of lalr1.js  */
 /* Line 37 of "calculator.y"  */
     {yyval = Math.pow((yystack.valueAt(3-(1))), (yystack.valueAt(3-(3))));},
   '8': function ()
-    /* Line 217 of lalr1.js  */
+    /* Line 225 of lalr1.js  */
 /* Line 39 of "calculator.y"  */
     {yyval = -(yystack.valueAt(2-(2)));},
   '9': function ()
-    /* Line 217 of lalr1.js  */
+    /* Line 225 of lalr1.js  */
 /* Line 41 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(2)));},
   '10': function ()
-    /* Line 217 of lalr1.js  */
+    /* Line 225 of lalr1.js  */
 /* Line 43 of "calculator.y"  */
     {yyval = Number(yyval);},
   '11': function ()
-    /* Line 217 of lalr1.js  */
+    /* Line 225 of lalr1.js  */
 /* Line 45 of "calculator.y"  */
     {yyval = Math.E;},
   '12': function ()
-    /* Line 217 of lalr1.js  */
+    /* Line 225 of lalr1.js  */
 /* Line 47 of "calculator.y"  */
     {yyval = Math.PI;}
   }
@@ -240,13 +248,13 @@ function YYParser (yylexer)
     else
       yyval = yystack.valueAt(0);
 
-    this_parser.yy_reduce_print(yyn);
+    yy_reduce_print(yyn);
 
     var actionClosure = actionsTable[yyn]
     if (actionClosure)
       actionClosure(yystack)
 
-    this_parser.yy_symbol_print("-> $$ =", yyr1_[yyn], yyval, yyloc); // TODO: step into
+    yy_symbol_print("-> $$ =", yyr1_[yyn], yyval, yyloc); // TODO: step into
 
     yystack.pop(yylen);
     yylen = 0;
@@ -298,7 +306,7 @@ function YYParser (yylexer)
     // Semantic value of the lookahead.
     var yylval = null;
 
-    this_parser.yycdebug("Starting parse");
+    yycdebug("Starting parse");
     yyerrstatus_ = 0;
 
 
@@ -315,8 +323,8 @@ function YYParser (yylexer)
       case YYNEWSTATE:
         // Unlike in the C/C++ skeletons, the state is already pushed when we come here.
 
-        this_parser.yycdebug("Entering state " + yystate);
-        this_parser.yystack_print(yystack)
+        yycdebug("Entering state " + yystate);
+        yystack_print(yystack)
 
         // Accept?
         if (yystate == yyfinal_)
@@ -335,7 +343,7 @@ function YYParser (yylexer)
         // Read a lookahead token.
         if (yychar == yyempty_)
         {
-          this_parser.yycdebug("Reading a token: ");
+          yycdebug("Reading a token: ");
           yychar = yylexer.yylex();
 
           yylloc = new Location(yylexer.getStartPos(), yylexer.getEndPos());
@@ -347,7 +355,7 @@ function YYParser (yylexer)
         if (yychar <= EOF)
         {
           yychar = yytoken = EOF;
-          this_parser.yycdebug("Now at end of input.");
+          yycdebug("Now at end of input.");
         }
         else
         {
@@ -356,7 +364,7 @@ function YYParser (yylexer)
           else
             yytoken = yyundef_token_;
 
-          this_parser.yy_symbol_print("Next token is", yytoken, yylval, yylloc);
+          yy_symbol_print("Next token is", yytoken, yylval, yylloc);
         }
 
         // If the proper action on seeing token YYTOKEN
@@ -390,7 +398,7 @@ function YYParser (yylexer)
         else
         {
           // Shift the lookahead token.
-          this_parser.yy_symbol_print("Shifting", yytoken, yylval, yylloc);
+          yy_symbol_print("Shifting", yytoken, yylval, yylloc);
 
           // Discard the token being shifted.
           yychar = yyempty_;
@@ -505,14 +513,14 @@ function YYParser (yylexer)
           // Pop the current state because it cannot handle the error token.
           if (yystack.height() == 0)
           {
-            this_parser.yycdebug('Empty stack while handling error')
+            yycdebug('Empty stack while handling error')
             return false;
           }
 
           yyerrloc = yystack.locationAt(0);
           yystack.pop(1);
           yystate = yystack.stateAt(0);
-          this_parser.yystack_print(yystack)
+          yystack_print(yystack)
         }
 
 
@@ -523,7 +531,7 @@ function YYParser (yylexer)
         yystack.pop(2);
 
         // Shift the error token.
-        this_parser.yy_symbol_print("Shifting", yystos_[yyn], yylval, yyloc);
+        yy_symbol_print("Shifting", yystos_[yyn], yylval, yyloc);
 
         yystate = yyn;
         yystack.push(yyn, yylval, yyloc);
@@ -746,9 +754,6 @@ YYParser.prototype =
   // Report on the debug stream that the rule yyrule is going to be reduced.
   yy_reduce_print: function yy_reduce_print (yyrule)
   {
-    if (!this.yydebug)
-      return;
-
     var yystack = this.yystack;
     var yylno = this.yyrline_[yyrule];
     var yynrhs = this.yyr2_[yyrule];
@@ -769,9 +774,6 @@ YYParser.prototype =
 
   yy_symbol_print: function yy_symbol_print (message, yytype, yyvaluep, yylocationp)
   {
-    if (!this.yydebug)
-      return;
-
     this.yycdebug
     (
       message
@@ -915,9 +917,6 @@ YYParser.prototype =
 
   yystack_print: function yystack_print ()
   {
-    if (!this.yydebug)
-      return;
-    
     console.log("Stack now");
 
     var yystack = this.yystack
@@ -929,9 +928,6 @@ YYParser.prototype =
 
   yycdebug: function yycdebug (message)
   {
-    if (!this.yydebug)
-      return
-    
     console.log(message);
   }
 }
@@ -956,7 +952,7 @@ YYParser.TOKENS =
   'UMINUS': 264
 };
 
-/* Line 898 of lalr1.js  */
+/* Line 894 of lalr1.js  */
 /* Line 50 of "calculator.y"  */
 
 
@@ -1037,7 +1033,7 @@ var lexer = new Lexer
 ])
 
 var parser = new YYParser(lexer)
-parser.yydebug = true
+parser.enableDebug()
 print(parser.parse())
 print(result == -3)
 
