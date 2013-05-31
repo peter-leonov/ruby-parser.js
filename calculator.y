@@ -94,7 +94,7 @@ return Lexer
 
 this.console = {log: print}
 
-// (3+2*3)/-3
+// ((3+2*3)*1)/-3
 var lexer = new Lexer
 ([
   [T.L, '('],
