@@ -866,6 +866,7 @@ YYParser.bisonSkeleton = ]b4_skeleton[;
 // Token numbers, to be returned by the scanner.
 YYParser.TOKENS =
 {
+  EOF: 0,
 ]b4_token_enums(b4_tokens)[
 };
 

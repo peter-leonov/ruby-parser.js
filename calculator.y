@@ -1,5 +1,5 @@
 %{
-  // alert(123)
+var result
 %}
 %pure_parser
 
@@ -29,7 +29,7 @@
 
 /* operator associations and precedence */
 
-%token E EOF NUMBER PI
+%token E END NUMBER PI
 
 %left '+' '-'
 %left '*' '/'
@@ -41,8 +41,8 @@
 %% /* language grammar */
 
 expressions
-    : e EOF
-        {return $1;}
+    : e END
+        {result = $1;}
     ;
 
 e
@@ -70,6 +70,8 @@ e
 
 %%
 
+var T = YYParser.TOKENS
+
 var Lexer = (function(){
 
 function Lexer (tokens)
@@ -81,7 +83,11 @@ Lexer.prototype =
 {
   yylex: function ()
   {
+    if (this.tokens.length == 0)
+      return T.EOF
+    
     this.token = this.tokens.shift()
+    print('yylex', this.token)
     return this.token[0]
   },
 
@@ -109,16 +115,13 @@ return Lexer
 
 this.console = {log: print}
 
-var t = YYParser.TOKENS
-
 var lexer = new Lexer
 ([
-  [t.NUMBER, '1'],
-  ['+', '+'],
-  [t.NUMBER, '3'],
-  [t.EOF, '']
+  [T.NUMBER, '7'],
+  [T.END, '']
 ])
 
 var parser = new YYParser(lexer)
 
 print(parser.parse())
+print(result)

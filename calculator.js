@@ -35,7 +35,7 @@
 /* Line 32 of lalr1.js  */
 /* Line 1 of "calculator.y"  */
 
-  // alert(123)
+var result
 
 
 /**
@@ -140,7 +140,7 @@ function YYParser (yylexer)
 
 
   // True if verbose error messages are enabled.
-  var errorVerbose = false;
+  var errorVerbose = true;
 
   // Token returned by the scanner to signal the end of its input.
   var EOF = 0;
@@ -210,7 +210,7 @@ function YYParser (yylexer)
       '2': function (yystack) {
     /* Line 203 of lalr1.js  */
 /* Line 45 of "calculator.y"  */
-    {return (yystack.valueAt(2-(1)));}; return yystack},
+    {result = (yystack.valueAt(2-(1)));}; return yystack},
   '3': function (yystack) {
     /* Line 203 of lalr1.js  */
 /* Line 50 of "calculator.y"  */
@@ -845,7 +845,7 @@ function YYParser (yylexer)
   var yytname_ =
   [
     //]
-    "$end", "error", "$undefined", "E", "EOF", "NUMBER", "PI", "'+'", "'-'",
+    "$end", "error", "$undefined", "E", "END", "NUMBER", "PI", "'+'", "'-'",
   "'*'", "'/'", "'^'", "UMINUS", "'('", "')'", "$accept", "expressions",
   "e", null
     //[
@@ -964,17 +964,20 @@ YYParser.bisonSkeleton = "./lalr1.js";
 // Token numbers, to be returned by the scanner.
 YYParser.TOKENS =
 {
+  EOF: 0,
   'E': 258,
-  'EOF': 259,
+  'END': 259,
   'NUMBER': 260,
   'PI': 261,
   'UMINUS': 262
 };
 
 
-/* Line 873 of lalr1.js  */
+/* Line 874 of lalr1.js  */
 /* Line 71 of "calculator.y"  */
 
+
+var T = YYParser.TOKENS
 
 var Lexer = (function(){
 
@@ -987,7 +990,11 @@ Lexer.prototype =
 {
   yylex: function ()
   {
+    if (this.tokens.length == 0)
+      return T.EOF
+    
     this.token = this.tokens.shift()
+    print('yylex', this.token)
     return this.token[0]
   },
 
@@ -1015,17 +1022,14 @@ return Lexer
 
 this.console = {log: print}
 
-var t = YYParser.TOKENS
-
 var lexer = new Lexer
 ([
-  [t.NUMBER, '1'],
-  ['+', '+'],
-  [t.NUMBER, '3'],
-  [t.EOF, '']
+  [T.NUMBER, '7'],
+  [T.END, '']
 ])
 
 var parser = new YYParser(lexer)
 
 print(parser.parse())
+print(result)
 
