@@ -292,66 +292,6 @@ function YYParser (yylexer)
     return YYNEWSTATE;
   }
 
-  /* Return YYSTR after stripping away unnecessary quotes and
-     backslashes, so that it's suitable for yyerror.  The heuristic is
-     that double-quoting is unnecessary unless the string contains an
-     apostrophe, a comma, or backslash (other than backslash-backslash).
-     YYSTR is taken from yytname.  */
-  function yytnamerr_ (yystr)
-  {
-    if (yystr[0] == '"')
-    {
-      var yyr = '';
-      strip_quotes:
-      for (var i = 1; i < yystr.length; i++)
-      {
-        switch (yystr[i])
-        {
-          case '\'':
-          case ',':
-            break strip_quotes;
-
-          case '\\':
-            if (yystr[++i] != '\\')
-              break strip_quotes;
-              // Fall through.
-
-          case '"':
-            return yyr;
-
-          default:
-            yyr += yystr[i];
-            break;
-        }
-      }
-    }
-    else if (yystr == "$end")
-      return "end of input";
-
-    return yystr;
-  }
-
-  /*--------------------------------.
-  | Print this symbol on YYOUTPUT.  |
-  `--------------------------------*/
-
-  function yy_symbol_print(message, yytype, yyvaluep, yylocationp)
-  {
-    if (!yydebug)
-      return;
-    
-    yycdebug
-    (
-      message
-      + (yytype < yyntokens_ ? " token " : " nterm ")
-      + yytname_[yytype]
-      + " ("
-      + yylocationp + ": "
-      + (yyvaluep == null ? "(null)" : yyvaluep.toString())
-      + ")"
-    );
-  }
-
   /**
    * Parse input from the scanner that was specified at object construction
    * time.  Return whether the end of the input was reached successfully.
@@ -631,6 +571,67 @@ function YYParser (yylexer)
         return false;
     }
   }
+
+  /* Return YYSTR after stripping away unnecessary quotes and
+     backslashes, so that it's suitable for yyerror.  The heuristic is
+     that double-quoting is unnecessary unless the string contains an
+     apostrophe, a comma, or backslash (other than backslash-backslash).
+     YYSTR is taken from yytname.  */
+  function yytnamerr_ (yystr)
+  {
+    if (yystr[0] == '"')
+    {
+      var yyr = '';
+      strip_quotes:
+      for (var i = 1; i < yystr.length; i++)
+      {
+        switch (yystr[i])
+        {
+          case '\'':
+          case ',':
+            break strip_quotes;
+
+          case '\\':
+            if (yystr[++i] != '\\')
+              break strip_quotes;
+              // Fall through.
+
+          case '"':
+            return yyr;
+
+          default:
+            yyr += yystr[i];
+            break;
+        }
+      }
+    }
+    else if (yystr == "$end")
+      return "end of input";
+
+    return yystr;
+  }
+
+  /*--------------------------------.
+  | Print this symbol on YYOUTPUT.  |
+  `--------------------------------*/
+
+  function yy_symbol_print(message, yytype, yyvaluep, yylocationp)
+  {
+    if (!yydebug)
+      return;
+    
+    yycdebug
+    (
+      message
+      + (yytype < yyntokens_ ? " token " : " nterm ")
+      + yytname_[yytype]
+      + " ("
+      + yylocationp + ": "
+      + (yyvaluep == null ? "(null)" : yyvaluep.toString())
+      + ")"
+    );
+  }
+
 
   // Generate an error message.
   function yysyntax_error(yystate, tok)
@@ -978,7 +979,7 @@ YYParser.TOKENS =
 };
 
 
-/* Line 874 of lalr1.js  */
+/* Line 875 of lalr1.js  */
 /* Line 50 of "calculator.y"  */
 
 
