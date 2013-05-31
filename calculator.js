@@ -33,6 +33,8 @@
 
 
 
+
+
 ;(function(){ // start of the parser namespase
 /* First part of user declarations.  */
 /* Line 86 of lalr1.js  */
@@ -902,7 +904,7 @@ function YYParser (yylexer)
         "   $" + (yyi + 1) + " =",
         yyrhs_[yyprhs_[yyrule] + yyi],
         (yystack.valueAt(yynrhs-(yyi + 1))),
-        yystack.locationAt (yynrhs-(yyi + 1))
+        yystack.locationAt(yynrhs-(yyi + 1))
       );
   }
 

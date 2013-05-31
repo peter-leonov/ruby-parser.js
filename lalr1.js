@@ -21,8 +21,8 @@ m4_define([b4_comment], [/* m4_bpatsubst([$1], [
 ], [
    ])  */])
 
-# b4_flag_value(BOOLEAN-FLAG)
-m4_define([b4_flag_value], [b4_flag_if([$1], [true], [false])])
+
+
 
 
 # needed in list terminations
@@ -52,33 +52,33 @@ m4_define([b4_list_of_actions], [m4_join([,
 ],b4_actions)])
 
 
-# b4_lhs_value([TYPE])
-# Expansion of $<TYPE>$.
+# $$
 m4_define([b4_lhs_value], [yyval])
 
 
+
+
+
 # b4_rhs_value(RULE-LENGTH, NUM)
-# Expansion of $<TYPE>NUM, where the current rule has RULE-LENGTH symbols on RHS.
-# In this simple implementation, %token and %type have class names
-# between the angle brackets.
+# $N
 m4_define([b4_rhs_value], [(yystack.valueAt($1-($2)))])
 
 
 # b4_rhs_location(RULE-LENGTH, NUM)
 # Expansion of @NUM, where the current rule has RULE-LENGTH symbols on RHS.
-m4_define([b4_rhs_location], [yystack.locationAt ($1-($2))])
+m4_define([b4_rhs_location], [yystack.locationAt($1-($2))])
 
 b4_defines_if([b4_fatal([%s: %%defines does not make sense in JavaScript], [b4_skeleton])])
-m4_ifval(m4_defn([b4_symbol_destructors]),
-        [b4_fatal([%s: %%destructor does not make sense in JavaScript], [b4_skeleton])],
-        [])
+m4_ifval(m4_defn([b4_symbol_destructors]), [b4_fatal([%s: %%destructor does not make sense in JavaScript], [b4_skeleton])], [])
+
+
 
 b4_output_begin([b4_parser_file_name])
-b4_copyright([Skeleton implementation for Bison LALR(1) parsers in JavaScript],
-             [2007-2013])
+b4_copyright([Skeleton implementation for Bison LALR(1) parsers in JavaScript], [2007-2013])
 
-b4_percent_define_ifdef([package], [package b4_percent_define_get([package]);
-])
+
+
+
 
 [
 ;(function(){ // start of the parser namespase
