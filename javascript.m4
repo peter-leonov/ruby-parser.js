@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-m4_include(b4_pkgdatadir/[c-like.m4])
-
 # b4_comment(TEXT)
 # ----------------
 m4_define([b4_comment], [/* m4_bpatsubst([$1], [
@@ -26,47 +24,16 @@ m4_define([b4_comment], [/* m4_bpatsubst([$1], [
    ])  */])
 
 
-# b4_list2(LIST1, LIST2)
-# --------------------------
-# Join two lists with a comma if necessary.
-m4_define([b4_list2],
-	  [$1[]m4_ifval(m4_quote($1), [m4_ifval(m4_quote($2), [[, ]])])[]$2])
-
-
-
 # b4_flag_value(BOOLEAN-FLAG)
 # ---------------------------
 m4_define([b4_flag_value], [b4_flag_if([$1], [true], [false])])
-
-
-# b4_lexer_if(TRUE, FALSE)
-# ------------------------
-m4_define([b4_lexer_if],
-[b4_percent_code_ifdef([[lexer]], [$1], [$2])])
 
 
 ## ------------ ##
 ## Data types.  ##
 ## ------------ ##
 
-# b4_int_type(MIN, MAX)
-# ---------------------
-# Return the smallest int type able to handle numbers ranging from
-# MIN to MAX (included).
-m4_define([b4_int_type],
-[m4_if(b4_ints_in($@,   [-128],   [127]), [1], [byte],
-       b4_ints_in($@, [-32768], [32767]), [1], [short],
-					       [int])])
-
-# b4_int_type_for(NAME)
-# ---------------------
-# Return the smallest int type able to handle numbers ranging from
-# `NAME_min' to `NAME_max' (included).
-m4_define([b4_int_type_for],
-[b4_int_type($1_min, $1_max)])
-
-# b4_null
-# -------
+# needed in list terminations
 m4_define([b4_null], [null])
 
 
@@ -102,16 +69,6 @@ m4_define([b4_case], [  '$1': function ()
 ])
 
 
-## ---------------- ##
-## Default values.  ##
-## ---------------- ##
-
-# %name-prefix
-m4_define_default([b4_prefix], [[YY]])
-
-b4_percent_define_default([[throws]], [])
-m4_define([b4_throws], [b4_percent_define_get([[throws]])])
-
 
 ## ----------------- ##
 ## Semantic Values.  ##
@@ -132,12 +89,6 @@ m4_define([b4_lhs_value], [yyval])
 # In this simple implementation, %token and %type have class names
 # between the angle brackets.
 m4_define([b4_rhs_value], [(yystack.valueAt($1-($2)))])
-
-# b4_lhs_location()
-# -----------------
-# Expansion of @$.
-m4_define([b4_lhs_location],
-[(yyloc)])
 
 
 # b4_rhs_location(RULE-LENGTH, NUM)
