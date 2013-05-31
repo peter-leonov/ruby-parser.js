@@ -706,30 +706,36 @@ function YYParser (yylexer)
     //[[
   ];
 
-  /* YYDEFACT[S] -- default reduction number in state S.  Performed when
-     YYTABLE doesn't specify something else to do.  Zero means the
-     default is an error.  */
-  private static final ]b4_int_type_for([b4_defact])[ yydefact_[] =
-  {
-    ]b4_defact[
-  };
+  // YYDEFACT[S] -- default reduction number in state S.
+  // Performed when YYTABLE doesn't specify something else to do.
+  // Zero means the default is an error.  */
+  var yydefact_ =
+  [
+    //]]
+    b4_defact
+    //[[
+  ];
 
-  /* YYPGOTO[NTERM-NUM].  */
+  // YYPGOTO[NTERM-NUM].
   var yypgoto_ =
-  {
-    ]b4_pgoto[
-  };
+  [
+    //]]
+    b4_pgoto
+    //[[
+  ];
 
-  /* YYDEFGOTO[NTERM-NUM].  */
-  private static final ]b4_int_type_for([b4_defgoto])[
-  yydefgoto_[] =
-  {
-    ]b4_defgoto[
-  };
+  // YYDEFGOTO[NTERM-NUM].
+  var yydefgoto_ =
+  [
+    //]]
+    b4_defgoto
+    //[[
+  ];
 
-  /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
-     positive, shift that token.  If negative, reduce the rule which
-     number is the opposite.  If yytable_NINF_, syntax error.  */
+  // YYTABLE[YYPACT[STATE-NUM]]. What to do in state STATE-NUM.
+  // If positive, shift that token.
+  // If negative, reduce the rule which number is the opposite.
+  // If yytable_NINF_, syntax error.
   private static final ]b4_int_type_for([b4_table])[ yytable_ninf_ = ]b4_table_ninf[;
   private static final ]b4_int_type_for([b4_table])[
   yytable_[] =
