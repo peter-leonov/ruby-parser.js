@@ -127,9 +127,11 @@ function YYParser (yylexer)
   // one to rule them all
   var this_parser = this
   
+  // log every action, reduction, etc.
+  this.yydebug = false;
+  
   // The scanner that will supply tokens to the parser.
   this.yylexer = yylexer;
-
 
   // True if verbose error messages are enabled.
   this.errorVerbose = true;
@@ -137,7 +139,7 @@ function YYParser (yylexer)
   // Token returned by the scanner to signal the end of its input.
   var EOF = 0;
 
-  var yydebug = this.yydebug = true;
+  
 
 
   // Returned by a Bison action in order to stop the parsing process
@@ -177,47 +179,47 @@ function YYParser (yylexer)
   var actionsTable =
   {
       '2': function ()
-    /* Line 215 of lalr1.js  */
+    /* Line 217 of lalr1.js  */
 /* Line 24 of "calculator.y"  */
     {result = (yystack.valueAt(2-(1)));},
   '3': function ()
-    /* Line 215 of lalr1.js  */
+    /* Line 217 of lalr1.js  */
 /* Line 29 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) + (yystack.valueAt(3-(3)));},
   '4': function ()
-    /* Line 215 of lalr1.js  */
+    /* Line 217 of lalr1.js  */
 /* Line 31 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) - (yystack.valueAt(3-(3)));},
   '5': function ()
-    /* Line 215 of lalr1.js  */
+    /* Line 217 of lalr1.js  */
 /* Line 33 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) * (yystack.valueAt(3-(3)));},
   '6': function ()
-    /* Line 215 of lalr1.js  */
+    /* Line 217 of lalr1.js  */
 /* Line 35 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) / (yystack.valueAt(3-(3)));},
   '7': function ()
-    /* Line 215 of lalr1.js  */
+    /* Line 217 of lalr1.js  */
 /* Line 37 of "calculator.y"  */
     {yyval = Math.pow((yystack.valueAt(3-(1))), (yystack.valueAt(3-(3))));},
   '8': function ()
-    /* Line 215 of lalr1.js  */
+    /* Line 217 of lalr1.js  */
 /* Line 39 of "calculator.y"  */
     {yyval = -(yystack.valueAt(2-(2)));},
   '9': function ()
-    /* Line 215 of lalr1.js  */
+    /* Line 217 of lalr1.js  */
 /* Line 41 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(2)));},
   '10': function ()
-    /* Line 215 of lalr1.js  */
+    /* Line 217 of lalr1.js  */
 /* Line 43 of "calculator.y"  */
     {yyval = Number(yyval);},
   '11': function ()
-    /* Line 215 of lalr1.js  */
+    /* Line 217 of lalr1.js  */
 /* Line 45 of "calculator.y"  */
     {yyval = Math.E;},
   '12': function ()
-    /* Line 215 of lalr1.js  */
+    /* Line 217 of lalr1.js  */
 /* Line 47 of "calculator.y"  */
     {yyval = Math.PI;}
   }
@@ -954,7 +956,7 @@ YYParser.TOKENS =
   'UMINUS': 264
 };
 
-/* Line 896 of lalr1.js  */
+/* Line 898 of lalr1.js  */
 /* Line 50 of "calculator.y"  */
 
 
@@ -1035,7 +1037,7 @@ var lexer = new Lexer
 ])
 
 var parser = new YYParser(lexer)
-
+parser.yydebug = true
 print(parser.parse())
 print(result == -3)
 

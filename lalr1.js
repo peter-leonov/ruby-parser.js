@@ -163,9 +163,11 @@ function YYParser (yylexer)
   // one to rule them all
   var this_parser = this
   
+  // log every action, reduction, etc.
+  this.yydebug = false;
+  
   // The scanner that will supply tokens to the parser.
   this.yylexer = yylexer;
-
 
   // True if verbose error messages are enabled.
   this.errorVerbose = true;
@@ -173,7 +175,7 @@ function YYParser (yylexer)
   // Token returned by the scanner to signal the end of its input.
   var EOF = 0;
 
-  var yydebug = this.yydebug = true;
+  
 
 
   // Returned by a Bison action in order to stop the parsing process
