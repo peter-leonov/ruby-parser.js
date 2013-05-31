@@ -146,17 +146,6 @@ function YYStack ()
     return stateStack.length-1;
   }
 
-  // Print the state stack on the debug stream.
-  this.print = function print ()
-  {
-    console.log("Stack now");
-
-    for (var i = 0; i < stateStack.length; i++)
-    {
-      console.log(' ' + stateStack[i]);
-    }
-  }
-  
   this.locationFromNthItemToCurrent = function locationFromNthItemToCurrent (n)
   {
     if (n > 0)
@@ -325,8 +314,7 @@ function YYParser (yylexer)
         // Unlike in the C/C++ skeletons, the state is already pushed when we come here.
 
         yycdebug("Entering state " + yystate);
-        if (yydebug)
-          yystack.print();
+        yystack_print(yystack)
 
         // Accept?
         if (yystate == yyfinal_)
@@ -518,10 +506,7 @@ function YYParser (yylexer)
           yyerrloc = yystack.locationAt(0);
           yystack.pop(1);
           yystate = yystack.stateAt(0);
-          if (yydebug)
-          {
-            yystack.print();
-          }
+          yystack_print(yystack)
         }
 
 
@@ -612,6 +597,19 @@ function YYParser (yylexer)
       + (yyvaluep == null ? "(null)" : yyvaluep.toString())
       + ")"
     );
+  }
+  
+  function yystack_print (yystack)
+  {
+    if (!yydebug)
+      return;
+    
+    console.log("Stack now");
+
+    for (var i = 0, ih = yystack.height(); i <= ih; i++)
+    {
+      console.log(' ' + yystack.stateAt(i));
+    }
   }
 
 
