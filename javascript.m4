@@ -52,12 +52,8 @@ m4_define([b4_token_enum], [  '$1': $2])
 # Output the definition of the tokens (if there are) as enums.
 m4_define([b4_token_enums],
 [m4_if([$#$1], [1], [],
-[
-var TOKENS = {
-m4_map_sep([b4_token_enum], [,
-], [$@])])
-};
-])
+[m4_map_sep([b4_token_enum], [,
+], [$@])])])
 
 # b4-case(ID, CODE)
 # -----------------

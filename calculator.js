@@ -140,30 +140,6 @@ function YYParser (yylexer)
   // Token returned by the scanner to signal the end of its input.
   var EOF = 0;
 
-  // Tokens.
-  // Token numbers, to be returned by the scanner.
-  
-var TOKENS = {
-  'E': 258,
-  'EOF': 259,
-  'NUMBER': 260,
-  'PI': 261,
-  'UMINUS': 262
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   var yydebug = false;
 
 
@@ -227,47 +203,47 @@ var TOKENS = {
   var actionsTable =
   {
       '2': function ()
-    /* Line 214 of lalr1.js  */
+    /* Line 198 of lalr1.js  */
 /* Line 45 of "calculator.y"  */
     {return (yystack.valueAt(2-(1)));},
   '3': function ()
-    /* Line 214 of lalr1.js  */
+    /* Line 198 of lalr1.js  */
 /* Line 50 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) + (yystack.valueAt(3-(3)));},
   '4': function ()
-    /* Line 214 of lalr1.js  */
+    /* Line 198 of lalr1.js  */
 /* Line 52 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) - (yystack.valueAt(3-(3)));},
   '5': function ()
-    /* Line 214 of lalr1.js  */
+    /* Line 198 of lalr1.js  */
 /* Line 54 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) * (yystack.valueAt(3-(3)));},
   '6': function ()
-    /* Line 214 of lalr1.js  */
+    /* Line 198 of lalr1.js  */
 /* Line 56 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) / (yystack.valueAt(3-(3)));},
   '7': function ()
-    /* Line 214 of lalr1.js  */
+    /* Line 198 of lalr1.js  */
 /* Line 58 of "calculator.y"  */
     {yyval = Math.pow((yystack.valueAt(3-(1))), (yystack.valueAt(3-(3))));},
   '8': function ()
-    /* Line 214 of lalr1.js  */
+    /* Line 198 of lalr1.js  */
 /* Line 60 of "calculator.y"  */
     {yyval = -(yystack.valueAt(2-(2)));},
   '9': function ()
-    /* Line 214 of lalr1.js  */
+    /* Line 198 of lalr1.js  */
 /* Line 62 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(2)));},
   '10': function ()
-    /* Line 214 of lalr1.js  */
+    /* Line 198 of lalr1.js  */
 /* Line 64 of "calculator.y"  */
     {yyval = Number(yytext);},
   '11': function ()
-    /* Line 214 of lalr1.js  */
+    /* Line 198 of lalr1.js  */
 /* Line 66 of "calculator.y"  */
     {yyval = Math.E;},
   '12': function ()
-    /* Line 214 of lalr1.js  */
+    /* Line 198 of lalr1.js  */
 /* Line 68 of "calculator.y"  */
     {yyval = Math.PI;}
   }
@@ -978,5 +954,17 @@ YYParser.bisonVersion = "2.7.12-4996";
 
 // Name of the skeleton that generated this parser.
 YYParser.bisonSkeleton = "./lalr1.js";
+
+// Tokens.
+// Token numbers, to be returned by the scanner.
+YYParser.TOKENS =
+{
+  'E': 258,
+  'EOF': 259,
+  'NUMBER': 260,
+  'PI': 261,
+  'UMINUS': 262
+};
+
 
 

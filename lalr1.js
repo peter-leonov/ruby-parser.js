@@ -133,22 +133,6 @@ function YYParser (yylexer)
   // Token returned by the scanner to signal the end of its input.
   var EOF = 0;
 
-  // Tokens.
-  // Token numbers, to be returned by the scanner.
-  ]b4_token_enums(b4_tokens)[
-
-
-
-
-
-
-
-
-
-
-
-
-
   var yydebug = false;
 
 
@@ -872,6 +856,14 @@ YYParser.bisonVersion = "]b4_version[";
 
 // Name of the skeleton that generated this parser.
 YYParser.bisonSkeleton = ]b4_skeleton[;
+
+// Tokens.
+// Token numbers, to be returned by the scanner.
+YYParser.TOKENS =
+{
+]b4_token_enums(b4_tokens)[
+};
+
 ]
 b4_epilogue
 b4_output_end()
