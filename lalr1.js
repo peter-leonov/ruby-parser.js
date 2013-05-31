@@ -208,11 +208,10 @@ function YYParser (yylexer)
   {
     return yyerrstatus_ == 0;
   }
-  
+
   var actionsTable =
   {
-    ]b4_user_actions[
-    'terminator': function noop (){} /* FIXME: comma terminator */
+    ]b4_list_of_actions[
   }
 
 

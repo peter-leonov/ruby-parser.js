@@ -65,6 +65,9 @@ m4_define([b4_case], [  '$1': function ()
     $2,
 ])
 
+m4_define([b4_list_of_actions], [m4_join([,
+],b4_actions)])
+
 
 
 ## ----------------- ##
@@ -94,10 +97,3 @@ m4_define([b4_rhs_value], [(yystack.valueAt($1-($2)))])
 # on RHS.
 m4_define([b4_rhs_location],
 [yystack.locationAt ($1-($2))])
-
-
-
-m4_define([b4_remove_comma], [m4_ifval(m4_quote($1), [$1, ], [])m4_shift2($@)])
-
-
-
