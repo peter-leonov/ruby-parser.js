@@ -125,17 +125,17 @@ function YYStack ()
 function YYParser (yylexer)
 {
   // enabling debug will switch these functions to the usefull variants
-  function yy_reduce_print (yyn) {}
-  function yy_symbol_print (message, yytype, yyvaluep, yylocationp) {}
-  function yystack_print (yystack) {}
-  function yycdebug (message) {}
+  function debug_reduce_print (yyn) {}
+  function debug_symbol_print (message, yytype, yyvaluep, yylocationp) {}
+  function debug_stack_print (yystack) {}
+  function debug_puts (message) {}
   
   this.enableDebug = function enableDebug ()
   {
-    yy_reduce_print = this.yy_reduce_print.bind(this)
-    yy_symbol_print = this.yy_symbol_print.bind(this)
-    yystack_print   = this.yystack_print.bind(this)
-    yycdebug        = this.yycdebug.bind(this)
+    debug_reduce_print = this.debug_reduce_print.bind(this)
+    debug_symbol_print = this.debug_symbol_print.bind(this)
+    debug_stack_print  = this.debug_stack_print.bind(this)
+    debug_puts         = this.debug_puts.bind(this)
   }
   
   // The scanner that will supply tokens to the parser.
@@ -248,13 +248,13 @@ function YYParser (yylexer)
     else
       yyval = yystack.valueAt(0);
 
-    yy_reduce_print(yyn);
+    debug_reduce_print(yyn);
 
     var actionClosure = actionsTable[yyn]
     if (actionClosure)
       actionClosure(yystack)
 
-    yy_symbol_print("-> $$ =", yyr1_[yyn], yyval, yyloc); // TODO: step into
+    debug_symbol_print("-> $$ =", yyr1_[yyn], yyval, yyloc); // TODO: step into
 
     yystack.pop(yylen);
     yylen = 0;
@@ -306,7 +306,7 @@ function YYParser (yylexer)
     // Semantic value of the lookahead.
     var yylval = null;
 
-    yycdebug("Starting parse");
+    debug_puts("Starting parse");
     yyerrstatus_ = 0;
 
 
@@ -323,8 +323,8 @@ function YYParser (yylexer)
       case YYNEWSTATE:
         // Unlike in the C/C++ skeletons, the state is already pushed when we come here.
 
-        yycdebug("Entering state " + yystate);
-        yystack_print(yystack)
+        debug_puts("Entering state " + yystate);
+        debug_stack_print(yystack)
 
         // Accept?
         if (yystate == yyfinal_)
@@ -343,7 +343,7 @@ function YYParser (yylexer)
         // Read a lookahead token.
         if (yychar == yyempty_)
         {
-          yycdebug("Reading a token: ");
+          debug_puts("Reading a token: ");
           yychar = yylexer.yylex();
 
           yylloc = new Location(yylexer.getStartPos(), yylexer.getEndPos());
@@ -355,7 +355,7 @@ function YYParser (yylexer)
         if (yychar <= EOF)
         {
           yychar = yytoken = EOF;
-          yycdebug("Now at end of input.");
+          debug_puts("Now at end of input.");
         }
         else
         {
@@ -364,7 +364,7 @@ function YYParser (yylexer)
           else
             yytoken = yyundef_token_;
 
-          yy_symbol_print("Next token is", yytoken, yylval, yylloc);
+          debug_symbol_print("Next token is", yytoken, yylval, yylloc);
         }
 
         // If the proper action on seeing token YYTOKEN
@@ -398,7 +398,7 @@ function YYParser (yylexer)
         else
         {
           // Shift the lookahead token.
-          yy_symbol_print("Shifting", yytoken, yylval, yylloc);
+          debug_symbol_print("Shifting", yytoken, yylval, yylloc);
 
           // Discard the token being shifted.
           yychar = yyempty_;
@@ -513,14 +513,14 @@ function YYParser (yylexer)
           // Pop the current state because it cannot handle the error token.
           if (yystack.height() == 0)
           {
-            yycdebug('Empty stack while handling error')
+            debug_puts('Empty stack while handling error');
             return false;
           }
 
           yyerrloc = yystack.locationAt(0);
           yystack.pop(1);
           yystate = yystack.stateAt(0);
-          yystack_print(yystack)
+          debug_stack_print(yystack)
         }
 
 
@@ -531,7 +531,7 @@ function YYParser (yylexer)
         yystack.pop(2);
 
         // Shift the error token.
-        yy_symbol_print("Shifting", yystos_[yyn], yylval, yyloc);
+        debug_symbol_print("Shifting", yystos_[yyn], yylval, yyloc);
 
         yystate = yyn;
         yystack.push(yyn, yylval, yyloc);
@@ -752,18 +752,18 @@ YYParser.prototype =
   },
   
   // Report on the debug stream that the rule yyrule is going to be reduced.
-  yy_reduce_print: function yy_reduce_print (yyrule)
+  debug_reduce_print: function debug_reduce_print (yyrule)
   {
     var yystack = this.yystack;
     var yylno = this.yyrline_[yyrule];
     var yynrhs = this.yyr2_[yyrule];
     // Print the symbols being reduced, and their result.
-    this.yycdebug("Reducing stack by rule " + (yyrule - 1) + " (line " + yylno + "), ");
+    this.debug_puts("Reducing stack by rule " + (yyrule - 1) + " (line " + yylno + "), ");
 
     // The symbols being reduced.
     for (var yyi = 0; yyi < yynrhs; yyi++)
     {
-      this.yy_symbol_print(
+      this.debug_symbol_print(
         "   $" + (yyi + 1) + " =",
         this.yyrhs_[this.yyprhs_[yyrule] + yyi],
         (yystack.valueAt(yynrhs-(yyi + 1))),
@@ -772,9 +772,9 @@ YYParser.prototype =
     }
   },
 
-  yy_symbol_print: function yy_symbol_print (message, yytype, yyvaluep, yylocationp)
+  debug_symbol_print: function debug_symbol_print (message, yytype, yyvaluep, yylocationp)
   {
-    this.yycdebug
+    this.debug_puts
     (
       message
       + (yytype < this.yyntokens_ ? " token " : " nterm ")
@@ -915,7 +915,7 @@ YYParser.prototype =
     }
   },
 
-  yystack_print: function yystack_print ()
+  debug_stack_print: function debug_stack_print ()
   {
     console.log("Stack now");
 
@@ -926,7 +926,7 @@ YYParser.prototype =
     }
   },
 
-  yycdebug: function yycdebug (message)
+  debug_puts: function debug_puts (message)
   {
     console.log(message);
   }
