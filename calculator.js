@@ -32,12 +32,9 @@
 
 
 
-
-
-
 ;(function(){ // start of the parser namespase
 /* First part of user declarations.  */
-/* Line 86 of lalr1.js  */
+/* Line 77 of lalr1.js  */
 /* Line 1 of "calculator.y"  */
 
 var result
@@ -49,8 +46,6 @@ var result
  * @author LALR (1) parser skeleton written by Paolo Bonzini.
  * @author Java skeleton ported by Peter Leonov.
  */
-
-
 
 
 /**
@@ -143,8 +138,6 @@ function YYParser (yylexer)
   this.yylexer = yylexer;
 
 
-
-
   // True if verbose error messages are enabled.
   var errorVerbose = true;
 
@@ -154,18 +147,10 @@ function YYParser (yylexer)
   var yydebug = true;
 
 
-
   function yyerror (location, message)
   {
     yylexer.yyerror(location, message);
   }
-
-  
-
-
-
-
-
 
   function yycdebug (message)
   {
@@ -174,15 +159,12 @@ function YYParser (yylexer)
   }
 
 
-
-
   // Returned by a Bison action in order to stop the parsing process
   // and return success (<tt>true</tt>).
   var YYACCEPT = 0;
 
-
-   // Returned by a Bison action in order to stop the parsing process
-   // and return failure (<tt>false</tt>).  */
+  // Returned by a Bison action in order to stop the parsing process
+  // and return failure (<tt>false</tt>).  */
   var YYABORT = 1;
 
   // Returned by a Bison action in order to start error recovery
@@ -214,47 +196,47 @@ function YYParser (yylexer)
   var actionsTable =
   {
       '2': function (yystack) {
-    /* Line 258 of lalr1.js  */
+    /* Line 234 of lalr1.js  */
 /* Line 24 of "calculator.y"  */
     {result = (yystack.valueAt(2-(1)));}; return yystack},
   '3': function (yystack) {
-    /* Line 258 of lalr1.js  */
+    /* Line 234 of lalr1.js  */
 /* Line 29 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) + (yystack.valueAt(3-(3)));}; return yystack},
   '4': function (yystack) {
-    /* Line 258 of lalr1.js  */
+    /* Line 234 of lalr1.js  */
 /* Line 31 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) - (yystack.valueAt(3-(3)));}; return yystack},
   '5': function (yystack) {
-    /* Line 258 of lalr1.js  */
+    /* Line 234 of lalr1.js  */
 /* Line 33 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) * (yystack.valueAt(3-(3)));}; return yystack},
   '6': function (yystack) {
-    /* Line 258 of lalr1.js  */
+    /* Line 234 of lalr1.js  */
 /* Line 35 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) / (yystack.valueAt(3-(3)));}; return yystack},
   '7': function (yystack) {
-    /* Line 258 of lalr1.js  */
+    /* Line 234 of lalr1.js  */
 /* Line 37 of "calculator.y"  */
     {yyval = Math.pow((yystack.valueAt(3-(1))), (yystack.valueAt(3-(3))));}; return yystack},
   '8': function (yystack) {
-    /* Line 258 of lalr1.js  */
+    /* Line 234 of lalr1.js  */
 /* Line 39 of "calculator.y"  */
     {yyval = -(yystack.valueAt(2-(2)));}; return yystack},
   '9': function (yystack) {
-    /* Line 258 of lalr1.js  */
+    /* Line 234 of lalr1.js  */
 /* Line 41 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(2)));}; return yystack},
   '10': function (yystack) {
-    /* Line 258 of lalr1.js  */
+    /* Line 234 of lalr1.js  */
 /* Line 43 of "calculator.y"  */
     {yyval = Number(yyval);}; return yystack},
   '11': function (yystack) {
-    /* Line 258 of lalr1.js  */
+    /* Line 234 of lalr1.js  */
 /* Line 45 of "calculator.y"  */
     {yyval = Math.E;}; return yystack},
   '12': function (yystack) {
-    /* Line 258 of lalr1.js  */
+    /* Line 234 of lalr1.js  */
 /* Line 47 of "calculator.y"  */
     {yyval = Math.PI;}; return yystack}
   }
@@ -336,7 +318,7 @@ function YYParser (yylexer)
     yyerrstatus_ = 0;
 
 
-    /* Initialize the stack.  */
+    // Initialize the stack.
     yystack.push(yystate, yylval, yylloc);
 
     var label = YYNEWSTATE;
@@ -981,7 +963,7 @@ YYParser.TOKENS =
   'UMINUS': 264
 };
 
-/* Line 929 of lalr1.js  */
+/* Line 905 of lalr1.js  */
 /* Line 50 of "calculator.y"  */
 
 

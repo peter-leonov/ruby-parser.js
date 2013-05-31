@@ -22,9 +22,6 @@ m4_define([b4_comment], [/* m4_bpatsubst([$1], [
    ])  */])
 
 
-
-
-
 # needed in list terminations
 m4_define([b4_null], [null])
 
@@ -56,9 +53,6 @@ m4_define([b4_list_of_actions], [m4_join([,
 m4_define([b4_lhs_value], [yyval])
 
 
-
-
-
 # b4_rhs_value(RULE-LENGTH, NUM)
 # $N
 m4_define([b4_rhs_value], [(yystack.valueAt($1-($2)))])
@@ -68,16 +62,13 @@ m4_define([b4_rhs_value], [(yystack.valueAt($1-($2)))])
 # Expansion of @NUM, where the current rule has RULE-LENGTH symbols on RHS.
 m4_define([b4_rhs_location], [yystack.locationAt($1-($2))])
 
+
 b4_defines_if([b4_fatal([%s: %%defines does not make sense in JavaScript], [b4_skeleton])])
 m4_ifval(m4_defn([b4_symbol_destructors]), [b4_fatal([%s: %%destructor does not make sense in JavaScript], [b4_skeleton])], [])
 
 
-
 b4_output_begin([b4_parser_file_name])
 b4_copyright([Skeleton implementation for Bison LALR(1) parsers in JavaScript], [2007-2013])
-
-
-
 
 
 [
@@ -91,8 +82,6 @@ b4_copyright([Skeleton implementation for Bison LALR(1) parsers in JavaScript], 
  * @@author LALR (1) parser skeleton written by Paolo Bonzini.
  * @@author Java skeleton ported by Peter Leonov.
  */
-
-
 
 
 /**
@@ -185,8 +174,6 @@ function YYParser (yylexer)
   this.yylexer = yylexer;
 
 
-
-
   // True if verbose error messages are enabled.
   var errorVerbose = true;
 
@@ -196,18 +183,10 @@ function YYParser (yylexer)
   var yydebug = true;
 
 
-
   function yyerror (location, message)
   {
     yylexer.yyerror(location, message);
   }
-
-  
-
-
-
-
-
 
   function yycdebug (message)
   {
@@ -216,15 +195,12 @@ function YYParser (yylexer)
   }
 
 
-
-
   // Returned by a Bison action in order to stop the parsing process
   // and return success (<tt>true</tt>).
   var YYACCEPT = 0;
 
-
-   // Returned by a Bison action in order to stop the parsing process
-   // and return failure (<tt>false</tt>).  */
+  // Returned by a Bison action in order to stop the parsing process
+  // and return failure (<tt>false</tt>).  */
   var YYABORT = 1;
 
   // Returned by a Bison action in order to start error recovery
@@ -335,7 +311,7 @@ function YYParser (yylexer)
     yyerrstatus_ = 0;
 
 
-    /* Initialize the stack.  */
+    // Initialize the stack.
     yystack.push(yystate, yylval, yylloc);
 
     var label = YYNEWSTATE;
