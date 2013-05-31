@@ -1008,12 +1008,17 @@ return Lexer
 
 })();
 
+var t = YYParser.TOKENS
+
 var lexer = new Lexer
 ([
-  ['NUMBER']
+  [t.NUMBER, 1],
+  ['+', '+'],
+  [t.NUMBER, 3],
+  [t.EOF, '']
 ])
 
 var parser = new YYParser(lexer)
 
-print(parser.yyparse())
+print(parser.parse())
 
