@@ -176,13 +176,6 @@ function YYParser (yylexer)
   var yydebug = this.yydebug = true;
 
 
-  function yycdebug (message)
-  {
-    if (yydebug)
-      console.log(message);
-  }
-
-
   // Returned by a Bison action in order to stop the parsing process
   // and return success (<tt>true</tt>).
   var YYACCEPT = 0;
@@ -296,7 +289,7 @@ function YYParser (yylexer)
     // Semantic value of the lookahead.
     var yylval = null;
 
-    yycdebug("Starting parse");
+    this_parser.yycdebug("Starting parse");
     yyerrstatus_ = 0;
 
 
@@ -313,7 +306,7 @@ function YYParser (yylexer)
       case YYNEWSTATE:
         // Unlike in the C/C++ skeletons, the state is already pushed when we come here.
 
-        yycdebug("Entering state " + yystate);
+        this_parser.yycdebug("Entering state " + yystate);
         this_parser.yystack_print(yystack)
 
         // Accept?
@@ -333,7 +326,7 @@ function YYParser (yylexer)
         // Read a lookahead token.
         if (yychar == yyempty_)
         {
-          yycdebug("Reading a token: ");
+          this_parser.yycdebug("Reading a token: ");
           yychar = yylexer.yylex();
 
           yylloc = new Location(yylexer.getStartPos(), yylexer.getEndPos());
@@ -345,7 +338,7 @@ function YYParser (yylexer)
         if (yychar <= EOF)
         {
           yychar = yytoken = EOF;
-          yycdebug("Now at end of input.");
+          this_parser.yycdebug("Now at end of input.");
         }
         else
         {
@@ -503,7 +496,7 @@ function YYParser (yylexer)
           // Pop the current state because it cannot handle the error token.
           if (yystack.height() == 0)
           {
-            yycdebug('Empty stack while handling error')
+            this_parser.yycdebug('Empty stack while handling error')
             return false;
           }
 
