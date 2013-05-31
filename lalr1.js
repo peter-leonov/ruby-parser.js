@@ -820,23 +820,24 @@ function YYParser (yylexer)
   ];
 
   // Report on the debug stream that the rule yyrule is going to be reduced.
-  private void yy_reduce_print (int yyrule, YYStack yystack)
+  function yy_reduce_print (yyrule, yystack)
   {
     if (!yydebug)
       return;
 
-    int yylno = yyrline_[yyrule];
-    int yynrhs = yyr2_[yyrule];
-    /* Print the symbols being reduced, and their result.  */
-    yycdebug ("Reducing stack by rule " + (yyrule - 1)
-	      + " (line " + yylno + "), ");
+    var yylno = yyrline_[yyrule];
+    var yynrhs = yyr2_[yyrule];
+    // Print the symbols being reduced, and their result.
+    yycdebug ("Reducing stack by rule " + (yyrule - 1) + " (line " + yylno + "), ");
 
-    /* The symbols being reduced.  */
-    for (int yyi = 0; yyi < yynrhs; yyi++)
-      yy_symbol_print ("   $" + (yyi + 1) + " =",
-		       yyrhs_[yyprhs_[yyrule] + yyi],
-		       ]b4_rhs_value(yynrhs, yyi + 1)[,
-		       ]b4_rhs_location(yynrhs, yyi + 1)[);
+    // The symbols being reduced.
+    for (var yyi = 0; yyi < yynrhs; yyi++)
+      yy_symbol_print(
+        "   $" + (yyi + 1) + " =",
+        yyrhs_[yyprhs_[yyrule] + yyi],
+        ]b4_rhs_value(yynrhs, yyi + 1)[,
+        ]b4_rhs_location(yynrhs, yyi + 1)[
+      );
   }
 
   /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
