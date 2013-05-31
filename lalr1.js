@@ -133,9 +133,11 @@ function YYParser (yylexer)
   // Token returned by the scanner to signal the end of its input.
   var EOF = 0;
 
+  // Tokens.
+  // Token numbers, to be returned by the scanner.
   ]b4_token_enums(b4_tokens)[
 
-  
+
 
 
 

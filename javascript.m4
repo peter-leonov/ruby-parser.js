@@ -54,8 +54,7 @@ m4_define([b4_token_enum],
 # Output the definition of the tokens (if there are) as enums.
 m4_define([b4_token_enums],
 [m4_if([$#$1], [1], [],
-[/* Tokens.  */
-/** Token numbers, to be returned by the scanner.  */
+[
 var TOKENS = {
 m4_map([b4_token_enum], [$@])])
   'terminator': 0 /* FIXME: comma terminator */
