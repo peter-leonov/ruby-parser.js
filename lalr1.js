@@ -234,7 +234,7 @@ function YYParser (yylexer)
     else
       yyval = yystack.valueAt(0);
 
-    yy_reduce_print(yyn, yystack);  // TODO: step into
+    yy_reduce_print(yyn);
 
     var actionClosure = actionsTable[yyn]
     if (actionClosure)
@@ -275,7 +275,8 @@ function YYParser (yylexer)
     var yylen = 0;
     var yystate = 0;
 
-    yystack = new YYStack();
+    // the only place yystack is changed
+    yystack = this.yystack = new YYStack();
 
     /* Error handling.  */
     var yynerrs_ = 0;
@@ -837,13 +838,14 @@ function YYParser (yylexer)
     b4_rline
     //[[
   ];
-
+  var self = this
   // Report on the debug stream that the rule yyrule is going to be reduced.
-  function yy_reduce_print (yyrule, yystack)
+  function yy_reduce_print (yyrule)
   {
     if (!yydebug)
       return;
 
+    var yystack = self.yystack
     var yylno = yyrline_[yyrule];
     var yynrhs = yyr2_[yyrule];
     // Print the symbols being reduced, and their result.
