@@ -28,7 +28,9 @@ b4_copyright([Skeleton implementation for Bison LALR(1) parsers in JavaScript],
 
 b4_percent_define_ifdef([package], [package b4_percent_define_get([package]);
 ])
-[/* First part of user declarations.  */
+[
+;(function(){ // start of the parser namespase
+/* First part of user declarations.  */
 ]b4_pre_prologue[
 ]b4_percent_code_get([[imports]])[
 /**
@@ -872,6 +874,8 @@ YYParser.TOKENS =
 ]b4_token_enums(b4_tokens)[
 };
 
+]b4_epilogue[
+
+}).call(this); // end of the parser namespase
 ]
-b4_epilogue
 b4_output_end()
