@@ -29,11 +29,11 @@ var result
 
 /* operator associations and precedence */
 
-%token E END NUMBER PI
+%token E END NUMBER PI L R
 
-%left '+' '-'
-%left '*' '/'
-%left '^'
+%left PLUS MINUS
+%left MULT DIV
+%left POW
 %left UMINUS
 
 %start expressions
@@ -46,19 +46,19 @@ expressions
     ;
 
 e
-    : e '+' e
+    : e PLUS e
         {$$ = $1 + $3;}
-    | e '-' e
+    | e MINUS e
         {$$ = $1 - $3;}
-    | e '*' e
+    | e MULT e
         {$$ = $1 * $3;}
-    | e '/' e
+    | e DIV e
         {$$ = $1 / $3;}
-    | e '^' e
+    | e POW e
         {$$ = Math.pow($1, $3);}
-    | '-' e %prec UMINUS
+    | MINUS e %prec UMINUS
         {$$ = -$2;}
-    | '(' e ')'
+    | L e R
         {$$ = $2;}
     | NUMBER
         {$$ = Number(yyval);}
@@ -115,13 +115,27 @@ return Lexer
 
 this.console = {log: print}
 
+// (3+2*3)/-3
 var lexer = new Lexer
 ([
-  [T.NUMBER, '7'],
+  [T.L, '('],
+  [T.L, '('],
+  [T.NUMBER, '3'],
+  [T.PLUS, '+'],
+  [T.NUMBER, '2'],
+  [T.MULT, '*'],
+  [T.NUMBER, '3'],
+  [T.R, ')'],
+  [T.MULT, '*'],
+  [T.NUMBER, '1'],
+  [T.R, ')'],
+  [T.DIV, '/'],
+  [T.MINUS, '-'],
+  [T.NUMBER, '3'],
   [T.END, '']
 ])
 
 var parser = new YYParser(lexer)
 
 print(parser.parse())
-print(result)
+print(result == -3)
