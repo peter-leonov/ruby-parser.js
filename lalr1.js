@@ -344,7 +344,11 @@ function YYParser (yylexer)
         }
         else
         {
-          yytoken = yytranslate_(yychar);
+          if (yychar >= 0 && yychar <= yyuser_token_number_max_)
+            yytoken = yytranslate_table_[yychar];
+          else
+            yytoken = yyundef_token_;
+
           yy_symbol_print("Next token is", yytoken, yylval, yylloc);
         }
 
@@ -862,14 +866,6 @@ function YYParser (yylexer)
     b4_translate
     //[[
   ];
-
-  function yytranslate_ (t)
-  {
-    if (t >= 0 && t <= yyuser_token_number_max_)
-      return yytranslate_table_[t];
-    else
-      return yyundef_token_;
-  }
 
   var yylast_ = ]b4_last[;
   var yynnts_ = ]b4_nterms_number[;

@@ -351,7 +351,11 @@ function YYParser (yylexer)
         }
         else
         {
-          yytoken = yytranslate_(yychar);
+          if (yychar >= 0 && yychar <= yyuser_token_number_max_)
+            yytoken = yytranslate_table_[yychar];
+          else
+            yytoken = yyundef_token_;
+
           yy_symbol_print("Next token is", yytoken, yylval, yylloc);
         }
 
@@ -918,14 +922,6 @@ function YYParser (yylexer)
     //[
   ];
 
-  function yytranslate_ (t)
-  {
-    if (t >= 0 && t <= yyuser_token_number_max_)
-      return yytranslate_table_[t];
-    else
-      return yyundef_token_;
-  }
-
   var yylast_ = 38;
   var yynnts_ = 3;
   var yyempty_ = -2;
@@ -966,7 +962,7 @@ YYParser.TOKENS =
   'UMINUS': 264
 };
 
-/* Line 908 of lalr1.js  */
+/* Line 904 of lalr1.js  */
 /* Line 50 of "calculator.y"  */
 
 
