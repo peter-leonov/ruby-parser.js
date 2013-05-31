@@ -35,6 +35,7 @@ b4_percent_define_ifdef([package], [package b4_percent_define_get([package]);
  * A Bison parser, automatically generated from <tt>]m4_bpatsubst(b4_file_name, [^"\(.*\)"$], [\1])[</tt>.
  *
  * @@author LALR (1) parser skeleton written by Paolo Bonzini.
+ * @@author Java skeleton ported by Peter Leonov.
  */
 
 
