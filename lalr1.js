@@ -322,7 +322,7 @@ function YYParser (yylexer)
         // Take a decision.
         // First try without lookahead.
         yyn = yypact_[yystate];
-        if (yy_pact_value_is_default_ (yyn))
+        if (yyn == yypact_ninf_) // yyn pact value is default
         {
           // goto
           label = YYDEFAULT;
@@ -488,7 +488,7 @@ function YYParser (yylexer)
         for (;;)
         {
           yyn = yypact_[yystate];
-          if (!yy_pact_value_is_default_(yyn))
+          if (yyn != yypact_ninf_) // yyn pact value isn't default
           {
             yyn += yyterror_;
             if (0 <= yyn && yyn <= yylast_ && yycheck_[yyn] == yyterror_)
@@ -638,7 +638,7 @@ function YYParser (yylexer)
         var res = "syntax error, unexpected ";
         res += yytnamerr_(yytname_[tok]);
         var yyn = yypact_[yystate];
-        if (!yy_pact_value_is_default_(yyn))
+        if (yyn != yypact_ninf_) // yyn pact value isn't default
         {
           // Start YYX at -YYN if negative to avoid negative indexes in YYCHECK.
           // In other words, skip the first -YYN actions for this state
@@ -683,13 +683,6 @@ function YYParser (yylexer)
     } // if (errorVerbose)
 
     return "syntax error";
-  }
-
-  // Whether the given <code>yypact_</code> value indicates a defaulted state.
-  // @@param yyvalue   the value to check
-  function yy_pact_value_is_default_(yyvalue)
-  {
-    return yyvalue == yypact_ninf_;
   }
 
   // YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing STATE-NUM.
