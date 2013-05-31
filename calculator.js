@@ -808,86 +808,88 @@ YYParser.prototype =
     if (!this.errorVerbose)
       return "syntax error";
 
+    /*
+    There are many possibilities here to consider:
+     - Assume YYFAIL is not used.  It's too flawed to consider.
+       See
+       <http://lists.gnu.org/archive/html/bison-patches/2009-12/msg00024.html>
+       for details.  YYERROR is fine as it does not invoke this
+       function.
+     - If this state is a consistent state with a default action,
+       then the only way this function was invoked is if the
+       default action is an error action.  In that case, don't
+       check for expected tokens because there are none.
+     - The only way there can be no lookahead present (in tok) is
+       if this state is a consistent state with a default action.
+       Thus, detecting the absence of a lookahead is sufficient to
+       determine that there is no unexpected or expected token to
+       report.  In that case, just report a simple "syntax error".
+     - Don't assume there isn't a lookahead just because this
+       state is a consistent state with a default action.  There
+       might have been a previous inconsistent state, consistent
+       state with a non-default action, or user semantic action
+       that manipulated yychar.  (However, yychar is currently out
+       of scope during semantic actions.)
+     - Of course, the expected token list depends on states to
+       have correct lookahead information, and it depends on the
+       parser not to perform extra reductions after fetching a
+       lookahead from the scanner and before detecting a syntax
+       error.  Thus, state merging (from LALR or IELR) and default
+       reductions corrupt the expected token list.  However, the
+       list is correct for canonical LR with one exception: it
+       will still contain any token that will not be accepted due
+       to an error action in a later state.
+    */
+
     if (tok == this.yyempty_)
       return "syntax error (empty token)";
 
-      /* There are many possibilities here to consider:
-         - Assume YYFAIL is not used.  It's too flawed to consider.
-           See
-           <http://lists.gnu.org/archive/html/bison-patches/2009-12/msg00024.html>
-           for details.  YYERROR is fine as it does not invoke this
-           function.
-         - If this state is a consistent state with a default action,
-           then the only way this function was invoked is if the
-           default action is an error action.  In that case, don't
-           check for expected tokens because there are none.
-         - The only way there can be no lookahead present (in tok) is
-           if this state is a consistent state with a default action.
-           Thus, detecting the absence of a lookahead is sufficient to
-           determine that there is no unexpected or expected token to
-           report.  In that case, just report a simple "syntax error".
-         - Don't assume there isn't a lookahead just because this
-           state is a consistent state with a default action.  There
-           might have been a previous inconsistent state, consistent
-           state with a non-default action, or user semantic action
-           that manipulated yychar.  (However, yychar is currently out
-           of scope during semantic actions.)
-         - Of course, the expected token list depends on states to
-           have correct lookahead information, and it depends on the
-           parser not to perform extra reductions after fetching a
-           lookahead from the scanner and before detecting a syntax
-           error.  Thus, state merging (from LALR or IELR) and default
-           reductions corrupt the expected token list.  However, the
-           list is correct for canonical LR with one exception: it
-           will still contain any token that will not be accepted due
-           to an error action in a later state.
-      */
-        // FIXME: This method of building the message is not compatible
-        // with internationalization.
-        var res = "syntax error, unexpected ";
-        res += yytnamerr_(this.yytname_[tok]);
-        var yyn = this.yypact_[yystate];
-        if (yyn != this.yypact_ninf_) // yyn pact value isn't default
+    // FIXME: This method of building the message is not compatible
+    // with internationalization.
+    var res = "syntax error, unexpected ";
+    res += yytnamerr_(this.yytname_[tok]);
+    var yyn = this.yypact_[yystate];
+    if (yyn != this.yypact_ninf_) // yyn pact value isn't default
+    {
+      // Start YYX at -YYN if negative to avoid negative indexes in YYCHECK.
+      // In other words, skip the first -YYN actions for this state
+      // because they are default actions.
+      var yyxbegin = yyn < 0 ? -yyn : 0;
+      // Stay within bounds of both yycheck and yytname.
+      var yychecklim = this.yylast_ - yyn + 1;
+      var yyxend = yychecklim < this.yyntokens_ ? yychecklim : this.yyntokens_;
+      var count = 0;
+      for (var x = yyxbegin; x < yyxend; ++x)
+      {
+        if
+        (
+          this.yycheck_[x + yyn] == x
+          && x != this.yyterror_
+          && this.yytable_[x + yyn] != this.yytable_ninf_ // yytable_[x + yyn] isn't an error
+        )
+        {    
+          ++count;
+        }
+      }
+      if (count < 5)
+      {
+        count = 0;
+        for (var x = yyxbegin; x < yyxend; ++x)
         {
-          // Start YYX at -YYN if negative to avoid negative indexes in YYCHECK.
-          // In other words, skip the first -YYN actions for this state
-          // because they are default actions.
-          var yyxbegin = yyn < 0 ? -yyn : 0;
-          // Stay within bounds of both yycheck and yytname.
-          var yychecklim = this.yylast_ - yyn + 1;
-          var yyxend = yychecklim < this.yyntokens_ ? yychecklim : this.yyntokens_;
-          var count = 0;
-          for (var x = yyxbegin; x < yyxend; ++x)
+          if
+          (
+            yycheck_[x + yyn] == x
+            && x != yyterror_
+            && this.yytable_[x + yyn] != this.yytable_ninf_ // yytable_[x + yyn] isn't an error
+          )
           {
-            if
-            (
-              this.yycheck_[x + yyn] == x
-              && x != this.yyterror_
-              && this.yytable_[x + yyn] != this.yytable_ninf_ // yytable_[x + yyn] isn't an error
-            )
-            {    
-              ++count;
-            }
-          }
-          if (count < 5)
-          {
-            count = 0;
-            for (var x = yyxbegin; x < yyxend; ++x)
-            {
-              if
-              (
-                yycheck_[x + yyn] == x
-                && x != yyterror_
-                && this.yytable_[x + yyn] != this.yytable_ninf_ // yytable_[x + yyn] isn't an error
-              )
-              {
-                res += (count++ == 0 ? ", expecting " : " or ");
-                res += yytnamerr_(yytname_[x]);
-              }
-            }
+            res += (count++ == 0 ? ", expecting " : " or ");
+            res += yytnamerr_(yytname_[x]);
           }
         }
-        return res;
+      }
+    }
+    return res;
 
     /* Return YYSTR after stripping away unnecessary quotes and
        backslashes, so that it's suitable for yyerror.  The heuristic is
@@ -958,7 +960,7 @@ YYParser.TOKENS =
   'UMINUS': 264
 };
 
-/* Line 900 of lalr1.js  */
+/* Line 902 of lalr1.js  */
 /* Line 50 of "calculator.y"  */
 
 
