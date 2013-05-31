@@ -511,7 +511,8 @@ function YYParser (yylexer)
           // Pop the current state because it cannot handle the error token.
           if (yystack.height() == 0)
           {
-            return 'empty stack while handling error';
+            yycdebug('Empty stack while handling error')
+            return false;
           }
 
           yyerrloc = yystack.locationAt(0);

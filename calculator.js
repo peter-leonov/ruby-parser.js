@@ -518,7 +518,8 @@ function YYParser (yylexer)
           // Pop the current state because it cannot handle the error token.
           if (yystack.height() == 0)
           {
-            return 'empty stack while handling error';
+            yycdebug('Empty stack while handling error')
+            return false;
           }
 
           yyerrloc = yystack.locationAt(0);
@@ -963,7 +964,7 @@ YYParser.TOKENS =
   'UMINUS': 264
 };
 
-/* Line 905 of lalr1.js  */
+/* Line 906 of lalr1.js  */
 /* Line 50 of "calculator.y"  */
 
 
