@@ -210,7 +210,7 @@ function YYParser (yylexer)
   var actionsTable =
   {
     ]b4_user_actions[
-    'terminator': function noop (){} /* comma terminator, needs to be avoided */
+    'terminator': function noop (){} /* FIXME: comma terminator */
   }
 
 

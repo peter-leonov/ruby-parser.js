@@ -58,7 +58,7 @@ m4_define([b4_token_enums],
 /** Token numbers, to be returned by the scanner.  */
 var TOKENS = {
 m4_map([b4_token_enum], [$@])])
-  'terminator': 0 /* comma terminator, needs to be avoided */
+  'terminator': 0 /* FIXME: comma terminator */
 };
 ])
 
