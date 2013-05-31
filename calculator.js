@@ -354,7 +354,7 @@ function YYParser (yylexer)
    * @return <tt>true</tt> if the parsing succeeds.  Note that this does not
    *          imply that there were no syntax errors.
    */
-  function parse ()
+  this.parse = function parse ()
   {
     /// Lookahead and lookahead in internal form.
     var yychar = yyempty_;
