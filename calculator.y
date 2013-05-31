@@ -10,7 +10,7 @@ var result
 
 %token E END NUMBER PI L R
 
-%left PLUS MINUS
+%left '+' MINUS
 %left MULT DIV
 %left POW
 %left UMINUS
@@ -25,7 +25,7 @@ expressions
     ;
 
 e
-    : e PLUS e
+    : e '+' e
         {$$ = $1 + $3;}
     | e MINUS e
         {$$ = $1 - $3;}
@@ -93,6 +93,8 @@ return Lexer
 })();
 
 this.console = {log: print}
+
+T.PLUS = '+'.charCodeAt(0)
 
 // ((3+2*3)*1)/-3
 var lexer = new Lexer
