@@ -67,3 +67,51 @@ e
     | PI
         {$$ = Math.PI;}
     ;
+
+%%
+
+var Lexer = (function(){
+
+function Lexer (tokens)
+{
+  this.tokens = tokens
+}
+
+Lexer.prototype =
+{
+  yylex: function ()
+  {
+    this.token = this.tokens.shift()
+    return this.token[0]
+  },
+
+  getLVal: function ()
+  {
+    return this.token[1]
+  },
+
+  getStartPos: function ()
+  {
+    return 0
+  },
+
+  getEndPos: function ()
+  {
+    return 1
+  },
+
+  yyerror: function () {}
+}
+
+return Lexer
+
+})();
+
+var lexer = new Lexer
+([
+  ['NUMBER']
+])
+
+var parser = new YYParser(lexer)
+
+print(parser.yyparse())
