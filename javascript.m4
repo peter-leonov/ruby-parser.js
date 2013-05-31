@@ -44,9 +44,7 @@ m4_define([b4_null], [null])
 # b4_token_enum(TOKEN-NAME, TOKEN-NUMBER)
 # ---------------------------------------
 # Output the definition of this token as an enum.
-m4_define([b4_token_enum],
-[  '$1': $2,
-])
+m4_define([b4_token_enum], [  '$1': $2])
 
 
 # b4_token_enums(LIST-OF-PAIRS-TOKEN-NAME-TOKEN-NUMBER)
@@ -56,8 +54,8 @@ m4_define([b4_token_enums],
 [m4_if([$#$1], [1], [],
 [
 var TOKENS = {
-m4_map([b4_token_enum], [$@])])
-  'terminator': 0 /* FIXME: comma terminator */
+m4_map_sep([b4_token_enum], [,
+], [$@])])
 };
 ])
 
