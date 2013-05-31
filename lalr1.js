@@ -840,13 +840,15 @@ function YYParser (yylexer)
       );
   }
 
-  /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
-  private static final ]b4_int_type_for([b4_translate])[ yytranslate_table_[] =
-  {
-    ]b4_translate[
-  };
+  // YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.
+  function yytranslate_table_ =
+  [
+    //]]
+    b4_translate
+    //[[
+  ];
 
-  private static final ]b4_int_type_for([b4_translate])[ yytranslate_ (int t)
+  function yytranslate_ (t)
   {
     if (t >= 0 && t <= yyuser_token_number_max_)
       return yytranslate_table_[t];
@@ -854,26 +856,22 @@ function YYParser (yylexer)
       return yyundef_token_;
   }
 
-  private static final int yylast_ = ]b4_last[;
-  private static final int yynnts_ = ]b4_nterms_number[;
-  private static final int yyempty_ = -2;
-  private static final int yyfinal_ = ]b4_final_state_number[;
-  private static final int yyterror_ = 1;
-  private static final int yyerrcode_ = 256;
+  var yylast_ = ]b4_last[;
+  var yynnts_ = ]b4_nterms_number[;
+  var yyempty_ = -2;
+  var yyfinal_ = ]b4_final_state_number[;
+  var yyterror_ = 1;
+  var yyerrcode_ = 256;
 
-  private static final int yyuser_token_number_max_ = ]b4_user_token_number_max[;
-  private static final int yyundef_token_ = ]b4_undef_token_number[;
-
-]/* User implementation code.  */
-b4_percent_code_get[]dnl
-
+  var yyuser_token_number_max_ = ]b4_user_token_number_max[;
+  var yyundef_token_ = ]b4_undef_token_number[;
 }
 
 // Version number for the Bison executable that generated this parser.
-YYParser.bisonVersion = "b4_version";
+YYParser.bisonVersion = "]b4_version[";
 
 // Name of the skeleton that generated this parser.
-YYParser.bisonSkeleton = b4_skeleton;
-
+YYParser.bisonSkeleton = ]b4_skeleton[;
+]
 b4_epilogue
 b4_output_end()
