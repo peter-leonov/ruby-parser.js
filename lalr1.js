@@ -334,7 +334,7 @@ function YYParser (yylexer)
     var yystack = new YYStack();
 
     /* Error handling.  */
-    int yynerrs_ = 0;
+    var yynerrs_ = 0;
     /// The location where the error started.
     var yyerrloc = null;
 
@@ -354,7 +354,7 @@ function YYParser (yylexer)
     /* Initialize the stack.  */
     yystack.push(yystate, yylval, yylloc);
 
-    int label = YYNEWSTATE;
+    var label = YYNEWSTATE;
     for (;;)
     switch (label)
     {
@@ -559,7 +559,7 @@ function YYParser (yylexer)
           yystate = yystack.stateAt(0);
           if (yydebug)
           {
-            yystack.print (yyDebugStream);
+            yystack.print(yyDebugStream);
           }
         }
 
@@ -841,7 +841,7 @@ function YYParser (yylexer)
   }
 
   // YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.
-  function yytranslate_table_ =
+  var yytranslate_table_ =
   [
     //]]
     b4_translate

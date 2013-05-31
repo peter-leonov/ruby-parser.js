@@ -1,5 +1,5 @@
 %{
-	alert(123)
+  // alert(123)
 %}
 %pure_parser
 
