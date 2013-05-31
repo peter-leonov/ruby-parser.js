@@ -34,35 +34,3 @@ public interface Lexer {
    * @@param s The string for the error message.  */
    void yyerror (]b4_locations_if([b4_location_type[ loc, ]])[String s);]
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-b4_locations_if([[
-/**
-* A class defining a pair of positions.  Positions, defined by the
-* <code>]b4_position_type[</code> class, denote a point in the input.
-* Locations represent a part of the input through the beginning
-* and ending positions.  */
-function Location (begin, end) {
-  /** The first, inclusive, position in the range.  */
-  this.begin = begin;
-  this.end = end;
-}
-
-Location.prototype.toString = function () {
-  if (this.begin === this.end)
-    return "" + begin;
-
-  return this.begin + "-" + this.end;
-}
-]])
