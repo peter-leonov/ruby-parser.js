@@ -891,7 +891,7 @@ function YYParser (yylexer)
     var yylno = yyrline_[yyrule];
     var yynrhs = yyr2_[yyrule];
     // Print the symbols being reduced, and their result.
-    yycdebug ("Reducing stack by rule " + (yyrule - 1) + " (line " + yylno + "), ");
+    yycdebug("Reducing stack by rule " + (yyrule - 1) + " (line " + yylno + "), ");
 
     // The symbols being reduced.
     for (var yyi = 0; yyi < yynrhs; yyi++)
