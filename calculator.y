@@ -66,7 +66,7 @@ Lexer.prototype =
       return T.EOF
     
     this.token = this.tokens.shift()
-    print('yylex', this.token)
+    // print('yylex', this.token)
     return this.token[0]
   },
 
@@ -85,7 +85,10 @@ Lexer.prototype =
     return 1
   },
 
-  yyerror: function () {}
+  yyerror: function (location, message)
+  {
+    console.log('at ' + location, message)
+  }
 }
 
 return Lexer
