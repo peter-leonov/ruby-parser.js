@@ -31,8 +31,10 @@
    version 2.2 of Bison.  */
 
 
+
+;(function(){ // start of the parser namespase
 /* First part of user declarations.  */
-/* Line 32 of lalr1.js  */
+/* Line 34 of lalr1.js  */
 /* Line 1 of "calculator.y"  */
 
 var result
@@ -42,6 +44,7 @@ var result
  * A Bison parser, automatically generated from <tt>calculator.y</tt>.
  *
  * @author LALR (1) parser skeleton written by Paolo Bonzini.
+ * @author Java skeleton ported by Peter Leonov.
  */
 
 
@@ -208,47 +211,47 @@ function YYParser (yylexer)
   var actionsTable =
   {
       '2': function (yystack) {
-    /* Line 203 of lalr1.js  */
+    /* Line 206 of lalr1.js  */
 /* Line 24 of "calculator.y"  */
     {result = (yystack.valueAt(2-(1)));}; return yystack},
   '3': function (yystack) {
-    /* Line 203 of lalr1.js  */
+    /* Line 206 of lalr1.js  */
 /* Line 29 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) + (yystack.valueAt(3-(3)));}; return yystack},
   '4': function (yystack) {
-    /* Line 203 of lalr1.js  */
+    /* Line 206 of lalr1.js  */
 /* Line 31 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) - (yystack.valueAt(3-(3)));}; return yystack},
   '5': function (yystack) {
-    /* Line 203 of lalr1.js  */
+    /* Line 206 of lalr1.js  */
 /* Line 33 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) * (yystack.valueAt(3-(3)));}; return yystack},
   '6': function (yystack) {
-    /* Line 203 of lalr1.js  */
+    /* Line 206 of lalr1.js  */
 /* Line 35 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) / (yystack.valueAt(3-(3)));}; return yystack},
   '7': function (yystack) {
-    /* Line 203 of lalr1.js  */
+    /* Line 206 of lalr1.js  */
 /* Line 37 of "calculator.y"  */
     {yyval = Math.pow((yystack.valueAt(3-(1))), (yystack.valueAt(3-(3))));}; return yystack},
   '8': function (yystack) {
-    /* Line 203 of lalr1.js  */
+    /* Line 206 of lalr1.js  */
 /* Line 39 of "calculator.y"  */
     {yyval = -(yystack.valueAt(2-(2)));}; return yystack},
   '9': function (yystack) {
-    /* Line 203 of lalr1.js  */
+    /* Line 206 of lalr1.js  */
 /* Line 41 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(2)));}; return yystack},
   '10': function (yystack) {
-    /* Line 203 of lalr1.js  */
+    /* Line 206 of lalr1.js  */
 /* Line 43 of "calculator.y"  */
     {yyval = Number(yyval);}; return yystack},
   '11': function (yystack) {
-    /* Line 203 of lalr1.js  */
+    /* Line 206 of lalr1.js  */
 /* Line 45 of "calculator.y"  */
     {yyval = Math.E;}; return yystack},
   '12': function (yystack) {
-    /* Line 203 of lalr1.js  */
+    /* Line 206 of lalr1.js  */
 /* Line 47 of "calculator.y"  */
     {yyval = Math.PI;}; return yystack}
   }
@@ -978,8 +981,7 @@ YYParser.TOKENS =
   'UMINUS': 269
 };
 
-
-/* Line 875 of lalr1.js  */
+/* Line 877 of lalr1.js  */
 /* Line 50 of "calculator.y"  */
 
 
@@ -1028,7 +1030,7 @@ return Lexer
 
 this.console = {log: print}
 
-// (3+2*3)/-3
+// ((3+2*3)*1)/-3
 var lexer = new Lexer
 ([
   [T.L, '('],
@@ -1052,4 +1054,7 @@ var parser = new YYParser(lexer)
 
 print(parser.parse())
 print(result == -3)
+
+
+}).call(this); // end of the parser namespase
 
