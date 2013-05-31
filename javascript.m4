@@ -124,15 +124,14 @@ m4_define([b4_throws], [b4_percent_define_get([[throws]])])
 m4_define([b4_lhs_value], [yyval])
 
 
-# b4_rhs_value(RULE-LENGTH, NUM, [TYPE])
+# b4_rhs_value(RULE-LENGTH, NUM)
 # --------------------------------------
 # Expansion of $<TYPE>NUM, where the current rule has RULE-LENGTH
 # symbols on RHS.
 #
 # In this simple implementation, %token and %type have class names
 # between the angle brackets.
-m4_define([b4_rhs_value],
-[(m4_ifval($3, [($3)])[](yystack.valueAt ($1-($2))))])
+m4_define([b4_rhs_value], [(yystack.valueAt($1-($2)))])
 
 # b4_lhs_location()
 # -----------------
