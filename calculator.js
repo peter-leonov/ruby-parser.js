@@ -91,17 +91,22 @@ function YYStack ()
 
   this.stateAt = function stateAt (i)
   {
-    return stateStack[stateStack.length - i];
+    return stateStack[stateStack.length-1 - i];
   }
 
   this.locationAt = function locationAt (i)
   {
-    return locStack[locStack.length - i];
+    return locStack[locStack.length-1 - i];
   }
 
   this.valueAt = function valueAt (i)
   {
-    return valueStack[valueStack.length - i];
+    return valueStack[valueStack.length-1 - i];
+  }
+  
+  this.height = function height ()
+  {
+    return stateStack.length-1;
   }
 
   // Print the state stack on the debug stream.
@@ -109,7 +114,7 @@ function YYStack ()
   {
     console.log("Stack now");
 
-    for (var i = 0; i <= stateStack.length; i++)
+    for (var i = 0; i < stateStack.length; i++)
     {
       console.log(' ' + stateStack[i]);
     }
@@ -118,9 +123,9 @@ function YYStack ()
   this.locationFromNthItemToCurrent = function locationFromNthItemToCurrent (n)
   {
     if (n > 0)
-      return new Location(locationAt(n-1).begin, locationAt(0).end);
+      return new Location(this.locationAt(n-1).begin, this.locationAt(0).end);
     
-    var end = locationAt(0).end
+    var end = this.locationAt(0).end
     return new Location(end, end);
   }
 }
@@ -203,47 +208,47 @@ function YYParser (yylexer)
   var actionsTable =
   {
       '2': function ()
-    /* Line 198 of lalr1.js  */
+    /* Line 203 of lalr1.js  */
 /* Line 45 of "calculator.y"  */
     {return (yystack.valueAt(2-(1)));},
   '3': function ()
-    /* Line 198 of lalr1.js  */
+    /* Line 203 of lalr1.js  */
 /* Line 50 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) + (yystack.valueAt(3-(3)));},
   '4': function ()
-    /* Line 198 of lalr1.js  */
+    /* Line 203 of lalr1.js  */
 /* Line 52 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) - (yystack.valueAt(3-(3)));},
   '5': function ()
-    /* Line 198 of lalr1.js  */
+    /* Line 203 of lalr1.js  */
 /* Line 54 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) * (yystack.valueAt(3-(3)));},
   '6': function ()
-    /* Line 198 of lalr1.js  */
+    /* Line 203 of lalr1.js  */
 /* Line 56 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(1))) / (yystack.valueAt(3-(3)));},
   '7': function ()
-    /* Line 198 of lalr1.js  */
+    /* Line 203 of lalr1.js  */
 /* Line 58 of "calculator.y"  */
     {yyval = Math.pow((yystack.valueAt(3-(1))), (yystack.valueAt(3-(3))));},
   '8': function ()
-    /* Line 198 of lalr1.js  */
+    /* Line 203 of lalr1.js  */
 /* Line 60 of "calculator.y"  */
     {yyval = -(yystack.valueAt(2-(2)));},
   '9': function ()
-    /* Line 198 of lalr1.js  */
+    /* Line 203 of lalr1.js  */
 /* Line 62 of "calculator.y"  */
     {yyval = (yystack.valueAt(3-(2)));},
   '10': function ()
-    /* Line 198 of lalr1.js  */
+    /* Line 203 of lalr1.js  */
 /* Line 64 of "calculator.y"  */
     {yyval = Number(yytext);},
   '11': function ()
-    /* Line 198 of lalr1.js  */
+    /* Line 203 of lalr1.js  */
 /* Line 66 of "calculator.y"  */
     {yyval = Math.E;},
   '12': function ()
-    /* Line 198 of lalr1.js  */
+    /* Line 203 of lalr1.js  */
 /* Line 68 of "calculator.y"  */
     {yyval = Math.PI;}
   }
@@ -583,7 +588,7 @@ function YYParser (yylexer)
           }
 
           // Pop the current state because it cannot handle the error token.
-          if (yystack.stateStack.length == 0)
+          if (yystack.height() == 0)
           {
             return false;
           }
@@ -967,7 +972,7 @@ YYParser.TOKENS =
 };
 
 
-/* Line 868 of lalr1.js  */
+/* Line 873 of lalr1.js  */
 /* Line 71 of "calculator.y"  */
 
 

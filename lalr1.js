@@ -84,17 +84,22 @@ function YYStack ()
 
   this.stateAt = function stateAt (i)
   {
-    return stateStack[stateStack.length - i];
+    return stateStack[stateStack.length-1 - i];
   }
 
   this.locationAt = function locationAt (i)
   {
-    return locStack[locStack.length - i];
+    return locStack[locStack.length-1 - i];
   }
 
   this.valueAt = function valueAt (i)
   {
-    return valueStack[valueStack.length - i];
+    return valueStack[valueStack.length-1 - i];
+  }
+  
+  this.height = function height ()
+  {
+    return stateStack.length-1;
   }
 
   // Print the state stack on the debug stream.
@@ -102,7 +107,7 @@ function YYStack ()
   {
     console.log("Stack now");
 
-    for (var i = 0; i <= stateStack.length; i++)
+    for (var i = 0; i < stateStack.length; i++)
     {
       console.log(' ' + stateStack[i]);
     }
@@ -111,9 +116,9 @@ function YYStack ()
   this.locationFromNthItemToCurrent = function locationFromNthItemToCurrent (n)
   {
     if (n > 0)
-      return new Location(locationAt(n-1).begin, locationAt(0).end);
+      return new Location(this.locationAt(n-1).begin, this.locationAt(0).end);
     
-    var end = locationAt(0).end
+    var end = this.locationAt(0).end
     return new Location(end, end);
   }
 }
@@ -304,7 +309,7 @@ function YYParser (yylexer)
    * @@return <tt>true</tt> if the parsing succeeds.  Note that this does not
    *          imply that there were no syntax errors.
    */
-  function parse ()
+  this.parse = function parse ()
   {
     /// Lookahead and lookahead in internal form.
     var yychar = yyempty_;
@@ -533,7 +538,7 @@ function YYParser (yylexer)
           }
 
           // Pop the current state because it cannot handle the error token.
-          if (yystack.stateStack.length == 0)
+          if (yystack.height() == 0)
           {
             return false;
           }
