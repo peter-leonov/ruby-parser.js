@@ -159,6 +159,9 @@ function YYStack ()
 // Instantiates the Bison-generated parser.
 function YYParser (yylexer)
 {
+  // one to rule them all
+  var this_parser = this
+  
   // The scanner that will supply tokens to the parser.
   this.yylexer = yylexer;
 
@@ -169,7 +172,7 @@ function YYParser (yylexer)
   // Token returned by the scanner to signal the end of its input.
   var EOF = 0;
 
-  var yydebug = true;
+  var yydebug = this.yydebug = true;
 
 
   function yycdebug (message)
@@ -200,7 +203,7 @@ function YYParser (yylexer)
   var YYERRLAB1 = 7;
   var YYRETURN = 8;
 
-  var yyntokens_ = ]b4_tokens_number[;
+  var yyntokens_ = this.yyntokens_ = ]b4_tokens_number[;
   
   var yyerrstatus_ = 0;
   
@@ -234,13 +237,13 @@ function YYParser (yylexer)
     else
       yyval = yystack.valueAt(0);
 
-    yy_reduce_print(yyn);
+    this_parser.yy_reduce_print(yyn);
 
     var actionClosure = actionsTable[yyn]
     if (actionClosure)
       actionClosure(yystack)
 
-    yy_symbol_print("-> $$ =", yyr1_[yyn], yyval, yyloc); // TODO: step into
+    this_parser.yy_symbol_print("-> $$ =", yyr1_[yyn], yyval, yyloc); // TODO: step into
 
     yystack.pop(yylen);
     yylen = 0;
@@ -275,7 +278,7 @@ function YYParser (yylexer)
     var yylen = 0;
     var yystate = 0;
 
-    // the only place yystack is changed
+    // the only place yystack value is changed
     yystack = this.yystack = new YYStack();
 
     /* Error handling.  */
@@ -350,7 +353,7 @@ function YYParser (yylexer)
           else
             yytoken = yyundef_token_;
 
-          yy_symbol_print("Next token is", yytoken, yylval, yylloc);
+          this_parser.yy_symbol_print("Next token is", yytoken, yylval, yylloc);
         }
 
         // If the proper action on seeing token YYTOKEN
@@ -384,7 +387,7 @@ function YYParser (yylexer)
         else
         {
           // Shift the lookahead token.
-          yy_symbol_print("Shifting", yytoken, yylval, yylloc);
+          this_parser.yy_symbol_print("Shifting", yytoken, yylval, yylloc);
 
           // Discard the token being shifted.
           yychar = yyempty_;
@@ -517,7 +520,7 @@ function YYParser (yylexer)
         yystack.pop(2);
 
         // Shift the error token.
-        yy_symbol_print("Shifting", yystos_[yyn], yylval, yyloc);
+        this_parser.yy_symbol_print("Shifting", yystos_[yyn], yylval, yyloc);
 
         yystate = yyn;
         yystack.push(yyn, yylval, yyloc);
@@ -578,27 +581,6 @@ function YYParser (yylexer)
     return yystr;
   }
 
-  /*--------------------------------.
-  | Print this symbol on YYOUTPUT.  |
-  `--------------------------------*/
-
-  function yy_symbol_print(message, yytype, yyvaluep, yylocationp)
-  {
-    if (!yydebug)
-      return;
-    
-    yycdebug
-    (
-      message
-      + (yytype < yyntokens_ ? " token " : " nterm ")
-      + yytname_[yytype]
-      + " ("
-      + yylocationp + ": "
-      + (yyvaluep == null ? "(null)" : yyvaluep.toString())
-      + ")"
-    );
-  }
-  
   function yystack_print (yystack)
   {
     if (!yydebug)
@@ -799,7 +781,7 @@ function YYParser (yylexer)
   ];
 
   // YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.
-  var yyr2_ =
+  var yyr2_ = this.yyr2_ =
   [
     //]]
     b4_r2
@@ -808,7 +790,7 @@ function YYParser (yylexer)
 
   // YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
   // First, the terminals, then, starting at \a yyntokens_, nonterminals.
-  var yytname_ =
+  var yytname_ = this.yytname_ =
   [
     //]]
     b4_tname
@@ -816,7 +798,7 @@ function YYParser (yylexer)
   ];
 
   // YYRHS -- A `-1'-separated list of the rules' RHS.
-  var yyrhs_ =
+  var yyrhs_ = this.yyrhs_ =
   [
     //]]
     b4_rhs
@@ -824,7 +806,7 @@ function YYParser (yylexer)
   ];
 
   // YYPRHS[YYN] -- Index of the first RHS symbol of rule number YYN in YYRHS.
-  var yyprhs_ =
+  var yyprhs_= this.yyprhs_ =
   [
     //]]
     b4_prhs
@@ -832,34 +814,12 @@ function YYParser (yylexer)
   ];
 
   // YYRLINE[YYN] -- Source line where rule number YYN was defined.
-  var yyrline_ =
+  var yyrline_ = this.yyrline_ =
   [
     //]]
     b4_rline
     //[[
   ];
-  var self = this
-  // Report on the debug stream that the rule yyrule is going to be reduced.
-  function yy_reduce_print (yyrule)
-  {
-    if (!yydebug)
-      return;
-
-    var yystack = self.yystack
-    var yylno = yyrline_[yyrule];
-    var yynrhs = yyr2_[yyrule];
-    // Print the symbols being reduced, and their result.
-    yycdebug("Reducing stack by rule " + (yyrule - 1) + " (line " + yylno + "), ");
-
-    // The symbols being reduced.
-    for (var yyi = 0; yyi < yynrhs; yyi++)
-      yy_symbol_print(
-        "   $" + (yyi + 1) + " =",
-        yyrhs_[yyprhs_[yyrule] + yyi],
-        ]b4_rhs_value(yynrhs, yyi + 1)[,
-        ]b4_rhs_location(yynrhs, yyi + 1)[
-      );
-  }
 
   // YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.
   var yytranslate_table_ =
@@ -886,6 +846,55 @@ YYParser.prototype =
   yyerror: function yyerror (location, message)
   {
     this.yylexer.yyerror(location, message);
+  },
+  
+  // Report on the debug stream that the rule yyrule is going to be reduced.
+  yy_reduce_print: function yy_reduce_print (yyrule)
+  {
+    if (!this.yydebug)
+      return;
+
+    var yystack = this.yystack;
+    var yylno = this.yyrline_[yyrule];
+    var yynrhs = this.yyr2_[yyrule];
+    // Print the symbols being reduced, and their result.
+    this.yycdebug("Reducing stack by rule " + (yyrule - 1) + " (line " + yylno + "), ");
+
+    // The symbols being reduced.
+    for (var yyi = 0; yyi < yynrhs; yyi++)
+    {
+      this.yy_symbol_print(
+        "   $" + (yyi + 1) + " =",
+        this.yyrhs_[this.yyprhs_[yyrule] + yyi],
+        ]b4_rhs_value(yynrhs, yyi + 1)[,
+        ]b4_rhs_location(yynrhs, yyi + 1)[
+      );
+    }
+  },
+
+  yy_symbol_print: function yy_symbol_print (message, yytype, yyvaluep, yylocationp)
+  {
+    if (!this.yydebug)
+      return;
+
+    this.yycdebug
+    (
+      message
+      + (yytype < this.yyntokens_ ? " token " : " nterm ")
+      + this.yytname_[yytype]
+      + " ("
+      + yylocationp + ": "
+      + (yyvaluep == null ? "(null)" : yyvaluep)
+      + ")"
+    );
+  },
+
+  yycdebug: function yycdebug (message)
+  {
+    if (!this.yydebug)
+      return
+    
+    console.log(message);
   }
 }
 
