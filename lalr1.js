@@ -183,7 +183,6 @@ function YYParser (yylexer)
    // and return failure (<tt>false</tt>).  */
   var YYABORT = 1;
 
-
   // Returned by a Bison action in order to start error recovery
   // without printing an error message.
   var YYERROR = 2;
@@ -209,11 +208,11 @@ function YYParser (yylexer)
     return yyerrstatus_ == 0;
   }
 
+  var yyval;
   var actionsTable =
   {
     ]b4_list_of_actions[
   }
-
 
   function yyaction (yyn, yystack, yylen) // int yyn, YYStack yystack, int yylen
   {
@@ -225,7 +224,7 @@ function YYParser (yylexer)
        Otherwise, the following line sets YYVAL to garbage.
        This behavior is undocumented and Bison
        users should not rely upon it.  */
-    var yyval;
+    // var yyval; moved up in scope chain to share with actions
     if (yylen > 0)
       yyval = yystack.valueAt(yylen - 1);
     else
