@@ -805,8 +805,12 @@ YYParser.prototype =
   // Generate an error message.
   yysyntax_error: function yysyntax_error (yystate, tok)
   {
-    if (this.errorVerbose)
-    {
+    if (!this.errorVerbose)
+      return "syntax error";
+
+    if (tok == this.yyempty_)
+      return "syntax error (empty token)";
+
       /* There are many possibilities here to consider:
          - Assume YYFAIL is not used.  It's too flawed to consider.
            See
@@ -838,8 +842,6 @@ YYParser.prototype =
            will still contain any token that will not be accepted due
            to an error action in a later state.
       */
-      if (tok != this.yyempty_)
-      {
         // FIXME: This method of building the message is not compatible
         // with internationalization.
         var res = "syntax error, unexpected ";
@@ -886,11 +888,7 @@ YYParser.prototype =
           }
         }
         return res;
-      } // if (tok != yyempty_)
-    } // if (errorVerbose)
 
-    return "syntax error";
-    
     /* Return YYSTR after stripping away unnecessary quotes and
        backslashes, so that it's suitable for yyerror.  The heuristic is
        that double-quoting is unnecessary unless the string contains an
@@ -960,7 +958,7 @@ YYParser.TOKENS =
   'UMINUS': 264
 };
 
-/* Line 902 of lalr1.js  */
+/* Line 900 of lalr1.js  */
 /* Line 50 of "calculator.y"  */
 
 
