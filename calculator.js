@@ -175,7 +175,7 @@ function YYParser (yylexer)
   // Return whether error recovery is being done.
   // In this state, the parser reads token until it reaches a known state,
   // and then restarts normal operation.
-  function recovering ()
+  this.isRecovering = function isRecovering ()
   {
     return yyerrstatus_ == 0;
   }
