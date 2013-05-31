@@ -10,9 +10,9 @@ var result
 
 %token E END NUMBER PI L R
 
-%left '+' MINUS
-%left MULT DIV
-%left POW
+%left '+' '-'
+%left '*' '/'
+%left '^'
 %left UMINUS
 
 %start expressions
@@ -27,17 +27,17 @@ expressions
 e
     : e '+' e
         {$$ = $1 + $3;}
-    | e MINUS e
+    | e '-' e
         {$$ = $1 - $3;}
-    | e MULT e
+    | e '*' e
         {$$ = $1 * $3;}
-    | e DIV e
+    | e '/' e
         {$$ = $1 / $3;}
-    | e POW e
+    | e '^' e
         {$$ = Math.pow($1, $3);}
-    | MINUS e %prec UMINUS
+    | '-' e %prec UMINUS
         {$$ = -$2;}
-    | L e R
+    | '(' e ')'
         {$$ = $2;}
     | NUMBER
         {$$ = Number(yyval);}
@@ -94,7 +94,13 @@ return Lexer
 
 this.console = {log: print}
 
-T.PLUS = '+'.charCodeAt(0)
+T.PLUS = 43 // '+'.charCodeAt(0)
+T.MINUS = 45 // '-'.charCodeAt(0)
+T.MULT = 42 // '*'.charCodeAt(0)
+T.DIV = 47 // '/'.charCodeAt(0)
+T.POW = 94 // '^'.charCodeAt(0)
+T.L = 40 // '('.charCodeAt(0)
+T.R = 41 // ')'.charCodeAt(0)
 
 // ((3+2*3)*1)/-3
 var lexer = new Lexer
