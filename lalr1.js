@@ -172,11 +172,6 @@ function YYParser (yylexer)
   var yydebug = true;
 
 
-  function yyerror (location, message)
-  {
-    yylexer.yyerror(location, message);
-  }
-
   function yycdebug (message)
   {
     if (yydebug)
@@ -436,7 +431,7 @@ function YYParser (yylexer)
           ++yynerrs_;
           if (yychar == yyempty_)
             yytoken = yyempty_;
-          yyerror(yylloc, yysyntax_error(yystate, yytoken));
+          this.yyerror(yylloc, yysyntax_error(yystate, yytoken));
         }
 
         yyerrloc = yylloc;
@@ -885,6 +880,15 @@ function YYParser (yylexer)
 
   var yyuser_token_number_max_ = ]b4_user_token_number_max[;
   var yyundef_token_ = ]b4_undef_token_number[;
+}
+
+// rare used functions
+YYParser.prototype =
+{
+  yyerror: function yyerror (location, message)
+  {
+    this.yylexer.yyerror(location, message);
+  }
 }
 
 // Version number for the Bison executable that generated this parser.
