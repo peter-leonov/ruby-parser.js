@@ -736,75 +736,88 @@ function YYParser (yylexer)
   // If positive, shift that token.
   // If negative, reduce the rule which number is the opposite.
   // If yytable_NINF_, syntax error.
-  private static final ]b4_int_type_for([b4_table])[ yytable_ninf_ = ]b4_table_ninf[;
-  private static final ]b4_int_type_for([b4_table])[
-  yytable_[] =
-  {
-    ]b4_table[
-  };
+  var yytable_ninf_ = ]b4_table_ninf[;
+  var yytable_ =
+  [
+    //]]
+    b4_table
+    //[[
+  ];
 
-  /* YYCHECK.  */
-  private static final ]b4_int_type_for([b4_check])[
-  yycheck_[] =
-  {
-    ]b4_check[
-  };
+  // YYCHECK.
+  var yycheck_ =
+  [
+    //]]
+    b4_check
+    //[[
+  ];
 
-  /* STOS_[STATE-NUM] -- The (internal number of the) accessing
-     symbol of state STATE-NUM.  */
-  private static final ]b4_int_type_for([b4_stos])[
-  yystos_[] =
-  {
-    ]b4_stos[
-  };
+  // STOS_[STATE-NUM]
+  // The (internal number of the) accessing symbol of state STATE-NUM.
+  var yystos_ =
+  [
+    //]]
+    b4_stos
+    //[[
+  ];
 
-  /* TOKEN_NUMBER_[YYLEX-NUM] -- Internal symbol number corresponding
-     to YYLEX-NUM.  */
-  private static final ]b4_int_type_for([b4_toknum])[
-  yytoken_number_[] =
-  {
-    ]b4_toknum[
-  };
+  // TOKEN_NUMBER_[YYLEX-NUM]
+  // Internal symbol number corresponding to YYLEX-NUM.
+  var yytoken_number_ =
+  [
+    //]]
+    b4_toknum
+    //[[
+  ];
 
-  /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
-  private static final ]b4_int_type_for([b4_r1])[
-  yyr1_[] =
-  {
-    ]b4_r1[
-  };
+  // YYR1[YYN] -- Symbol number of symbol that rule YYN derives.
+  var yyr1_ =
+  [
+    //]]
+    b4_r1
+    //[[
+  ];
 
-  /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
-  private static final ]b4_int_type_for([b4_r2])[
-  yyr2_[] =
-  {
-    ]b4_r2[
-  };
+  // YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.
+  var yyr2_ =
+  [
+    //]]
+    b4_r2
+    //[[
+  ];
 
-  /* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
-     First, the terminals, then, starting at \a yyntokens_, nonterminals.  */
-  private static final String yytname_[] =
-  {
-    ]b4_tname[
-  };
+  // YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
+  // First, the terminals, then, starting at \a yyntokens_, nonterminals.
+  var yytname_ =
+  [
+    //]]
+    b4_tname
+    //[[
+  ];
 
-  /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
-  private static final ]b4_int_type_for([b4_rhs])[ yyrhs_[] =
-  {
-    ]b4_rhs[
-  };
+  // YYRHS -- A `-1'-separated list of the rules' RHS.
+  var yyrhs_ =
+  [
+    //]]
+    b4_rhs
+    //[[
+  ];
 
-  /* YYPRHS[YYN] -- Index of the first RHS symbol of rule number YYN in
-     YYRHS.  */
-  private static final ]b4_int_type_for([b4_prhs])[ yyprhs_[] =
-  {
-    ]b4_prhs[
-  };
+  // YYPRHS[YYN] -- Index of the first RHS symbol of rule number YYN in YYRHS.
+  var yyprhs_ =
+  [
+    //]]
+    b4_prhs
+    //[[
+  ];
 
-  /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-  private static final ]b4_int_type_for([b4_rline])[ yyrline_[] =
-  {
-    ]b4_rline[
-  };
+  // YYRLINE[YYN] -- Source line where rule number YYN was defined.
+  var yyrline_ =
+  [
+    //]]
+    b4_rline
+    //[[
+  ];
 
   // Report on the debug stream that the rule yyrule is going to be reduced.
   private void yy_reduce_print (int yyrule, YYStack yystack)
