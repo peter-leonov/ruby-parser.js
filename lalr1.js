@@ -683,26 +683,21 @@ function YYParser (yylexer)
     return "syntax error";
   }
 
-  /**
-   * Whether the given <code>yypact_</code> value indicates a defaulted state.
-   * @@param yyvalue   the value to check
-   */
-  private static boolean yy_pact_value_is_default_ (int yyvalue)
+  // Whether the given <code>yypact_</code> value indicates a defaulted state.
+  // @@param yyvalue   the value to check
+  function yy_pact_value_is_default_(yyvalue)
   {
     return yyvalue == yypact_ninf_;
   }
 
-  /**
-   * Whether the given <code>yytable_</code> value indicates a syntax error.
-   * @@param yyvalue   the value to check
-   */
-  private static boolean yy_table_value_is_error_ (int yyvalue)
+  // Whether the given <code>yytable_</code> value indicates a syntax error.
+  // @@param yyvalue   the value to check
+  function yy_table_value_is_error_(yyvalue)
   {
     return yyvalue == yytable_ninf_;
   }
 
-  /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
-     STATE-NUM.  */
+  // YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing STATE-NUM.
   private static final ]b4_int_type_for([b4_pact])[ yypact_ninf_ = ]b4_pact_ninf[;
   private static final ]b4_int_type_for([b4_pact])[ yypact_[] =
   {
