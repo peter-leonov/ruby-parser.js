@@ -276,7 +276,7 @@ function YYParser (yylexer)
    */
   this.parse = function parse ()
   {
-    /// Lookahead and lookahead in internal form.
+    // Lookahead and lookahead in internal form.
     var yychar = yyempty_;
     var yytoken = 0;
 
@@ -290,16 +290,16 @@ function YYParser (yylexer)
 
     /* Error handling.  */
     var yynerrs_ = 0;
-    /// The location where the error started.
+    // The location where the error started.
     var yyerrloc = null;
 
-    /// Location of the lookahead.
+    // Location of the lookahead.
     var yylloc = new Location(null, null);
 
-    /// @$.
+    // @$.
     var yyloc;
 
-    /// Semantic value of the lookahead.
+    // Semantic value of the lookahead.
     var yylval = null;
 
     yycdebug("Starting parse");
@@ -375,7 +375,7 @@ function YYParser (yylexer)
         // <= 0 means reduce or error.
         else if ((yyn = yytable_[yyn]) <= 0)
         {
-          if (yy_table_value_is_error_(yyn))
+          if (yyn == yytable_ninf_) // yyn's value is an error
           {
             // goto
             label = YYERRLAB;
@@ -661,7 +661,7 @@ function YYParser (yylexer)
             (
               yycheck_[x + yyn] == x
               && x != yyterror_
-              && !yy_table_value_is_error_(yytable_[x + yyn])
+              && yytable_[x + yyn] != yytable_ninf_ // yytable_[x + yyn] isn't an error
             )
             {    
               ++count;
@@ -676,7 +676,7 @@ function YYParser (yylexer)
               (
                 yycheck_[x + yyn] == x
                 && x != yyterror_
-                && !yy_table_value_is_error_(yytable_[x + yyn])
+                && yytable_[x + yyn] != yytable_ninf_ // yytable_[x + yyn] isn't an error
               )
               {
                 res += (count++ == 0 ? ", expecting " : " or ");
@@ -697,13 +697,6 @@ function YYParser (yylexer)
   function yy_pact_value_is_default_(yyvalue)
   {
     return yyvalue == yypact_ninf_;
-  }
-
-  // Whether the given <code>yytable_</code> value indicates a syntax error.
-  // @param yyvalue   the value to check
-  function yy_table_value_is_error_(yyvalue)
-  {
-    return yyvalue == yytable_ninf_;
   }
 
   // YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing STATE-NUM.
@@ -973,7 +966,7 @@ YYParser.TOKENS =
   'UMINUS': 264
 };
 
-/* Line 915 of lalr1.js  */
+/* Line 908 of lalr1.js  */
 /* Line 50 of "calculator.y"  */
 
 
