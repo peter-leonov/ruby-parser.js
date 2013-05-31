@@ -160,20 +160,6 @@ function YYStack ()
 // Instantiates the Bison-generated parser.
 function YYParser (yylexer)
 {
-  // enabling debug will switch these functions to the usefull variants
-  function debug_reduce_print (yyn) {}
-  function debug_symbol_print (message, yytype, yyvaluep, yylocationp) {}
-  function debug_stack_print (yystack) {}
-  function debug_puts (message) {}
-  
-  this.enableDebug = function enableDebug ()
-  {
-    debug_reduce_print = this.debug_reduce_print.bind(this)
-    debug_symbol_print = this.debug_symbol_print.bind(this)
-    debug_stack_print  = this.debug_stack_print.bind(this)
-    debug_puts         = this.debug_puts.bind(this)
-  }
-  
   // The scanner that will supply tokens to the parser.
   this.yylexer = yylexer;
 
@@ -544,6 +530,21 @@ function YYParser (yylexer)
       case YYABORT:
         return false;
     }
+  }
+
+
+  // enabling debug will switch these functions to the usefull variants
+  function debug_reduce_print (yyn) {}
+  function debug_symbol_print (message, yytype, yyvaluep, yylocationp) {}
+  function debug_stack_print (yystack) {}
+  function debug_puts (message) {}
+
+  this.enableDebug = function enableDebug ()
+  {
+    debug_reduce_print = this.debug_reduce_print.bind(this)
+    debug_symbol_print = this.debug_symbol_print.bind(this)
+    debug_stack_print  = this.debug_stack_print.bind(this)
+    debug_puts         = this.debug_puts.bind(this)
   }
 
 
