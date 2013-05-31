@@ -242,7 +242,7 @@ function YYParser (yylexer)
   '10': function ()
     /* Line 203 of lalr1.js  */
 /* Line 64 of "calculator.y"  */
-    {yyval = Number(yytext);},
+    {yyval = Number(yyval);},
   '11': function ()
     /* Line 203 of lalr1.js  */
 /* Line 66 of "calculator.y"  */
@@ -1017,9 +1017,9 @@ var t = YYParser.TOKENS
 
 var lexer = new Lexer
 ([
-  [t.NUMBER, 1],
+  [t.NUMBER, '1'],
   ['+', '+'],
-  [t.NUMBER, 3],
+  [t.NUMBER, '3'],
   [t.EOF, '']
 ])
 

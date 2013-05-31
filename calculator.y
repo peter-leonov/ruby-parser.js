@@ -61,7 +61,7 @@ e
     | '(' e ')'
         {$$ = $2;}
     | NUMBER
-        {$$ = Number(yytext);}
+        {$$ = Number(yyval);}
     | E
         {$$ = Math.E;}
     | PI
@@ -111,9 +111,9 @@ var t = YYParser.TOKENS
 
 var lexer = new Lexer
 ([
-  [t.NUMBER, 1],
+  [t.NUMBER, '1'],
   ['+', '+'],
-  [t.NUMBER, 3],
+  [t.NUMBER, '3'],
   [t.EOF, '']
 ])
 
