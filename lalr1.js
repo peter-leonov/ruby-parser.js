@@ -247,7 +247,6 @@ function YYParser (yylexer)
       yystate = yydefgoto_[yyn - yyntokens_];
 
     yystack.push(yystate, yyval, yyloc);
-    return YYNEWSTATE;
   }
 
   /**
@@ -424,9 +423,10 @@ function YYParser (yylexer)
       //-----------------------------------/
       case YYREDUCE:
         yylen = yyr2_[yyn];
-        label = yyaction(yyn, yylen);
+        yyaction(yyn, yylen);
         yystate = yystack.stateAt(0);
-        // goto label
+        // goto
+        label = YYNEWSTATE;
         continue goto_loop;
 
       //-------------------------------------.
