@@ -300,7 +300,7 @@ function YYParser (yylexer)
     yystack.push(yystate, yylval, yylloc);
 
     var label = YYNEWSTATE;
-    for (;;)
+    goto_loop: for (;;)
     switch (label)
     {
       //----------------.
@@ -323,7 +323,7 @@ function YYParser (yylexer)
         {
           // goto
           label = YYDEFAULT;
-          break; 
+          continue goto_loop;
         }
 
         // Read a lookahead token.
@@ -360,7 +360,7 @@ function YYParser (yylexer)
         {
           // goto
           label = YYDEFAULT;
-          break;
+          continue goto_loop;
         }
         // <= 0 means reduce or error.
         else if ((yyn = yytable_[yyn]) <= 0)
@@ -369,7 +369,7 @@ function YYParser (yylexer)
           {
             // goto
             label = YYERRLAB;
-            break;
+            continue goto_loop;
           }
           else
           {
@@ -377,7 +377,7 @@ function YYParser (yylexer)
 
             // goto
             label = YYREDUCE;
-            break;
+            continue goto_loop;
           }
         }
 
@@ -399,7 +399,7 @@ function YYParser (yylexer)
 
           //goto
           label = YYNEWSTATE;
-          break;
+          continue goto_loop;
         }
 
         // won't reach here
@@ -414,13 +414,13 @@ function YYParser (yylexer)
         {
           // goto
           label = YYERRLAB;
-          break;
+          continue goto_loop;
         }
         else
         {
           // goto
           label = YYREDUCE;
-          break;
+          continue goto_loop;
         }
 
       // won't reach here
@@ -434,7 +434,7 @@ function YYParser (yylexer)
         label = yyaction(yyn, yylen);
         yystate = yystack.stateAt(0);
         // goto label
-        break;
+        continue goto_loop;
 
       //-------------------------------------.
       // yyerrlab -- here on detecting error |
@@ -470,7 +470,7 @@ function YYParser (yylexer)
 
         // goto
         label = YYERRLAB1;
-        break;
+        continue goto_loop;
 
       //--------------------------------------------------.
       // errorlab -- error raised explicitly by YYERROR.  |
@@ -485,7 +485,7 @@ function YYParser (yylexer)
         yystate = yystack.stateAt(0);
         // goto
         label = YYERRLAB1;
-        break;
+        continue goto_loop;
 
       //--------------------------------------------------------------.
       // yyerrlab1 -- common code for both syntax error and YYERROR.  |
@@ -534,7 +534,7 @@ function YYParser (yylexer)
         yystack.push(yyn, yylval, yyloc);
         // goto
         label = YYNEWSTATE;
-        break;
+        continue goto_loop;
 
       //--------------------------.
       // Accept.                  |
@@ -547,11 +547,15 @@ function YYParser (yylexer)
       //---------------------/
       case YYABORT:
         return false;
-    } // switch (label)
 
-    // won't reach ehere
+      default:
+        // won't reach here
+        return false;
+    } // for (;;) and switch (label)
+
+    // won't reach here
     return false
-  } // for (;;)
+  }
 
 
   // enabling debug will switch these functions to the usefull variants
@@ -967,7 +971,7 @@ YYParser.TOKENS =
   'UMINUS': 264
 };
 
-/* Line 909 of lalr1.js  */
+/* Line 913 of lalr1.js  */
 /* Line 50 of "calculator.y"  */
 
 
