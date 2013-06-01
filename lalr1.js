@@ -541,7 +541,9 @@ function YYParser (yylexer)
       case YYABORT:
         return false;
     } // switch (label)
-    // break
+
+    // won't reach ehere
+    return false
   } // for (;;)
 
 

@@ -548,7 +548,9 @@ function YYParser (yylexer)
       case YYABORT:
         return false;
     } // switch (label)
-    // break
+
+    // won't reach ehere
+    return false
   } // for (;;)
 
 
@@ -965,7 +967,7 @@ YYParser.TOKENS =
   'UMINUS': 264
 };
 
-/* Line 907 of lalr1.js  */
+/* Line 909 of lalr1.js  */
 /* Line 50 of "calculator.y"  */
 
 
