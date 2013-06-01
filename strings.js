@@ -1,6 +1,25 @@
 ;(function(){
 
+function regexps_on_substrs (text)
+{
+  var rex = /^([a-zA-Z0-9_]+)|^([\(\)\[\]\{\}])|^([\.\:])|^(\s+)|^(.)/
 
+  var tokens = []
+  for (var substr = text;;)
+  {
+    var m = rex.exec(substr)
+    if (m === null)
+      break
+    var token = m[0]
+    // print(token)
+    tokens.push(token)
+  
+    var nextIndex = token.length
+    substr = substr.substr(nextIndex)
+  }
+  
+  return tokens
+}
 
 function regexps_on_substrings (text)
 {
@@ -109,6 +128,7 @@ function warmup ()
 }
 
 warmup()
+measure(regexps_on_substrs, 100)
 measure(regexps_on_substrings, 100)
 measure(regexps_on_position, 100)
 measure(char_by_char, 100)
