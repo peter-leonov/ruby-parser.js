@@ -96,6 +96,20 @@ function measure (f, count)
   print()
 }
 
+function warmup ()
+{
+  var start = new Date()
+  for (;;)
+  {
+    for (var i = 0; i < 1000; i++)
+      /ghfj%dksl/.test(bigText)
+    
+    if (new Date() - start > 1000)
+      break
+  }
+}
+
+warmup()
 measure(regexps_on_substrings, 100)
 measure(regexps_on_position, 100)
 measure(char_by_char, 100)
