@@ -540,11 +540,15 @@ function YYParser (yylexer)
       //---------------------/
       case YYABORT:
         return false;
-    } // switch (label)
 
-    // won't reach ehere
+      default:
+        // won't reach here
+        return false;
+    } // for (;;) and switch (label)
+
+    // won't reach here
     return false
-  } // for (;;)
+  }
 
 
   // enabling debug will switch these functions to the usefull variants
