@@ -128,11 +128,12 @@ function warmup ()
 }
 
 warmup()
-measure(regexps_on_substrs, 100)
-measure(regexps_on_substrings, 100)
-measure(regexps_on_position, 100)
-measure(char_by_char, 100)
-measure(code_by_code, 100)
+var repeat = 100
+measure(regexps_on_substrs, repeat)
+measure(regexps_on_substrings, repeat)
+measure(regexps_on_position, repeat)
+measure(char_by_char, repeat)
+measure(code_by_code, repeat)
 
 
 })();
