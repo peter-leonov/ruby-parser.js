@@ -1,9 +1,8 @@
 ;(function(){
 
-var text = read('text.txt')
 
 
-function regexps_on_substrings ()
+function regexps_on_substrings (text)
 {
   var rex = /^([a-zA-Z0-9_]+)|^([\(\)\[\]\{\}])|^([\.\:])|^(\s+)|^(.)/
 
@@ -25,7 +24,7 @@ function regexps_on_substrings ()
 }
 
 
-function regexps_on_position ()
+function regexps_on_position (text)
 {
   var rex = /([a-zA-Z0-9_]+)|([\(\)\[\]\{\}])|([\.\:])|(\s+)|()/g
 
@@ -54,7 +53,7 @@ function regexps_on_position ()
 }
 
 
-function char_by_char ()
+function char_by_char (text)
 {
   var tokens = []
   var substr = text
@@ -65,7 +64,7 @@ function char_by_char ()
 }
 
 
-function code_by_code ()
+function code_by_code (text)
 {
   var tokens = []
   var substr = text
@@ -77,7 +76,7 @@ function code_by_code ()
 
 
 
-
+var bigText = read('text.txt')
 
 function measure (f, count)
 {
@@ -86,13 +85,13 @@ function measure (f, count)
   var begin = new Date()
   for (var i = 0; i < count; i++)
   {
-    var tokens = f()
+    var tokens = f(bigText)
   }
   var end = new Date()
   
   print('  mean:', (end - begin) / count)
   print('  tokens:', tokens.length)
-  print('  exact:', tokens.join('') == text)
+  print('  exact:', tokens.join('') == bigText)
   print()
 }
 
