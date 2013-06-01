@@ -85,6 +85,17 @@ function char_by_char (text)
 }
 
 
+function char_by_charAt (text)
+{
+  var tokens = []
+  var substr = text
+  for (var i = 0, il = substr.length; i < il; i++)
+    tokens.push(substr.charAt(i))
+
+  return tokens
+}
+
+
 function code_by_code (text)
 {
   var tokens = []
@@ -135,6 +146,7 @@ measure(regexps_on_substrs, repeat)
 measure(regexps_on_substrings, repeat)
 measure(regexps_on_position, repeat)
 measure(char_by_char, repeat)
+measure(char_by_charAt, repeat)
 measure(code_by_code, repeat)
 
 
