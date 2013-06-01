@@ -396,7 +396,7 @@ function YYParser (yylexer)
         }
 
         // won't reach here
-        break;
+        return false;
 
       //-----------------------------------------------------------.
       // yydefault -- do the default action for the current state. |
@@ -408,6 +408,9 @@ function YYParser (yylexer)
         else
           label = YYREDUCE;
         break;
+
+      // won't reach here
+      return false;
 
       //------------------------------------.
       //  yyreduce -- Do a reduction.       |
