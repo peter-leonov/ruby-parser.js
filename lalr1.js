@@ -404,10 +404,17 @@ function YYParser (yylexer)
       case YYDEFAULT:
         yyn = yydefact_[yystate];
         if (yyn == 0)
+        {
+          // goto
           label = YYERRLAB;
+          break;
+        }
         else
+        {
+          // goto
           label = YYREDUCE;
-        break;
+          break;
+        }
 
       // won't reach here
       return false;
@@ -469,6 +476,7 @@ function YYParser (yylexer)
         yystack.pop(yylen);
         yylen = 0;
         yystate = yystack.stateAt(0);
+        // goto
         label = YYERRLAB1;
         break;
 
@@ -532,8 +540,9 @@ function YYParser (yylexer)
       //---------------------/
       case YYABORT:
         return false;
-    }
-  }
+    } // switch (label)
+    // break
+  } // for (;;)
 
 
   // enabling debug will switch these functions to the usefull variants
