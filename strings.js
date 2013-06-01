@@ -1,3 +1,5 @@
+"use strict";
+
 ;(function(){
 
 function regexps_on_substrs (text)
