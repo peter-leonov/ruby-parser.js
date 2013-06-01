@@ -82,16 +82,15 @@ function code_by_code ()
 function measure (f, count)
 {
   print(f.name + '()')
-  var time = 0
+  
+  var begin = new Date()
   for (var i = 0; i < count; i++)
   {
-    var begin = new Date()
     var tokens = f()
-    var end = new Date()
-    time += end - begin
   }
+  var end = new Date()
   
-  print('  mean:', time / count)
+  print('  mean:', (end - begin) / count)
   print('  tokens:', tokens.length)
   print('  exact:', tokens.join('') == text)
   print()
