@@ -3,7 +3,7 @@
 ;(function(){
 
 
-function charCodeAt (text)
+function by_code (text)
 {
   var count = 0
   var $d = 100
@@ -15,23 +15,12 @@ function charCodeAt (text)
 }
 
 
-function split (text)
+function by_char (text)
 {
   var count = 0
-  text = text.split('')
+  var $d = 'd'
   for (var i = 0, il = text.length; i < il; i++)
-    if (text[i] > 'd')
-      count++
-  
-  return count
-}
-
-
-function asArray (text)
-{
-  var count = 0
-  for (var i = 0, il = text.length; i < il; i++)
-    if (text[i] > 'd')
+    if (text[i] > $d)
       count++
   
   return count
@@ -74,9 +63,8 @@ function warmup ()
 }
 
 var repeat = 100; warmup()
-measure(charCodeAt, repeat)
-measure(split, repeat)
-measure(asArray, repeat)
+measure(by_code, repeat)
+measure(by_char, repeat)
 
 
 })();
