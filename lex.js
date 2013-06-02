@@ -84,27 +84,12 @@ function regexps_on_position (text)
 
 function char_by_char (text)
 {
-  var tokens = [],
-      values = []
-  try
-  {
-    char_by_char_body(text, tokens, values)
-  }
-  catch (e)
-  {
-    if (e != 'eof')
-      throw e
-  }
-  return {tokens: tokens, values: values}
-}
-function char_by_char_body (text, tokens, values)
-{
   var lastPos = text.length - 1
   var pos = -1
   function nextc ()
   {
-    if (pos === lastPos)
-      throw 'eof'
+    if (pos >= lastPos)
+      return ''
     
     return text.charAt(++pos)
   }
@@ -143,6 +128,9 @@ function char_by_char_body (text, tokens, values)
       c === '\n' || c === '\t'
     )
   }
+  
+  var tokens = [],
+      values = []
   
   var c = nextc()
   for (;;)
@@ -200,11 +188,16 @@ function char_by_char_body (text, tokens, values)
       continue
     }
     
+    if (c === '') // eof
+      break
+    
     // unknown symbol
     tokens.push(0)
     values.push('')
     c = nextc()
   }
+  
+  return {tokens: tokens, values: values}
 }
 
 
@@ -213,27 +206,12 @@ function char_by_char_body (text, tokens, values)
 
 function code_by_code (text)
 {
-  var tokens = [],
-      values = []
-  try
-  {
-    code_by_code_body(text, tokens, values)
-  }
-  catch (e)
-  {
-    if (e != 'eof')
-      throw e
-  }
-  return {tokens: tokens, values: values}
-}
-function code_by_code_body (text, tokens, values)
-{
   var lastPos = text.length - 1
   var pos = -1
   function nextc ()
   {
-    if (pos === lastPos)
-      throw 'eof'
+    if (pos >= lastPos)
+      return -1
     
     return text.charCodeAt(++pos)
   }
@@ -296,6 +274,9 @@ function code_by_code_body (text, tokens, values)
   var $sem = ':'.charCodeAt(0)
   var $com = ','.charCodeAt(0)
   
+  var tokens = [],
+      values = []
+  
   var c = nextc()
   for (;;)
   {
@@ -352,11 +333,16 @@ function code_by_code_body (text, tokens, values)
       continue
     }
     
+    if (c === -1)
+      break
+    
     // unknown symbol
     tokens.push(0)
     values.push('')
     c = nextc()
   }
+  
+  return {tokens: tokens, values: values}
 }
 
 
@@ -397,7 +383,7 @@ function warmup ()
 }
 
 // // light
-var repeat = 1
+var repeat = 100
 
 // heavy
 // var repeat = 1000; warmup()
