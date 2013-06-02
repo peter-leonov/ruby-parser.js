@@ -98,10 +98,9 @@ function char_by_char_body (text, tokens, values)
     )
   }
   
+  var c = nextc()
   for (;;)
   {
-    var c = nextc()
-    
     if (isa_az_AZ(c))
     {
       var start = pos // of the c
@@ -110,14 +109,16 @@ function char_by_char_body (text, tokens, values)
         c = nextc()
       tokens.push(257)
       values.push(text.substring(start, pos))
-      // pushback and continue
-      // or just let it run
+      // c is new
+      // and just let it run
     }
     
     if (isa_space(c))
     {
+      while (isa_space(c = nextc()));
       tokens.push(262)
       values.push('')
+      // c is new
       continue
     }
     
@@ -125,6 +126,7 @@ function char_by_char_body (text, tokens, values)
     {
       tokens.push(258)
       values.push('')
+      c = nextc()
       continue
     }
     
@@ -132,6 +134,7 @@ function char_by_char_body (text, tokens, values)
     {
       tokens.push(259)
       values.push('')
+      c = nextc()
       continue
     }
     
@@ -139,6 +142,7 @@ function char_by_char_body (text, tokens, values)
     {
       tokens.push(260)
       values.push('')
+      c = nextc()
       continue
     }
     
@@ -146,12 +150,14 @@ function char_by_char_body (text, tokens, values)
     {
       tokens.push(261)
       values.push('')
+      c = nextc()
       continue
     }
     
     // unknown symbol
     tokens.push(0)
     values.push('')
+    c = nextc()
   }
 }
 
@@ -174,7 +180,6 @@ function code_by_code (text)
   }
   return {tokens: tokens, values: values}
 }
-var rex = /([a-z_A-Z][a-z_A-Z0-9]*\??)|([ \r\n\t]+)|([\(\)\[\]\{\}])|\.|:|,|()/g
 function code_by_code_body (text, tokens, values)
 {
   var lastPos = text.length - 1
@@ -245,10 +250,9 @@ function code_by_code_body (text, tokens, values)
   var $sem = ':'.charCodeAt(0)
   var $com = ','.charCodeAt(0)
   
+  var c = nextc()
   for (;;)
   {
-    var c = nextc()
-    
     if (isa_az_AZ(c))
     {
       var start = pos // of the c
@@ -257,14 +261,16 @@ function code_by_code_body (text, tokens, values)
         c = nextc()
       tokens.push(257)
       values.push(text.substring(start, pos))
-      // pushback and continue
-      // or just let it run
+      // c is new
+      // and just let it run
     }
     
     if (isa_space(c))
     {
+      while (isa_space(c = nextc()));
       tokens.push(262)
       values.push('')
+      // c is new
       continue
     }
     
@@ -272,6 +278,7 @@ function code_by_code_body (text, tokens, values)
     {
       tokens.push(258)
       values.push('')
+      c = nextc()
       continue
     }
     
@@ -279,6 +286,7 @@ function code_by_code_body (text, tokens, values)
     {
       tokens.push(259)
       values.push('')
+      c = nextc()
       continue
     }
     
@@ -286,6 +294,7 @@ function code_by_code_body (text, tokens, values)
     {
       tokens.push(260)
       values.push('')
+      c = nextc()
       continue
     }
     
@@ -293,12 +302,14 @@ function code_by_code_body (text, tokens, values)
     {
       tokens.push(261)
       values.push('')
+      c = nextc()
       continue
     }
     
     // unknown symbol
     tokens.push(0)
     values.push('')
+    c = nextc()
   }
 }
 
