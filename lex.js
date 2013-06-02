@@ -6,31 +6,77 @@
 // tested with v8 and js17 -m -n
 function regexps_on_position (text)
 {
-  var rex = /([a-zA-Z0-9_]+)|([\(\)\[\]\{\}])|([\.\:])|(\s+)|()/g
-
-  var tokens = []
-  for (var substr = text, pos = 0, len = substr.length; pos < len;)
+  var tokens = [],
+      values = [] // try to pack as ((token_value_index << 10) + token_type)
+  
+  var rex = /([a-z_A-Z][a-z_A-Z0-9]*\??)|([ \r\n\t]+)|([\(\)\[\]\{\}])|(\.)|(:)|(,)|()/g
+  
+  var t = ''
+  for (var pos = 0, len = text.length; pos < len;)
   {
-    var m = rex.exec(substr)
+    var m = rex.exec(text)
     var lastIndex = rex.lastIndex
+    // unknown symbol
     if (lastIndex === pos)
     {
-      var token = substr[pos]
+      tokens.push(0)
+      values.push('')
       pos++
       rex.lastIndex = pos
+      continue
     }
     else
+      pos = lastIndex
+    
+    if (t = m[1])
     {
-      var token = m[0]
-      pos = rex.lastIndex
+      tokens.push(257)
+      values.push(t)
+      continue
     }
-
-    // print(token)
-    tokens.push(token)
+    
+    if (t = m[2])
+    {
+      tokens.push(262)
+      values.push('')
+      continue
+    }
+    
+    if (t = m[3])
+    {
+      tokens.push(258)
+      values.push('')
+      continue
+    }
+    
+    if (t = m[4])
+    {
+      tokens.push(259)
+      values.push('')
+      continue
+    }
+    
+    if (t = m[5])
+    {
+      tokens.push(260)
+      values.push('')
+      continue
+    }
+    
+    if (t = m[6])
+    {
+      tokens.push(261)
+      values.push('')
+      continue
+    }
   }
   
-  return tokens
+  return {tokens: tokens, values: values}
 }
+
+
+
+
 
 
 
@@ -355,7 +401,7 @@ var repeat = 1
 
 // heavy
 // var repeat = 1000; warmup()
-// measure(regexps_on_position, repeat)
+measure(regexps_on_position, repeat)
 measure(char_by_char, repeat)
 measure(code_by_code, repeat)
 
