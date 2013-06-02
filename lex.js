@@ -38,20 +38,21 @@ function regexps_on_position (text)
 
 function code_by_code (text)
 {
-  var tokens = []
+  var tokens = [],
+      values = []
   try
   {
-    code_by_code_body(text, tokens)
+    code_by_code_body(text, tokens, values)
   }
   catch (e)
   {
     if (e != 'eof')
       throw e
   }
-  return tokens
+  return {tokens: tokens, values: values}
 }
-var rex = /([a-zA-Z0-9_]+)|([\(\)\[\]\{\}])|([\.\:])|(\s+)|()/g
-function code_by_code_body (text, tokens)
+var rex = /([a-zA-Z0-9_]+)|([\(\)\[\]\{\}])|\.|:|,|([ \r\n\t]+)|()/g
+function code_by_code_body (text, tokens, values)
 {
   var lastPos = text.length - 1
   var pos = -1
@@ -70,7 +71,6 @@ function code_by_code_body (text, tokens)
   var $0 = '0'.charCodeAt(0)
   var $9 = '9'.charCodeAt(0)
   var $_ = '_'.charCodeAt(0)
-  
   function isa_azAZ09_ (c)
   {
     return !!( // !! saves a bit in v8
@@ -81,6 +81,25 @@ function code_by_code_body (text, tokens)
     )
   }
   
+  var $lb = '('.charCodeAt(0)
+  var $rb = ')'.charCodeAt(0)
+  var $ls = '['.charCodeAt(0)
+  var $rs = ']'.charCodeAt(0)
+  var $lc = '{'.charCodeAt(0)
+  var $rc = '}'.charCodeAt(0)
+  function isa_brace (c)
+  {
+    return !!( // !! saves a bit in v8
+      c === $lb || c === $rb ||
+      c === $ls || c === $rs ||
+      c === $lc || c === $rc
+    )
+  }
+  
+  var $dot = '.'.charCodeAt(0)
+  var $sem = ':'.charCodeAt(0)
+  var $com = ','.charCodeAt(0)
+  
   for (;;)
   {
     var c = nextc()
@@ -89,8 +108,43 @@ function code_by_code_body (text, tokens)
     {
       var start = pos // of the c
       while (isa_azAZ09_(c = nextc()));
-      tokens.push(text.substring(start, pos))
+      tokens.push(257)
+      values.push(text.substring(start, pos))
+      // pushback and continue
+      // or just let it run
     }
+    
+    if (isa_brace(c))
+    {
+      tokens.push(258)
+      values.push('')
+      continue
+    }
+    
+    if (c === $dot)
+    {
+      tokens.push(259)
+      values.push('')
+      continue
+    }
+    
+    if (c === $sem)
+    {
+      tokens.push(260)
+      values.push('')
+      continue
+    }
+    
+    if (c === $com)
+    {
+      tokens.push(261)
+      values.push('')
+      continue
+    }
+    
+    // unknown symbol
+    tokens.push(0)
+    values.push('')
   }
 }
 
@@ -108,13 +162,13 @@ function measure (f, count)
   var begin = new Date()
   for (var i = 0; i < count; i++)
   {
-    var tokens = f(bigText)
+    var res = f(bigText)
   }
   var end = new Date()
   
   print('  mean:', (end - begin) / count)
-  print('  tokens:', tokens.length)
-  print('  exact:', tokens.join('') == bigText)
+  print('  tokens:', res.tokens.length)
+  print('  exact:', res.values.join('') == bigText)
   print()
 }
 
@@ -132,7 +186,7 @@ function warmup ()
 }
 
 // // light
-var repeat = 100
+var repeat = 1
 
 // heavy
 // var repeat = 1000; warmup()
