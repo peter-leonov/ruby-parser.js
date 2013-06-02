@@ -51,7 +51,7 @@ function code_by_code (text)
   }
   return {tokens: tokens, values: values}
 }
-var rex = /([a-zA-Z0-9_]+)|([\(\)\[\]\{\}])|\.|:|,|([ \r\n\t]+)|()/g
+var rex = /([a-zA-Z0-9_]+)|([ \r\n\t]+)|([\(\)\[\]\{\}])|\.|:|,|()/g
 function code_by_code_body (text, tokens, values)
 {
   var lastPos = text.length - 1
@@ -96,6 +96,18 @@ function code_by_code_body (text, tokens, values)
     )
   }
   
+  var $s = ' '.charCodeAt(0)
+  var $r = '\r'.charCodeAt(0)
+  var $n = '\n'.charCodeAt(0)
+  var $t = '\t'.charCodeAt(0)
+  function isa_space (c)
+  {
+    return !!( // !! saves a bit in v8
+      c === $s || c === $r ||
+      c === $n || c === $t
+    )
+  }
+  
   var $dot = '.'.charCodeAt(0)
   var $sem = ':'.charCodeAt(0)
   var $com = ','.charCodeAt(0)
@@ -112,6 +124,13 @@ function code_by_code_body (text, tokens, values)
       values.push(text.substring(start, pos))
       // pushback and continue
       // or just let it run
+    }
+    
+    if (isa_space(c))
+    {
+      tokens.push(262)
+      values.push('')
+      continue
     }
     
     if (isa_brace(c))
