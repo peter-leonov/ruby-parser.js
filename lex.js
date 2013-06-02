@@ -67,7 +67,7 @@ function char_by_char_body (text, tokens, values)
   {
     return !!( // !! saves a bit in v8
       ('a' <= c && c <= 'z') ||
-      ('A' <= c && c <= 'A') ||
+      ('A' <= c && c <= 'Z') ||
       ('0' <= c && c <= '9') ||
       c == '_'
     )
@@ -76,7 +76,7 @@ function char_by_char_body (text, tokens, values)
   {
     return !!( // !! saves a bit in v8
       ('a' <= c && c <= 'z') ||
-      ('A' <= c && c <= 'A') ||
+      ('A' <= c && c <= 'Z') ||
       c == '_'
     )
   }
@@ -203,7 +203,7 @@ function code_by_code_body (text, tokens, values)
   {
     return !!( // !! saves a bit in v8
       ($a <= c && c <= $z) ||
-      ($A <= c && c <= $A) ||
+      ($A <= c && c <= $Z) ||
       ($0 <= c && c <= $9) ||
       c == $_
     )
@@ -212,7 +212,7 @@ function code_by_code_body (text, tokens, values)
   {
     return !!( // !! saves a bit in v8
       ($a <= c && c <= $z) ||
-      ($A <= c && c <= $A) ||
+      ($A <= c && c <= $Z) ||
       c == $_
     )
   }
