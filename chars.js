@@ -1,38 +1,82 @@
-var text = read('text.txt')
+"use strict";
+
+;(function(){
 
 
-var b = new Date()
-var count = 0
-var $d = 100
-for (var i = 0, il = text.length; i < il; i++)
-  if (text.charCodeAt(i) > $d)
-    count++
-
-print('time:', new Date() - b)
-if (count != 47783)
-  print('wrong count:', count)
-
-
-
-var b = new Date()
-var count = 0
-var chars = text.split('')
-for (var i = 0, il = chars.length; i < il; i++)
-  if (chars[i] > 'd')
-    count++
-
-print('time:', new Date() - b)
-if (count != 47783)
-  print('wrong count:', count)
+function charCodeAt (text)
+{
+  var count = 0
+  var $d = 100
+  for (var i = 0, il = text.length; i < il; i++)
+    if (text.charCodeAt(i) > $d)
+      count++
+  
+  return count
+}
 
 
+function split (text)
+{
+  var count = 0
+  text = text.split('')
+  for (var i = 0, il = text.length; i < il; i++)
+    if (text[i] > 'd')
+      count++
+  
+  return count
+}
 
-var b = new Date()
-var count = 0
-for (var i = 0, il = chars.length; i < il; i++)
-  if (text[i] > 'd')
-    count++
 
-print('time:', new Date() - b)
-if (count != 47783)
-  print('wrong count:', count)
+function asArray (text)
+{
+  var count = 0
+  for (var i = 0, il = text.length; i < il; i++)
+    if (text[i] > 'd')
+      count++
+  
+  return count
+}
+
+
+
+
+
+
+var bigText = read('text.txt')
+
+function measure (f, count)
+{
+  print(f.name + '()')
+  
+  var begin = new Date()
+  for (var i = 0; i < count; i++)
+  {
+    var res = f(bigText)
+  }
+  var end = new Date()
+  
+  print('  mean:', (end - begin) / count)
+  print('  exact:', res)
+  print()
+}
+
+function warmup ()
+{
+  var start = new Date()
+  for (;;)
+  {
+    for (var i = 0; i < 1000; i++)
+      /ghfj%dksl/.test(bigText)
+    
+    if (new Date() - start > 1000)
+      break
+  }
+}
+
+var repeat = 100; warmup()
+measure(charCodeAt, repeat)
+measure(split, repeat)
+measure(asArray, repeat)
+
+
+})();
