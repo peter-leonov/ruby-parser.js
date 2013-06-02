@@ -86,7 +86,11 @@ function code_by_code_body (text, tokens)
     var c = nextc()
     
     if (isa_azAZ09_(c))
-      tokens.push(String.fromCharCode(c))
+    {
+      var start = pos // of the c
+      while (isa_azAZ09_(c = nextc()));
+      tokens.push(text.substring(start, pos))
+    }
   }
 }
 
