@@ -36,6 +36,129 @@ function regexps_on_position (text)
 
 
 
+function char_by_char (text)
+{
+  var tokens = [],
+      values = []
+  try
+  {
+    char_by_char_body(text, tokens, values)
+  }
+  catch (e)
+  {
+    if (e != 'eof')
+      throw e
+  }
+  return {tokens: tokens, values: values}
+}
+function char_by_char_body (text, tokens, values)
+{
+  var lastPos = text.length - 1
+  var pos = -1
+  function nextc ()
+  {
+    if (pos === lastPos)
+      throw 'eof'
+    
+    return text.charAt(++pos)
+  }
+  
+  function isa_az_AZ09 (c)
+  {
+    return !!( // !! saves a bit in v8
+      ('a' <= c && c <= 'z') ||
+      ('A' <= c && c <= 'A') ||
+      ('0' <= c && c <= '9') ||
+      c == '_'
+    )
+  }
+  function isa_az_AZ (c)
+  {
+    return !!( // !! saves a bit in v8
+      ('a' <= c && c <= 'z') ||
+      ('A' <= c && c <= 'A') ||
+      c == '_'
+    )
+  }
+  
+  function isa_brace (c)
+  {
+    return !!( // !! saves a bit in v8
+      c === '(' || c === ')' ||
+      c === '[' || c === ']' ||
+      c === '{' || c === '}'
+    )
+  }
+  
+  function isa_space (c)
+  {
+    return !!( // !! saves a bit in v8
+      c === ' ' || c === '\r' ||
+      c === '\n' || c === '\t'
+    )
+  }
+  
+  for (;;)
+  {
+    var c = nextc()
+    
+    if (isa_az_AZ(c))
+    {
+      var start = pos // of the c
+      while (isa_az_AZ09(c = nextc()));
+      if (c === '?')
+        c = nextc()
+      tokens.push(257)
+      values.push(text.substring(start, pos))
+      // pushback and continue
+      // or just let it run
+    }
+    
+    if (isa_space(c))
+    {
+      tokens.push(262)
+      values.push('')
+      continue
+    }
+    
+    if (isa_brace(c))
+    {
+      tokens.push(258)
+      values.push('')
+      continue
+    }
+    
+    if (c === '.')
+    {
+      tokens.push(259)
+      values.push('')
+      continue
+    }
+    
+    if (c === ':')
+    {
+      tokens.push(260)
+      values.push('')
+      continue
+    }
+    
+    if (c === ',')
+    {
+      tokens.push(261)
+      values.push('')
+      continue
+    }
+    
+    // unknown symbol
+    tokens.push(0)
+    values.push('')
+  }
+}
+
+
+
+
+
 function code_by_code (text)
 {
   var tokens = [],
@@ -222,6 +345,7 @@ var repeat = 1
 // heavy
 // var repeat = 1000; warmup()
 // measure(regexps_on_position, repeat)
+measure(char_by_char, repeat)
 measure(code_by_code, repeat)
 
 
