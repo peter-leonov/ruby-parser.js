@@ -110,7 +110,7 @@ function char_by_char_body (text, tokens, values)
       tokens.push(257)
       values.push(text.substring(start, pos))
       // c is new
-      // and just let it run
+      continue
     }
     
     if (isa_space(c))
@@ -262,7 +262,7 @@ function code_by_code_body (text, tokens, values)
       tokens.push(257)
       values.push(text.substring(start, pos))
       // c is new
-      // and just let it run
+      continue
     }
     
     if (isa_space(c))
