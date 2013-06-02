@@ -51,7 +51,7 @@ function code_by_code (text)
   }
   return {tokens: tokens, values: values}
 }
-var rex = /([a-zA-Z0-9_]+\??)|([ \r\n\t]+)|([\(\)\[\]\{\}])|\.|:|,|()/g
+var rex = /([a-z_A-Z][a-z_A-Z0-9]*\??)|([ \r\n\t]+)|([\(\)\[\]\{\}])|\.|:|,|()/g
 function code_by_code_body (text, tokens, values)
 {
   var lastPos = text.length - 1
@@ -71,12 +71,20 @@ function code_by_code_body (text, tokens, values)
   var $0 = '0'.charCodeAt(0)
   var $9 = '9'.charCodeAt(0)
   var $_ = '_'.charCodeAt(0)
-  function isa_azAZ09_ (c)
+  function isa_az_AZ09 (c)
   {
     return !!( // !! saves a bit in v8
       ($a <= c && c <= $z) ||
       ($A <= c && c <= $A) ||
       ($0 <= c && c <= $9) ||
+      c == $_
+    )
+  }
+  function isa_az_AZ (c)
+  {
+    return !!( // !! saves a bit in v8
+      ($a <= c && c <= $z) ||
+      ($A <= c && c <= $A) ||
       c == $_
     )
   }
@@ -118,10 +126,10 @@ function code_by_code_body (text, tokens, values)
   {
     var c = nextc()
     
-    if (isa_azAZ09_(c))
+    if (isa_az_AZ(c))
     {
       var start = pos // of the c
-      while (isa_azAZ09_(c = nextc()));
+      while (isa_az_AZ09(c = nextc()));
       if (c === $q)
         c = nextc()
       tokens.push(257)
