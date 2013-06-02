@@ -77,9 +77,8 @@ function regexps_on_position (text)
 function char_by_char (text)
 {
   var tokens = []
-  var substr = text
-  for (var i = 0, il = substr.length; i < il; i++)
-    tokens.push(substr[i])
+  for (var i = 0, il = text.length; i < il; i++)
+    tokens.push(text[i])
 
   return tokens
 }
@@ -88,9 +87,8 @@ function char_by_char (text)
 function char_by_charAt (text)
 {
   var tokens = []
-  var substr = text
-  for (var i = 0, il = substr.length; i < il; i++)
-    tokens.push(substr.charAt(i))
+  for (var i = 0, il = text.length; i < il; i++)
+    tokens.push(text.charAt(i))
 
   return tokens
 }
@@ -101,7 +99,7 @@ function code_by_code (text)
   var tokens = []
   var substr = text
   for (var i = 0, il = substr.length; i < il; i++)
-    tokens.push(substr.charCodeAt(i))
+    tokens.push(String.fromCharCode(substr.charCodeAt(i)))
 
   return tokens
 }
@@ -140,14 +138,15 @@ function warmup ()
   }
 }
 
-// light
-var repeat = 10
+// // light
+// var repeat = 10
 
-// // heavy
-// var repeat = 1000; warmup()
+// heavy
+var repeat = 100; warmup()
 measure(regexps_on_substrs, repeat)
 measure(regexps_on_substrings, repeat)
 measure(regexps_on_position, repeat)
+print('------------------------------------\n')
 measure(char_by_char, repeat)
 measure(char_by_charAt, repeat)
 measure(code_by_code, repeat)
