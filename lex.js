@@ -395,6 +395,46 @@ function code_by_code_unreadable (text)
 
 
 
+function simple_hash (text)
+{
+  var length = text.length
+  
+  var a = 0, b = 0, c = 0, d = 0
+  var pack = 256
+  var pos = 0
+  for (;pos < length;)
+  {
+    for (var end = pos + pack; pos < end && pos < length; pos++)
+    {
+      var code = text.charCodeAt(pos)
+      // seen here http://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery
+      a = ((a << 2) - a) + code
+    }
+    
+    for (var end = pos + pack; pos < end && pos < length; pos++)
+    {
+      var code = text.charCodeAt(pos)
+      b = ((b << 2) - b) + code
+    }
+    
+    for (var end = pos + pack; pos < end && pos < length; pos++)
+    {
+      var code = text.charCodeAt(pos)
+      c = ((c << 2) - c) + code
+    }
+    
+    for (var end = pos + pack; pos < end && pos < length; pos++)
+    {
+      var code = text.charCodeAt(pos)
+      d = ((d << 2) - d) + code
+    }
+  }
+  
+  // print(a, b, c, d)
+  
+  return a.toString(16)+b.toString(16)+c.toString(16)+d.toString(16)
+}
+
 
 
 var bigText = read('text.txt')
@@ -437,6 +477,7 @@ measure(regexps_on_position, repeat)
 measure(char_by_char, repeat)
 measure(code_by_code, repeat)
 measure(code_by_code_unreadable, repeat)
+measure(simple_hash, repeat)
 
 
 })();
