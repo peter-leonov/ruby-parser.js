@@ -58,7 +58,7 @@ function regexps_on_position (text)
     tokens.push(0)
   }
   
-  return {tokens: tokens, values: values}
+  return tokens.length + values.length
 }
 
 
@@ -178,7 +178,7 @@ function char_by_char (text)
     c = nextc()
   }
   
-  return {tokens: tokens, values: values}
+  return tokens.length + values.length
 }
 
 
@@ -317,7 +317,7 @@ function code_by_code (text)
     c = nextc()
   }
   
-  return {tokens: tokens, values: values}
+  return tokens.length + values.length
 }
 
 
@@ -390,7 +390,7 @@ function code_by_code_unreadable (text)
     c = (pos >= lastPos ? -1 : text.charCodeAt(++pos))
   }
   
-  return {tokens: tokens, values: values}
+  return tokens.length + values.length
 }
 
 
@@ -411,7 +411,7 @@ function measure (f, count)
   var end = new Date()
   
   print('  mean:', (end - begin) / count)
-  print('  tokens:', res.tokens.length)
+  print('  res:', res)
   print()
 }
 
