@@ -27,41 +27,35 @@ function regexps_on_position (text)
     if (t = m[2])
     {
       tokens.push(262)
-      values.push('')
       continue
     }
     
     if (t = m[3])
     {
       tokens.push(258)
-      values.push('')
       continue
     }
     
     if (t = m[4])
     {
       tokens.push(259)
-      values.push('')
       continue
     }
     
     if (t = m[5])
     {
       tokens.push(260)
-      values.push('')
       continue
     }
     
     if (t = m[6])
     {
       tokens.push(261)
-      values.push('')
       continue
     }
     
     // unknown symbol
     tokens.push(0)
-    values.push('')
   }
   
   return {tokens: tokens, values: values}
@@ -144,7 +138,6 @@ function char_by_char (text)
     {
       while (isa_space(c = nextc()));
       tokens.push(262)
-      values.push('')
       // c is new
       continue
     }
@@ -152,7 +145,6 @@ function char_by_char (text)
     if (isa_brace(c))
     {
       tokens.push(258)
-      values.push('')
       c = nextc()
       continue
     }
@@ -160,7 +152,6 @@ function char_by_char (text)
     if (c === '.')
     {
       tokens.push(259)
-      values.push('')
       c = nextc()
       continue
     }
@@ -168,7 +159,6 @@ function char_by_char (text)
     if (c === ':')
     {
       tokens.push(260)
-      values.push('')
       c = nextc()
       continue
     }
@@ -176,7 +166,6 @@ function char_by_char (text)
     if (c === ',')
     {
       tokens.push(261)
-      values.push('')
       c = nextc()
       continue
     }
@@ -186,7 +175,6 @@ function char_by_char (text)
     
     // unknown symbol
     tokens.push(0)
-    values.push('')
     c = nextc()
   }
   
@@ -289,7 +277,6 @@ function code_by_code (text)
     {
       while (isa_space(c = nextc()));
       tokens.push(262)
-      values.push('')
       // c is new
       continue
     }
@@ -297,7 +284,6 @@ function code_by_code (text)
     if (isa_brace(c))
     {
       tokens.push(258)
-      values.push('')
       c = nextc()
       continue
     }
@@ -305,7 +291,6 @@ function code_by_code (text)
     if (c === $dot)
     {
       tokens.push(259)
-      values.push('')
       c = nextc()
       continue
     }
@@ -313,7 +298,6 @@ function code_by_code (text)
     if (c === $sem)
     {
       tokens.push(260)
-      values.push('')
       c = nextc()
       continue
     }
@@ -321,7 +305,6 @@ function code_by_code (text)
     if (c === $com)
     {
       tokens.push(261)
-      values.push('')
       c = nextc()
       continue
     }
@@ -331,7 +314,6 @@ function code_by_code (text)
     
     // unknown symbol
     tokens.push(0)
-    values.push('')
     c = nextc()
   }
   
@@ -368,7 +350,6 @@ function code_by_code_unreadable (text)
     {
       while ((c = (pos >= lastPos ? -1 : text.charCodeAt(++pos))), (c === 32 || c === 13 || c === 10 || c === 9));
       tokens.push(262)
-      values.push('')
       // c is new
       continue
     }
@@ -376,7 +357,6 @@ function code_by_code_unreadable (text)
     if (c === 40 || c === 41 || c === 91 || c === 93 || c === 123 || c === 125)
     {
       tokens.push(258)
-      values.push('')
       c = (pos >= lastPos ? -1 : text.charCodeAt(++pos))
       continue
     }
@@ -384,7 +364,6 @@ function code_by_code_unreadable (text)
     if (c === 46)
     {
       tokens.push(259)
-      values.push('')
       c = (pos >= lastPos ? -1 : text.charCodeAt(++pos))
       continue
     }
@@ -392,7 +371,6 @@ function code_by_code_unreadable (text)
     if (c === 58)
     {
       tokens.push(260)
-      values.push('')
       c = (pos >= lastPos ? -1 : text.charCodeAt(++pos))
       continue
     }
@@ -400,7 +378,6 @@ function code_by_code_unreadable (text)
     if (c === 44)
     {
       tokens.push(261)
-      values.push('')
       c = (pos >= lastPos ? -1 : text.charCodeAt(++pos))
       continue
     }
@@ -410,7 +387,6 @@ function code_by_code_unreadable (text)
     
     // unknown symbol
     tokens.push(0)
-    values.push('')
     c = (pos >= lastPos ? -1 : text.charCodeAt(++pos))
   }
   
@@ -436,7 +412,6 @@ function measure (f, count)
   
   print('  mean:', (end - begin) / count)
   print('  tokens:', res.tokens.length)
-  print('  exact:', res.values.join('') == bigText)
   print()
 }
 
