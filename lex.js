@@ -429,10 +429,10 @@ function warmup ()
 }
 
 // // light
-var repeat = 100
+var repeat = 1
 
 // heavy
-// var repeat = 1000; warmup()
+// var repeat = 100; warmup()
 measure(regexps_on_position, repeat)
 measure(char_by_char, repeat)
 measure(code_by_code, repeat)
