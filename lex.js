@@ -399,40 +399,65 @@ function simple_hash (text)
 {
   var length = text.length
   
-  var a = 0, b = 0, c = 0, d = 0
+  var a = 0, b = 0, c = 0, d = 0, e = 0, f = 0
   var pack = 256
   var pos = 0
-  for (;pos < length;)
+  for (;pos + 6 * pack < length;)
   {
-    for (var end = pos + pack; pos < end && pos < length; pos++)
+    for (var end = pos + pack; pos < end; ++pos)
     {
       var code = text.charCodeAt(pos)
       // seen here http://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery
       a = ((a << 2) - a) + code
     }
     
-    for (var end = pos + pack; pos < end && pos < length; pos++)
+    for (var end = pos + pack; pos < end; ++pos)
     {
       var code = text.charCodeAt(pos)
       b = ((b << 2) - b) + code
     }
     
-    for (var end = pos + pack; pos < end && pos < length; pos++)
+    for (var end = pos + pack; pos < end; ++pos)
     {
       var code = text.charCodeAt(pos)
       c = ((c << 2) - c) + code
     }
     
-    for (var end = pos + pack; pos < end && pos < length; pos++)
+    for (var end = pos + pack; pos < end; ++pos)
     {
       var code = text.charCodeAt(pos)
       d = ((d << 2) - d) + code
     }
+    
+    for (var end = pos + pack; pos < end; ++pos)
+    {
+      var code = text.charCodeAt(pos)
+      e = ((e << 2) - e) + code
+    }
+    
+    for (var end = pos + pack; pos < end; ++pos)
+    {
+      var code = text.charCodeAt(pos)
+      f = ((f << 2) - f) + code
+    }
   }
   
-  // print(a, b, c, d)
+  length--
+  while (pos < length)
+  {
+    var code = text.charCodeAt(++pos)
+    d += code
+  }
   
-  return a.toString(16)+b.toString(16)+c.toString(16)+d.toString(16)
+  var hash =
+         Math.abs(a).toString(16)
+       + Math.abs(b).toString(16)
+       + Math.abs(c).toString(16)
+       + Math.abs(d).toString(16)
+       + Math.abs(e).toString(16)
+       + Math.abs(f).toString(16)
+  
+  return hash == '3a2b4a4c1a30ca44780914b0a4e32f286ea7d7e21a973461ae59f7bcecdc'
 }
 
 
