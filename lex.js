@@ -84,16 +84,6 @@ function regexps_on_position (text)
 
 function char_by_char (text)
 {
-  var lastPos = text.length - 1
-  var pos = -1
-  function nextc ()
-  {
-    if (pos >= lastPos)
-      return ''
-    
-    return text.charAt(++pos)
-  }
-  
   function isa_az_AZ09 (c)
   {
     return !!( // !! saves a bit in v8
@@ -127,6 +117,16 @@ function char_by_char (text)
       c === ' ' || c === '\r' ||
       c === '\n' || c === '\t'
     )
+  }
+  
+  var lastPos = text.length - 1
+  var pos = -1
+  function nextc ()
+  {
+    if (pos >= lastPos)
+      return ''
+    
+    return text.charAt(++pos)
   }
   
   var tokens = [],
@@ -206,16 +206,6 @@ function char_by_char (text)
 
 function code_by_code (text)
 {
-  var lastPos = text.length - 1
-  var pos = -1
-  function nextc ()
-  {
-    if (pos >= lastPos)
-      return -1
-    
-    return text.charCodeAt(++pos)
-  }
-  
   var $a = 'a'.charCodeAt(0)
   var $z = 'z'.charCodeAt(0)
   var $A = 'A'.charCodeAt(0)
@@ -273,6 +263,16 @@ function code_by_code (text)
   var $dot = '.'.charCodeAt(0)
   var $sem = ':'.charCodeAt(0)
   var $com = ','.charCodeAt(0)
+  
+  var lastPos = text.length - 1
+  var pos = -1
+  function nextc ()
+  {
+    if (pos >= lastPos)
+      return -1
+    
+    return text.charCodeAt(++pos)
+  }
   
   var tokens = [],
       values = []
