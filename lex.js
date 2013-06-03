@@ -431,16 +431,16 @@ function simple_hash (text)
     a = ((a << 2) - a) + code
   }
   
-  var hash = length.toString(16)
-       + Math.abs(a).toString(16)
-       + Math.abs(b).toString(16)
-       + Math.abs(c).toString(16)
-       + Math.abs(d).toString(16)
-       + Math.abs(e).toString(16)
-       + Math.abs(f).toString(16)
+  var hash =  length.toString(36)
+       + Math.abs(a).toString(36)
+       + Math.abs(b).toString(36)
+       + Math.abs(c).toString(36)
+       + Math.abs(d).toString(36)
+       + Math.abs(e).toString(36)
+       + Math.abs(f).toString(36)
   
   print(hash)
-  return hash == '61adb1463e7513c4ad92b6df041764a03d825aac5cec1cf09098401bdbd47e88'
+  return hash == '8kpn148c5tmk43ojkycw3l5tvmc84n7xofg1l3m370g1iytv1jc'
 }
 
 
