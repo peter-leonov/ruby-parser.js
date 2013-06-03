@@ -399,9 +399,9 @@ function simple_hash (text)
 {
   var length = text.length
   
-  var a = 0, b = 0, c = 0, d = 0, e = 0, f = 0, g = 0, h = 0
+  var a = 0, b = 0, c = 0, d = 0
   var pos = -1
-  var end = ((length >> 3) << 3) - 8
+  var end = ((length >> 2) << 2) - 4
   while (pos < end)
   {
     var code = text.charCodeAt(++pos)
@@ -416,18 +416,6 @@ function simple_hash (text)
     
     var code = text.charCodeAt(++pos)
     d = ((d << 2) - d) + code
-    
-    var code = text.charCodeAt(++pos)
-    e = ((e << 2) - e) + code
-    
-    var code = text.charCodeAt(++pos)
-    f = ((f << 2) - f) + code
-    
-    var code = text.charCodeAt(++pos)
-    g = ((g << 2) - g) + code
-    
-    var code = text.charCodeAt(++pos)
-    h = ((h << 2) - h) + code
   }
   
   length--
@@ -442,13 +430,8 @@ function simple_hash (text)
        + Math.abs(b).toString(36)
        + Math.abs(c).toString(36)
        + Math.abs(d).toString(36)
-       + Math.abs(e).toString(36)
-       + Math.abs(f).toString(36)
-       + Math.abs(g).toString(36)
-       + Math.abs(h).toString(36)
   
-  print(hash)
-  return hash == '8kpn12ipup3j19yyabtt3prndn7n1h2u7shi29icvsvk2jkwxu3u800dc1wxm3ipu5'
+  return hash == '8kpney4e37f46sbkn8p2ipw360t29q8xqqn'
 }
 
 
