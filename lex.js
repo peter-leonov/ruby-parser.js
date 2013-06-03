@@ -9,24 +9,13 @@ function regexps_on_position (text)
   var tokens = [],
       values = [] // try to pack as ((token_value_index << 10) + token_type)
   
-  var rex = /([a-z_A-Z][a-z_A-Z0-9]*\??)|([ \r\n\t]+)|([\(\)\[\]\{\}])|(\.)|(:)|(,)|()/g
+  var rex = /([a-z_A-Z][a-z_A-Z0-9]*\??)|([ \r\n\t]+)|([\(\)\[\]\{\}])|(\.)|(:)|(,)|(.)/mg
   
   var t = ''
   for (var pos = 0, len = text.length; pos < len;)
   {
     var m = rex.exec(text)
-    var lastIndex = rex.lastIndex
-    // unknown symbol
-    if (lastIndex === pos)
-    {
-      tokens.push(0)
-      values.push('')
-      pos++
-      rex.lastIndex = pos
-      continue
-    }
-    else
-      pos = lastIndex
+    pos = rex.lastIndex
     
     if (t = m[1])
     {
@@ -69,6 +58,10 @@ function regexps_on_position (text)
       values.push('')
       continue
     }
+    
+    // unknown symbol
+    tokens.push(0)
+    values.push('')
   }
   
   return {tokens: tokens, values: values}
