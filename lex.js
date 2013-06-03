@@ -348,6 +348,84 @@ function code_by_code (text)
 
 
 
+function code_by_code_unreadable (text)
+{
+  var lastPos = text.length - 1
+  var pos = -1
+  
+  var tokens = [],
+      values = []
+  
+  var c = (pos >= lastPos ? -1 : text.charCodeAt(++pos))
+  for (;;)
+  {
+    if ((97 <= c && c <= 122) || (65 <= c && c <= 90) || c === 95)
+    {
+      var start = pos // of the c
+      while ((c = (pos >= lastPos ? -1 : text.charCodeAt(++pos))), ((97 <= c && c <= 122) || (65 <= c && c <= 90) || (48 <= c && c <= 57) || c === 95));
+      if (c === 63)
+        c = (pos >= lastPos ? -1 : text.charCodeAt(++pos))
+      tokens.push(257)
+      values.push(text.substring(start, pos))
+      // c is new
+      continue
+    }
+    
+    if (c === 32 || c === 13 || c === 10 || c === 9)
+    {
+      while ((c = (pos >= lastPos ? -1 : text.charCodeAt(++pos))), (c === 32 || c === 13 || c === 10 || c === 9));
+      tokens.push(262)
+      values.push('')
+      // c is new
+      continue
+    }
+    
+    if (c === 40 || c === 41 || c === 91 || c === 93 || c === 123 || c === 125)
+    {
+      tokens.push(258)
+      values.push('')
+      c = (pos >= lastPos ? -1 : text.charCodeAt(++pos))
+      continue
+    }
+    
+    if (c === 46)
+    {
+      tokens.push(259)
+      values.push('')
+      c = (pos >= lastPos ? -1 : text.charCodeAt(++pos))
+      continue
+    }
+    
+    if (c === 58)
+    {
+      tokens.push(260)
+      values.push('')
+      c = (pos >= lastPos ? -1 : text.charCodeAt(++pos))
+      continue
+    }
+    
+    if (c === 44)
+    {
+      tokens.push(261)
+      values.push('')
+      c = (pos >= lastPos ? -1 : text.charCodeAt(++pos))
+      continue
+    }
+    
+    if (c === -1)
+      break
+    
+    // unknown symbol
+    tokens.push(0)
+    values.push('')
+    c = (pos >= lastPos ? -1 : text.charCodeAt(++pos))
+  }
+  
+  return {tokens: tokens, values: values}
+}
+
+
+
 
 
 var bigText = read('text.txt')
@@ -390,6 +468,7 @@ var repeat = 100
 measure(regexps_on_position, repeat)
 measure(char_by_char, repeat)
 measure(code_by_code, repeat)
+measure(code_by_code_unreadable, repeat)
 
 
 })();
