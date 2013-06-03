@@ -2859,9 +2859,6 @@ parser_yylex(struct parser_params *parser)
   enum lex_state_e last_state;
   rb_encoding *enc;
   int mb;
-#ifdef RIPPER
-  int fallthru = FALSE;
-#endif
 
   if (lex_strterm)
   {
@@ -2906,25 +2903,6 @@ retry:
     case '\r':
     case '\13':                /* '\v' */
       space_seen = 1;
-#ifdef RIPPER
-      while ((c = nextc()))
-      {
-        switch (c)
-        {
-          case ' ':
-          case '\t':
-          case '\f':
-          case '\r':
-          case '\13':          /* '\v' */
-            break;
-          default:
-            goto outofloop;
-        }
-      }
-    outofloop:
-      pushback(c);
-      ripper_dispatch_scan_event(parser, tSP);
-#endif
       goto retry;
 
     case '#':                  /* it's a comment */
@@ -2937,22 +2915,11 @@ retry:
         }
       }
       lex_p = lex_pend;
-#ifdef RIPPER
-      ripper_dispatch_scan_event(parser, tCOMMENT);
-      fallthru = TRUE;
-#endif
       /* fall through */
     case '\n':
       if (IS_lex_state
           (EXPR_BEG | EXPR_VALUE | EXPR_CLASS | EXPR_FNAME | EXPR_DOT))
       {
-#ifdef RIPPER
-        if (!fallthru)
-        {
-          ripper_dispatch_scan_event(parser, tIGNORED_NL);
-        }
-        fallthru = FALSE;
-#endif
         goto retry;
       }
       while ((c = nextc()))
@@ -2980,12 +2947,6 @@ retry:
             lex_nextline = lex_lastline;
           case -1:             /* EOF no decrement */
             lex_goto_eol(parser);
-#ifdef RIPPER
-            if (c != -1)
-            {
-              parser->tokp = lex_p;
-            }
-#endif
             goto normal_newline;
         }
       }
@@ -3077,22 +3038,9 @@ retry:
         /* skip embedded rd document */
         if (strncmp(lex_p, "begin", 5) == 0 && ISSPACE(lex_p[5]))
         {
-#ifdef RIPPER
-          int first_p = TRUE;
-
-          lex_goto_eol(parser);
-          ripper_dispatch_scan_event(parser, tEMBDOC_BEG);
-#endif
           for (;;)
           {
             lex_goto_eol(parser);
-#ifdef RIPPER
-            if (!first_p)
-            {
-              ripper_dispatch_scan_event(parser, tEMBDOC);
-            }
-            first_p = FALSE;
-#endif
             c = nextc();
             if (c == -1)
             {
@@ -3108,9 +3056,6 @@ retry:
             }
           }
           lex_goto_eol(parser);
-#ifdef RIPPER
-          ripper_dispatch_scan_event(parser, tEMBDOC_END);
-#endif
           goto retry;
         }
       }
@@ -3951,9 +3896,6 @@ retry:
       if (c == '\n')
       {
         space_seen = 1;
-#ifdef RIPPER
-        ripper_dispatch_scan_event(parser, tSP);
-#endif
         goto retry;             /* skip \\n */
       }
       pushback(c);
@@ -4222,13 +4164,7 @@ retry:
       {
         ruby__end__seen = 1;
         parser->eofp = Qtrue;
-#ifndef RIPPER
         return -1;
-#else
-        lex_goto_eol(parser);
-        ripper_dispatch_scan_event(parser, k__END__);
-        return 0;
-#endif
       }
       newtok();
       break;
@@ -4412,30 +4348,12 @@ retry:
   }
 }
 
-#if YYPURE
-static int
-yylex(void *lval, void *p)
-#else
 yylex(void *p)
-#endif
 {
   struct parser_params *parser = (struct parser_params *) p;
   int t;
 
-#if YYPURE
-  parser->parser_yylval = lval;
-  parser->parser_yylval->val = Qundef;
-#endif
   t = parser_yylex(parser);
-#ifdef RIPPER
-  if (!NIL_P(parser->delayed))
-  {
-    ripper_dispatch_delayed_token(parser, t);
-    return t;
-  }
-  if (t != 0)
-    ripper_dispatch_scan_event(parser, t);
-#endif
 
   return t;
 }
