@@ -436,6 +436,19 @@ function simple_hash (text)
 
 
 
+function sum_hash (text)
+{
+  var length = text.length
+  
+  var a = 0
+  for (var i = 0, il = text.length; i < il; i++)
+    a += text.charCodeAt(i)
+  
+  return a
+}
+
+
+
 var bigText = read('text.txt')
 
 function measure (f, count)
@@ -477,6 +490,7 @@ measure(char_by_char, repeat)
 measure(code_by_code, repeat)
 measure(code_by_code_unreadable, repeat)
 measure(simple_hash, repeat)
+measure(sum_hash, repeat)
 
 
 })();
