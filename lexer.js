@@ -11,7 +11,8 @@ var parser =
   line_count: 0
 };
 
-var parser_lex_strterm = 0;
+var lex_strterm = 0;
+var lex_state = 0;
 var parser_cond_stack = 0;
 var parser_cmdarg_stack = 0;
 var parser_class_nest = 0;
@@ -27,7 +28,7 @@ var parser_tokenbuf = null;
 var parser_tokidx = 0;
 var parser_toksiz = 0;
 var heredoc_end = 0;
-var parser_command_start = true;
+var command_start = true;
 var parser_deferred_nodes = 0;
 var lex_pbeg = 0;
 var lex_p = 0;
@@ -136,10 +137,50 @@ return function parser_yylex ()
 {
   var c = ''
   
+  // if (lex_strterm)
+  // {
+  //   int token;
+  //   if (nd_type(lex_strterm) == NODE_HEREDOC)
+  //   {
+  //     token = here_document(lex_strterm);
+  //     if (token == tSTRING_END)
+  //     {
+  //       lex_strterm = 0;
+  //       lex_state = EXPR_END;
+  //     }
+  //   }
+  //   else
+  //   {
+  //     token = parse_string(lex_strterm);
+  //     if (token == tSTRING_END || token == tREGEXP_END)
+  //     {
+  //       rb_gc_force_recycle((VALUE) lex_strterm);
+  //       lex_strterm = 0;
+  //       lex_state = EXPR_END;
+  //     }
+  //   }
+  //   return token;
+  // }
+  
+  var cmd_state = command_start;
+  command_start = false;
+  
   retry: for (;;)
   {
-    return 0
+  var last_state = lex_state;
+  switch (c = nextc())
+  {
+    case '\0':                 /* NUL */
+    case '\x04':               /* ^D */
+    case '\x1a':               /* ^Z */
+    case -1:                   /* end of script. */
+      return 0;
+    
   }
+  
+  return c ? c.charCodeAt(0) : 0
+  
+  } // retry for loop
 }
 
 }
