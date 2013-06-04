@@ -66,11 +66,11 @@ function nextc ()
   if (lex_p == lex_pend)
   {
       if (parser.eofp)
-        return -1;
+        return '';
 
       parser.eofp = true;
       lex_goto_eol();
-      return -1;
+      return '';
   }
   var c = text[lex_p++];
   if (c == '\r' && peek('\n'))
@@ -83,10 +83,11 @@ function nextc ()
 }
 
 
-function pushback(c)
+function pushback (c)
 {
-  if (c == -1)
+  if (c == '')
     return;
+  
   lex_p--;
   if (lex_p > lex_pbeg && lex_p_get(0) == '\n' && lex_p_get(-1) == '\r')
   {
@@ -94,53 +95,45 @@ function pushback(c)
   }
 }
 
-
-function char_by_char (text)
+function isa_az_AZ09 (c)
 {
-  function isa_az_AZ09 (c)
-  {
-    return !!( // !! saves a bit in v8
-      ('a' <= c && c <= 'z') ||
-      ('A' <= c && c <= 'Z') ||
-      ('0' <= c && c <= '9') ||
-       '_' == c
-    )
-  }
-  function isa_az_AZ (c)
-  {
-    return !!( // !! saves a bit in v8
-      ('a' <= c && c <= 'z') ||
-      ('A' <= c && c <= 'Z') ||
-      c == '_'
-    )
-  }
-  
-  function isa_brace (c)
-  {
-    return !!( // !! saves a bit in v8
-      c === '(' || c === ')' ||
-      c === '[' || c === ']' ||
-      c === '{' || c === '}'
-    )
-  }
-  
-  function isa_space (c)
-  {
-    return !!( // !! saves a bit in v8
-      c === ' ' || c === '\r' ||
-      c === '\n' || c === '\t'
-    )
-  }
-  
-  var lastPos = text.length - 1
-  var pos = -1
-  function nextc ()
-  {
-    if (pos >= lastPos)
-      return ''
-    
-    return text.charAt(++pos)
-  }
+  return !!( // !! saves a bit in v8
+    ('a' <= c && c <= 'z') ||
+    ('A' <= c && c <= 'Z') ||
+    ('0' <= c && c <= '9') ||
+    c == '_'
+  )
+}
+function isa_az_AZ (c)
+{
+  return !!( // !! saves a bit in v8
+    ('a' <= c && c <= 'z') ||
+    ('A' <= c && c <= 'Z') ||
+    c == '_'
+  )
+}
+
+function isa_brace (c)
+{
+  return !!( // !! saves a bit in v8
+    c === '(' || c === ')' ||
+    c === '[' || c === ']' ||
+    c === '{' || c === '}'
+  )
+}
+
+function isa_space (c)
+{
+  return !!( // !! saves a bit in v8
+    c === ' ' || c === '\r' ||
+    c === '\n' || c === '\t'
+  )
+}
+
+
+function char_by_char ()
+{
+  lex_pend = text.length
   
   var tokens = [],
       values = []
@@ -150,12 +143,12 @@ function char_by_char (text)
   {
     if (isa_az_AZ(c))
     {
-      var start = pos // of the c
+      var start = lex_p // of the c
       while (isa_az_AZ09(c = nextc()));
       if (c === '?')
         c = nextc()
       tokens.push(257)
-      values.push(text.substring(start, pos))
+      values.push(text.substring(start, lex_p))
       // c is new
       continue
     }
@@ -206,6 +199,8 @@ function char_by_char (text)
   
   return tokens.length + values.length
 }
+
+return char_by_char()
 
 }
 
