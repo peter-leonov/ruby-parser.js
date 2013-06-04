@@ -2,7 +2,7 @@
 
 ;(function(){
 
-function parser_yylex (text)
+function create_lexer (text)
 {
 
 var parser =
@@ -130,80 +130,28 @@ function isa_space (c)
   )
 }
 
+lex_pend = text.length
 
-function char_by_char ()
+return function parser_yylex ()
 {
-  lex_pend = text.length
+  var c = ''
   
-  var tokens = [],
-      values = []
-  
-  var c = nextc()
-  for (;;)
+  retry: for (;;)
   {
-    if (isa_az_AZ(c))
-    {
-      var start = lex_p // of the c
-      while (isa_az_AZ09(c = nextc()));
-      if (c === '?')
-        c = nextc()
-      tokens.push(257)
-      values.push(text.substring(start, lex_p))
-      // c is new
-      continue
-    }
-    
-    if (isa_space(c))
-    {
-      while (isa_space(c = nextc()));
-      tokens.push(262)
-      // c is new
-      continue
-    }
-    
-    if (isa_brace(c))
-    {
-      tokens.push(258)
-      c = nextc()
-      continue
-    }
-    
-    if (c === '.')
-    {
-      tokens.push(259)
-      c = nextc()
-      continue
-    }
-    
-    if (c === ':')
-    {
-      tokens.push(260)
-      c = nextc()
-      continue
-    }
-    
-    if (c === ',')
-    {
-      tokens.push(261)
-      c = nextc()
-      continue
-    }
-    
-    if (c === '') // eof
-      break
-    
-    // unknown symbol
-    tokens.push(0)
-    c = nextc()
+    return 0
   }
+}
+
+}
+
+function lex_all (text)
+{
+  var lexer = create_lexer(text)
   
-  return tokens.length + values.length
+  var t = 0
+  while (t = lexer())
+    print(t)
 }
-
-return char_by_char()
-
-}
-
 
 
 var bigText = read('text.txt')
@@ -242,6 +190,6 @@ var repeat = 1
 
 // heavy
 // var repeat = 100; warmup()
-measure(parser_yylex, repeat)
+measure(lex_all, repeat)
 
 })();
