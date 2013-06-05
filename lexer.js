@@ -136,6 +136,7 @@ lex_pend = text.length
 return function parser_yylex ()
 {
   var c = ''
+  var space_seen = false
   
   // if (lex_strterm)
   // {
@@ -176,9 +177,18 @@ return function parser_yylex ()
     case -1:                   /* end of script. */
       return 0;
     
+      /* white spaces */
+    case ' ':
+    case '\t':
+    case '\f':
+    case '\r':
+    case '\v':                /* '\13' */
+      space_seen = 1;
+      continue retry;
+    
   }
   
-  return c ? c.charCodeAt(0) : 0
+  return c ? 256 : 0
   
   } // retry for loop
 }
