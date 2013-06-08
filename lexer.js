@@ -96,40 +96,6 @@ function pushback (c)
   }
 }
 
-function isa_az_AZ09 (c)
-{
-  return !!( // !! saves a bit in v8
-    ('a' <= c && c <= 'z') ||
-    ('A' <= c && c <= 'Z') ||
-    ('0' <= c && c <= '9') ||
-    c == '_'
-  )
-}
-function isa_az_AZ (c)
-{
-  return !!( // !! saves a bit in v8
-    ('a' <= c && c <= 'z') ||
-    ('A' <= c && c <= 'Z') ||
-    c == '_'
-  )
-}
-
-function isa_brace (c)
-{
-  return !!( // !! saves a bit in v8
-    c === '(' || c === ')' ||
-    c === '[' || c === ']' ||
-    c === '{' || c === '}'
-  )
-}
-
-function isa_space (c)
-{
-  return !!( // !! saves a bit in v8
-    c === ' ' || c === '\r' ||
-    c === '\n' || c === '\t'
-  )
-}
 
 lex_pend = text.length
 
