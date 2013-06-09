@@ -16,7 +16,11 @@ lexer.eofp = false;
 // the string to be parsed in the nex lex() call
 lexer.strterm = null;
 // the main point of interaction with the parser out there
-lexer.state = null;
+lexer.state = 0;
+// have no idea
+lexer.command_start = false;
+
+
 
 // ignore newline, +/- is a sign.
 var EXPR_BEG    = 1 << 0;
@@ -45,8 +49,11 @@ var EXPR_BEG_ANY = EXPR_BEG | EXPR_VALUE | EXPR_MID | EXPR_CLASS;
 var EXPR_ARG_ANY = EXPR_ARG | EXPR_CMDARG;
 var EXPR_END_ANY = EXPR_END | EXPR_ENDARG | EXPR_ENDFN;
 
-
-
+// the shortcut for checking `lexer.state` over and over again
+function IS_lex_state (state)
+{
+  return lexer.state & state
+}
 
 
 // here go all $strem related functions
@@ -140,29 +147,83 @@ this.lex = function yylex ()
     return token;
   }
   
-  // var cmd_state = command_start;
-  // command_start = false;
+  var cmd_state = lexer.command_start;
+  lexer.command_start = false;
   
   retry: for (;;)
   {
   var last_state = lexer.strterm;
   switch (c = nextc())
   {
-    case '\0':                 /* NUL */
-    case '\x04':               /* ^D */
-    case '\x1a':               /* ^Z */
-    case '':                   /* end of script. */
+    // different signs of the input end
+    case '\0':    // NUL
+    case '\x04':  // ^D
+    case '\x1a':  // ^Z
+    case '':      // end of script.
+    {
       return 0;
+    }
     
-      /* white spaces */
+    // white spaces
     case ' ':
     case '\t':
     case '\f':
     case '\r':
-    case '\v':                /* '\13' */
+    case '\v':    // '\13'
+    {
       space_seen = true;
       continue retry;
+    }
     
+    // it's a comment
+    case '#':
+    {
+      lex_goto_eol();
+      // fall throug to '\n'
+    }
+    case '\n':
+    {
+      if (IS_lex_state(
+          EXPR_BEG | EXPR_VALUE | EXPR_CLASS | EXPR_FNAME | EXPR_DOT
+      ))
+      {
+        continue retry;
+      }
+      after_backslash_n: while ((c = nextc()))
+      {
+        switch (c)
+        {
+          case ' ':
+          case '\t':
+          case '\f':
+          case '\r':
+          case '\v':    // '\13'
+            space_seen = 1;
+            break;
+          case '.':
+          {
+            if ((c = nextc()) != '.')
+            {
+              pushback(c);
+              pushback('.');
+              continue retry;
+            }
+          }
+          default:
+            // --ruby_sourceline; TODO:
+            // lex_nextline = lex_lastline; TODO:
+            
+          // EOF no decrement
+          case '':
+            lex_goto_eol();
+            break after_backslash_n;
+        }
+      }
+      // lands: break after_backslash_n;
+      lexer.command_start = true;
+      lexer.state = EXPR_BEG;
+      return '\n';
+    }
   }
   
   return c ? 256 : 0
