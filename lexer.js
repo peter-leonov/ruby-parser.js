@@ -299,6 +299,36 @@ this.lex = function yylex ()
       lexer.state = IS_AFTER_OPERATOR()? EXPR_ARG : EXPR_BEG;
       return token;
     }
+    
+    case '!':
+    {
+      c = nextc();
+      if (IS_AFTER_OPERATOR())
+      {
+        lexer.state = EXPR_ARG;
+        if (c == '@')
+        {
+          return $('!');
+        }
+      }
+      else
+      {
+        lexer.state = EXPR_BEG;
+      }
+      if (c == '=')
+      {
+        return tNEQ;
+      }
+      if (c == '~')
+      {
+        return tNMATCH;
+      }
+      pushback(c);
+      return $('!');
+    }
+    
+    
+    // add before here :)
   }
   
   return c ? 999 : 0
