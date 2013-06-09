@@ -310,13 +310,15 @@ function warning (msg) { print('WARNING: ' + msg) }
 
 }
 
+load('tokens-names.js')
+
 function lex_all (text)
 {
   var lexer = new Lexer(text)
   
   var t = 0
   while (t = lexer.lex())
-    if (t !== 256) print(t)
+    if (t !== 256) print(t, yytname_[yytranslate_table_[t]])
 }
 
 
