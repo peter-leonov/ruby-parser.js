@@ -301,7 +301,7 @@ this.lex = function yylex ()
     }
   }
   
-  return c ? 256 : 0
+  return c ? 999 : 0
   
   } // retry for loop
 }
@@ -318,7 +318,7 @@ function lex_all (text)
   
   var t = 0
   while (t = lexer.lex())
-    if (t !== 256) print(t, yytname_[yytranslate_table_[t]])
+    if (t !== 999) print(t, yytname_[yytranslate_table_[t]])
 }
 
 
