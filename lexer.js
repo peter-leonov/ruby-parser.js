@@ -1,7 +1,6 @@
 "use strict";
 
-var tSTRING_END = 300,
-    tREGEXP_END = 301
+load('tokens.js')
 
 ;(function(){
 
