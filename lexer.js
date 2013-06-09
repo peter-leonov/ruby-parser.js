@@ -54,6 +54,24 @@ function IS_lex_state (state)
   return lexer.state & state
 }
 
+// few more shortcuts
+function IS_ARG () { return lexer.state & EXPR_ARG_ANY }
+function IS_END () { return lexer.state & EXPR_END_ANY }
+function IS_BEG () { return lexer.state & EXPR_BEG_ANY }
+
+function ISSPACE (c)
+{
+  return (
+    // the most common checked first
+    c === ' '  || c === '\n' || c === '\t' ||
+    c === '\f' || c === '\r' || c === '\v'
+  )
+}
+
+// em…
+function IS_SPCARG (c) { return IS_ARG() && space_seen && !ISSPACE(c) }
+
+function IS_AFTER_OPERATOR () { return IS_lex_state(EXPR_FNAME | EXPR_DOT) }
 
 // here go all $strem related functions
 
@@ -116,6 +134,9 @@ function pushback (c)
   if ($stream[$pos] != c)
     throw 'lexer error: pushing back wrong "'+c+'" char';
 }
+
+// char to code shortcut
+function $ (c) { return c.charCodeAt(0) }
 
 this.lex = function yylex ()
 {
@@ -209,8 +230,8 @@ this.lex = function yylex ()
             }
           }
           default:
-            // --ruby_sourceline; TODO:
-            // lex_nextline = lex_lastline; TODO:
+            // --ruby_sourceline; TODO
+            // lex_nextline = lex_lastline; TODO
             
           // EOF no decrement
           case '':
@@ -223,12 +244,69 @@ this.lex = function yylex ()
       lexer.state = EXPR_BEG;
       return '\n';
     }
+  
+    case '*':
+    {
+      var token = 0
+      if ((c = nextc()) == '*')
+      {
+        if ((c = nextc()) == '=')
+        {
+          // set_yylval_id(tPOW); TODO
+          lexer.state = EXPR_BEG;
+          return tOP_ASGN;
+        }
+        pushback(c);
+        if (IS_SPCARG(c))
+        {
+          warning("`**' interpreted as argument prefix");
+          token = tDSTAR;
+        }
+        else if (IS_BEG())
+        {
+          token = tDSTAR;
+        }
+        else
+        {
+          warn_balanced("**", "argument prefix");
+          token = tPOW;
+        }
+      }
+      else
+      {
+        if (c == '=')
+        {
+          // set_yylval_id('*'); TODO
+          lexer.state = EXPR_BEG;
+          return tOP_ASGN;
+        }
+        pushback(c);
+        if (IS_SPCARG(c))
+        {
+          warning("`*' interpreted as argument prefix");
+          token = tSTAR;
+        }
+        else if (IS_BEG())
+        {
+          token = tSTAR;
+        }
+        else
+        {
+          // warn_balanced("*", "argument prefix"); TODO
+          token = $('*');
+        }
+      }
+      lexer.state = IS_AFTER_OPERATOR()? EXPR_ARG : EXPR_BEG;
+      return token;
+    }
   }
   
   return c ? 256 : 0
   
   } // retry for loop
 }
+
+function warning (msg) { print('WARNING: ' + msg) }
 
 }
 
@@ -238,7 +316,7 @@ function lex_all (text)
   
   var t = 0
   while (t = lexer.lex())
-    print(t)
+    if (t !== 256) print(t)
 }
 
 
