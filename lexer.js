@@ -73,6 +73,26 @@ function IS_SPCARG (c) { return IS_ARG() && space_seen && !ISSPACE(c) }
 
 function IS_AFTER_OPERATOR () { return IS_lex_state(EXPR_FNAME | EXPR_DOT) }
 
+
+var STR_FUNC_ESCAPE = 0x01;
+var STR_FUNC_EXPAND = 0x02;
+var STR_FUNC_REGEXP = 0x04;
+var STR_FUNC_QWORDS = 0x08;
+var STR_FUNC_SYMBOL = 0x10;
+var STR_FUNC_INDENT = 0x20;
+
+// enum string_type
+var str_squote = 0;
+var str_dquote = STR_FUNC_EXPAND;
+var str_xquote = STR_FUNC_EXPAND;
+var str_regexp = STR_FUNC_REGEXP | STR_FUNC_ESCAPE | STR_FUNC_EXPAND;
+var str_sword = STR_FUNC_QWORDS;
+var str_dword = STR_FUNC_QWORDS | STR_FUNC_EXPAND;
+var str_ssym = STR_FUNC_SYMBOL;
+var str_dsym = STR_FUNC_SYMBOL | STR_FUNC_EXPAND;
+
+
+
 // here go all $strem related functions
 
 var $streamLength = $stream.length;
@@ -135,8 +155,41 @@ function pushback (c)
     throw 'lexer error: pushing back wrong "'+c+'" char';
 }
 
+
+// token related stuff
+
+var tokenbuf = ''
+function newtok ()
+{
+  tokenbuf = '';
+  return tokenbuf;
+}
+function tokadd (c)
+{
+  tokenbuf += c;
+  return c;
+}
+var tokadd_mbchar = tokadd;
+function tokfix () { /* was: tokenbuf[tokidx]='\0'*/ }
+function tok () { return tokenbuf; }
+function toklen () { return tokenbuf.length; }
+function toklast ()
+{
+  return tokenbuf.substr(-1)
+  // was: tokidx>0?tokenbuf[tokidx-1]:0)
+}
+
+function parser_is_identchar (c)
+{
+  return /[0-9a-zA-Z_]/.test(c)
+}
+
+
+
+
 // char to code shortcut
 function $ (c) { return c.charCodeAt(0) }
+function $$ (code) { return String.fromCharCode(code) }
 
 this.lex = function yylex ()
 {
@@ -146,7 +199,7 @@ this.lex = function yylex ()
   if (lexer.strterm)
   {
     var token = 0;
-    if (lexer.strterm.type == 'HEREDOC')
+    if (lexer.strterm.type == 'NODE_HEREDOC')
     {
       token = here_document(lexer.strterm);
       if (token == tSTRING_END)
@@ -172,7 +225,7 @@ this.lex = function yylex ()
   
   retry: for (;;)
   {
-  var last_state = lexer.strterm;
+  var last_state = lexer.state;
   switch (c = nextc())
   {
     // different signs of the input end
@@ -327,6 +380,78 @@ this.lex = function yylex ()
       return $('!');
     }
     
+    case '=':
+    {
+      // TODO: skip embedded rd document */
+
+      lexer.state = IS_AFTER_OPERATOR()? EXPR_ARG : EXPR_BEG;
+      if ((c = nextc()) == '=')
+      {
+        if ((c = nextc()) == '=')
+        {
+          return tEQQ;
+        }
+        pushback(c);
+        return tEQ;
+      }
+      if (c == '~')
+      {
+        return tMATCH;
+      }
+      else if (c == '>')
+      {
+        return tASSOC;
+      }
+      pushback(c);
+      return $('=');
+    }
+    
+    case '<':
+    {
+      last_state = lexer.state;
+      c = nextc();
+      if (c == '<' &&
+          !IS_lex_state(EXPR_DOT | EXPR_CLASS) &&
+          !IS_END() && (!IS_ARG() || space_seen))
+      {
+        var token = heredoc_identifier();
+        if (token)
+          return token;
+      }
+      if (IS_AFTER_OPERATOR())
+      {
+        lexer.state = EXPR_ARG;
+      }
+      else
+      {
+        if (IS_lex_state(EXPR_CLASS))
+          command_start = true;
+        lexer.state = EXPR_BEG;
+      }
+      if (c == '=')
+      {
+        if ((c = nextc()) == '>')
+        {
+          return tCMP;
+        }
+        pushback(c);
+        return tLEQ;
+      }
+      if (c == '<')
+      {
+        if ((c = nextc()) == '=')
+        {
+          // set_yylval_id(tLSHFT); TODO
+          lexer.state = EXPR_BEG;
+          return tOP_ASGN;
+        }
+        pushback(c);
+        // warn_balanced("<<", "here document"); TODO
+        return tLSHFT;
+      }
+      pushback(c);
+      return $('<');
+    }
     
     // add before here :)
   }
@@ -336,7 +461,88 @@ this.lex = function yylex ()
   } // retry for loop
 }
 
+function heredoc_identifier ()
+{
+  var term = 0, func = 0, len = 0;
+  
+  var c = nextc()
+  if (c == '-')
+  {
+    c = nextc();
+    func = STR_FUNC_INDENT;
+  }
+  defaultt:
+  {
+    quoted:
+    {
+      switch (c)
+      {
+        case '\'':
+          func |= str_squote;
+          break; // was: goto quoted;
+        case '"':
+          func |= str_dquote;
+          break; // was: goto quoted;
+        case '`':
+          func |= str_xquote;
+          break; // was: goto quoted;
+        default:
+          break quoted
+      }
+      // was: quoted:
+      newtok();
+      tokadd($$(func));
+      term = c;
+      while ((c = nextc()) != '' && c != term)
+      {
+        if (tokadd_mbchar(c) == '')
+          return 0;
+      }
+      if (c == '')
+      {
+        compile_error("unterminated here document identifier");
+        return 0;
+      }
+      break defaultt;
+    } // quoted:
+
+    // was: default:
+    if (!parser_is_identchar(c))
+    {
+      pushback(c);
+      if (func & STR_FUNC_INDENT)
+      {
+        pushback('-');
+      }
+      return 0;
+    }
+    newtok();
+    term = '"';
+    tokadd(func |= str_dquote);
+    do
+    {
+      if (tokadd_mbchar(c) == '')
+        return 0;
+    }
+    while ((c = nextc()) != '' && parser_is_identchar(c));
+    pushback(c);
+  } // defaultt:
+
+  tokfix();
+  lex_goto_eol();
+  lexer.strterm =
+  {
+    type: 'NODE_HEREDOC',
+    tok: tok(),
+    line: 0 // TODO: ruby_sourceline
+  };
+  
+  return term == '`' ? tXSTRING_BEG : tSTRING_BEG;
+}
+
+
 function warning (msg) { print('WARNING: ' + msg) }
+function compile_error (msg) { print('COMPILE ERROR: ' + msg) }
 
 }
 
