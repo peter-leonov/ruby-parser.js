@@ -210,8 +210,31 @@ function parser_is_identchar (c)
   return /[0-9a-zA-Z_]/.test(c)
 }
 
-
-
+function NEW_STRTERM (func, term, paren)
+{
+  return {
+    type: 'NODE_STRTERM',
+    func: func,
+    tok: term,
+    paren: paren,
+    pos_after_eos: 0, // to be calculated in `here_document()`
+    heredoc_end_found_last_time: false,
+    line: 0 // TODO: `ruby_sourceline`
+  };
+}
+// our addition
+function NEW_HEREDOCTERM (func, term)
+{
+  return {
+    type: 'NODE_HEREDOC',
+    func: func,
+    tok: term,
+    paren: '',
+    pos_after_eos: 0, // to be calculated in `here_document()`
+    heredoc_end_found_last_time: false,
+    line: 0 // TODO: `ruby_sourceline`
+  };
+}
 
 // char to code shortcut
 function $ (c) { return c.charCodeAt(0) }
@@ -502,6 +525,36 @@ this.lex = function yylex ()
       return '>';
     }
     
+    case '"':
+    {
+      lexer.strterm = NEW_STRTERM(str_dquote, '"', '')
+      return tSTRING_BEG;
+    }
+    
+    case '`':
+    {
+      if (IS_lex_state(EXPR_FNAME))
+      {
+        lexer.state = EXPR_ENDFN;
+        return c;
+      }
+      if (IS_lex_state(EXPR_DOT))
+      {
+        if (cmd_state)
+          lexer.state = EXPR_CMDARG;
+        else
+          lexer.state = EXPR_ARG;
+        return c;
+      }
+      lexer.strterm = NEW_STRTERM(str_xquote, '`', '');
+      return tXSTRING_BEG;
+    }
+    
+    case '\'':
+    {
+      lexer.strterm = NEW_STRTERM(str_squote, '\'', '');
+      return tSTRING_BEG;
+    }
     
     // add before here :)
   }
@@ -581,16 +634,7 @@ function heredoc_identifier ()
 
   tokfix();
   lex_goto_eol();
-  lexer.strterm =
-  {
-    type: 'NODE_HEREDOC',
-    func: func,
-    tok: tok(),
-    pos_after_eos: 0, // to be calculated in `here_document()`
-    heredoc_end_found_last_time: false,
-    line: 0 // TODO: `ruby_sourceline`
-  };
-  
+  lexer.strterm = NEW_HEREDOCTERM(func, tok());
   return term == '`' ? tXSTRING_BEG : tSTRING_BEG;
 }
 
