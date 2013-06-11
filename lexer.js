@@ -222,7 +222,8 @@ this.lex = function yylex ()
   var c = '';
   var space_seen = false;
   
-  if (lexer.strterm)
+  if (false) // TODO
+  // if (lexer.strterm)
   {
     var token = 0;
     if (lexer.strterm.type == 'NODE_HEREDOC')
