@@ -480,6 +480,29 @@ this.lex = function yylex ()
       return $('<');
     }
     
+    case '>':
+    {
+      lexer.state = IS_AFTER_OPERATOR()? EXPR_ARG : EXPR_BEG;
+      if ((c = nextc()) == '=')
+      {
+        return tGEQ;
+      }
+      if (c == '>')
+      {
+        if ((c = nextc()) == '=')
+        {
+          // set_yylval_id(tRSHFT); TODO
+          lexer.state = EXPR_BEG;
+          return tOP_ASGN;
+        }
+        pushback(c);
+        return tRSHFT;
+      }
+      pushback(c);
+      return '>';
+    }
+    
+    
     // add before here :)
   }
   
