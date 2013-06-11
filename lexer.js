@@ -64,7 +64,17 @@ function ISSPACE (c)
   return (
     // the most common checked first
     c === ' '  || c === '\n' || c === '\t' ||
-    c === '\f' || c === '\r' || c === '\v'
+    c === '\f' || c === '\v'
+  )
+}
+// our own modification, does not match `\n`
+// used to avoid crossing end of line on white space search
+function ISSPACE_NOT_N (c)
+{
+  return (
+    // the most common checked first
+    c === ' '  || c === '\t' ||
+    c === '\f' || c === '\v'
   )
 }
 
@@ -90,6 +100,8 @@ var str_sword = STR_FUNC_QWORDS;
 var str_dword = STR_FUNC_QWORDS | STR_FUNC_EXPAND;
 var str_ssym = STR_FUNC_SYMBOL;
 var str_dsym = STR_FUNC_SYMBOL | STR_FUNC_EXPAND;
+
+
 
 
 
@@ -153,6 +165,20 @@ function pushback (c)
   $pos--;
   if ($stream[$pos] != c)
     throw 'lexer error: pushing back wrong "'+c+'" char';
+}
+
+// was begin af a line (`^` in terms of regexps) before last `nextc()`,
+// that true if we're here "a|bc" of here "abc\na|bc"
+function was_bol ()
+{
+  return $pos === 1 || $stream[$pos-2] === '\n'
+}
+// out own addition
+// is begin af a line (`^` in terms of regexps) at the `$pos`,
+// that true if we're here "|abc" of here "abc\n|abc"
+function is_bol ()
+{
+  return $pos === 0 || $stream[$pos-1] === '\n'
 }
 
 
@@ -241,7 +267,7 @@ this.lex = function yylex ()
     case ' ':
     case '\t':
     case '\f':
-    case '\r':
+    case '\r': // TODO: cream on `\r` everywhere, or clear it out
     case '\v':    // '\13'
     {
       space_seen = true;
@@ -491,7 +517,7 @@ function heredoc_identifier ()
       }
       // was: quoted:
       newtok();
-      tokadd($$(func));
+      // tokadd($$(func)); add it to the `strterm` property
       term = c;
       while ((c = nextc()) != '' && c != term)
       {
@@ -516,6 +542,7 @@ function heredoc_identifier ()
       }
       return 0;
     }
+    // TODO: create token with $stream.substring(start, end)
     newtok();
     term = '"';
     tokadd(func |= str_dquote);
@@ -533,16 +560,160 @@ function heredoc_identifier ()
   lexer.strterm =
   {
     type: 'NODE_HEREDOC',
+    func: func,
     tok: tok(),
-    line: 0 // TODO: ruby_sourceline
+    pos_after_eos: 0, // to be calculated in `here_document()`
+    heredoc_end_found_last_time: false,
+    line: 0 // TODO: `ruby_sourceline`
   };
   
   return term == '`' ? tXSTRING_BEG : tSTRING_BEG;
 }
 
+function here_document_error (eos)
+{
+  // was: error:
+    compile_error("can't find string \""+eos+"\" anywhere before EOF");
+  // was: restore:
+    heredoc_restore(lexer.strterm);
+    lexer.strterm = null;
+    return 0;
+}
+function here_document (here)
+{
+  // instead of repeating the work just check the flag
+  if (lexer.strterm.heredoc_end_found_last_time)
+  {
+    // was: dispatch_heredoc_end(); a noop out of ripper
+    heredoc_restore(lexer.strterm);
+    return tSTRING_END; // will erase `lexer.strterm`
+  }
+
+  // we're at the heredoc content start
+  var func = here.func,
+      eos  = here.tok,
+      indent = func & STR_FUNC_INDENT;
+
+  var c = ''
+  // // do not look for `#{}` stuff here
+  // if (!(func & STR_FUNC_EXPAND))
+  {
+    // mark a start of the string token
+    var start = $pos, end = 0;
+    scaning: // the heredoc body
+    for (;;)
+    {
+      c = nextc();
+      // EOF reached in the middle of the heredoc
+      if (c === '')
+      {
+        return here_document_error(eos);
+      }
+      
+      // end of line here
+      if (c === '\n')
+      {
+        // try to match the end of heredoc
+        // and get the position right after it
+        var match_end = lookahead_whole_match_pos(eos, indent, $pos);
+        if (match_end !== -1)
+        {
+          end = $pos;
+          lexer.strterm.heredoc_end_found_last_time = true;
+          lexer.strterm.pos_after_eos = match_end;
+          break scaning; // the heredoc body
+        }
+        continue scaning; // the heredoc body
+      }
+    }
+  }
+  // // try to find all the `#{}` stuff here
+  // else
+  // {
+  //   /*      int mb = ENC_CODERANGE_7BIT, *mbp = &mb; */
+  //   newtok();
+  //   if (c == '#')
+  //   {
+  //     switch (c = nextc())
+  //     {
+  //       case '$':
+  //       case '@':
+  //         pushback(c);
+  //         return tSTRING_DVAR;
+  //       case '{':
+  //         command_start = TRUE;
+  //         return tSTRING_DBEG;
+  //     }
+  //     tokadd('#');
+  //   }
+  //   do
+  //   {
+  //     pushback(c);
+  //     if ((c = tokadd_string(func, '\n', 0, NULL, &enc)) == -1)
+  //     {
+  //       if (parser->eofp)
+  //         goto error;
+  //       goto restore;
+  //     }
+  //     if (c != '\n')
+  //     {
+  //       set_yylval_str(STR_NEW3(tok(), toklen(), enc, func));
+  //       flush_string_content(enc);
+  //       return tSTRING_CONTENT;
+  //     }
+  //     tokadd(nextc());
+  //     /*      if (mbp && mb == ENC_CODERANGE_UNKNOWN) mbp = 0; */
+  //     if ((c = nextc()) == -1)
+  //       goto error;
+  //   }
+  //   while (!lookahead_whole_match_pos(eos, indent, $pos-1));
+  //   str = STR_NEW3(tok(), toklen(), enc, func);
+  // }
+  // was: dispatch_heredoc_end(); a noop out of ripper
+  heredoc_restore(lexer.strterm);
+  // lex_strterm = NEW_STRTERM(-1, 0, 0);
+  // set_yylval_str(str); TODO:
+  return tSTRING_CONTENT;
+}
+
+// checks if the current line matches `/\s*#{eos}\n/`;
+// `pos` tell us when the start point is:
+// for `pos` = 2 "ab|c".
+// Returns the position after the trailing `\n\:
+//   "…\n    EOS\n|"
+function lookahead_whole_match_pos (eos, indent, pos)
+{
+  // skip all white spaces if in `indent` mode
+  if (indent)
+  {
+    while (ISSPACE_NOT_N($stream[pos]))
+      pos++;
+  }
+  
+  var len = eos.length;
+  // check first if the `eos` fits the rest of the line
+  if ($stream[pos + len] !== '\n')
+    return -1;
+  
+  return $stream.substr(pos, len) === eos ? (pos + len + 1) : -1;
+}
+
+function heredoc_restore (here)
+{
+  $pos = here.pos_after_eos;
+}
+
+
 
 function warning (msg) { print('WARNING: ' + msg) }
 function compile_error (msg) { print('COMPILE ERROR: ' + msg) }
+function debug (msg)
+{
+  print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+  print(msg)
+  print($stream.substring($pos-25,$pos+25))
+  print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+}
 
 }
 
