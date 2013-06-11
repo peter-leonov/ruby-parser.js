@@ -150,7 +150,34 @@ function nextc ()
   
   return $stream[$pos++];
 }
-
+// our addition
+function what_nextc ()
+{
+  if ($pos >= $streamLength)
+  {
+    return '';
+  }
+  
+  return $stream[$pos];
+}
+function what_nextc_n (n)
+{
+  var pos = $pos + n;
+  if (pos >= $streamLength)
+  {
+    return '';
+  }
+  
+  return $stream[pos];
+}
+// expects rex in this form: `/blablabla|/g`
+// that means `blablabla` or empty string (to prevent deep search)
+function match_grex (rex)
+{
+  rex.lastIndex = $pos;
+  // there is always a match for empty string
+  return rex.exec($stream)[0];
+}
 // step back for one character and check
 // if the current character is equal to `c`
 function pushback (c)
@@ -207,7 +234,8 @@ function toklast ()
 
 function parser_is_identchar (c)
 {
-  return /[0-9a-zA-Z_]/.test(c)
+  // \w = [A-Za-z0-9_]
+  return /^\w/.test(c)
 }
 
 function NEW_STRTERM (func, term, paren)
@@ -239,6 +267,16 @@ function NEW_HEREDOCTERM (func, term)
 // char to code shortcut
 function $ (c) { return c.charCodeAt(0) }
 function $$ (code) { return String.fromCharCode(code) }
+
+function ISASCII (c)
+{
+  return $(c) < 128;
+}
+
+
+
+
+
 
 this.lex = function yylex ()
 {
@@ -556,6 +594,98 @@ this.lex = function yylex ()
       return tSTRING_BEG;
     }
     
+    case '?':
+    {
+      // trying to catch ternary operator
+      if (IS_END())
+      {
+        lexer.state = EXPR_VALUE;
+        return $('?');
+      }
+      c = nextc();
+      if (c == '')
+      {
+        compile_error("incomplete character syntax");
+        return 0;
+      }
+      if (ISSPACE(c))
+      {
+        if (!IS_ARG())
+        {
+          var c2 = '';
+          switch (c)
+          {
+            case ' ':
+              c2 = 's';
+              break;
+            case '\n':
+              c2 = 'n';
+              break;
+            case '\t':
+              c2 = 't';
+              break;
+            case '\v':
+              c2 = 'v';
+              break;
+            case '\r':
+              c2 = 'r';
+              break;
+            case '\f':
+              c2 = 'f';
+              break;
+          }
+          if (c2)
+          {
+            warning("invalid character syntax; use ?\\" + c2);
+          }
+        }
+        pushback(c);
+        lexer.state = EXPR_VALUE;
+        return $('?');
+      }
+      
+      // the `?ab` construction
+      if (parser_is_identchar(c) && parser_is_identchar(what_nextc()))
+      {
+        pushback(c);
+        lex_state = EXPR_VALUE;
+        return $('?');
+      }
+      
+      // definitely it's a character
+      
+      newtok();
+      if (c == '\\')
+      {
+        c = nextc();
+        if (c === 'u')
+        {
+          c = parser_tokadd_utf8(false, false, false);
+          tokadd(c);
+        }
+        else if (!(ISASCII(c)))
+        {
+          if (tokadd(c) == '')
+            return 0;
+        }
+        else
+        {
+          pushback(c);
+          // TODO:
+          // c = read_escape(0, &enc);
+          // tokadd(c);
+        }
+      }
+      else
+      {
+        tokadd(c);
+      }
+      tokfix();
+      // set_yylval_str(STR_NEW3(tok(), toklen(), enc, 0)); TODO
+      lexer.state = EXPR_END;
+      return tCHAR;
+    }
+    
     // add before here :)
   }
   
@@ -771,17 +901,121 @@ function heredoc_restore (here)
   $pos = here.pos_after_eos;
 }
 
+/* return value is for ?\u3042 */
+function parser_tokadd_utf8(string_literal, symbol_literal, regexp_literal)
+{
+  /*
+   * If string_literal is true, then we allow multiple codepoints
+   * in \u{}, and add the codepoints to the current token.
+   * Otherwise we're parsing a character literal and return a single
+   * codepoint without adding it
+   */
+
+  if (regexp_literal)
+  {
+    tokadd('\\u');
+  }
+  
+  var c = nextc();
+  // handle \u{...} form
+  if (c === '{')
+  {
+    if (regexp_literal)
+    {
+      tokadd('{'); // was: tokadd(*lex_p);
+    }
+    for (;;)
+    {
+      // match hex digits or empty string
+      var hex = match_grex(/[0-9a-fA-F]{1,6}|/g);
+      if (hex == '')
+      {
+        yyerror("invalid Unicode escape");
+        return '';
+      }
+      var codepoint = parseInt(hex, 16);
+      var the_char = $$(codepoint);
+      if (codepoint > 0x10ffff)
+      {
+        yyerror("invalid Unicode codepoint "+codepoint+" (too large)");
+        return '';
+      }
+      
+      $pos += hex.length;
+      if (regexp_literal)
+      {
+        tokadd(hex);
+      }
+      else if (string_literal)
+      {
+        tokadd(the_char);
+      }
+      
+      c = nextc();
+      if (!string_literal)
+        break;
+      if (c !== ' ' && c !== '\t')
+        break;
+    }
+
+    if (c !== '}')
+    {
+      yyerror("unterminated Unicode escape");
+      return '';
+    }
+
+    if (regexp_literal)
+    {
+      tokadd('}');
+    }
+    
+    // return the last found codepoint/char
+    return the_char;
+  }
+  // handle \uxxxx form
+  else
+  {
+    // match 4 hex digits or empty string
+    var hex = match_grex(/[0-9a-fA-F]{4}|/g);
+    if (hex === '')
+    {
+      yyerror("invalid Unicode escape");
+      return '';
+    }
+    var codepoint = parseInt(hex, 16);
+    var the_char = $$(codepoint);
+    $pos += 4;
+    if (regexp_literal)
+    {
+      tokadd(hex);
+    }
+    else if (string_literal)
+    {
+      tokadd(the_char);
+    }
+    
+    // return the only found codepoint/char
+    return the_char;
+  }
+}
 
 
-function warning (msg) { print('WARNING: ' + msg) }
-function compile_error (msg) { print('COMPILE ERROR: ' + msg) }
+
+
 function debug (msg)
 {
   print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
   print(msg)
-  print($stream.substring($pos-25,$pos+25))
+  print(
+    $stream.substring($pos - 25, $pos) +
+    '>>here<<' +
+    $stream.substring($pos, $pos + 25)
+  )
   print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
 }
+function warning (msg) { debug('WARNING: ' + msg) }
+function compile_error (msg) { debug('COMPILE ERROR: ' + msg) }
+function yyerror (msg) { debug('YYERROR: ' + msg) }
 
 }
 
