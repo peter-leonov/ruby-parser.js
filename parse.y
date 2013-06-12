@@ -31,6 +31,8 @@ var EXPR_ARG_ANY = EXPR_ARG | EXPR_CMDARG;
 var EXPR_END_ANY = EXPR_END | EXPR_ENDARG | EXPR_ENDFN;
 
 
+function yyerror (msg) { print('YYERROR!!!: ' + msg) }
+
 %}
 
 %skeleton "./lalr1.js"
