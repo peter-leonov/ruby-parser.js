@@ -162,37 +162,27 @@ top_stmts
     {
     }
   |
-  top_stmt
+    top_stmt
     {
-		    /*%%%*/
-			$$ = newline_node($1);
-		    /*%
-			$$ = dispatch2(stmts_add, dispatch0(stmts_new), $1);
-		    %*/
-		    }
-		| top_stmts terms top_stmt
-		    {
-		    /*%%%*/
-			$$ = block_append($1, newline_node($3));
-		    /*%
-			$$ = dispatch2(stmts_add, $1, $3);
-		    %*/
-		    }
-		| error top_stmt
-		    {
-			$$ = remove_begin($2);
-		    }
-		;
+    }
+  |
+    top_stmts terms top_stmt
+    {
+    }
+  |
+    error top_stmt
+    {
+    }
+  ;
 
-top_stmt	: stmt
-		| keyword_BEGIN
-		    {
-		    /*%%%*/
-			/* local_push(0); */
-		    /*%
-		    %*/
-		    }
-		  '{' top_compstmt '}'
+top_stmt
+  :
+    stmt
+  |
+    keyword_BEGIN
+    {
+    }
+    '{' top_compstmt '}'
 		    {
 		    /*%%%*/
 			ruby_eval_tree_begin = block_append(ruby_eval_tree_begin,
