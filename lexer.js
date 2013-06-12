@@ -1,4 +1,4 @@
-var YYLexer = (function(){
+(function(){
 
 // $stream: plain old JS string with ruby source code
 function Lexer ($stream)

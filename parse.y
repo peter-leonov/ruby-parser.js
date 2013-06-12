@@ -1827,8 +1827,8 @@ none		: /* none */
 
 %%
 
-// var YYLexer = 
-load('lexer.js');
+var YYLexer = 
+#include "lexer.js"
 
 var lexer = new YYLexer(read('ruby.rb'));
 
