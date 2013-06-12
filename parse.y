@@ -983,165 +983,57 @@ primary		: literal
 		  }
 		  compstmt
 		  k_end
-		    {
-		    /*%%%*/
-			/*
-			 *  for a, b, c in e
-			 *  #=>
-			 *  e.each{|*x| a, b, c = x
-			 *
-			 *  for a in e
-			 *  #=>
-			 *  e.each{|x| a, = x}
-			 */
-			ID id = internal_id();
-			ID *tbl = ALLOC_N(ID, 2);
-			NODE *m = NEW_ARGS_AUX(0, 0);
-			NODE *args, *scope;
-
-			if (nd_type($2) == NODE_MASGN) {
-			    /* if args.length == 1 && args[0].kind_of?(Array)
-			     *   args = args[0]
-			     * end
-			     */
-			    NODE *one = NEW_LIST(NEW_LIT(INT2FIX(1)));
-			    NODE *zero = NEW_LIST(NEW_LIT(INT2FIX(0)));
-			    m->nd_next = block_append(
-				NEW_IF(
-				    NEW_NODE(NODE_AND,
-					     NEW_CALL(NEW_CALL(NEW_DVAR(id), idLength, 0),
-						      idEq, one),
-					     NEW_CALL(NEW_CALL(NEW_DVAR(id), idAREF, zero),
-						      rb_intern("kind_of?"), NEW_LIST(NEW_LIT(rb_cArray))),
-					     0),
-				    NEW_DASGN_CURR(id,
-						   NEW_CALL(NEW_DVAR(id), idAREF, zero)),
-				    0),
-				node_assign($2, NEW_DVAR(id)));
-
-			    args = new_args(m, 0, id, 0, new_args_tail(0, 0, 0));
-			}
-			else {
-			    if (nd_type($2) == NODE_LASGN ||
-				nd_type($2) == NODE_DASGN ||
-				nd_type($2) == NODE_DASGN_CURR) {
-				$2->nd_value = NEW_DVAR(id);
-				m->nd_plen = 1;
-				m->nd_next = $2;
-				args = new_args(m, 0, 0, 0, new_args_tail(0, 0, 0));
-			    }
-			    else {
-				m->nd_next = node_assign(NEW_MASGN(NEW_LIST($2), 0), NEW_DVAR(id));
-				args = new_args(m, 0, id, 0, new_args_tail(0, 0, 0));
-			    }
-			}
-			scope = NEW_NODE(NODE_SCOPE, tbl, $8, args);
-			tbl[0] = 1; tbl[1] = id;
-			$$ = NEW_FOR(0, $5, scope);
-			fixpos($$, $2);
-		    /*%
-			$$ = dispatch3(for, $2, $5, $8);
-		    %*/
-		    }
+		    {}
 		| k_class cpath superclass
-		    {
-			if (in_def || in_single)
-			    yyerror("class definition in method body");
-			local_push(0);
-		    /*%%%*/
-			$<num>$ = ruby_sourceline;
-		    /*%
-		    %*/
-		    }
+		    {}
 		  bodystmt
 		  k_end
 		    {
-		    /*%%%*/
-			$$ = NEW_CLASS($2, $5, $3);
-			nd_set_line($$, $<num>4);
-		    /*%
-			$$ = dispatch3(class, $2, $3, $5);
-		    %*/
-
+		      // touching this alters the parse.output
+			    $<num>4;
 		    }
 		| k_class tLSHFT expr
-		    {
-			$<num>$ = in_def;
-			in_def = 0;
-		    }
+		    {}
 		  term
-		    {
-			$<num>$ = in_single;
-			in_single = 0;
-			local_push(0);
-		    }
+		    {}
 		  bodystmt
 		  k_end
 		    {
-		    /*%%%*/
-			$$ = NEW_SCLASS($3, $7);
-			fixpos($$, $3);
-		    /*%
-			$$ = dispatch2(sclass, $3, $7);
-		    %*/
-
-			in_def = $<num>4;
-			in_single = $<num>6;
+		      // touching this alters the parse.output
+		      $<num>4;
+			    $<num>6;
 		    }
 		| k_module cpath
-		    {
-			if (in_def || in_single)
-			    yyerror("module definition in method body");
-			local_push(0);
-		    /*%%%*/
-			$<num>$ = ruby_sourceline;
-		    /*%
-		    %*/
-		    }
+		    {}
 		  bodystmt
 		  k_end
 		    {
-		    /*%%%*/
-			$$ = NEW_MODULE($2, $4);
-			nd_set_line($$, $<num>3);
-		    /*%
-			$$ = dispatch2(module, $2, $4);
-		    %*/
-
+		      // touching this alters the parse.output
+			    $<num>3;
 		    }
 		| k_def fname
-		    {
-			$<id>$ = cur_mid;
-			cur_mid = $2;
-			in_def++;
-			local_push(0);
-		    }
+		    {}
 		  f_arglist
 		  bodystmt
 		  k_end
 		    {
-		    /*%%%*/
-			NODE *body = remove_begin($5);
-			reduce_nodes(&body);
-			$$ = NEW_DEFN($2, $4, body, NOEX_PRIVATE);
-			nd_set_line($$, $<num>1);
-		    /*%
-			$$ = dispatch3(def, $2, $4, $5);
-		    %*/
-
-			in_def--;
-			cur_mid = $<id>3;
+		      // touching this alters the parse.output
+			    $<num>1;
+			    $<id>3;
 		    }
-		| k_def singleton dot_or_colon {yylexer.state = EXPR_FNAME;} fname
-		    {
-			in_single++;
-			yylexer.state = EXPR_ENDFN; /* force for args */
-			local_push(0);
-		    }
-		  f_arglist
-		  bodystmt
-		  k_end
-		    {
+  |
+    k_def singleton dot_or_colon
+    {
+      yylexer.state = EXPR_FNAME;
+    }
+    fname
+    {
+      yylexer.state = EXPR_ENDFN; /* force for args */
+    }
+    f_arglist
+    bodystmt
+    k_end
+    {
 		    /*%%%*/
 			NODE *body = remove_begin($8);
 			reduce_nodes(&body);
