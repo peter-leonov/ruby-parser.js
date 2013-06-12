@@ -1181,7 +1181,6 @@ lex_getline(struct parser_params *parser)
   if (NIL_P(line))
     return line;
   must_be_ascii_compatible(line);
-#ifndef RIPPER
   if (ruby_debug_lines)
   {
     rb_enc_associate(line, current_enc);
@@ -1191,7 +1190,6 @@ lex_getline(struct parser_params *parser)
   {
     rb_ary_push(ruby_coverage, Qnil);
   }
-#endif
   return line;
 }
 
@@ -1353,25 +1351,6 @@ parser_nextc(struct parser_params *parser)
       }
     }
     {
-#ifdef RIPPER
-      if (parser->tokp < lex_pend)
-      {
-        if (NIL_P(parser->delayed))
-        {
-          parser->delayed = rb_str_buf_new(1024);
-          rb_enc_associate(parser->delayed, current_enc);
-          rb_str_buf_cat(parser->delayed,
-                         parser->tokp, lex_pend - parser->tokp);
-          parser->delayed_line = ruby_sourceline;
-          parser->delayed_col = (int) (parser->tokp - lex_pbeg);
-        }
-        else
-        {
-          rb_str_buf_cat(parser->delayed,
-                         parser->tokp, lex_pend - parser->tokp);
-        }
-      }
-#endif
       if (heredoc_end > 0)
       {
         ruby_sourceline = heredoc_end;
@@ -2199,9 +2178,6 @@ parser_heredoc_identifier(struct parser_params *parser)
   }
 
   tokfix();
-#ifdef RIPPER
-  ripper_dispatch_scan_event(parser, tHEREDOC_BEG);
-#endif
   len = lex_p - lex_pbeg;
   lex_goto_eol(parser);
   lex_strterm = rb_node_newnode(NODE_HEREDOC, STR_NEW(tok(), toklen()), /* nd_lit */
@@ -7298,19 +7274,9 @@ parser_initialize(struct parser_params *parser)
   parser->parser_lvtbl = 0;
   parser->parser_ruby__end__seen = 0;
   parser->parser_ruby_sourcefile = 0;
-#ifndef RIPPER
   parser->is_ripper = 0;
   parser->parser_eval_tree_begin = 0;
   parser->parser_eval_tree = 0;
-#else
-  parser->is_ripper = 1;
-  parser->parser_ruby_sourcefile_string = Qnil;
-  parser->delayed = Qnil;
-
-  parser->result = Qnil;
-  parser->parsing_thread = Qnil;
-  parser->toplevel_p = TRUE;
-#endif
 #ifdef YYMALLOC
   parser->heap = NULL;
 #endif
