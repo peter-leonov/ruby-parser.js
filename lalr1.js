@@ -517,7 +517,7 @@ function YYParser (yylexer)
         // Muck with the stack to setup for yylloc.
         yystack.push(0, null, yylloc);
         yystack.push(0, null, yyerrloc);
-        yyloc = yylloc(yystack, 2);
+        yyloc = yystack.locationFromNthItemToCurrent(2);
         yystack.pop(2);
 
         // Shift the error token.
