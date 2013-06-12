@@ -1,7 +1,36 @@
 %{
 "use strict";
 
-  // alert(123)
+// lexer states from lexer.js
+
+// ignore newline, +/- is a sign.
+var EXPR_BEG    = 1 << 0;
+// newline significant, +/- is an operator.
+var EXPR_END    = 1 << 1;
+// ditto, and unbound braces.
+var EXPR_ENDARG = 1 << 2;
+// ditto, and unbound braces.
+var EXPR_ENDFN  = 1 << 3;
+// newline significant, +/- is an operator.
+var EXPR_ARG    = 1 << 4;
+// newline significant, +/- is an operator.
+var EXPR_CMDARG = 1 << 5;
+// newline significant, +/- is an operator.
+var EXPR_MID    = 1 << 6;
+// ignore newline, no reserved words.
+var EXPR_FNAME  = 1 << 7;
+// right after `.' or `::', no reserved words.
+var EXPR_DOT    = 1 << 8;
+// immediate after `class', no here document.
+var EXPR_CLASS  = 1 << 9;
+// alike EXPR_BEG but label is disallowed.
+var EXPR_VALUE  = 1 << 10;
+
+var EXPR_BEG_ANY = EXPR_BEG | EXPR_VALUE | EXPR_MID | EXPR_CLASS;
+var EXPR_ARG_ANY = EXPR_ARG | EXPR_CMDARG;
+var EXPR_END_ANY = EXPR_END | EXPR_ENDARG | EXPR_ENDFN;
+
+
 %}
 
 %skeleton "./lalr1.js"
@@ -110,59 +139,31 @@
 %token tLAST_TOKEN
 
 %%
-program		:  {
-			lex_state = EXPR_BEG;
-		    /*%%%*/
-			local_push(compile_for_eval || rb_parse_in_main());
-		    /*%
-			local_push(0);
-		    %*/
-		    }
-		  top_compstmt
-		    {
-		    /*%%%*/
-			if ($2 && !compile_for_eval) {
-			    /* last expression should not be void */
-			    if (nd_type($2) != NODE_BLOCK) void_expr($2);
-			    else {
-				NODE *node = $2;
-				while (node->nd_next) {
-				    node = node->nd_next;
-				}
-				void_expr(node->nd_head);
-			    }
-			}
-			ruby_eval_tree = NEW_SCOPE(0, block_append(ruby_eval_tree, $2));
-		    /*%
-			$$ = $2;
-			parser->result = dispatch1(program, $$);
-		    %*/
-			local_pop();
-		    }
-		;
+program
+  :
+    {
+      yylexer.state = EXPR_BEG;
+    }
+    top_compstmt
+    {
+    }
+  ;
 
-top_compstmt	: top_stmts opt_terms
-		    {
-		    /*%%%*/
-			void_stmts($1);
-			fixup_nodes(&deferred_nodes);
-		    /*%
-		    %*/
-			$$ = $1;
-		    }
-		;
+top_compstmt
+  :
+    top_stmts opt_terms
+    {
+    }
+  ;
 
-top_stmts	: none
-                    {
-		    /*%%%*/
-			$$ = NEW_BEGIN(0);
-		    /*%
-			$$ = dispatch2(stmts_add, dispatch0(stmts_new),
-						  dispatch0(void_stmt));
-		    %*/
-		    }
-		| top_stmt
-		    {
+top_stmts
+  :
+    none
+    {
+    }
+  |
+  top_stmt
+    {
 		    /*%%%*/
 			$$ = newline_node($1);
 		    /*%
@@ -305,7 +306,7 @@ stmt_or_begin	: stmt
 		    %*/
 		    }
 
-stmt		: keyword_alias fitem {lex_state = EXPR_FNAME;} fitem
+stmt		: keyword_alias fitem {yylexer.state = EXPR_FNAME;} fitem
 		    {
 		    /*%%%*/
 			$$ = NEW_ALIAS($2, $4);
@@ -1100,12 +1101,12 @@ fname		: tIDENTIFIER
 		| tFID
 		| op
 		    {
-			lex_state = EXPR_ENDFN;
+			yylexer.state = EXPR_ENDFN;
 			$$ = $1;
 		    }
 		| reswords
 		    {
-			lex_state = EXPR_ENDFN;
+			yylexer.state = EXPR_ENDFN;
 		    /*%%%*/
 			$$ = $<id>1;
 		    /*%
@@ -1137,7 +1138,7 @@ undef_list	: fitem
 			$$ = rb_ary_new3(1, $1);
 		    %*/
 		    }
-		| undef_list ',' {lex_state = EXPR_FNAME;} fitem
+		| undef_list ',' {yylexer.state = EXPR_FNAME;} fitem
 		    {
 		    /*%%%*/
 			$$ = block_append($1, NEW_UNDEF($4));
@@ -1871,7 +1872,7 @@ primary		: literal
 			$$ = dispatch1(begin, $3);
 		    %*/
 		    }
-		| tLPAREN_ARG {lex_state = EXPR_ENDARG;} rparen
+		| tLPAREN_ARG {yylexer.state = EXPR_ENDARG;} rparen
 		    {
 		    /*%%%*/
 			$$ = 0;
@@ -1879,7 +1880,7 @@ primary		: literal
 			$$ = dispatch1(paren, 0);
 		    %*/
 		    }
-		| tLPAREN_ARG expr {lex_state = EXPR_ENDARG;} rparen
+		| tLPAREN_ARG expr {yylexer.state = EXPR_ENDARG;} rparen
 		    {
 		    /*%%%*/
 			$$ = $2;
@@ -2235,10 +2236,10 @@ primary		: literal
 			in_def--;
 			cur_mid = $<id>3;
 		    }
-		| k_def singleton dot_or_colon {lex_state = EXPR_FNAME;} fname
+		| k_def singleton dot_or_colon {yylexer.state = EXPR_FNAME;} fname
 		    {
 			in_single++;
-			lex_state = EXPR_ENDFN; /* force for args */
+			yylexer.state = EXPR_ENDFN; /* force for args */
 			local_push(0);
 		    }
 		  f_arglist
@@ -3455,7 +3456,7 @@ string_content	: tSTRING_CONTENT
 		    {
 			$<node>$ = lex_strterm;
 			lex_strterm = 0;
-			lex_state = EXPR_BEG;
+			yylexer.state = EXPR_BEG;
 		    }
 		  string_dvar
 		    {
@@ -3477,7 +3478,7 @@ string_content	: tSTRING_CONTENT
 		    {
 			$<node>$ = lex_strterm;
 			lex_strterm = 0;
-			lex_state = EXPR_BEG;
+			yylexer.state = EXPR_BEG;
 		    }
 		    {
 			$<num>$ = brace_nest;
@@ -3527,7 +3528,7 @@ string_dvar	: tGVAR
 
 symbol		: tSYMBEG sym
 		    {
-			lex_state = EXPR_END;
+			yylexer.state = EXPR_END;
 		    /*%%%*/
 			$$ = $2;
 		    /*%
@@ -3544,7 +3545,7 @@ sym		: fname
 
 dsym		: tSYMBEG xstring_contents tSTRING_END
 		    {
-			lex_state = EXPR_END;
+			yylexer.state = EXPR_END;
 		    /*%%%*/
 			$$ = dsym_node($2);
 		    /*%
@@ -3644,7 +3645,7 @@ superclass	: term
 		    }
 		| '<'
 		    {
-			lex_state = EXPR_BEG;
+			yylexer.state = EXPR_BEG;
 			command_start = TRUE;
 		    }
 		  expr_value term
@@ -3670,13 +3671,13 @@ f_arglist	: '(' f_args rparen
 		    /*%
 			$$ = dispatch1(paren, $2);
 		    %*/
-			lex_state = EXPR_BEG;
+			yylexer.state = EXPR_BEG;
 			command_start = TRUE;
 		    }
 		| f_args term
 		    {
 			$$ = $1;
-			lex_state = EXPR_BEG;
+			yylexer.state = EXPR_BEG;
 			command_start = TRUE;
 		    }
 		;
@@ -4099,7 +4100,7 @@ singleton	: var_ref
 			$$ = $1;
 		    %*/
 		    }
-		| '(' {lex_state = EXPR_BEG;} expr rparen
+		| '(' {yylexer.state = EXPR_BEG;} expr rparen
 		    {
 		    /*%%%*/
 			if ($3 == 0) {

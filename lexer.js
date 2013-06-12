@@ -16,33 +16,7 @@ lexer.state = 0;
 lexer.command_start = false;
 
 
-
-// ignore newline, +/- is a sign.
-var EXPR_BEG    = 1 << 0;
-// newline significant, +/- is an operator.
-var EXPR_END    = 1 << 1;
-// ditto, and unbound braces.
-var EXPR_ENDARG = 1 << 2;
-// ditto, and unbound braces.
-var EXPR_ENDFN  = 1 << 3;
-// newline significant, +/- is an operator.
-var EXPR_ARG    = 1 << 4;
-// newline significant, +/- is an operator.
-var EXPR_CMDARG = 1 << 5;
-// newline significant, +/- is an operator.
-var EXPR_MID    = 1 << 6;
-// ignore newline, no reserved words.
-var EXPR_FNAME  = 1 << 7;
-// right after `.' or `::', no reserved words.
-var EXPR_DOT    = 1 << 8;
-// immediate after `class', no here document.
-var EXPR_CLASS  = 1 << 9;
-// alike EXPR_BEG but label is disallowed.
-var EXPR_VALUE  = 1 << 10;
-
-var EXPR_BEG_ANY = EXPR_BEG | EXPR_VALUE | EXPR_MID | EXPR_CLASS;
-var EXPR_ARG_ANY = EXPR_ARG | EXPR_CMDARG;
-var EXPR_END_ANY = EXPR_END | EXPR_ENDARG | EXPR_ENDFN;
+// all lexer states had been moved to parse.y prologue
 
 // the shortcut for checking `lexer.state` over and over again
 function IS_lex_state (state)
