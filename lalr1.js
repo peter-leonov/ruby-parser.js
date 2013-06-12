@@ -826,13 +826,13 @@ YYParser.prototype =
         {
           if
           (
-            yycheck_[x + yyn] == x
-            && x != yyterror_
+            this.yycheck_[x + yyn] == x
+            && x != this.yyterror_
             && this.yytable_[x + yyn] != this.yytable_ninf_ // yytable_[x + yyn] isn't an error
           )
           {
             res += (count++ == 0 ? ", expecting " : " or ");
-            res += yytnamerr_(yytname_[x]);
+            res += yytnamerr_(this.yytname_[x]);
           }
         }
       }
