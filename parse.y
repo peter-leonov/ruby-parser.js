@@ -301,155 +301,84 @@ stmt
     expr
   ;
 
-command_asgn	: lhs '=' command_call
-		    {
-		    /*%%%*/
-			value_expr($3);
-			$$ = node_assign($1, $3);
-		    /*%
-			$$ = dispatch2(assign, $1, $3);
-		    %*/
-		    }
-		| lhs '=' command_asgn
-		    {
-		    /*%%%*/
-			value_expr($3);
-			$$ = node_assign($1, $3);
-		    /*%
-			$$ = dispatch2(assign, $1, $3);
-		    %*/
-		    }
-		;
+command_asgn
+  :
+    lhs '=' command_call
+    {}
+  |
+    lhs '=' command_asgn
+    {}
+  ;
 
 
-expr		: command_call
-		| expr keyword_and expr
-		    {
-		    /*%%%*/
-			$$ = logop(NODE_AND, $1, $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ripper_intern("and"), $3);
-		    %*/
-		    }
-		| expr keyword_or expr
-		    {
-		    /*%%%*/
-			$$ = logop(NODE_OR, $1, $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ripper_intern("or"), $3);
-		    %*/
-		    }
-		| keyword_not opt_nl expr
-		    {
-		    /*%%%*/
-			$$ = call_uni_op(cond($3), '!');
-		    /*%
-			$$ = dispatch2(unary, ripper_intern("not"), $3);
-		    %*/
-		    }
-		| '!' command_call
-		    {
-		    /*%%%*/
-			$$ = call_uni_op(cond($2), '!');
-		    /*%
-			$$ = dispatch2(unary, ripper_id2sym('!'), $2);
-		    %*/
-		    }
-		| arg
-		;
+expr
+  :
+    command_call
+  |
+    expr keyword_and expr
+    {}
+  | expr keyword_or expr
+    {}
+  |
+    keyword_not opt_nl expr
+    {}
+  |
+    '!' command_call
+    {}
+  |
+    arg
+  ;
 
-expr_value	: expr
-		    {
-		    /*%%%*/
-			value_expr($1);
-			$$ = $1;
-		        if (!$$) $$ = NEW_NIL();
-		    /*%
-			$$ = $1;
-		    %*/
-		    }
-		;
+expr_value
+  :
+    expr
+    {}
+  ;
 
-command_call	: command
-		| block_command
-		;
+command_call
+  :
+    command
+  |
+    block_command
+  ;
 
-block_command	: block_call
-		| block_call dot_or_colon operation2 command_args
-		    {
-		    /*%%%*/
-			$$ = NEW_CALL($1, $3, $4);
-		    /*%
-			$$ = dispatch3(call, $1, $2, $3);
-			$$ = method_arg($$, $4);
-		    %*/
-		    }
-		;
+block_command
+  :
+    block_call
+  |
+    block_call dot_or_colon operation2 command_args
+    {}
+  ;
 
-cmd_brace_block	: tLBRACE_ARG
-		    {
-			$<vars>1 = dyna_push();
-		    /*%%%*/
-			$<num>$ = ruby_sourceline;
-		    /*%
-		    %*/
-		    }
-		  opt_block_param
-		  compstmt
-		  '}'
-		    {
-		    /*%%%*/
-			$$ = NEW_ITER($3,$4);
-			nd_set_line($$, $<num>2);
-		    /*%
-			$$ = dispatch2(brace_block, escape_Qundef($3), $4);
-		    %*/
-			dyna_pop($<vars>1);
-		    }
-		;
+cmd_brace_block
+  :
+    tLBRACE_ARG
+    {}
+    opt_block_param compstmt '}'
+    {
+      // touching this alters the parse.output
+      $<num>2;
+    }
+  ;
 
-fcall		: operation
-		    {
-		    /*%%%*/
-			$$ = NEW_FCALL($1, 0);
-			nd_set_line($$, tokline);
-		    /*%
-		    %*/
-		    }
-		;
+fcall
+  :
+    operation
+    {}
+  ;
 
-command		: fcall command_args       %prec tLOWEST
-		    {
-		    /*%%%*/
-			$$ = $1;
-			$$->nd_args = $2;
-		    /*%
-			$$ = dispatch2(command, $1, $2);
-		    %*/
-		    }
-		| fcall command_args cmd_brace_block
-		    {
-		    /*%%%*/
-			block_dup_check($2,$3);
-			$1->nd_args = $2;
-		        $3->nd_iter = $1;
-			$$ = $3;
-			fixpos($$, $1);
-		    /*%
-			$$ = dispatch2(command, $1, $2);
-			$$ = method_add_block($$, $3);
-		    %*/
-		    }
-		| primary_value '.' operation2 command_args	%prec tLOWEST
-		    {
-		    /*%%%*/
-			$$ = NEW_CALL($1, $3, $4);
-			fixpos($$, $1);
-		    /*%
-			$$ = dispatch4(command_call, $1, ripper_id2sym('.'), $3, $4);
-		    %*/
-		    }
-		| primary_value '.' operation2 command_args cmd_brace_block
+command
+  :
+    fcall command_args  %prec tLOWEST
+    {}
+  |
+    fcall command_args cmd_brace_block
+    {}
+  |
+    primary_value '.' operation2 command_args  %prec tLOWEST
+    {}
+  |
+    primary_value '.' operation2 command_args cmd_brace_block
 		    {
 		    /*%%%*/
 			block_dup_check($4,$5);
