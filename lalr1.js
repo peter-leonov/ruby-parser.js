@@ -75,7 +75,7 @@ b4_copyright([Skeleton implementation for Bison LALR(1) parsers in JavaScript], 
 ;(function(){ // start of the parser namespase
 /* First part of user declarations.  */
 ]b4_pre_prologue[
-]b4_percent_code_get([[imports]])[
+
 /**
  * A Bison parser, automatically generated from <tt>]m4_bpatsubst(b4_file_name, [^"\(.*\)"$], [\1])[</tt>.
  *
