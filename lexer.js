@@ -15,7 +15,9 @@ lexer.state = 0;
 // have no idea TODO
 lexer.command_start = false;
 // have no idea TODO
-lexer.brace_nest = 0;
+lexer.cond_stack = 0;
+// have no idea TODO
+lexer.cmdarg_stack = 0;
 
 
 // all lexer states had been moved to parse.y prologue
