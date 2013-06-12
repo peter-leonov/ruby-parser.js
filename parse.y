@@ -139,412 +139,167 @@ var EXPR_END_ANY = EXPR_END | EXPR_ENDARG | EXPR_ENDFN;
 %token tLAST_TOKEN
 
 %%
-program		:  {
-			yylexer.state = EXPR_BEG;
-		    /*%%%*/
-			local_push(compile_for_eval || rb_parse_in_main());
-		    /*%
-			local_push(0);
-		    %*/
-		    }
-		  top_compstmt
-		    {
-		    /*%%%*/
-			if ($2 && !compile_for_eval) {
-			    /* last expression should not be void */
-			    if (nd_type($2) != NODE_BLOCK) void_expr($2);
-			    else {
-				NODE *node = $2;
-				while (node->nd_next) {
-				    node = node->nd_next;
-				}
-				void_expr(node->nd_head);
-			    }
-			}
-			ruby_eval_tree = NEW_SCOPE(0, block_append(ruby_eval_tree, $2));
-		    /*%
-			$$ = $2;
-			parser->result = dispatch1(program, $$);
-		    %*/
-			local_pop();
-		    }
-		;
+program
+  :
+    {
+      yylexer.state = EXPR_BEG;
+    }
+    top_compstmt
+    {}
+  ;
 
-top_compstmt	: top_stmts opt_terms
-		    {
-		    /*%%%*/
-			void_stmts($1);
-			fixup_nodes(&deferred_nodes);
-		    /*%
-		    %*/
-			$$ = $1;
-		    }
-		;
+top_compstmt
+  :
+    top_stmts opt_terms
+    {}
+  ;
 
-top_stmts	: none
-                    {
-		    /*%%%*/
-			$$ = NEW_BEGIN(0);
-		    /*%
-			$$ = dispatch2(stmts_add, dispatch0(stmts_new),
-						  dispatch0(void_stmt));
-		    %*/
-		    }
-		| top_stmt
-		    {
-		    /*%%%*/
-			$$ = newline_node($1);
-		    /*%
-			$$ = dispatch2(stmts_add, dispatch0(stmts_new), $1);
-		    %*/
-		    }
-		| top_stmts terms top_stmt
-		    {
-		    /*%%%*/
-			$$ = block_append($1, newline_node($3));
-		    /*%
-			$$ = dispatch2(stmts_add, $1, $3);
-		    %*/
-		    }
-		| error top_stmt
-		    {
-			$$ = remove_begin($2);
-		    }
-		;
+top_stmts
+  :
+  none
+    {}
+  |
+    top_stmt
+    {}
+  |
+    top_stmts terms top_stmt
+    {}
+  |
+    error top_stmt
+    {}
+  ;
 
-top_stmt	: stmt
-		| keyword_BEGIN
-		    {
-		    /*%%%*/
-			/* local_push(0); */
-		    /*%
-		    %*/
-		    }
-		  '{' top_compstmt '}'
-		    {
-		    /*%%%*/
-			ruby_eval_tree_begin = block_append(ruby_eval_tree_begin,
-							    $4);
-			/* NEW_PREEXE($4)); */
-			/* local_pop(); */
-			$$ = NEW_BEGIN(0);
-		    /*%
-			$$ = dispatch1(BEGIN, $4);
-		    %*/
-		    }
-		;
+top_stmt
+  :
+    stmt
+  |
+    keyword_BEGIN
+    {}
+    '{' top_compstmt '}'
+    {}
+  ;
 
-bodystmt	: compstmt
-		  opt_rescue
-		  opt_else
-		  opt_ensure
-		    {
-		    /*%%%*/
-			$$ = $1;
-			if ($2) {
-			    $$ = NEW_RESCUE($1, $2, $3);
-			}
-			else if ($3) {
-			    rb_warn0("else without rescue is useless");
-			    $$ = block_append($$, $3);
-			}
-			if ($4) {
-			    if ($$) {
-				$$ = NEW_ENSURE($$, $4);
-			    }
-			    else {
-				$$ = block_append($4, NEW_NIL());
-			    }
-			}
-			fixpos($$, $1);
-		    /*%
-			$$ = dispatch4(bodystmt,
-				       escape_Qundef($1),
-				       escape_Qundef($2),
-				       escape_Qundef($3),
-				       escape_Qundef($4));
-		    %*/
-		    }
-		;
+bodystmt
+  :
+    compstmt
+    opt_rescue
+    opt_else
+    opt_ensure
+    {}
+  ;
 
-compstmt	: stmts opt_terms
-		    {
-		    /*%%%*/
-			void_stmts($1);
-			fixup_nodes(&deferred_nodes);
-		    /*%
-		    %*/
-			$$ = $1;
-		    }
-		;
+compstmt
+  :
+    stmts opt_terms
+    {}
+  ;
 
-stmts		: none
-                    {
-		    /*%%%*/
-			$$ = NEW_BEGIN(0);
-		    /*%
-			$$ = dispatch2(stmts_add, dispatch0(stmts_new),
-						  dispatch0(void_stmt));
-		    %*/
-		    }
-		| stmt_or_begin
-		    {
-		    /*%%%*/
-			$$ = newline_node($1);
-		    /*%
-			$$ = dispatch2(stmts_add, dispatch0(stmts_new), $1);
-		    %*/
-		    }
-		| stmts terms stmt_or_begin
-		    {
-		    /*%%%*/
-			$$ = block_append($1, newline_node($3));
-		    /*%
-			$$ = dispatch2(stmts_add, $1, $3);
-		    %*/
-		    }
-		| error stmt
-		    {
-			$$ = remove_begin($2);
-		    }
-		;
+stmts
+  :
+    none
+    {}
+  |
+    stmt_or_begin
+    {}
+  |
+    stmts terms stmt_or_begin
+    {}
+  |
+    error stmt
+    {}
+  ;
 
-stmt_or_begin	: stmt
-                    {
-			$$ = $1;
-		    }
-                | keyword_BEGIN
-		    {
-			yyerror("BEGIN is permitted only at toplevel");
-		    /*%%%*/
-			/* local_push(0); */
-		    /*%
-		    %*/
-		    }
-		  '{' top_compstmt '}'
-		    {
-		    /*%%%*/
-			ruby_eval_tree_begin = block_append(ruby_eval_tree_begin,
-							    $4);
-			/* NEW_PREEXE($4)); */
-			/* local_pop(); */
-			$$ = NEW_BEGIN(0);
-		    /*%
-			$$ = dispatch1(BEGIN, $4);
-		    %*/
-		    }
+stmt_or_begin
+  :
+    stmt
+    {}
+  |
+    keyword_BEGIN
+    {
+      yyerror("BEGIN is permitted only at toplevel");
+    }
+    '{' top_compstmt '}'
+    {}
+  ;
 
-stmt		: keyword_alias fitem {yylexer.state = EXPR_FNAME;} fitem
-		    {
-		    /*%%%*/
-			$$ = NEW_ALIAS($2, $4);
-		    /*%
-			$$ = dispatch2(alias, $2, $4);
-		    %*/
-		    }
-		| keyword_alias tGVAR tGVAR
-		    {
-		    /*%%%*/
-			$$ = NEW_VALIAS($2, $3);
-		    /*%
-			$$ = dispatch2(var_alias, $2, $3);
-		    %*/
-		    }
-		| keyword_alias tGVAR tBACK_REF
-		    {
-		    /*%%%*/
-			char buf[2];
-			buf[0] = '$';
-			buf[1] = (char)$3->nd_nth;
-			$$ = NEW_VALIAS($2, rb_intern2(buf, 2));
-		    /*%
-			$$ = dispatch2(var_alias, $2, $3);
-		    %*/
-		    }
-		| keyword_alias tGVAR tNTH_REF
-		    {
-		    /*%%%*/
-			yyerror("can't make alias for the number variables");
-			$$ = NEW_BEGIN(0);
-		    /*%
-			$$ = dispatch2(var_alias, $2, $3);
-			$$ = dispatch1(alias_error, $$);
-		    %*/
-		    }
-		| keyword_undef undef_list
-		    {
-		    /*%%%*/
-			$$ = $2;
-		    /*%
-			$$ = dispatch1(undef, $2);
-		    %*/
-		    }
-		| stmt modifier_if expr_value
-		    {
-		    /*%%%*/
-			$$ = NEW_IF(cond($3), remove_begin($1), 0);
-			fixpos($$, $3);
-		    /*%
-			$$ = dispatch2(if_mod, $3, $1);
-		    %*/
-		    }
-		| stmt modifier_unless expr_value
-		    {
-		    /*%%%*/
-			$$ = NEW_UNLESS(cond($3), remove_begin($1), 0);
-			fixpos($$, $3);
-		    /*%
-			$$ = dispatch2(unless_mod, $3, $1);
-		    %*/
-		    }
-		| stmt modifier_while expr_value
-		    {
-		    /*%%%*/
-			if ($1 && nd_type($1) == NODE_BEGIN) {
-			    $$ = NEW_WHILE(cond($3), $1->nd_body, 0);
-			}
-			else {
-			    $$ = NEW_WHILE(cond($3), $1, 1);
-			}
-		    /*%
-			$$ = dispatch2(while_mod, $3, $1);
-		    %*/
-		    }
-		| stmt modifier_until expr_value
-		    {
-		    /*%%%*/
-			if ($1 && nd_type($1) == NODE_BEGIN) {
-			    $$ = NEW_UNTIL(cond($3), $1->nd_body, 0);
-			}
-			else {
-			    $$ = NEW_UNTIL(cond($3), $1, 1);
-			}
-		    /*%
-			$$ = dispatch2(until_mod, $3, $1);
-		    %*/
-		    }
-		| stmt modifier_rescue stmt
-		    {
-		    /*%%%*/
-			NODE *resq = NEW_RESBODY(0, remove_begin($3), 0);
-			$$ = NEW_RESCUE(remove_begin($1), resq, 0);
-		    /*%
-			$$ = dispatch2(rescue_mod, $1, $3);
-		    %*/
-		    }
-		| keyword_END '{' compstmt '}'
-		    {
-			if (in_def || in_single) {
-			    rb_warn0("END in method; use at_exit");
-			}
-		    /*%%%*/
-			$$ = NEW_POSTEXE(NEW_NODE(
-			    NODE_SCOPE, 0 /* tbl */, $3 /* body */, 0 /* args */));
-		    /*%
-			$$ = dispatch1(END, $3);
-		    %*/
-		    }
-		| command_asgn
-		| mlhs '=' command_call
-		    {
-		    /*%%%*/
-			value_expr($3);
-			$1->nd_value = $3;
-			$$ = $1;
-		    /*%
-			$$ = dispatch2(massign, $1, $3);
-		    %*/
-		    }
-		| var_lhs tOP_ASGN command_call
-		    {
-			value_expr($3);
-			$$ = new_op_assign($1, $2, $3);
-		    }
-		| primary_value '[' opt_call_args rbracket tOP_ASGN command_call
-		    {
-		    /*%%%*/
-			NODE *args;
-
-			value_expr($6);
-			if (!$3) $3 = NEW_ZARRAY();
-			args = arg_concat($3, $6);
-			if ($5 == tOROP) {
-			    $5 = 0;
-			}
-			else if ($5 == tANDOP) {
-			    $5 = 1;
-			}
-			$$ = NEW_OP_ASGN1($1, $5, args);
-			fixpos($$, $1);
-		    /*%
-			$$ = dispatch2(aref_field, $1, escape_Qundef($3));
-			$$ = dispatch3(opassign, $$, $5, $6);
-		    %*/
-		    }
-		| primary_value '.' tIDENTIFIER tOP_ASGN command_call
-		    {
-			value_expr($5);
-			$$ = new_attr_op_assign($1, ripper_id2sym('.'), $3, $4, $5);
-		    }
-		| primary_value '.' tCONSTANT tOP_ASGN command_call
-		    {
-			value_expr($5);
-			$$ = new_attr_op_assign($1, ripper_id2sym('.'), $3, $4, $5);
-		    }
-		| primary_value tCOLON2 tCONSTANT tOP_ASGN command_call
-		    {
-		    /*%%%*/
-			$$ = NEW_COLON2($1, $3);
-			$$ = new_const_op_assign($$, $4, $5);
-		    /*%
-			$$ = dispatch2(const_path_field, $1, $3);
-			$$ = dispatch3(opassign, $$, $4, $5);
-		    %*/
-		    }
-		| primary_value tCOLON2 tIDENTIFIER tOP_ASGN command_call
-		    {
-			value_expr($5);
-			$$ = new_attr_op_assign($1, ripper_intern("::"), $3, $4, $5);
-		    }
-		| backref tOP_ASGN command_call
-		    {
-		    /*%%%*/
-			rb_backref_error($1);
-			$$ = NEW_BEGIN(0);
-		    /*%
-			$$ = dispatch2(assign, dispatch1(var_field, $1), $3);
-			$$ = dispatch1(assign_error, $$);
-		    %*/
-		    }
-		| lhs '=' mrhs
-		    {
-		    /*%%%*/
-			value_expr($3);
-			$$ = node_assign($1, $3);
-		    /*%
-			$$ = dispatch2(assign, $1, $3);
-		    %*/
-		    }
-		| mlhs '=' arg_value
-		    {
-		    /*%%%*/
-			$1->nd_value = $3;
-			$$ = $1;
-		    /*%
-			$$ = dispatch2(massign, $1, $3);
-		    %*/
-		    }
-		| mlhs '=' mrhs
-		    {
-		    /*%%%*/
-			$1->nd_value = $3;
-			$$ = $1;
-		    /*%
-			$$ = dispatch2(massign, $1, $3);
-		    %*/
-		    }
-		| expr
-		;
+stmt
+  :
+    keyword_alias fitem
+    {
+      yylexer.state = EXPR_FNAME;
+    }
+    fitem
+    {}
+  |
+    keyword_alias tGVAR tGVAR
+    {}
+  |
+    keyword_alias tGVAR tBACK_REF
+    {}
+  |
+    keyword_alias tGVAR tNTH_REF
+    {
+      yyerror("can't make alias for the number variables");
+    }
+  |
+    keyword_undef undef_list
+    {}
+  |
+    stmt modifier_if expr_value
+    {}
+  |
+    stmt modifier_unless expr_value
+    {}
+  |
+    stmt modifier_while expr_value
+    {}
+  |
+    stmt modifier_until expr_value
+    {}
+  |
+    stmt modifier_rescue stmt
+    {}
+  |
+    keyword_END '{' compstmt '}'
+    {}
+  |
+    command_asgn
+  |
+    mlhs '=' command_call
+    {}
+  |
+    var_lhs tOP_ASGN command_call
+    {}
+  |
+    primary_value '[' opt_call_args rbracket tOP_ASGN command_call
+    {}
+  |
+    primary_value '.' tIDENTIFIER tOP_ASGN command_call
+    {}
+  |
+    primary_value '.' tCONSTANT tOP_ASGN command_call
+    {}
+  |
+    primary_value tCOLON2 tCONSTANT tOP_ASGN command_call
+    {}
+  |
+    primary_value tCOLON2 tIDENTIFIER tOP_ASGN command_call
+    {}
+  |
+    backref tOP_ASGN command_call
+    {}
+  |
+    lhs '=' mrhs
+    {}
+  |
+    mlhs '=' arg_value
+    {}
+  |
+    mlhs '=' mrhs
+    {}
+  |
+    expr
+  ;
 
 command_asgn	: lhs '=' command_call
 		    {
@@ -992,7 +747,7 @@ mlhs_node	: user_variable
 		    {
 		    /*%%%*/
 			rb_backref_error($1);
-			$$ = NEW_BEGIN(0);
+			$$ = (0);
 		    /*%
 			$$ = dispatch1(var_field, $1);
 			$$ = dispatch1(assign_error, $$);
@@ -1004,7 +759,7 @@ lhs		: user_variable
 		    {
 			$$ = assignable($1, 0);
 		    /*%%%*/
-			if (!$$) $$ = NEW_BEGIN(0);
+			if (!$$) $$ = (0);
 		    /*%
 			$$ = dispatch1(var_field, $$);
 		    %*/
@@ -1013,7 +768,7 @@ lhs		: user_variable
 		    {
 		        $$ = assignable($1, 0);
 		    /*%%%*/
-		        if (!$$) $$ = NEW_BEGIN(0);
+		        if (!$$) $$ = (0);
 		    /*%
 		        $$ = dispatch1(var_field, $$);
 		    %*/
@@ -1080,7 +835,7 @@ lhs		: user_variable
 		    {
 		    /*%%%*/
 			rb_backref_error($1);
-			$$ = NEW_BEGIN(0);
+			$$ = (0);
 		    /*%
 			$$ = dispatch1(assign_error, $1);
 		    %*/
@@ -1321,7 +1076,7 @@ arg		: lhs '=' arg
 		    {
 		    /*%%%*/
 			rb_backref_error($1);
-			$$ = NEW_BEGIN(0);
+			$$ = (0);
 		    /*%
 			$$ = dispatch1(var_field, $1);
 			$$ = dispatch3(opassign, $$, $2, $3);
@@ -1893,7 +1648,7 @@ primary		: literal
 			    if (nd_type($3) == NODE_RESCUE ||
 				nd_type($3) == NODE_ENSURE)
 				nd_set_line($3, $<num>2);
-			    $$ = NEW_BEGIN($3);
+			    $$ = ($3);
 			}
 			nd_set_line($$, $<num>2);
 		    /*%
@@ -2194,7 +1949,7 @@ primary		: literal
 		    /*%
 			$$ = dispatch3(class, $2, $3, $5);
 		    %*/
-			local_pop();
+
 		    }
 		| k_class tLSHFT expr
 		    {
@@ -2216,7 +1971,7 @@ primary		: literal
 		    /*%
 			$$ = dispatch2(sclass, $3, $7);
 		    %*/
-			local_pop();
+
 			in_def = $<num>4;
 			in_single = $<num>6;
 		    }
@@ -2239,7 +1994,7 @@ primary		: literal
 		    /*%
 			$$ = dispatch2(module, $2, $4);
 		    %*/
-			local_pop();
+
 		    }
 		| k_def fname
 		    {
@@ -2260,7 +2015,7 @@ primary		: literal
 		    /*%
 			$$ = dispatch3(def, $2, $4, $5);
 		    %*/
-			local_pop();
+
 			in_def--;
 			cur_mid = $<id>3;
 		    }
@@ -2282,7 +2037,7 @@ primary		: literal
 		    /*%
 			$$ = dispatch5(defs, $2, $3, $5, $7, $8);
 		    %*/
-			local_pop();
+
 			in_single--;
 		    }
 		| keyword_break
@@ -3617,7 +3372,7 @@ keyword_variable: keyword_nil {ifndef_ripper($$ = keyword_nil);}
 var_ref		: user_variable
 		    {
 		    /*%%%*/
-			if (!($$ = gettable($1))) $$ = NEW_BEGIN(0);
+			if (!($$ = gettable($1))) $$ = (0);
 		    /*%
 			if (id_is_var(get_id($1))) {
 			    $$ = dispatch1(var_ref, $1);
@@ -3630,7 +3385,7 @@ var_ref		: user_variable
 		| keyword_variable
 		    {
 		    /*%%%*/
-			if (!($$ = gettable($1))) $$ = NEW_BEGIN(0);
+			if (!($$ = gettable($1))) $$ = (0);
 		    /*%
 			$$ = dispatch1(var_ref, $1);
 		    %*/
