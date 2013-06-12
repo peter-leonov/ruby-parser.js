@@ -1500,40 +1500,17 @@ string_content	: tSTRING_CONTENT
 		;
 
 string_dvar	: tGVAR
-		    {
-		    /*%%%*/
-			$$ = NEW_GVAR($1);
-		    /*%
-			$$ = dispatch1(var_ref, $1);
-		    %*/
-		    }
+		    {}
 		| tIVAR
-		    {
-		    /*%%%*/
-			$$ = NEW_IVAR($1);
-		    /*%
-			$$ = dispatch1(var_ref, $1);
-		    %*/
-		    }
+		    {}
 		| tCVAR
-		    {
-		    /*%%%*/
-			$$ = NEW_CVAR($1);
-		    /*%
-			$$ = dispatch1(var_ref, $1);
-		    %*/
-		    }
+		    {}
 		| backref
 		;
 
 symbol		: tSYMBEG sym
 		    {
 			yylexer.state = EXPR_END;
-		    /*%%%*/
-			$$ = $2;
-		    /*%
-			$$ = dispatch1(symbol, $2);
-		    %*/
 		    }
 		;
 
@@ -1546,11 +1523,6 @@ sym		: fname
 dsym		: tSYMBEG xstring_contents tSTRING_END
 		    {
 			yylexer.state = EXPR_END;
-		    /*%%%*/
-			$$ = dsym_node($2);
-		    /*%
-			$$ = dispatch1(dyna_symbol, $2);
-		    %*/
 		    }
 		;
 
@@ -1558,19 +1530,9 @@ numeric 	: tINTEGER
 		| tFLOAT
 		| tUMINUS_NUM tINTEGER	       %prec tLOWEST
 		    {
-		    /*%%%*/
-			$$ = negate_lit($2);
-		    /*%
-			$$ = dispatch2(unary, ripper_intern("-@"), $2);
-		    %*/
 		    }
 		| tUMINUS_NUM tFLOAT	       %prec tLOWEST
 		    {
-		    /*%%%*/
-			$$ = negate_lit($2);
-		    /*%
-			$$ = dispatch2(unary, ripper_intern("-@"), $2);
-		    %*/
 		    }
 		;
 
@@ -1581,54 +1543,26 @@ user_variable	: tIDENTIFIER
 		| tCVAR
 		;
 
-keyword_variable: keyword_nil {ifndef_ripper($$ = keyword_nil);}
-		| keyword_self {ifndef_ripper($$ = keyword_self);}
-		| keyword_true {ifndef_ripper($$ = keyword_true);}
-		| keyword_false {ifndef_ripper($$ = keyword_false);}
-		| keyword__FILE__ {ifndef_ripper($$ = keyword__FILE__);}
-		| keyword__LINE__ {ifndef_ripper($$ = keyword__LINE__);}
-		| keyword__ENCODING__ {ifndef_ripper($$ = keyword__ENCODING__);}
+keyword_variable: keyword_nil {}
+		| keyword_self {$$ = keyword_self;}
+		| keyword_true {$$ = keyword_true;}
+		| keyword_false {$$ = keyword_false;}
+		| keyword__FILE__ {$$ = keyword__FILE__;}
+		| keyword__LINE__ {$$ = keyword__LINE__;}
+		| keyword__ENCODING__ {$$ = keyword__ENCODING__;}
 		;
 
 var_ref		: user_variable
 		    {
-		    /*%%%*/
-			if (!($$ = gettable($1))) $$ = (0);
-		    /*%
-			if (id_is_var(get_id($1))) {
-			    $$ = dispatch1(var_ref, $1);
-			}
-			else {
-			    $$ = dispatch1(vcall, $1);
-			}
-		    %*/
 		    }
 		| keyword_variable
-		    {
-		    /*%%%*/
-			if (!($$ = gettable($1))) $$ = (0);
-		    /*%
-			$$ = dispatch1(var_ref, $1);
-		    %*/
-		    }
+		    {}
 		;
 
 var_lhs		: user_variable
-		    {
-			$$ = assignable($1, 0);
-		    /*%%%*/
-		    /*%
-			$$ = dispatch1(var_field, $$);
-		    %*/
-		    }
+		    {}
 		| keyword_variable
-		    {
-		        $$ = assignable($1, 0);
-		    /*%%%*/
-		    /*%
-			$$ = dispatch1(var_field, $$);
-		    %*/
-		    }
+		    {}
 		;
 
 backref		: tNTH_REF
@@ -1636,187 +1570,91 @@ backref		: tNTH_REF
 		;
 
 superclass	: term
-		    {
-		    /*%%%*/
-			$$ = 0;
-		    /*%
-			$$ = Qnil;
-		    %*/
-		    }
+		    {}
 		| '<'
 		    {
 			yylexer.state = EXPR_BEG;
 			yylexer.command_start = TRUE;
 		    }
 		  expr_value term
-		    {
-			$$ = $3;
-		    }
+		    {}
 		| error term
-		    {
-		    /*%%%*/
-			yyerrok;
-			$$ = 0;
-		    /*%
-			yyerrok;
-			$$ = Qnil;
-		    %*/
-		    }
+		    {}
 		;
 
 f_arglist	: '(' f_args rparen
 		    {
-		    /*%%%*/
-			$$ = $2;
-		    /*%
-			$$ = dispatch1(paren, $2);
-		    %*/
 			yylexer.state = EXPR_BEG;
 			yylexer.command_start = TRUE;
 		    }
 		| f_args term
 		    {
-			$$ = $1;
 			yylexer.state = EXPR_BEG;
 			yylexer.command_start = TRUE;
 		    }
 		;
 
 args_tail	: f_kwarg ',' f_kwrest opt_f_block_arg
-		    {
-			$$ = new_args_tail($1, $3, $4);
-		    }
+		    {}
 		| f_kwarg opt_f_block_arg
-		    {
-			$$ = new_args_tail($1, Qnone, $2);
-		    }
+		    {}
 		| f_kwrest opt_f_block_arg
-		    {
-			$$ = new_args_tail(Qnone, $1, $2);
-		    }
+		    {}
 		| f_block_arg
-		    {
-			$$ = new_args_tail(Qnone, Qnone, $1);
-		    }
+		    {}
 		;
 
 opt_args_tail	: ',' args_tail
-		    {
-			$$ = $2;
-		    }
+		    {}
 		| /* none */
-		    {
-			$$ = new_args_tail(Qnone, Qnone, Qnone);
-		    }
+		    {}
 		;
 
 f_args		: f_arg ',' f_optarg ',' f_rest_arg opt_args_tail
-		    {
-			$$ = new_args($1, $3, $5, Qnone, $6);
-		    }
+		    {}
 		| f_arg ',' f_optarg ',' f_rest_arg ',' f_arg opt_args_tail
-		    {
-			$$ = new_args($1, $3, $5, $7, $8);
-		    }
+		    {}
 		| f_arg ',' f_optarg opt_args_tail
-		    {
-			$$ = new_args($1, $3, Qnone, Qnone, $4);
-		    }
+		    {}
 		| f_arg ',' f_optarg ',' f_arg opt_args_tail
-		    {
-			$$ = new_args($1, $3, Qnone, $5, $6);
-		    }
+		    {}
 		| f_arg ',' f_rest_arg opt_args_tail
-		    {
-			$$ = new_args($1, Qnone, $3, Qnone, $4);
-		    }
+		    {}
 		| f_arg ',' f_rest_arg ',' f_arg opt_args_tail
-		    {
-			$$ = new_args($1, Qnone, $3, $5, $6);
-		    }
+		    {}
 		| f_arg opt_args_tail
-		    {
-			$$ = new_args($1, Qnone, Qnone, Qnone, $2);
-		    }
+		    {}
 		| f_optarg ',' f_rest_arg opt_args_tail
-		    {
-			$$ = new_args(Qnone, $1, $3, Qnone, $4);
-		    }
+		    {}
 		| f_optarg ',' f_rest_arg ',' f_arg opt_args_tail
-		    {
-			$$ = new_args(Qnone, $1, $3, $5, $6);
-		    }
+		    {}
 		| f_optarg opt_args_tail
-		    {
-			$$ = new_args(Qnone, $1, Qnone, Qnone, $2);
-		    }
+		    {}
 		| f_optarg ',' f_arg opt_args_tail
-		    {
-			$$ = new_args(Qnone, $1, Qnone, $3, $4);
-		    }
+		    {}
 		| f_rest_arg opt_args_tail
-		    {
-			$$ = new_args(Qnone, Qnone, $1, Qnone, $2);
-		    }
+		    {}
 		| f_rest_arg ',' f_arg opt_args_tail
-		    {
-			$$ = new_args(Qnone, Qnone, $1, $3, $4);
-		    }
+		    {}
 		| args_tail
-		    {
-			$$ = new_args(Qnone, Qnone, Qnone, Qnone, $1);
-		    }
+		    {}
 		| /* none */
-		    {
-			$$ = new_args_tail(Qnone, Qnone, Qnone);
-			$$ = new_args(Qnone, Qnone, Qnone, Qnone, $$);
-		    }
+		    {}
 		;
 
 f_bad_arg	: tCONSTANT
-		    {
-		    /*%%%*/
-			yyerror("formal argument cannot be a constant");
-			$$ = 0;
-		    /*%
-			$$ = dispatch1(param_error, $1);
-		    %*/
-		    }
+		    {}
 		| tIVAR
-		    {
-		    /*%%%*/
-			yyerror("formal argument cannot be an instance variable");
-			$$ = 0;
-		    /*%
-			$$ = dispatch1(param_error, $1);
-		    %*/
-		    }
+		    {}
 		| tGVAR
-		    {
-		    /*%%%*/
-			yyerror("formal argument cannot be a global variable");
-			$$ = 0;
-		    /*%
-			$$ = dispatch1(param_error, $1);
-		    %*/
-		    }
+		    {}
 		| tCVAR
-		    {
-		    /*%%%*/
-			yyerror("formal argument cannot be a class variable");
-			$$ = 0;
-		    /*%
-			$$ = dispatch1(param_error, $1);
-		    %*/
-		    }
+		    {}
 		;
 
 f_norm_arg	: f_bad_arg
 		| tIDENTIFIER
-		    {
-			formal_argument(get_id($1));
-			$$ = $1;
-		    }
+		    {}
 		;
 
 f_arg_item	: f_norm_arg
