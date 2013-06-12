@@ -653,222 +653,75 @@ reswords
   ;
 
 arg
-  : lhs '=' arg
-		    {
-		    /*%%%*/
-			value_expr($3);
-			$$ = node_assign($1, $3);
-		    /*%
-			$$ = dispatch2(assign, $1, $3);
-		    %*/
-		    }
-		| lhs '=' arg modifier_rescue arg
-		    {
-		    /*%%%*/
-			value_expr($3);
-		        $3 = NEW_RESCUE($3, NEW_RESBODY(0,$5,0), 0);
-			$$ = node_assign($1, $3);
-		    /*%
-			$$ = dispatch2(assign, $1, dispatch2(rescue_mod, $3, $5));
-		    %*/
-		    }
-		| var_lhs tOP_ASGN arg
-		    {
-			value_expr($3);
-			$$ = new_op_assign($1, $2, $3);
-		    }
-		| var_lhs tOP_ASGN arg modifier_rescue arg
-		    {
-		    /*%%%*/
-			value_expr($3);
-		        $3 = NEW_RESCUE($3, NEW_RESBODY(0,$5,0), 0);
-		    /*%
-			$3 = dispatch2(rescue_mod, $3, $5);
-		    %*/
-			$$ = new_op_assign($1, $2, $3);
-		    }
-		| primary_value '[' opt_call_args rbracket tOP_ASGN arg
-		    {
-		    /*%%%*/
-			NODE *args;
-
-			value_expr($6);
-			if (!$3) $3 = NEW_ZARRAY();
-			if (nd_type($3) == NODE_BLOCK_PASS) {
-			    args = NEW_ARGSCAT($3, $6);
-			}
-		        else {
-			    args = arg_concat($3, $6);
-		        }
-			if ($5 == tOROP) {
-			    $5 = 0;
-			}
-			else if ($5 == tANDOP) {
-			    $5 = 1;
-			}
-			$$ = NEW_OP_ASGN1($1, $5, args);
-			fixpos($$, $1);
-		    /*%
-			$1 = dispatch2(aref_field, $1, escape_Qundef($3));
-			$$ = dispatch3(opassign, $1, $5, $6);
-		    %*/
-		    }
-		| primary_value '.' tIDENTIFIER tOP_ASGN arg
-		    {
-			value_expr($5);
-			$$ = new_attr_op_assign($1, ripper_id2sym('.'), $3, $4, $5);
-		    }
-		| primary_value '.' tCONSTANT tOP_ASGN arg
-		    {
-			value_expr($5);
-			$$ = new_attr_op_assign($1, ripper_id2sym('.'), $3, $4, $5);
-		    }
-		| primary_value tCOLON2 tIDENTIFIER tOP_ASGN arg
-		    {
-			value_expr($5);
-			$$ = new_attr_op_assign($1, ripper_intern("::"), $3, $4, $5);
-		    }
-		| primary_value tCOLON2 tCONSTANT tOP_ASGN arg
-		    {
-		    /*%%%*/
-			$$ = NEW_COLON2($1, $3);
-			$$ = new_const_op_assign($$, $4, $5);
-		    /*%
-			$$ = dispatch2(const_path_field, $1, $3);
-			$$ = dispatch3(opassign, $$, $4, $5);
-		    %*/
-		    }
-		| tCOLON3 tCONSTANT tOP_ASGN arg
-		    {
-		    /*%%%*/
-			$$ = NEW_COLON3($2);
-			$$ = new_const_op_assign($$, $3, $4);
-		    /*%
-			$$ = dispatch1(top_const_field, $2);
-			$$ = dispatch3(opassign, $$, $3, $4);
-		    %*/
-		    }
-		| backref tOP_ASGN arg
-		    {
-		    /*%%%*/
-			rb_backref_error($1);
-			$$ = (0);
-		    /*%
-			$$ = dispatch1(var_field, $1);
-			$$ = dispatch3(opassign, $$, $2, $3);
-			$$ = dispatch1(assign_error, $$);
-		    %*/
-		    }
-		| arg tDOT2 arg
-		    {
-		    /*%%%*/
-			value_expr($1);
-			value_expr($3);
-			$$ = NEW_DOT2($1, $3);
-			if (nd_type($1) == NODE_LIT && FIXNUM_P($1->nd_lit) &&
-			    nd_type($3) == NODE_LIT && FIXNUM_P($3->nd_lit)) {
-			    deferred_nodes = list_append(deferred_nodes, $$);
-			}
-		    /*%
-			$$ = dispatch2(dot2, $1, $3);
-		    %*/
-		    }
-		| arg tDOT3 arg
-		    {
-		    /*%%%*/
-			value_expr($1);
-			value_expr($3);
-			$$ = NEW_DOT3($1, $3);
-			if (nd_type($1) == NODE_LIT && FIXNUM_P($1->nd_lit) &&
-			    nd_type($3) == NODE_LIT && FIXNUM_P($3->nd_lit)) {
-			    deferred_nodes = list_append(deferred_nodes, $$);
-			}
-		    /*%
-			$$ = dispatch2(dot3, $1, $3);
-		    %*/
-		    }
-		| arg '+' arg
-		    {
-		    /*%%%*/
-			$$ = call_bin_op($1, '+', $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ID2SYM('+'), $3);
-		    %*/
-		    }
-		| arg '-' arg
-		    {
-		    /*%%%*/
-			$$ = call_bin_op($1, '-', $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ID2SYM('-'), $3);
-		    %*/
-		    }
-		| arg '*' arg
-		    {
-		    /*%%%*/
-			$$ = call_bin_op($1, '*', $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ID2SYM('*'), $3);
-		    %*/
-		    }
-		| arg '/' arg
-		    {
-		    /*%%%*/
-			$$ = call_bin_op($1, '/', $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ID2SYM('/'), $3);
-		    %*/
-		    }
-		| arg '%' arg
-		    {
-		    /*%%%*/
-			$$ = call_bin_op($1, '%', $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ID2SYM('%'), $3);
-		    %*/
-		    }
-		| arg tPOW arg
-		    {
-		    /*%%%*/
-			$$ = call_bin_op($1, tPOW, $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ripper_intern("**"), $3);
-		    %*/
-		    }
-		| tUMINUS_NUM tINTEGER tPOW arg
-		    {
-		    /*%%%*/
-			$$ = NEW_CALL(call_bin_op($2, tPOW, $4), tUMINUS, 0);
-		    /*%
-			$$ = dispatch3(binary, $2, ripper_intern("**"), $4);
-			$$ = dispatch2(unary, ripper_intern("-@"), $$);
-		    %*/
-		    }
-		| tUMINUS_NUM tFLOAT tPOW arg
-		    {
-		    /*%%%*/
-			$$ = NEW_CALL(call_bin_op($2, tPOW, $4), tUMINUS, 0);
-		    /*%
-			$$ = dispatch3(binary, $2, ripper_intern("**"), $4);
-			$$ = dispatch2(unary, ripper_intern("-@"), $$);
-		    %*/
-		    }
-		| tUPLUS arg
-		    {
-		    /*%%%*/
-			$$ = call_uni_op($2, tUPLUS);
-		    /*%
-			$$ = dispatch2(unary, ripper_intern("+@"), $2);
-		    %*/
-		    }
-		| tUMINUS arg
-		    {
-		    /*%%%*/
-			$$ = call_uni_op($2, tUMINUS);
-		    /*%
-			$$ = dispatch2(unary, ripper_intern("-@"), $2);
-		    %*/
-		    }
+  :
+    lhs '=' arg
+    {}
+  |
+    lhs '=' arg modifier_rescue arg
+    {}
+  |
+    var_lhs tOP_ASGN arg
+    {}
+  |
+    var_lhs tOP_ASGN arg modifier_rescue arg
+    {}
+  |
+    primary_value '[' opt_call_args rbracket tOP_ASGN arg
+    {}
+  |
+    primary_value '.' tIDENTIFIER tOP_ASGN arg
+    {}
+  |
+    primary_value '.' tCONSTANT tOP_ASGN arg
+    {}
+  |
+    primary_value tCOLON2 tIDENTIFIER tOP_ASGN arg
+    {}
+  |
+    primary_value tCOLON2 tCONSTANT tOP_ASGN arg
+    {}
+  |
+    tCOLON3 tCONSTANT tOP_ASGN arg
+    {}
+  |
+    backref tOP_ASGN arg
+    {}
+  |
+    arg tDOT2 arg
+    {}
+  |
+    arg tDOT3 arg
+    {}
+  |
+    arg '+' arg
+    {}
+  |
+    arg '-' arg
+    {}
+  |
+    arg '*' arg
+    {}
+  |
+    arg '/' arg
+    {}
+  |
+    arg '%' arg
+    {}
+  |
+    arg tPOW arg
+    {}
+  |
+    tUMINUS_NUM tINTEGER tPOW arg
+    {}
+  |
+    tUMINUS_NUM tFLOAT tPOW arg
+    {}
+  |
+    tUPLUS arg
+    {}
+  |
+    tUMINUS arg
+    {}
 		| arg '|' arg
 		    {
 		    /*%%%*/
