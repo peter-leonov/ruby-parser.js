@@ -1,8 +1,4 @@
-"use strict";
-
-load('tokens.js')
-
-;(function(){
+(function(){
 
 // $stream: plain old JS string with ruby source code
 function Lexer ($stream)
@@ -278,7 +274,7 @@ function ISASCII (c)
 
 
 
-this.lex = function yylex ()
+this.yylex = function yylex ()
 {
   var c = '';
   var space_seen = false;
@@ -1039,8 +1035,6 @@ function parser_tokadd_utf8(string_literal, symbol_literal, regexp_literal)
 }
 
 
-
-
 function debug (msg)
 {
   print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
@@ -1056,56 +1050,8 @@ function warning (msg) { debug('WARNING: ' + msg) }
 function compile_error (msg) { debug('COMPILE ERROR: ' + msg) }
 function yyerror (msg) { debug('YYERROR: ' + msg) }
 
-}
+} // function Lexer
 
-load('tokens-names.js')
-
-function lex_all (text)
-{
-  var lexer = new Lexer(text)
-  
-  var t = 0
-  while (t = lexer.lex())
-    if (t !== 999) print(t, yytname_[yytranslate_table_[t]])
-}
-
-
-var bigText = read('text.txt')
-
-function measure (f, count)
-{
-  print(f.name + '()')
-  
-  var begin = new Date()
-  for (var i = 0; i < count; i++)
-  {
-    var res = f(bigText)
-  }
-  var end = new Date()
-  
-  print('  mean:', (end - begin) / count)
-  print('  res:', res)
-  print()
-}
-
-function warmup ()
-{
-  var start = new Date()
-  for (;;)
-  {
-    for (var i = 0; i < 1000; i++)
-      /ghfj%dksl/.test(bigText)
-    
-    if (new Date() - start > 1000)
-      break
-  }
-}
-
-// // light
-var repeat = 1
-
-// heavy
-// var repeat = 100; warmup()
-measure(lex_all, repeat)
+return Lexer;
 
 })();

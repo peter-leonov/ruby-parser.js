@@ -1,4 +1,6 @@
 %{
+"use strict";
+
   // alert(123)
 %}
 
@@ -4249,4 +4251,11 @@ none		: /* none */
 
 %%
 
-load('lexer.js')
+var YYLexer = load('lexer.js');
+
+var lexer = new YYLexer(read('ruby.rb'));
+
+var parser = new YYParser(lexer)
+parser.enableDebug()
+
+print(parser.parse())
