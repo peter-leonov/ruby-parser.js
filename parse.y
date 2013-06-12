@@ -379,457 +379,209 @@ command
     {}
   |
     primary_value '.' operation2 command_args cmd_brace_block
-		    {
-		    /*%%%*/
-			block_dup_check($4,$5);
-		        $5->nd_iter = NEW_CALL($1, $3, $4);
-			$$ = $5;
-			fixpos($$, $1);
-		    /*%
-			$$ = dispatch4(command_call, $1, ripper_id2sym('.'), $3, $4);
-			$$ = method_add_block($$, $5);
-		    %*/
-		   }
-		| primary_value tCOLON2 operation2 command_args	%prec tLOWEST
-		    {
-		    /*%%%*/
-			$$ = NEW_CALL($1, $3, $4);
-			fixpos($$, $1);
-		    /*%
-			$$ = dispatch4(command_call, $1, ripper_intern("::"), $3, $4);
-		    %*/
-		    }
-		| primary_value tCOLON2 operation2 command_args cmd_brace_block
-		    {
-		    /*%%%*/
-			block_dup_check($4,$5);
-		        $5->nd_iter = NEW_CALL($1, $3, $4);
-			$$ = $5;
-			fixpos($$, $1);
-		    /*%
-			$$ = dispatch4(command_call, $1, ripper_intern("::"), $3, $4);
-			$$ = method_add_block($$, $5);
-		    %*/
-		   }
-		| keyword_super command_args
-		    {
-		    /*%%%*/
-			$$ = NEW_SUPER($2);
-			fixpos($$, $2);
-		    /*%
-			$$ = dispatch1(super, $2);
-		    %*/
-		    }
-		| keyword_yield command_args
-		    {
-		    /*%%%*/
-			$$ = new_yield($2);
-			fixpos($$, $2);
-		    /*%
-			$$ = dispatch1(yield, $2);
-		    %*/
-		    }
-		| keyword_return call_args
-		    {
-		    /*%%%*/
-			$$ = NEW_RETURN(ret_args($2));
-		    /*%
-			$$ = dispatch1(return, $2);
-		    %*/
-		    }
-		| keyword_break call_args
-		    {
-		    /*%%%*/
-			$$ = NEW_BREAK(ret_args($2));
-		    /*%
-			$$ = dispatch1(break, $2);
-		    %*/
-		    }
-		| keyword_next call_args
-		    {
-		    /*%%%*/
-			$$ = NEW_NEXT(ret_args($2));
-		    /*%
-			$$ = dispatch1(next, $2);
-		    %*/
-		    }
-		;
+    {}
+  |
+    primary_value tCOLON2 operation2 command_args	%prec tLOWEST
+    {}
+  |
+    primary_value tCOLON2 operation2 command_args cmd_brace_block
+    {}
+  |
+    keyword_super command_args
+    {}
+  |
+    keyword_yield command_args
+    {}
+  |
+    keyword_return call_args
+    {}
+  |
+    keyword_break call_args
+    {}
+  |
+    keyword_next call_args
+    {}
+  ;
 
-mlhs		: mlhs_basic
-		| tLPAREN mlhs_inner rparen
-		    {
-		    /*%%%*/
-			$$ = $2;
-		    /*%
-			$$ = dispatch1(mlhs_paren, $2);
-		    %*/
-		    }
-		;
+mlhs
+  :
+    mlhs_basic
+  |
+    tLPAREN mlhs_inner rparen
+    {}
+  ;
 
-mlhs_inner	: mlhs_basic
-		| tLPAREN mlhs_inner rparen
-		    {
-		    /*%%%*/
-			$$ = NEW_MASGN(NEW_LIST($2), 0);
-		    /*%
-			$$ = dispatch1(mlhs_paren, $2);
-		    %*/
-		    }
-		;
+mlhs_inner
+  :
+    mlhs_basic
+  |
+    tLPAREN mlhs_inner rparen
+    {}
+  ;
 
-mlhs_basic	: mlhs_head
-		    {
-		    /*%%%*/
-			$$ = NEW_MASGN($1, 0);
-		    /*%
-			$$ = $1;
-		    %*/
-		    }
-		| mlhs_head mlhs_item
-		    {
-		    /*%%%*/
-			$$ = NEW_MASGN(list_append($1,$2), 0);
-		    /*%
-			$$ = mlhs_add($1, $2);
-		    %*/
-		    }
-		| mlhs_head tSTAR mlhs_node
-		    {
-		    /*%%%*/
-			$$ = NEW_MASGN($1, $3);
-		    /*%
-			$$ = mlhs_add_star($1, $3);
-		    %*/
-		    }
-		| mlhs_head tSTAR mlhs_node ',' mlhs_post
-		    {
-		    /*%%%*/
-			$$ = NEW_MASGN($1, NEW_POSTARG($3,$5));
-		    /*%
-			$1 = mlhs_add_star($1, $3);
-			$$ = mlhs_add($1, $5);
-		    %*/
-		    }
-		| mlhs_head tSTAR
-		    {
-		    /*%%%*/
-			$$ = NEW_MASGN($1, -1);
-		    /*%
-			$$ = mlhs_add_star($1, Qnil);
-		    %*/
-		    }
-		| mlhs_head tSTAR ',' mlhs_post
-		    {
-		    /*%%%*/
-			$$ = NEW_MASGN($1, NEW_POSTARG(-1, $4));
-		    /*%
-			$1 = mlhs_add_star($1, Qnil);
-			$$ = mlhs_add($1, $4);
-		    %*/
-		    }
-		| tSTAR mlhs_node
-		    {
-		    /*%%%*/
-			$$ = NEW_MASGN(0, $2);
-		    /*%
-			$$ = mlhs_add_star(mlhs_new(), $2);
-		    %*/
-		    }
-		| tSTAR mlhs_node ',' mlhs_post
-		    {
-		    /*%%%*/
-			$$ = NEW_MASGN(0, NEW_POSTARG($2,$4));
-		    /*%
-			$2 = mlhs_add_star(mlhs_new(), $2);
-			$$ = mlhs_add($2, $4);
-		    %*/
-		    }
-		| tSTAR
-		    {
-		    /*%%%*/
-			$$ = NEW_MASGN(0, -1);
-		    /*%
-			$$ = mlhs_add_star(mlhs_new(), Qnil);
-		    %*/
-		    }
-		| tSTAR ',' mlhs_post
-		    {
-		    /*%%%*/
-			$$ = NEW_MASGN(0, NEW_POSTARG(-1, $3));
-		    /*%
-			$$ = mlhs_add_star(mlhs_new(), Qnil);
-			$$ = mlhs_add($$, $3);
-		    %*/
-		    }
-		;
+mlhs_basic
+  :
+    mlhs_head
+    {}
+  |
+    mlhs_head mlhs_item
+    {}
+  |
+    mlhs_head tSTAR mlhs_node
+    {}
+  |
+    mlhs_head tSTAR mlhs_node ',' mlhs_post
+    {}
+  |
+    mlhs_head tSTAR
+    {}
+  |
+    mlhs_head tSTAR ',' mlhs_post
+    {}
+  |
+    tSTAR mlhs_node
+    {}
+  |
+    tSTAR mlhs_node ',' mlhs_post
+    {}
+  |
+    tSTAR
+    {}
+  | tSTAR ',' mlhs_post
+    {}
+  ;
 
-mlhs_item	: mlhs_node
-		| tLPAREN mlhs_inner rparen
-		    {
-		    /*%%%*/
-			$$ = $2;
-		    /*%
-			$$ = dispatch1(mlhs_paren, $2);
-		    %*/
-		    }
-		;
+mlhs_item
+  :
+    mlhs_node
+  |
+    tLPAREN mlhs_inner rparen
+    {}
+  ;
 
-mlhs_head	: mlhs_item ','
-		    {
-		    /*%%%*/
-			$$ = NEW_LIST($1);
-		    /*%
-			$$ = mlhs_add(mlhs_new(), $1);
-		    %*/
-		    }
-		| mlhs_head mlhs_item ','
-		    {
-		    /*%%%*/
-			$$ = list_append($1, $2);
-		    /*%
-			$$ = mlhs_add($1, $2);
-		    %*/
-		    }
-		;
+mlhs_head
+  :
+    mlhs_item ','
+    {}
+  |
+    mlhs_head mlhs_item ','
+    {}
+  ;
 
-mlhs_post	: mlhs_item
-		    {
-		    /*%%%*/
-			$$ = NEW_LIST($1);
-		    /*%
-			$$ = mlhs_add(mlhs_new(), $1);
-		    %*/
-		    }
-		| mlhs_post ',' mlhs_item
-		    {
-		    /*%%%*/
-			$$ = list_append($1, $3);
-		    /*%
-			$$ = mlhs_add($1, $3);
-		    %*/
-		    }
-		;
+mlhs_post
+  :
+    mlhs_item
+    {}
+  |
+    mlhs_post ',' mlhs_item
+    {}
+  ;
 
-mlhs_node	: user_variable
-		    {
-			$$ = assignable($1, 0);
-		    }
-		| keyword_variable
-		    {
-		        $$ = assignable($1, 0);
-		    }
-		| primary_value '[' opt_call_args rbracket
-		    {
-		    /*%%%*/
-			$$ = aryset($1, $3);
-		    /*%
-			$$ = dispatch2(aref_field, $1, escape_Qundef($3));
-		    %*/
-		    }
-		| primary_value '.' tIDENTIFIER
-		    {
-		    /*%%%*/
-			$$ = attrset($1, $3);
-		    /*%
-			$$ = dispatch3(field, $1, ripper_id2sym('.'), $3);
-		    %*/
-		    }
-		| primary_value tCOLON2 tIDENTIFIER
-		    {
-		    /*%%%*/
-			$$ = attrset($1, $3);
-		    /*%
-			$$ = dispatch2(const_path_field, $1, $3);
-		    %*/
-		    }
-		| primary_value '.' tCONSTANT
-		    {
-		    /*%%%*/
-			$$ = attrset($1, $3);
-		    /*%
-			$$ = dispatch3(field, $1, ripper_id2sym('.'), $3);
-		    %*/
-		    }
-		| primary_value tCOLON2 tCONSTANT
-		    {
-		    /*%%%*/
-			if (in_def || in_single)
-			    yyerror("dynamic constant assignment");
-			$$ = NEW_CDECL(0, 0, NEW_COLON2($1, $3));
-		    /*%
-			if (in_def || in_single)
-			    yyerror("dynamic constant assignment");
-			$$ = dispatch2(const_path_field, $1, $3);
-		    %*/
-		    }
-		| tCOLON3 tCONSTANT
-		    {
-		    /*%%%*/
-			if (in_def || in_single)
-			    yyerror("dynamic constant assignment");
-			$$ = NEW_CDECL(0, 0, NEW_COLON3($2));
-		    /*%
-			$$ = dispatch1(top_const_field, $2);
-		    %*/
-		    }
-		| backref
-		    {
-		    /*%%%*/
-			rb_backref_error($1);
-			$$ = (0);
-		    /*%
-			$$ = dispatch1(var_field, $1);
-			$$ = dispatch1(assign_error, $$);
-		    %*/
-		    }
-		;
+mlhs_node
+  :
+    user_variable
+    {}
+  |
+    keyword_variable
+    {}
+  |
+    primary_value '[' opt_call_args rbracket
+    {}
+  |
+    primary_value '.' tIDENTIFIER
+    {}
+  |
+    primary_value tCOLON2 tIDENTIFIER
+    {}
+  |
+    primary_value '.' tCONSTANT
+    {}
+  |
+    primary_value tCOLON2 tCONSTANT
+    {}
+  |
+    tCOLON3 tCONSTANT
+    {}
+  |
+    backref
+    {}
+  ;
 
-lhs		: user_variable
-		    {
-			$$ = assignable($1, 0);
-		    /*%%%*/
-			if (!$$) $$ = (0);
-		    /*%
-			$$ = dispatch1(var_field, $$);
-		    %*/
-		    }
-		| keyword_variable
-		    {
-		        $$ = assignable($1, 0);
-		    /*%%%*/
-		        if (!$$) $$ = (0);
-		    /*%
-		        $$ = dispatch1(var_field, $$);
-		    %*/
-		    }
-		| primary_value '[' opt_call_args rbracket
-		    {
-		    /*%%%*/
-			$$ = aryset($1, $3);
-		    /*%
-			$$ = dispatch2(aref_field, $1, escape_Qundef($3));
-		    %*/
-		    }
-		| primary_value '.' tIDENTIFIER
-		    {
-		    /*%%%*/
-			$$ = attrset($1, $3);
-		    /*%
-			$$ = dispatch3(field, $1, ripper_id2sym('.'), $3);
-		    %*/
-		    }
-		| primary_value tCOLON2 tIDENTIFIER
-		    {
-		    /*%%%*/
-			$$ = attrset($1, $3);
-		    /*%
-			$$ = dispatch3(field, $1, ripper_intern("::"), $3);
-		    %*/
-		    }
-		| primary_value '.' tCONSTANT
-		    {
-		    /*%%%*/
-			$$ = attrset($1, $3);
-		    /*%
-			$$ = dispatch3(field, $1, ripper_id2sym('.'), $3);
-		    %*/
-		    }
-		| primary_value tCOLON2 tCONSTANT
-		    {
-		    /*%%%*/
-			if (in_def || in_single)
-			    yyerror("dynamic constant assignment");
-			$$ = NEW_CDECL(0, 0, NEW_COLON2($1, $3));
-		    /*%
-			$$ = dispatch2(const_path_field, $1, $3);
-			if (in_def || in_single) {
-			    $$ = dispatch1(assign_error, $$);
-			}
-		    %*/
-		    }
-		| tCOLON3 tCONSTANT
-		    {
-		    /*%%%*/
-			if (in_def || in_single)
-			    yyerror("dynamic constant assignment");
-			$$ = NEW_CDECL(0, 0, NEW_COLON3($2));
-		    /*%
-			$$ = dispatch1(top_const_field, $2);
-			if (in_def || in_single) {
-			    $$ = dispatch1(assign_error, $$);
-			}
-		    %*/
-		    }
-		| backref
-		    {
-		    /*%%%*/
-			rb_backref_error($1);
-			$$ = (0);
-		    /*%
-			$$ = dispatch1(assign_error, $1);
-		    %*/
-		    }
-		;
+lhs
+  :
+    user_variable
+    {}
+  |
+    keyword_variable
+    {}
+  |
+    primary_value '[' opt_call_args rbracket
+    {}
+  |
+    primary_value '.' tIDENTIFIER
+    {}
+  |
+    primary_value tCOLON2 tIDENTIFIER
+    {}
+  |
+    primary_value '.' tCONSTANT
+    {}
+  |
+    primary_value tCOLON2 tCONSTANT
+    {}
+  |
+    tCOLON3 tCONSTANT
+    {}
+  |
+    backref
+    {}
+  ;
 
-cname		: tIDENTIFIER
-		    {
-		    /*%%%*/
-			yyerror("class/module name must be CONSTANT");
-		    /*%
-			$$ = dispatch1(class_name_error, $1);
-		    %*/
-		    }
-		| tCONSTANT
-		;
+cname
+  :
+    tIDENTIFIER
+    {}
+  |
+    tCONSTANT
+  ;
 
-cpath		: tCOLON3 cname
-		    {
-		    /*%%%*/
-			$$ = NEW_COLON3($2);
-		    /*%
-			$$ = dispatch1(top_const_ref, $2);
-		    %*/
-		    }
-		| cname
-		    {
-		    /*%%%*/
-			$$ = NEW_COLON2(0, $$);
-		    /*%
-			$$ = dispatch1(const_ref, $1);
-		    %*/
-		    }
-		| primary_value tCOLON2 cname
-		    {
-		    /*%%%*/
-			$$ = NEW_COLON2($1, $3);
-		    /*%
-			$$ = dispatch2(const_path_ref, $1, $3);
-		    %*/
-		    }
-		;
+cpath
+  :
+    tCOLON3 cname
+    {}
+  |
+    cname
+    {}
+  |
+    primary_value tCOLON2 cname
+    {}
+  ;
 
-fname		: tIDENTIFIER
-		| tCONSTANT
-		| tFID
-		| op
-		    {
-			yylexer.state = EXPR_ENDFN;
-			$$ = $1;
-		    }
-		| reswords
-		    {
-			yylexer.state = EXPR_ENDFN;
-		    /*%%%*/
-			$$ = $<id>1;
-		    /*%
-			$$ = $1;
-		    %*/
-		    }
-		;
+fname
+  :
+    tIDENTIFIER
+  |
+    tCONSTANT
+  |
+    tFID
+  |
+    op
+    {
+      yylexer.state = EXPR_ENDFN;
+    }
+  |
+    reswords
+    {
+      yylexer.state = EXPR_ENDFN;
+    }
+  ;
 
-fsym		: fname
-		| symbol
-		;
+fsym
+  :
+    fname
+  |
+    symbol
+  ;
 
 fitem		: fsym
 		    {
