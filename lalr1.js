@@ -902,12 +902,16 @@ YYParser.bisonVersion = "]b4_version[";
 // Name of the skeleton that generated this parser.
 YYParser.bisonSkeleton = ]b4_skeleton[;
 
+;(function(){ // epilogue namespace
+
 // Tokens.
 // Token numbers, to be returned by the scanner.
 var
 ]b4_token_enums(b4_tokens)[;
 
 ]b4_epilogue[
+
+})(); // end of epilogue namespace
 
 }).call(this); // end of the parser namespase
 ]

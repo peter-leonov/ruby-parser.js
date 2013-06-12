@@ -4246,3 +4246,7 @@ none		: /* none */
 		    %*/
 		    }
 		;
+
+%%
+
+load('lexer.js')
