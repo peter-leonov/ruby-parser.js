@@ -583,34 +583,26 @@ fsym
     symbol
   ;
 
-fitem		: fsym
-		    {
-		    /*%%%*/
-			$$ = NEW_LIT(ID2SYM($1));
-		    /*%
-			$$ = dispatch1(symbol_literal, $1);
-		    %*/
-		    }
-		| dsym
-		;
+fitem
+  :
+    fsym
+    {}
+  |
+    dsym
+  ;
 
-undef_list	: fitem
-		    {
-		    /*%%%*/
-			$$ = NEW_UNDEF($1);
-		    /*%
-			$$ = rb_ary_new3(1, $1);
-		    %*/
-		    }
-		| undef_list ',' {yylexer.state = EXPR_FNAME;} fitem
-		    {
-		    /*%%%*/
-			$$ = block_append($1, NEW_UNDEF($4));
-		    /*%
-			rb_ary_push($1, $4);
-		    %*/
-		    }
-		;
+undef_list
+  :
+    fitem
+    {}
+  |
+    undef_list ','
+    {
+      yylexer.state = EXPR_FNAME;
+    }
+    fitem
+    {}
+  ;
 
 op		: '|'		{ ifndef_ripper($$ = '|'); }
 		| '^'		{ ifndef_ripper($$ = '^'); }
