@@ -604,53 +604,56 @@ undef_list
     {}
   ;
 
-op		: '|'		{ ifndef_ripper($$ = '|'); }
-		| '^'		{ ifndef_ripper($$ = '^'); }
-		| '&'		{ ifndef_ripper($$ = '&'); }
-		| tCMP		{ ifndef_ripper($$ = tCMP); }
-		| tEQ		{ ifndef_ripper($$ = tEQ); }
-		| tEQQ		{ ifndef_ripper($$ = tEQQ); }
-		| tMATCH	{ ifndef_ripper($$ = tMATCH); }
-		| tNMATCH	{ ifndef_ripper($$ = tNMATCH); }
-		| '>'		{ ifndef_ripper($$ = '>'); }
-		| tGEQ		{ ifndef_ripper($$ = tGEQ); }
-		| '<'		{ ifndef_ripper($$ = '<'); }
-		| tLEQ		{ ifndef_ripper($$ = tLEQ); }
-		| tNEQ		{ ifndef_ripper($$ = tNEQ); }
-		| tLSHFT	{ ifndef_ripper($$ = tLSHFT); }
-		| tRSHFT	{ ifndef_ripper($$ = tRSHFT); }
-		| '+'		{ ifndef_ripper($$ = '+'); }
-		| '-'		{ ifndef_ripper($$ = '-'); }
-		| '*'		{ ifndef_ripper($$ = '*'); }
-		| tSTAR		{ ifndef_ripper($$ = '*'); }
-		| '/'		{ ifndef_ripper($$ = '/'); }
-		| '%'		{ ifndef_ripper($$ = '%'); }
-		| tPOW		{ ifndef_ripper($$ = tPOW); }
-		| tDSTAR	{ ifndef_ripper($$ = tDSTAR); }
-		| '!'		{ ifndef_ripper($$ = '!'); }
-		| '~'		{ ifndef_ripper($$ = '~'); }
-		| tUPLUS	{ ifndef_ripper($$ = tUPLUS); }
-		| tUMINUS	{ ifndef_ripper($$ = tUMINUS); }
-		| tAREF		{ ifndef_ripper($$ = tAREF); }
-		| tASET		{ ifndef_ripper($$ = tASET); }
-		| '`'		{ ifndef_ripper($$ = '`'); }
-		;
+op
+  : '|'       {}
+  | '^'       {}
+  | '&'       {}
+  | tCMP      {}
+  | tEQ       {}
+  | tEQQ      {}
+  | tMATCH    {}
+  | tNMATCH   {}
+  | '>'       {}
+  | tGEQ      {}
+  | '<'       {}
+  | tLEQ      {}
+  | tNEQ      {}
+  | tLSHFT    {}
+  | tRSHFT    {}
+  | '+'       {}
+  | '-'       {}
+  | '*'       {}
+  | tSTAR     {}
+  | '/'       {}
+  | '%'       {}
+  | tPOW      {}
+  | tDSTAR    {}
+  | '!'       {}
+  | '~'       {}
+  | tUPLUS    {}
+  | tUMINUS   {}
+  | tAREF     {}
+  | tASET     {}
+  | '`'       {}
+  ;
 
-reswords	: keyword__LINE__ | keyword__FILE__ | keyword__ENCODING__
-		| keyword_BEGIN | keyword_END
-		| keyword_alias | keyword_and | keyword_begin
-		| keyword_break | keyword_case | keyword_class | keyword_def
-		| keyword_defined | keyword_do | keyword_else | keyword_elsif
-		| keyword_end | keyword_ensure | keyword_false
-		| keyword_for | keyword_in | keyword_module | keyword_next
-		| keyword_nil | keyword_not | keyword_or | keyword_redo
-		| keyword_rescue | keyword_retry | keyword_return | keyword_self
-		| keyword_super | keyword_then | keyword_true | keyword_undef
-		| keyword_when | keyword_yield | keyword_if | keyword_unless
-		| keyword_while | keyword_until
-		;
+reswords
+  : keyword__LINE__ | keyword__FILE__ | keyword__ENCODING__
+  | keyword_BEGIN | keyword_END
+  | keyword_alias | keyword_and | keyword_begin
+  | keyword_break | keyword_case | keyword_class | keyword_def
+  | keyword_defined | keyword_do | keyword_else | keyword_elsif
+  | keyword_end | keyword_ensure | keyword_false
+  | keyword_for | keyword_in | keyword_module | keyword_next
+  | keyword_nil | keyword_not | keyword_or | keyword_redo
+  | keyword_rescue | keyword_retry | keyword_return | keyword_self
+  | keyword_super | keyword_then | keyword_true | keyword_undef
+  | keyword_when | keyword_yield | keyword_if | keyword_unless
+  | keyword_while | keyword_until
+  ;
 
-arg		: lhs '=' arg
+arg
+  : lhs '=' arg
 		    {
 		    /*%%%*/
 			value_expr($3);
