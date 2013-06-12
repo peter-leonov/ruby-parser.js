@@ -783,6 +783,81 @@ this.yylex = function yylex ()
       return $('+');
     }
     
+    case '-':
+    {
+      c = nextc();
+      if (IS_AFTER_OPERATOR())
+      {
+        lexer.state = EXPR_ARG;
+        if (c == '@')
+        {
+          return tUMINUS;
+        }
+        pushback(c);
+        return '-';
+      }
+      if (c == '=')
+      {
+        // set_yylval_id('-'); TODO
+        lexer.state = EXPR_BEG;
+        return tOP_ASGN;
+      }
+      if (c == '>')
+      {
+        lexer.state = EXPR_ENDFN;
+        return tLAMBDA;
+      }
+      if (IS_BEG() || (IS_SPCARG(c) && arg_ambiguous()))
+      {
+        lexer.state = EXPR_BEG;
+        pushback(c);
+        if (c != '' && ISDIGIT(c))
+        {
+          return tUMINUS_NUM;
+        }
+        return tUMINUS;
+      }
+      lexer.state = EXPR_BEG;
+      pushback(c);
+      // warn_balanced("-", "unary operator"); TODO
+      return '-';
+    }
+    
+    case '.':
+    {
+      lexer.state = EXPR_BEG;
+      if ((c = nextc()) == '.')
+      {
+        if ((c = nextc()) == '.')
+        {
+          return tDOT3;
+        }
+        pushback(c);
+        return tDOT2;
+      }
+      pushback(c);
+      if (c != '' && ISDIGIT(c))
+      {
+        yyerror("no .<digit> floating literal anymore; put 0 before dot");
+      }
+      lexer.state = EXPR_DOT;
+      return '.';
+    }
+    
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+    {
+      return start_num(c);
+    }
+    
     // add before here :)
     
     default:
