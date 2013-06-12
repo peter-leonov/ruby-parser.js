@@ -911,178 +911,76 @@ primary		: literal
 		| tCOLON3 tCONSTANT
 		    {}
 		| tLBRACK aref_args ']'
-		    {
-		    /*%%%*/
-			if ($2 == 0) {
-			    $$ = NEW_ZARRAY(); /* zero length array*/
-			}
-			else {
-			    $$ = $2;
-			}
-		    /*%
-			$$ = dispatch1(array, escape_Qundef($2));
-		    %*/
-		    }
+		    {}
 		| tLBRACE assoc_list '}'
-		    {
-		    /*%%%*/
-			$$ = NEW_HASH($2);
-		    /*%
-			$$ = dispatch1(hash, escape_Qundef($2));
-		    %*/
-		    }
+		    {}
 		| keyword_return
-		    {
-		    /*%%%*/
-			$$ = NEW_RETURN(0);
-		    /*%
-			$$ = dispatch0(return0);
-		    %*/
-		    }
+		    {}
 		| keyword_yield '(' call_args rparen
-		    {
-		    /*%%%*/
-			$$ = new_yield($3);
-		    /*%
-			$$ = dispatch1(yield, dispatch1(paren, $3));
-		    %*/
-		    }
+		    {}
 		| keyword_yield '(' rparen
-		    {
-		    /*%%%*/
-			$$ = NEW_YIELD(0);
-		    /*%
-			$$ = dispatch1(yield, dispatch1(paren, arg_new()));
-		    %*/
-		    }
+		    {}
 		| keyword_yield
-		    {
-		    /*%%%*/
-			$$ = NEW_YIELD(0);
-		    /*%
-			$$ = dispatch0(yield0);
-		    %*/
-		    }
+		    {}
 		| keyword_defined opt_nl '(' {in_defined = 1;} expr rparen
-		    {
-		    /*%%%*/
-			in_defined = 0;
-			$$ = NEW_DEFINED($5);
-		    /*%
-			in_defined = 0;
-			$$ = dispatch1(defined, $5);
-		    %*/
-		    }
+		    {}
 		| keyword_not '(' expr rparen
-		    {
-		    /*%%%*/
-			$$ = call_uni_op(cond($3), '!');
-		    /*%
-			$$ = dispatch2(unary, ripper_intern("not"), $3);
-		    %*/
-		    }
+		    {}
 		| keyword_not '(' rparen
-		    {
-		    /*%%%*/
-			$$ = call_uni_op(cond(NEW_NIL()), '!');
-		    /*%
-			$$ = dispatch2(unary, ripper_intern("not"), Qnil);
-		    %*/
-		    }
+		    {}
 		| fcall brace_block
-		    {
-		    /*%%%*/
-			$2->nd_iter = $1;
-			$$ = $2;
-		    /*%
-			$$ = method_arg(dispatch1(fcall, $1), arg_new());
-			$$ = method_add_block($$, $2);
-		    %*/
-		    }
+		    {}
 		| method_call
 		| method_call brace_block
-		    {
-		    /*%%%*/
-			block_dup_check($1->nd_args, $2);
-			$2->nd_iter = $1;
-			$$ = $2;
-		    /*%
-			$$ = method_add_block($1, $2);
-		    %*/
-		    }
+		    {}
 		| tLAMBDA lambda
-		    {
-			$$ = $2;
-		    }
+		    {}
 		| k_if expr_value then
 		  compstmt
 		  if_tail
 		  k_end
-		    {
-		    /*%%%*/
-			$$ = NEW_IF(cond($2), $4, $5);
-			fixpos($$, $2);
-		    /*%
-			$$ = dispatch3(if, $2, $4, escape_Qundef($5));
-		    %*/
-		    }
+		    {}
 		| k_unless expr_value then
 		  compstmt
 		  opt_else
 		  k_end
-		    {
-		    /*%%%*/
-			$$ = NEW_UNLESS(cond($2), $4, $5);
-			fixpos($$, $2);
-		    /*%
-			$$ = dispatch3(unless, $2, $4, escape_Qundef($5));
-		    %*/
-		    }
-		| k_while {COND_PUSH(1);} expr_value do {COND_POP();}
+		    {}
+		| k_while
+		  {
+		    yylexer.COND_PUSH(1);
+		  }
+		  expr_value do
+		  {
+		    yylexer.COND_POP();
+		  }
 		  compstmt
 		  k_end
-		    {
-		    /*%%%*/
-			$$ = NEW_WHILE(cond($3), $6, 1);
-			fixpos($$, $3);
-		    /*%
-			$$ = dispatch2(while, $3, $6);
-		    %*/
-		    }
-		| k_until {COND_PUSH(1);} expr_value do {COND_POP();}
+		    {}
+		| k_until
+		{
+		  yylexer.COND_PUSH(1);
+		}
+		expr_value do
+		{
+		  yylexer.COND_POP();
+		}
 		  compstmt
 		  k_end
-		    {
-		    /*%%%*/
-			$$ = NEW_UNTIL(cond($3), $6, 1);
-			fixpos($$, $3);
-		    /*%
-			$$ = dispatch2(until, $3, $6);
-		    %*/
-		    }
+		    {}
 		| k_case expr_value opt_terms
 		  case_body
 		  k_end
-		    {
-		    /*%%%*/
-			$$ = NEW_CASE($2, $4);
-			fixpos($$, $2);
-		    /*%
-			$$ = dispatch2(case, $2, $4);
-		    %*/
-		    }
+		    {}
 		| k_case opt_terms case_body k_end
-		    {
-		    /*%%%*/
-			$$ = NEW_CASE(0, $3);
-		    /*%
-			$$ = dispatch2(case, Qnil, $3);
-		    %*/
-		    }
+		    {}
 		| k_for for_var keyword_in
-		  {COND_PUSH(1);}
+		  {
+		    yylexer.COND_PUSH(1);
+		  }
 		  expr_value do
-		  {COND_POP();}
+		  {
+		    yylexer.COND_POP();
+		  }
 		  compstmt
 		  k_end
 		    {
