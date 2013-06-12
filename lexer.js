@@ -12,8 +12,10 @@ lexer.eofp = false;
 lexer.strterm = null;
 // the main point of interaction with the parser out there
 lexer.state = 0;
-// have no idea
+// have no idea TODO
 lexer.command_start = false;
+// have no idea TODO
+lexer.brace_nest = 0;
 
 
 // all lexer states had been moved to parse.y prologue
@@ -484,7 +486,7 @@ this.yylex = function yylex ()
       else
       {
         if (IS_lex_state(EXPR_CLASS))
-          command_start = true;
+          lexer.command_start = true;
         lexer.state = EXPR_BEG;
       }
       if (c == '=')
@@ -848,7 +850,7 @@ function here_document (here)
   //         pushback(c);
   //         return tSTRING_DVAR;
   //       case '{':
-  //         command_start = TRUE;
+  //         lexer.command_start = TRUE;
   //         return tSTRING_DBEG;
   //     }
   //     tokadd('#');

@@ -140,7 +140,7 @@ var EXPR_END_ANY = EXPR_END | EXPR_ENDARG | EXPR_ENDFN;
 
 %%
 program		:  {
-			lex_state = EXPR_BEG;
+			yylexer.state = EXPR_BEG;
 		    /*%%%*/
 			local_push(compile_for_eval || rb_parse_in_main());
 		    /*%
@@ -334,7 +334,7 @@ stmt_or_begin	: stmt
 		    %*/
 		    }
 
-stmt		: keyword_alias fitem {lex_state = EXPR_FNAME;} fitem
+stmt		: keyword_alias fitem {yylexer.state = EXPR_FNAME;} fitem
 		    {
 		    /*%%%*/
 			$$ = NEW_ALIAS($2, $4);
@@ -1129,12 +1129,12 @@ fname		: tIDENTIFIER
 		| tFID
 		| op
 		    {
-			lex_state = EXPR_ENDFN;
+			yylexer.state = EXPR_ENDFN;
 			$$ = $1;
 		    }
 		| reswords
 		    {
-			lex_state = EXPR_ENDFN;
+			yylexer.state = EXPR_ENDFN;
 		    /*%%%*/
 			$$ = $<id>1;
 		    /*%
@@ -1166,7 +1166,7 @@ undef_list	: fitem
 			$$ = rb_ary_new3(1, $1);
 		    %*/
 		    }
-		| undef_list ',' {lex_state = EXPR_FNAME;} fitem
+		| undef_list ',' {yylexer.state = EXPR_FNAME;} fitem
 		    {
 		    /*%%%*/
 			$$ = block_append($1, NEW_UNDEF($4));
@@ -1900,7 +1900,7 @@ primary		: literal
 			$$ = dispatch1(begin, $3);
 		    %*/
 		    }
-		| tLPAREN_ARG {lex_state = EXPR_ENDARG;} rparen
+		| tLPAREN_ARG {yylexer.state = EXPR_ENDARG;} rparen
 		    {
 		    /*%%%*/
 			$$ = 0;
@@ -1908,7 +1908,7 @@ primary		: literal
 			$$ = dispatch1(paren, 0);
 		    %*/
 		    }
-		| tLPAREN_ARG expr {lex_state = EXPR_ENDARG;} rparen
+		| tLPAREN_ARG expr {yylexer.state = EXPR_ENDARG;} rparen
 		    {
 		    /*%%%*/
 			$$ = $2;
@@ -2264,10 +2264,10 @@ primary		: literal
 			in_def--;
 			cur_mid = $<id>3;
 		    }
-		| k_def singleton dot_or_colon {lex_state = EXPR_FNAME;} fname
+		| k_def singleton dot_or_colon {yylexer.state = EXPR_FNAME;} fname
 		    {
 			in_single++;
-			lex_state = EXPR_ENDFN; /* force for args */
+			yylexer.state = EXPR_ENDFN; /* force for args */
 			local_push(0);
 		    }
 		  f_arglist
@@ -2666,7 +2666,7 @@ block_param	: f_arg ',' f_block_optarg ',' f_rest_arg opt_block_args_tail
 opt_block_param	: none
 		| block_param_def
 		    {
-			command_start = TRUE;
+			yylexer.command_start = TRUE;
 		    }
 		;
 
@@ -3482,19 +3482,15 @@ regexp_contents: /* none */
 string_content	: tSTRING_CONTENT
 		| tSTRING_DVAR
 		    {
-			$<node>$ = lex_strterm;
-			lex_strterm = 0;
-			lex_state = EXPR_BEG;
+			$<node>$ = yylexer.strterm;
+			yylexer.strterm = 0;
+			yylexer.state = EXPR_BEG;
 		    }
 		  string_dvar
 		    {
 		    /*%%%*/
-			lex_strterm = $<node>2;
+			yylexer.strterm = $<node>2;
 			$$ = NEW_EVSTR($3);
-		    /*%
-			lex_strterm = $<node>2;
-			$$ = dispatch1(string_dvar, $3);
-		    %*/
 		    }
 		| tSTRING_DBEG
 		    {
@@ -3504,20 +3500,20 @@ string_content	: tSTRING_CONTENT
 			cmdarg_stack = 0;
 		    }
 		    {
-			$<node>$ = lex_strterm;
-			lex_strterm = 0;
-			lex_state = EXPR_BEG;
+			$<node>$ = yylexer.strterm;
+			yylexer.strterm = null;
+			yylexer.state = EXPR_BEG;
 		    }
 		    {
-			$<num>$ = brace_nest;
-			brace_nest = 0;
+			$<num>$ = yylexer.brace_nest;
+			yylexer.brace_nest = 0;
 		    }
 		  compstmt tSTRING_DEND
 		    {
 			cond_stack = $<val>1;
 			cmdarg_stack = $<val>2;
-			lex_strterm = $<node>3;
-			brace_nest = $<num>4;
+			yylexer.strterm = $<node>3;
+			yylexer.brace_nest = $<num>4;
 		    /*%%%*/
 			if ($5) $5->flags &= ~NODE_FL_NEWLINE;
 			$$ = new_evstr($5);
@@ -3556,7 +3552,7 @@ string_dvar	: tGVAR
 
 symbol		: tSYMBEG sym
 		    {
-			lex_state = EXPR_END;
+			yylexer.state = EXPR_END;
 		    /*%%%*/
 			$$ = $2;
 		    /*%
@@ -3573,7 +3569,7 @@ sym		: fname
 
 dsym		: tSYMBEG xstring_contents tSTRING_END
 		    {
-			lex_state = EXPR_END;
+			yylexer.state = EXPR_END;
 		    /*%%%*/
 			$$ = dsym_node($2);
 		    /*%
@@ -3673,8 +3669,8 @@ superclass	: term
 		    }
 		| '<'
 		    {
-			lex_state = EXPR_BEG;
-			command_start = TRUE;
+			yylexer.state = EXPR_BEG;
+			yylexer.command_start = TRUE;
 		    }
 		  expr_value term
 		    {
@@ -3699,14 +3695,14 @@ f_arglist	: '(' f_args rparen
 		    /*%
 			$$ = dispatch1(paren, $2);
 		    %*/
-			lex_state = EXPR_BEG;
-			command_start = TRUE;
+			yylexer.state = EXPR_BEG;
+			yylexer.command_start = TRUE;
 		    }
 		| f_args term
 		    {
 			$$ = $1;
-			lex_state = EXPR_BEG;
-			command_start = TRUE;
+			yylexer.state = EXPR_BEG;
+			yylexer.command_start = TRUE;
 		    }
 		;
 
@@ -4128,7 +4124,7 @@ singleton	: var_ref
 			$$ = $1;
 		    %*/
 		    }
-		| '(' {lex_state = EXPR_BEG;} expr rparen
+		| '(' {yylexer.state = EXPR_BEG;} expr rparen
 		    {
 		    /*%%%*/
 			if ($3 == 0) {
