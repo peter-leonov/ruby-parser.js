@@ -157,7 +157,7 @@ function YYParser (yylexer)
   var YYERRLAB1 = 7;
   var YYRETURN = 8;
 
-  var yyntokens_ = this.yyntokens_ = 17;
+  var yyntokens_ = this.yyntokens_ = 15;
   
   var yyerrstatus_ = 0;
   
@@ -574,13 +574,13 @@ function YYParser (yylexer)
 
 
   // YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing STATE-NUM.
-  var yypact_ninf_ = this.yypact_ninf_ = -10;
+  var yypact_ninf_ = this.yypact_ninf_ = -8;
   var yypact_ = this.yypact_ =
   [
     //]
-        10,   -10,   -10,   -10,    10,    10,     5,    17,   -10,    22,
-     -10,   -10,    10,    10,    10,    10,    10,   -10,    -9,    -9,
-      -7,    -7,   -10
+        10,    -8,    -8,    -8,    10,    10,     5,    17,    -8,    22,
+      -8,    -8,    10,    10,    10,    10,    10,    -8,    -7,    -7,
+      -5,    -5,    -8
     //[
   ];
 
@@ -600,7 +600,7 @@ function YYParser (yylexer)
   var yypgoto_ =
   [
     //]
-       -10,   -10,    -4
+        -8,    -8,    -4
     //[
   ];
 
@@ -621,9 +621,9 @@ function YYParser (yylexer)
   [
     //]
          8,     9,    14,    15,    16,    10,    16,     0,    18,    19,
-      20,    21,    22,     1,     0,     2,     3,     0,     0,     0,
-       4,    11,     0,     0,     0,     5,    12,    13,    14,    15,
-      16,    12,    13,    14,    15,    16,     0,     0,    17
+      20,    21,    22,     1,     0,     2,     3,     0,     4,     0,
+       0,    11,     0,     5,    12,    13,    14,    15,    16,    12,
+      13,    14,    15,    16,     0,     0,    17
     //[
   ];
 
@@ -631,10 +631,10 @@ function YYParser (yylexer)
   var yycheck_ = this.yycheck_ =
   [
     //]
-         4,     5,    11,    12,    13,     0,    13,    -1,    12,    13,
-      14,    15,    16,     3,    -1,     5,     6,    -1,    -1,    -1,
-      10,     4,    -1,    -1,    -1,    15,     9,    10,    11,    12,
-      13,     9,    10,    11,    12,    13,    -1,    -1,    16
+         4,     5,     9,    10,    11,     0,    11,    -1,    12,    13,
+      14,    15,    16,     3,    -1,     5,     6,    -1,     8,    -1,
+      -1,     4,    -1,    13,     7,     8,     9,    10,    11,     7,
+       8,     9,    10,    11,    -1,    -1,    14
     //[
   ];
 
@@ -643,9 +643,9 @@ function YYParser (yylexer)
   var yystos_ =
   [
     //]
-         0,     3,     5,     6,    10,    15,    18,    19,    19,    19,
-       0,     4,     9,    10,    11,    12,    13,    16,    19,    19,
-      19,    19,    19
+         0,     3,     5,     6,     8,    13,    16,    17,    17,    17,
+       0,     4,     7,     8,     9,    10,    11,    14,    17,    17,
+      17,    17,    17
     //[
   ];
 
@@ -654,8 +654,8 @@ function YYParser (yylexer)
   var yytoken_number_ =
   [
     //]
-         0,   256,   257,   258,   259,   260,   261,   262,   263,    43,
-      45,    42,    47,    94,   264,    40,    41
+         0,   256,   257,   258,   259,   260,   261,    43,    45,    42,
+      47,    94,   262,    40,    41
     //[
   ];
 
@@ -663,8 +663,8 @@ function YYParser (yylexer)
   var yyr1_ =
   [
     //]
-         0,    17,    18,    19,    19,    19,    19,    19,    19,    19,
-      19,    19,    19
+         0,    15,    16,    17,    17,    17,    17,    17,    17,    17,
+      17,    17,    17
     //[
   ];
 
@@ -682,8 +682,8 @@ function YYParser (yylexer)
   var yytname_ = this.yytname_ =
   [
     //]
-    "$end", "error", "$undefined", "E", "END", "NUMBER", "PI", "L", "R",
-  "'+'", "'-'", "'*'", "'/'", "'^'", "UMINUS", "'('", "')'", "$accept",
+    "$end", "error", "$undefined", "tE", "tEND", "tNUMBER", "tPI", "'+'",
+  "'-'", "'*'", "'/'", "'^'", "tUMINUS", "'('", "')'", "$accept",
   "expressions", "e", null
     //[
   ];
@@ -692,10 +692,10 @@ function YYParser (yylexer)
   var yyrhs_ = this.yyrhs_ =
   [
     //]
-        18,     0,    -1,    19,     4,    -1,    19,     9,    19,    -1,
-      19,    10,    19,    -1,    19,    11,    19,    -1,    19,    12,
-      19,    -1,    19,    13,    19,    -1,    10,    19,    -1,    15,
-      19,    16,    -1,     5,    -1,     3,    -1,     6,    -1
+        16,     0,    -1,    17,     4,    -1,    17,     7,    17,    -1,
+      17,     8,    17,    -1,    17,     9,    17,    -1,    17,    10,
+      17,    -1,    17,    11,    17,    -1,     8,    17,    -1,    13,
+      17,    14,    -1,     5,    -1,     3,    -1,     6,    -1
     //[
   ];
 
@@ -725,12 +725,12 @@ function YYParser (yylexer)
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      15,    16,    11,     9,     2,    10,     2,    12,     2,     2,
+      13,    14,     9,     7,     2,     8,     2,    10,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,    13,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,    11,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -747,18 +747,18 @@ function YYParser (yylexer)
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8,    14
+       5,     6,    12
     //[
   ];
 
-  var yylast_ = this.yylast_ = 38;
+  var yylast_ = this.yylast_ = 36;
   var yynnts_ = 3;
   var yyempty_ = this.yyempty_ = -2;
   var yyfinal_ = 10;
   var yyterror_ = this.yyterror_ = 1;
   var yyerrcode_ = 256;
 
-  var yyuser_token_number_max_ = 264;
+  var yyuser_token_number_max_ = 262;
   var yyundef_token_ = 2;
 }
 
@@ -955,27 +955,22 @@ YYParser.prototype =
 YYParser.bisonVersion = "2.7.12-4996";
 
 // Name of the skeleton that generated this parser.
-YYParser.bisonSkeleton = "./lalr1.js";
+YYParser.bisonSkeleton = "../../lalr1.js";
+
+;(function(){ // epilogue namespace
 
 // Tokens.
 // Token numbers, to be returned by the scanner.
-YYParser.TOKENS =
-{
-  EOF: 0,
-  'E': 258,
-  'END': 259,
-  'NUMBER': 260,
-  'PI': 261,
-  'L': 262,
-  'R': 263,
-  'UMINUS': 264
-};
+var
+  tE = 258,
+  tEND = 259,
+  tNUMBER = 260,
+  tPI = 261,
+  tUMINUS = 262;
 
-/* Line 913 of lalr1.js  */
+/* Line 912 of lalr1.js  */
 /* Line 50 of "calculator.y"  */
 
-
-var T = YYParser.TOKENS
 
 var Lexer = (function(){
 
@@ -989,7 +984,7 @@ Lexer.prototype =
   yylex: function ()
   {
     if (this.tokens.length == 0)
-      return T.EOF
+      return 0
     
     this.token = this.tokens.shift()
     // print('yylex', this.token)
@@ -1023,32 +1018,33 @@ return Lexer
 
 this.console = {log: print}
 
-T.PLUS = 43 // '+'.charCodeAt(0)
-T.MINUS = 45 // '-'.charCodeAt(0)
-T.MULT = 42 // '*'.charCodeAt(0)
-T.DIV = 47 // '/'.charCodeAt(0)
-T.POW = 94 // '^'.charCodeAt(0)
-T.L = 40 // '('.charCodeAt(0)
-T.R = 41 // ')'.charCodeAt(0)
+var
+  tPLUS = 43, // '+'.charCodeAt(0)
+  tMINUS = 45, // '-'.charCodeAt(0)
+  tMULT = 42, // '*'.charCodeAt(0)
+  tDIV = 47, // '/'.charCodeAt(0)
+  tPOW = 94, // '^'.charCodeAt(0)
+  tL = 40, // '('.charCodeAt(0)
+  tR = 41; // ')'.charCodeAt(0)
 
 // ((3+2*3)*1)/-3
 var lexer = new Lexer
 ([
-  [T.L, '('],
-  [T.L, '('],
-  [T.NUMBER, '3'],
-  [T.PLUS, '+'],
-  [T.NUMBER, '2'],
-  [T.MULT, '*'],
-  [T.NUMBER, '3'],
-  [T.R, ')'],
-  [T.MULT, '*'],
-  [T.NUMBER, '1'],
-  [T.R, ')'],
-  [T.DIV, '/'],
-  [T.MINUS, '-'],
-  [T.NUMBER, '3'],
-  [T.END, '']
+  [tL, '('],
+  [tL, '('],
+  [tNUMBER, '3'],
+  [tPLUS, '+'],
+  [tNUMBER, '2'],
+  [tMULT, '*'],
+  [tNUMBER, '3'],
+  [tR, ')'],
+  [tMULT, '*'],
+  [tNUMBER, '1'],
+  [tR, ')'],
+  [tDIV, '/'],
+  [tMINUS, '-'],
+  [tNUMBER, '3'],
+  [tEND, '']
 ])
 
 var parser = new YYParser(lexer)
@@ -1056,6 +1052,8 @@ parser.enableDebug()
 print(parser.parse())
 print(result == -3)
 
+
+})(); // end of epilogue namespace
 
 }).call(this); // end of the parser namespase
 

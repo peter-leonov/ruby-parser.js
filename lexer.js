@@ -314,6 +314,7 @@ this.lex = function yylex ()
   retry: for (;;)
   {
   var last_state = lexer.state;
+  the_giant_switch:
   switch (c = nextc())
   {
     // different signs of the input end
@@ -687,7 +688,45 @@ this.lex = function yylex ()
     }
     
     // add before here :)
+    
+    default:
+    {
+      if (!parser_is_identchar(c))
+      {
+        compile_error("Invalid char `"+c+"' in expression");
+        continue retry;
+      }
+
+      newtok();
+      break the_giant_switch;
+    }
   }
+  
+  do
+  {
+    if (tokadd(c) == '')
+      return 0;
+    c = nextc();
+  }
+  while (parser_is_identchar(c));
+  switch (c)
+  {
+    case '@':
+    case '$':
+      pushback(c);
+      break;
+    default:
+      if ((c == '!' || c == '?') && !peek('='))
+      {
+        tokadd(c);
+      }
+      else
+      {
+        pushback(c);
+      }
+  }
+  tokfix();
+  
   
   return c ? 999 : 0
   
