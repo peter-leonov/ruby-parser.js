@@ -257,6 +257,18 @@ function ISASCII (c)
   return $(c) < 128;
 }
 
+function ISDIGIT (c)
+{
+  return /^\d$/.test(c);
+}
+
+// TODO: get rid of such a piece of junk :)
+function arg_ambiguous ()
+{
+  warning("ambiguous first argument; put parentheses or even spaces");
+  return true;
+}
+
 
 
 
@@ -394,7 +406,7 @@ this.yylex = function yylex ()
         }
         else
         {
-          warn_balanced("**", "argument prefix");
+          // warn_balanced("**", "argument prefix"); TODO
           token = tPOW;
         }
       }
@@ -669,6 +681,106 @@ this.yylex = function yylex ()
       // set_yylval_str(STR_NEW3(tok(), toklen(), enc, 0)); TODO
       lexer.state = EXPR_END;
       return tCHAR;
+    }
+    
+    case '&':
+    {
+      if ((c = nextc()) == '&')
+      {
+        lexer.state = EXPR_BEG;
+        if ((c = nextc()) == '=')
+        {
+          // set_yylval_id(tANDOP); TODO
+          lexer.state = EXPR_BEG;
+          return tOP_ASGN;
+        }
+        pushback(c);
+        return tANDOP;
+      }
+      else if (c == '=')
+      {
+        // set_yylval_id('&'); TODO
+        lexer.state = EXPR_BEG;
+        return tOP_ASGN;
+      }
+      pushback(c);
+      if (IS_SPCARG(c))
+      {
+        warning("`&' interpreted as argument prefix");
+        c = tAMPER;
+      }
+      else if (IS_BEG())
+      {
+        c = tAMPER;
+      }
+      else
+      {
+        // warn_balanced("&", "argument prefix"); TODO
+        c = '&';
+      }
+      lexer.state = IS_AFTER_OPERATOR()? EXPR_ARG : EXPR_BEG;
+      return c;
+    }
+    
+    case '|':
+    {
+      if ((c = nextc()) == '|')
+      {
+        lexer.state = EXPR_BEG;
+        if ((c = nextc()) == '=')
+        {
+          // set_yylval_id(tOROP); TODO
+          lexer.state = EXPR_BEG;
+          return tOP_ASGN;
+        }
+        pushback(c);
+        return tOROP;
+      }
+      if (c == '=')
+      {
+        // set_yylval_id('|'); TODO
+        lexer.state = EXPR_BEG;
+        return tOP_ASGN;
+      }
+      lexer.state = IS_AFTER_OPERATOR()? EXPR_ARG : EXPR_BEG;
+      pushback(c);
+      return $('|');
+    }
+    
+    case '+':
+    {
+      c = nextc();
+      if (IS_AFTER_OPERATOR())
+      {
+        lexer.state = EXPR_ARG;
+        if (c == '@')
+        {
+          return tUPLUS;
+        }
+        pushback(c);
+        return $('+');
+      }
+      if (c == '=')
+      {
+        // set_yylval_id('+'); TODO
+        lexer.state = EXPR_BEG;
+        return tOP_ASGN;
+      }
+      if (IS_BEG() || (IS_SPCARG(c) && arg_ambiguous()))
+      {
+        lexer.state = EXPR_BEG;
+        pushback(c);
+        if (c != '' && ISDIGIT(c))
+        {
+          c = '+';
+          return start_num(c); // was: goto start_num;
+        }
+        return tUPLUS;
+      }
+      lexer.state = EXPR_BEG;
+      pushback(c);
+      // warn_balanced("+", "unary operator"); TODO
+      return $('+');
     }
     
     // add before here :)
@@ -1021,6 +1133,131 @@ function parser_tokadd_utf8(string_literal, symbol_literal, regexp_literal)
     return the_char;
   }
 }
+
+// here `c` matches [0-9\+\-]
+function start_num (c)
+{
+  var is_float = false,
+      seen_point = false,
+      seen_e = false,
+      nondigit = '';
+  
+  lexer.state = EXPR_END;
+  newtok();
+  if (c == '-' || c == '+')
+  {
+    tokadd(c);
+    c = nextc();
+  }
+  if (c == '0')
+  {
+    // TODO
+    warning('0-leading digits to be supported soon');
+  }
+
+  scan_loop:
+  for (;;)
+  {
+    switch (c)
+    {
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+        nondigit = '';
+        tokadd(c);
+        break;
+
+      case '.':
+        if (nondigit)
+          break scan_loop; // was: goto trailing_uc;
+        if (seen_point || seen_e)
+        {
+          break scan_loop; // was: goto decode_num;
+        }
+        else
+        {
+          var c0 = nextc();
+          if (c0 == '' || !ISDIGIT(c0))
+          {
+            pushback(c0);
+            break scan_loop; // was: goto decode_num;
+          }
+          c = c0;
+        }
+        tokadd('.');
+        tokadd(c);
+        is_float = true;
+        seen_point = true;
+        nondigit = '';
+        break;
+
+      case 'e':
+      case 'E':
+        if (nondigit)
+        {
+          pushback(c);
+          c = nondigit;
+          break scan_loop; // was: goto decode_num;
+        }
+        if (seen_e)
+        {
+          break scan_loop; // was: goto decode_num;
+        }
+        tokadd(c);
+        seen_e = true;
+        is_float = true;
+        nondigit = c;
+        c = nextc();
+        if (c != '-' && c != '+')
+          continue;
+        tokadd(c);
+        nondigit = c;
+        break;
+
+      // `_' in number just ignored
+      case '_':
+        if (nondigit)
+          break scan_loop; // was: goto decode_num;
+        nondigit = c;
+        break;
+
+      default:
+        break scan_loop; // was: goto decode_num;
+    }
+    c = nextc();
+  }
+
+  // was: decode_num:
+  pushback(c);
+  if (nondigit)
+  {
+    // was: trailing_uc:
+    yyerror("trailing `"+nondigit+"' in number");
+  }
+  tokfix();
+  if (is_float)
+  {
+    var d = parseFloat(tok());
+    if (isNaN(d))
+    {
+      // TODO: add real range check
+      warning("Float "+tok()+" out of range");
+    }
+    // set_yylval_literal(DBL2NUM(d)); TODO
+    return tFLOAT;
+  }
+  // set_yylval_literal(rb_cstr_to_inum(tok(), 10, FALSE)); TODO
+  return tINTEGER;
+}
+
+
 
 
 function debug (msg)
