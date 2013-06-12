@@ -722,230 +722,91 @@ arg
   |
     tUMINUS arg
     {}
-		| arg '|' arg
-		    {
-		    /*%%%*/
-			$$ = call_bin_op($1, '|', $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ID2SYM('|'), $3);
-		    %*/
-		    }
-		| arg '^' arg
-		    {
-		    /*%%%*/
-			$$ = call_bin_op($1, '^', $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ID2SYM('^'), $3);
-		    %*/
-		    }
-		| arg '&' arg
-		    {
-		    /*%%%*/
-			$$ = call_bin_op($1, '&', $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ID2SYM('&'), $3);
-		    %*/
-		    }
-		| arg tCMP arg
-		    {
-		    /*%%%*/
-			$$ = call_bin_op($1, tCMP, $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ripper_intern("<=>"), $3);
-		    %*/
-		    }
-		| arg '>' arg
-		    {
-		    /*%%%*/
-			$$ = call_bin_op($1, '>', $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ID2SYM('>'), $3);
-		    %*/
-		    }
-		| arg tGEQ arg
-		    {
-		    /*%%%*/
-			$$ = call_bin_op($1, tGEQ, $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ripper_intern(">="), $3);
-		    %*/
-		    }
-		| arg '<' arg
-		    {
-		    /*%%%*/
-			$$ = call_bin_op($1, '<', $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ID2SYM('<'), $3);
-		    %*/
-		    }
-		| arg tLEQ arg
-		    {
-		    /*%%%*/
-			$$ = call_bin_op($1, tLEQ, $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ripper_intern("<="), $3);
-		    %*/
-		    }
-		| arg tEQ arg
-		    {
-		    /*%%%*/
-			$$ = call_bin_op($1, tEQ, $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ripper_intern("=="), $3);
-		    %*/
-		    }
-		| arg tEQQ arg
-		    {
-		    /*%%%*/
-			$$ = call_bin_op($1, tEQQ, $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ripper_intern("==="), $3);
-		    %*/
-		    }
-		| arg tNEQ arg
-		    {
-		    /*%%%*/
-			$$ = call_bin_op($1, tNEQ, $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ripper_intern("!="), $3);
-		    %*/
-		    }
-		| arg tMATCH arg
-		    {
-		    /*%%%*/
-			$$ = match_op($1, $3);
-                        if (nd_type($1) == NODE_LIT && RB_TYPE_P($1->nd_lit, T_REGEXP)) {
-                            $$ = reg_named_capture_assign($1->nd_lit, $$);
-                        }
-		    /*%
-			$$ = dispatch3(binary, $1, ripper_intern("=~"), $3);
-		    %*/
-		    }
-		| arg tNMATCH arg
-		    {
-		    /*%%%*/
-			$$ = call_bin_op($1, tNMATCH, $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ripper_intern("!~"), $3);
-		    %*/
-		    }
-		| '!' arg
-		    {
-		    /*%%%*/
-			$$ = call_uni_op(cond($2), '!');
-		    /*%
-			$$ = dispatch2(unary, ID2SYM('!'), $2);
-		    %*/
-		    }
-		| '~' arg
-		    {
-		    /*%%%*/
-			$$ = call_uni_op($2, '~');
-		    /*%
-			$$ = dispatch2(unary, ID2SYM('~'), $2);
-		    %*/
-		    }
-		| arg tLSHFT arg
-		    {
-		    /*%%%*/
-			$$ = call_bin_op($1, tLSHFT, $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ripper_intern("<<"), $3);
-		    %*/
-		    }
-		| arg tRSHFT arg
-		    {
-		    /*%%%*/
-			$$ = call_bin_op($1, tRSHFT, $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ripper_intern(">>"), $3);
-		    %*/
-		    }
-		| arg tANDOP arg
-		    {
-		    /*%%%*/
-			$$ = logop(NODE_AND, $1, $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ripper_intern("&&"), $3);
-		    %*/
-		    }
-		| arg tOROP arg
-		    {
-		    /*%%%*/
-			$$ = logop(NODE_OR, $1, $3);
-		    /*%
-			$$ = dispatch3(binary, $1, ripper_intern("||"), $3);
-		    %*/
-		    }
-		| keyword_defined opt_nl {in_defined = 1;} arg
-		    {
-		    /*%%%*/
-			in_defined = 0;
-			$$ = NEW_DEFINED($4);
-		    /*%
-			in_defined = 0;
-			$$ = dispatch1(defined, $4);
-		    %*/
-		    }
-		| arg '?' arg opt_nl ':' arg
-		    {
-		    /*%%%*/
-			value_expr($1);
-			$$ = NEW_IF(cond($1), $3, $6);
-			fixpos($$, $1);
-		    /*%
-			$$ = dispatch3(ifop, $1, $3, $6);
-		    %*/
-		    }
-		| primary
-		    {
-			$$ = $1;
-		    }
-		;
+  |
+    arg '|' arg
+    {}
+  |
+    arg '^' arg
+    {}
+  |
+    arg '&' arg
+    {}
+  |
+    arg tCMP arg
+    {}
+  |
+    arg '>' arg
+    {}
+  |
+    arg tGEQ arg
+    {}
+  |
+    arg '<' arg
+    {}
+  |
+    arg tLEQ arg
+    {}
+  |
+    arg tEQ arg
+    {}
+  |
+    arg tEQQ arg
+    {}
+  |
+    arg tNEQ arg
+    {}
+  |
+    arg tMATCH arg
+    {}
+  |
+    arg tNMATCH arg
+    {}
+  |
+    '!' arg
+    {}
+  |
+    '~' arg
+    {}
+  |
+    arg tLSHFT arg
+    {}
+  |
+    arg tRSHFT arg
+    {}
+  |
+    arg tANDOP arg
+    {}
+  |
+    arg tOROP arg
+    {}
+  |
+    keyword_defined opt_nl {in_defined = 1;} arg
+    {}
+  |
+    arg '?' arg opt_nl ':' arg
+    {}
+  |
+    primary
+    {}
+  ;
 
-arg_value	: arg
-		    {
-		    /*%%%*/
-			value_expr($1);
-			$$ = $1;
-		        if (!$$) $$ = NEW_NIL();
-		    /*%
-			$$ = $1;
-		    %*/
-		    }
-		;
+arg_value
+  :
+    arg
+    {}
+  ;
 
 aref_args	: none
 		| args trailer
-		    {
-			$$ = $1;
-		    }
+		    {}
 		| args ',' assocs trailer
-		    {
-		    /*%%%*/
-			$$ = arg_append($1, NEW_HASH($3));
-		    /*%
-			$$ = arg_add_assocs($1, $3);
-		    %*/
-		    }
+		    {}
 		| assocs trailer
-		    {
-		    /*%%%*/
-			$$ = NEW_LIST(NEW_HASH($1));
-		    /*%
-			$$ = arg_add_assocs(arg_new(), $1);
-		    %*/
-		    }
+		    {}
 		;
 
 paren_args	: '(' opt_call_args rparen
-		    {
-		    /*%%%*/
-			$$ = $2;
-		    /*%
-			$$ = dispatch1(arg_paren, escape_Qundef($2));
-		    %*/
-		    }
+		    {}
 		;
 
 opt_paren_args	: none
@@ -955,187 +816,60 @@ opt_paren_args	: none
 opt_call_args	: none
 		| call_args
 		| args ','
-		    {
-		      $$ = $1;
-		    }
+		    {}
 		| args ',' assocs ','
-		    {
-		    /*%%%*/
-			$$ = arg_append($1, NEW_HASH($3));
-		    /*%
-			$$ = arg_add_assocs($1, $3);
-		    %*/
-		    }
+		    {}
 		| assocs ','
-		    {
-		    /*%%%*/
-			$$ = NEW_LIST(NEW_HASH($1));
-		    /*%
-			$$ = arg_add_assocs(arg_new(), $1);
-		    %*/
-		    }
+		    {}
 		;
 
 call_args	: command
-		    {
-		    /*%%%*/
-			value_expr($1);
-			$$ = NEW_LIST($1);
-		    /*%
-			$$ = arg_add(arg_new(), $1);
-		    %*/
-		    }
+		    {}
 		| args opt_block_arg
-		    {
-		    /*%%%*/
-			$$ = arg_blk_pass($1, $2);
-		    /*%
-			$$ = arg_add_optblock($1, $2);
-		    %*/
-		    }
+		    {}
 		| assocs opt_block_arg
-		    {
-		    /*%%%*/
-			$$ = NEW_LIST(NEW_HASH($1));
-			$$ = arg_blk_pass($$, $2);
-		    /*%
-			$$ = arg_add_assocs(arg_new(), $1);
-			$$ = arg_add_optblock($$, $2);
-		    %*/
-		    }
+		    {}
 		| args ',' assocs opt_block_arg
-		    {
-		    /*%%%*/
-			$$ = arg_append($1, NEW_HASH($3));
-			$$ = arg_blk_pass($$, $4);
-		    /*%
-			$$ = arg_add_optblock(arg_add_assocs($1, $3), $4);
-		    %*/
-		    }
+		    {}
 		| block_arg
-		    /*%c%*/
-		    /*%c
-		    {
-			$$ = arg_add_block(arg_new(), $1);
-		    }
-		    %*/
 		;
 
-command_args	:  {
-			$<val>$ = cmdarg_stack;
-			CMDARG_PUSH(1);
-		    }
-		  call_args
-		    {
-			/* CMDARG_POP() */
-			cmdarg_stack = $<val>1;
-			$$ = $2;
-		    }
-		;
+command_args
+  :
+    {}
+    call_args
+    {
+      // touching this alters the parse.output
+      $<val>1;
+    }
+  ;
 
 block_arg	: tAMPER arg_value
-		    {
-		    /*%%%*/
-			$$ = NEW_BLOCK_PASS($2);
-		    /*%
-			$$ = $2;
-		    %*/
-		    }
+		    {}
 		;
 
 opt_block_arg	: ',' block_arg
-		    {
-			$$ = $2;
-		    }
+		    {}
 		| none
-		    {
-			$$ = 0;
-		    }
+		    {}
 		;
 
 args		: arg_value
-		    {
-		    /*%%%*/
-			$$ = NEW_LIST($1);
-		    /*%
-			$$ = arg_add(arg_new(), $1);
-		    %*/
-		    }
+		    {}
 		| tSTAR arg_value
-		    {
-		    /*%%%*/
-			$$ = NEW_SPLAT($2);
-		    /*%
-			$$ = arg_add_star(arg_new(), $2);
-		    %*/
-		    }
+		    {}
 		| args ',' arg_value
-		    {
-		    /*%%%*/
-			NODE *n1;
-			if ((n1 = splat_array($1)) != 0) {
-			    $$ = list_append(n1, $3);
-			}
-			else {
-			    $$ = arg_append($1, $3);
-			}
-		    /*%
-			$$ = arg_add($1, $3);
-		    %*/
-		    }
+		    {}
 		| args ',' tSTAR arg_value
-		    {
-		    /*%%%*/
-			NODE *n1;
-			if ((nd_type($4) == NODE_ARRAY) && (n1 = splat_array($1)) != 0) {
-			    $$ = list_concat(n1, $4);
-			}
-			else {
-			    $$ = arg_concat($1, $4);
-			}
-		    /*%
-			$$ = arg_add_star($1, $4);
-		    %*/
-		    }
+		    {}
 		;
 
 mrhs		: args ',' arg_value
-		    {
-		    /*%%%*/
-			NODE *n1;
-			if ((n1 = splat_array($1)) != 0) {
-			    $$ = list_append(n1, $3);
-			}
-			else {
-			    $$ = arg_append($1, $3);
-			}
-		    /*%
-			$$ = mrhs_add(args2mrhs($1), $3);
-		    %*/
-		    }
+		    {}
 		| args ',' tSTAR arg_value
-		    {
-		    /*%%%*/
-			NODE *n1;
-			if (nd_type($4) == NODE_ARRAY &&
-			    (n1 = splat_array($1)) != 0) {
-			    $$ = list_concat(n1, $4);
-			}
-			else {
-			    $$ = arg_concat($1, $4);
-			}
-		    /*%
-			$$ = mrhs_add_star(args2mrhs($1), $4);
-		    %*/
-		    }
+		    {}
 		| tSTAR arg_value
-		    {
-		    /*%%%*/
-			$$ = NEW_SPLAT($2);
-		    /*%
-			$$ = mrhs_add_star(mrhs_new(), $2);
-		    %*/
-		    }
+		    {}
 		;
 
 primary		: literal
@@ -1149,81 +883,33 @@ primary		: literal
 		| var_ref
 		| backref
 		| tFID
-		    {
-		    /*%%%*/
-			$$ = NEW_FCALL($1, 0);
-		    /*%
-			$$ = method_arg(dispatch1(fcall, $1), arg_new());
-		    %*/
-		    }
+		    {}
 		| k_begin
-		    {
-			$<val>1 = cmdarg_stack;
-			cmdarg_stack = 0;
-		    /*%%%*/
-			$<num>$ = ruby_sourceline;
-		    /*%
-		    %*/
-		    }
+		    {}
 		  bodystmt
 		  k_end
 		    {
-			cmdarg_stack = $<val>1;
-		    /*%%%*/
-			if ($3 == NULL) {
-			    $$ = NEW_NIL();
-			}
-			else {
-			    if (nd_type($3) == NODE_RESCUE ||
-				nd_type($3) == NODE_ENSURE)
-				nd_set_line($3, $<num>2);
-			    $$ = ($3);
-			}
-			nd_set_line($$, $<num>2);
-		    /*%
-			$$ = dispatch1(begin, $3);
-		    %*/
+		      // touching this alters the parse.output
+          $<num>2;
 		    }
-		| tLPAREN_ARG {yylexer.state = EXPR_ENDARG;} rparen
-		    {
-		    /*%%%*/
-			$$ = 0;
-		    /*%
-			$$ = dispatch1(paren, 0);
-		    %*/
-		    }
-		| tLPAREN_ARG expr {yylexer.state = EXPR_ENDARG;} rparen
-		    {
-		    /*%%%*/
-			$$ = $2;
-		    /*%
-			$$ = dispatch1(paren, $2);
-		    %*/
-		    }
+		| tLPAREN_ARG
+		{
+		  yylexer.state = EXPR_ENDARG;
+		}
+		rparen
+		    {}
+		| tLPAREN_ARG expr
+		{
+		  yylexer.state = EXPR_ENDARG;
+		}
+		rparen
+		    {}
 		| tLPAREN compstmt ')'
-		    {
-		    /*%%%*/
-			$$ = $2;
-		    /*%
-			$$ = dispatch1(paren, $2);
-		    %*/
-		    }
+		    {}
 		| primary_value tCOLON2 tCONSTANT
-		    {
-		    /*%%%*/
-			$$ = NEW_COLON2($1, $3);
-		    /*%
-			$$ = dispatch2(const_path_ref, $1, $3);
-		    %*/
-		    }
+		    {}
 		| tCOLON3 tCONSTANT
-		    {
-		    /*%%%*/
-			$$ = NEW_COLON3($2);
-		    /*%
-			$$ = dispatch1(top_const_ref, $2);
-		    %*/
-		    }
+		    {}
 		| tLBRACK aref_args ']'
 		    {
 		    /*%%%*/
