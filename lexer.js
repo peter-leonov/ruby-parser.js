@@ -1,4 +1,4 @@
-(function(){
+var YYLexer = (function(){
 
 // $stream: plain old JS string with ruby source code
 function Lexer ($stream)
@@ -205,6 +205,16 @@ function toklast ()
   return tokenbuf.substr(-1)
   // was: tokidx>0?tokenbuf[tokidx-1]:0)
 }
+
+
+// TODO
+this.getStartPos = function () { return $pos; }
+this.getEndPos = function () { return $pos + 1; }
+this.getLVal = function () { return tokenbuf; }
+
+
+
+// other stuff
 
 function parser_is_identchar (c)
 {
@@ -1027,6 +1037,7 @@ function debug (msg)
 function warning (msg) { debug('WARNING: ' + msg) }
 function compile_error (msg) { debug('COMPILE ERROR: ' + msg) }
 function yyerror (msg) { debug('YYERROR: ' + msg) }
+this.yyerror = yyerror;
 
 } // function Lexer
 

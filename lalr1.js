@@ -97,7 +97,7 @@ function Location (begin, end) {
 
 Location.prototype.toString = function () {
   if (this.begin === this.end)
-    return "" + begin;
+    return "" + this.begin;
 
   return this.begin + "-" + this.end;
 }
@@ -881,18 +881,18 @@ YYParser.prototype =
 
   debug_stack_print: function debug_stack_print ()
   {
-    console.log("Stack now");
+    print("Stack now");
 
     var yystack = this.yystack
     for (var i = 0, ih = yystack.height(); i <= ih; i++)
     {
-      console.log(' ' + yystack.stateAt(i));
+      print(' ' + yystack.stateAt(i));
     }
   },
 
   debug_puts: function debug_puts (message)
   {
-    console.log(message);
+    print(message);
   }
 }
 
