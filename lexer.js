@@ -899,7 +899,7 @@ this.yylex = function yylex ()
   tokfix();
   
   
-  return c ? 999 : 0
+  return c == '' ? 0 : 9999 // EOF or $undefined
   
   } // retry for loop
 }
