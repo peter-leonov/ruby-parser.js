@@ -1755,56 +1755,20 @@ singleton	: var_ref
 
 assoc_list	: none
 		| assocs trailer
-		    {
-		    /*%%%*/
-			$$ = $1;
-		    /*%
-			$$ = dispatch1(assoclist_from_args, $1);
-		    %*/
-		    }
+		    {}
 		;
 
 assocs		: assoc
-		    /*%c%*/
-		    /*%c
-		    {
-			$$ = rb_ary_new3(1, $1);
-		    }
-		    %*/
 		| assocs ',' assoc
-		    {
-		    /*%%%*/
-			$$ = list_concat($1, $3);
-		    /*%
-			$$ = rb_ary_push($1, $3);
-		    %*/
-		    }
+		    {}
 		;
 
 assoc		: arg_value tASSOC arg_value
-		    {
-		    /*%%%*/
-			$$ = list_append(NEW_LIST($1), $3);
-		    /*%
-			$$ = dispatch2(assoc_new, $1, $3);
-		    %*/
-		    }
+		    {}
 		| tLABEL arg_value
-		    {
-		    /*%%%*/
-			$$ = list_append(NEW_LIST(NEW_LIT(ID2SYM($1))), $2);
-		    /*%
-			$$ = dispatch2(assoc_new, $1, $2);
-		    %*/
-		    }
+		    {}
 		| tDSTAR arg_value
-		    {
-		    /*%%%*/
-			$$ = list_append(NEW_LIST(0), $2);
-		    /*%
-			$$ = dispatch1(assoc_splat, $2);
-		    %*/
-		    }
+		    {}
 		;
 
 		;
@@ -1826,15 +1790,7 @@ operation3	: tIDENTIFIER
 		;
 
 dot_or_colon	: '.'
-		    /*%c%*/
-		    /*%c
-		    { $$ = $<val>1; }
-		    %*/
 		| tCOLON2
-		    /*%c%*/
-		    /*%c
-		    { $$ = $<val>1; }
-		    %*/
 		;
 
 opt_terms	: /* none */
@@ -1865,13 +1821,7 @@ terms		: term
 		;
 
 none		: /* none */
-		    {
-		    /*%%%*/
-			$$ = 0;
-		    /*%
-			$$ = Qundef;
-		    %*/
-		    }
+		    {}
 		;
 
 %%
