@@ -1658,124 +1658,35 @@ f_norm_arg	: f_bad_arg
 		;
 
 f_arg_item	: f_norm_arg
-		    {
-			arg_var(get_id($1));
-		    /*%%%*/
-			$$ = NEW_ARGS_AUX($1, 1);
-		    /*%
-			$$ = get_value($1);
-		    %*/
-		    }
+		    {}
 		| tLPAREN f_margs rparen
-		    {
-			ID tid = internal_id();
-			arg_var(tid);
-		    /*%%%*/
-			if (dyna_in_block()) {
-			    $2->nd_value = NEW_DVAR(tid);
-			}
-			else {
-			    $2->nd_value = NEW_LVAR(tid);
-			}
-			$$ = NEW_ARGS_AUX(tid, 1);
-			$$->nd_next = $2;
-		    /*%
-			$$ = dispatch1(mlhs_paren, $2);
-		    %*/
-		    }
+		    {}
 		;
 
 f_arg		: f_arg_item
-		    /*%c%*/
-		    /*%c
-		    {
-			$$ = rb_ary_new3(1, $1);
-		    }
-		    c%*/
 		| f_arg ',' f_arg_item
-		    {
-		    /*%%%*/
-			$$ = $1;
-			$$->nd_plen++;
-			$$->nd_next = block_append($$->nd_next, $3->nd_next);
-			rb_gc_force_recycle((VALUE)$3);
-		    /*%
-			$$ = rb_ary_push($1, $3);
-		    %*/
-		    }
+		    {}
 		;
 
 f_kw		: tLABEL arg_value
-		    {
-			arg_var(formal_argument(get_id($1)));
-			$$ = assignable($1, $2);
-		    /*%%%*/
-			$$ = NEW_KW_ARG(0, $$);
-		    /*%
-			$$ = rb_assoc_new($$, $2);
-		    %*/
-		    }
+		    {}
 		;
 
 f_block_kw	: tLABEL primary_value
-		    {
-			arg_var(formal_argument(get_id($1)));
-			$$ = assignable($1, $2);
-		    /*%%%*/
-			$$ = NEW_KW_ARG(0, $$);
-		    /*%
-			$$ = rb_assoc_new($$, $2);
-		    %*/
-		    }
+		    {}
 		;
 
 f_block_kwarg	: f_block_kw
-		    {
-		    /*%%%*/
-			$$ = $1;
-		    /*%
-			$$ = rb_ary_new3(1, $1);
-		    %*/
-		    }
+		    {}
 		| f_block_kwarg ',' f_block_kw
-		    {
-		    /*%%%*/
-			NODE *kws = $1;
-
-			while (kws->nd_next) {
-			    kws = kws->nd_next;
-			}
-			kws->nd_next = $3;
-			$$ = $1;
-		    /*%
-			$$ = rb_ary_push($1, $3);
-		    %*/
-		    }
+		    {}
 		;
 
 
 f_kwarg		: f_kw
-		    {
-		    /*%%%*/
-			$$ = $1;
-		    /*%
-			$$ = rb_ary_new3(1, $1);
-		    %*/
-		    }
+		    {}
 		| f_kwarg ',' f_kw
-		    {
-		    /*%%%*/
-			NODE *kws = $1;
-
-			while (kws->nd_next) {
-			    kws = kws->nd_next;
-			}
-			kws->nd_next = $3;
-			$$ = $1;
-		    /*%
-			$$ = rb_ary_push($1, $3);
-		    %*/
-		    }
+		    {}
 		;
 
 kwrest_mark	: tPOW
@@ -1783,86 +1694,29 @@ kwrest_mark	: tPOW
 		;
 
 f_kwrest	: kwrest_mark tIDENTIFIER
-		    {
-			shadowing_lvar(get_id($2));
-			$$ = $2;
-		    }
+		    {}
 		| kwrest_mark
-		    {
-			$$ = internal_id();
-		    }
+		    {}
 		;
 
 f_opt		: tIDENTIFIER '=' arg_value
-		    {
-			arg_var(formal_argument(get_id($1)));
-			$$ = assignable($1, $3);
-		    /*%%%*/
-			$$ = NEW_OPT_ARG(0, $$);
-		    /*%
-			$$ = rb_assoc_new($$, $3);
-		    %*/
-		    }
+		    {}
 		;
 
 f_block_opt	: tIDENTIFIER '=' primary_value
-		    {
-			arg_var(formal_argument(get_id($1)));
-			$$ = assignable($1, $3);
-		    /*%%%*/
-			$$ = NEW_OPT_ARG(0, $$);
-		    /*%
-			$$ = rb_assoc_new($$, $3);
-		    %*/
-		    }
+		    {}
 		;
 
 f_block_optarg	: f_block_opt
-		    {
-		    /*%%%*/
-			$$ = $1;
-		    /*%
-			$$ = rb_ary_new3(1, $1);
-		    %*/
-		    }
+		    {}
 		| f_block_optarg ',' f_block_opt
-		    {
-		    /*%%%*/
-			NODE *opts = $1;
-
-			while (opts->nd_next) {
-			    opts = opts->nd_next;
-			}
-			opts->nd_next = $3;
-			$$ = $1;
-		    /*%
-			$$ = rb_ary_push($1, $3);
-		    %*/
-		    }
+		    {}
 		;
 
 f_optarg	: f_opt
-		    {
-		    /*%%%*/
-			$$ = $1;
-		    /*%
-			$$ = rb_ary_new3(1, $1);
-		    %*/
-		    }
+		    {}
 		| f_optarg ',' f_opt
-		    {
-		    /*%%%*/
-			NODE *opts = $1;
-
-			while (opts->nd_next) {
-			    opts = opts->nd_next;
-			}
-			opts->nd_next = $3;
-			$$ = $1;
-		    /*%
-			$$ = rb_ary_push($1, $3);
-		    %*/
-		    }
+		    {}
 		;
 
 restarg_mark	: '*'
@@ -1870,27 +1724,9 @@ restarg_mark	: '*'
 		;
 
 f_rest_arg	: restarg_mark tIDENTIFIER
-		    {
-		    /*%%%*/
-			if (!is_local_id($2))
-			    yyerror("rest argument must be local variable");
-		    /*% %*/
-			arg_var(shadowing_lvar(get_id($2)));
-		    /*%%%*/
-			$$ = $2;
-		    /*%
-			$$ = dispatch1(rest_param, $2);
-		    %*/
-		    }
+		    {}
 		| restarg_mark
-		    {
-		    /*%%%*/
-			$$ = internal_id();
-			arg_var($$);
-		    /*%
-			$$ = dispatch1(rest_param, Qnil);
-		    %*/
-		    }
+		    {}
 		;
 
 blkarg_mark	: '&'
@@ -1898,73 +1734,23 @@ blkarg_mark	: '&'
 		;
 
 f_block_arg	: blkarg_mark tIDENTIFIER
-		    {
-		    /*%%%*/
-			if (!is_local_id($2))
-			    yyerror("block argument must be local variable");
-			else if (!dyna_in_block() && local_id($2))
-			    yyerror("duplicated block argument name");
-		    /*% %*/
-			arg_var(shadowing_lvar(get_id($2)));
-		    /*%%%*/
-			$$ = $2;
-		    /*%
-			$$ = dispatch1(blockarg, $2);
-		    %*/
-		    }
+		    {}
 		;
 
 opt_f_block_arg	: ',' f_block_arg
-		    {
-			$$ = $2;
-		    }
+		    {}
 		| none
-		    {
-		    /*%%%*/
-			$$ = 0;
-		    /*%
-			$$ = Qundef;
-		    %*/
-		    }
+		    {}
 		;
 
 singleton	: var_ref
-		    {
-		    /*%%%*/
-			value_expr($1);
-			$$ = $1;
-		        if (!$$) $$ = NEW_NIL();
-		    /*%
-			$$ = $1;
-		    %*/
-		    }
-		| '(' {yylexer.state = EXPR_BEG;} expr rparen
-		    {
-		    /*%%%*/
-			if ($3 == 0) {
-			    yyerror("can't define singleton method for ().");
-			}
-			else {
-			    switch (nd_type($3)) {
-			      case NODE_STR:
-			      case NODE_DSTR:
-			      case NODE_XSTR:
-			      case NODE_DXSTR:
-			      case NODE_DREGX:
-			      case NODE_LIT:
-			      case NODE_ARRAY:
-			      case NODE_ZARRAY:
-				yyerror("can't define singleton method for literals");
-			      default:
-				value_expr($3);
-				break;
-			    }
-			}
-			$$ = $3;
-		    /*%
-			$$ = dispatch1(paren, $3);
-		    %*/
-		    }
+		    {}
+		| '('
+		{
+		  yylexer.state = EXPR_BEG;
+		}
+		expr rparen
+		    {}
 		;
 
 assoc_list	: none
