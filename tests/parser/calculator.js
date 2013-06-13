@@ -61,7 +61,7 @@ function Location (begin, end) {
 
 Location.prototype.toString = function () {
   if (this.begin === this.end)
-    return "" + begin;
+    return "" + this.begin;
 
   return this.begin + "-" + this.end;
 }
@@ -524,7 +524,7 @@ function YYParser (yylexer)
         // Muck with the stack to setup for yylloc.
         yystack.push(0, null, yylloc);
         yystack.push(0, null, yyerrloc);
-        yyloc = yylloc(yystack, 2);
+        yyloc = yystack.locationFromNthItemToCurrent(2);
         yystack.pop(2);
 
         // Shift the error token.
@@ -881,13 +881,13 @@ YYParser.prototype =
         {
           if
           (
-            yycheck_[x + yyn] == x
-            && x != yyterror_
+            this.yycheck_[x + yyn] == x
+            && x != this.yyterror_
             && this.yytable_[x + yyn] != this.yytable_ninf_ // yytable_[x + yyn] isn't an error
           )
           {
             res += (count++ == 0 ? ", expecting " : " or ");
-            res += yytnamerr_(yytname_[x]);
+            res += yytnamerr_(this.yytname_[x]);
           }
         }
       }
@@ -936,18 +936,18 @@ YYParser.prototype =
 
   debug_stack_print: function debug_stack_print ()
   {
-    console.log("Stack now");
+    print("Stack now");
 
     var yystack = this.yystack
     for (var i = 0, ih = yystack.height(); i <= ih; i++)
     {
-      console.log(' ' + yystack.stateAt(i));
+      print(' ' + yystack.stateAt(i));
     }
   },
 
   debug_puts: function debug_puts (message)
   {
-    console.log(message);
+    print(message);
   }
 }
 
