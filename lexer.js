@@ -495,7 +495,7 @@ this.yylex = function yylex ()
       // lands: break after_backslash_n;
       lexer.command_start = true;
       lexer.lex_state = EXPR_BEG;
-      return '\n';
+      return $('\n');
     }
   
     case '*':
@@ -672,7 +672,7 @@ this.yylex = function yylex ()
         return tRSHFT;
       }
       pushback(c);
-      return '>';
+      return $('>');
     }
     
     case '"':
@@ -686,7 +686,7 @@ this.yylex = function yylex ()
       if (IS_lex_state(EXPR_FNAME))
       {
         lexer.lex_state = EXPR_ENDFN;
-        return c;
+        return $(c);
       }
       if (IS_lex_state(EXPR_DOT))
       {
@@ -694,7 +694,7 @@ this.yylex = function yylex ()
           lexer.lex_state = EXPR_CMDARG;
         else
           lexer.lex_state = EXPR_ARG;
-        return c;
+        return $(c);
       }
       lexer.strterm = NEW_STRTERM(str_xquote, '`', '');
       return tXSTRING_BEG;
@@ -819,22 +819,23 @@ this.yylex = function yylex ()
         return tOP_ASGN;
       }
       pushback(c);
+      var t = $(c);
       if (IS_SPCARG(c))
       {
         warning("`&' interpreted as argument prefix");
-        c = tAMPER;
+        t = tAMPER;
       }
       else if (IS_BEG())
       {
-        c = tAMPER;
+        t = tAMPER;
       }
       else
       {
         warn_balanced("&", "argument prefix", c);
-        c = '&';
+        t = $('&');
       }
       lexer.lex_state = IS_AFTER_OPERATOR()? EXPR_ARG : EXPR_BEG;
-      return c;
+      return t;
     }
     
     case '|':
@@ -909,7 +910,7 @@ this.yylex = function yylex ()
           return tUMINUS;
         }
         pushback(c);
-        return '-';
+        return $('-');
       }
       if (c == '=')
       {
@@ -935,7 +936,7 @@ this.yylex = function yylex ()
       lexer.lex_state = EXPR_BEG;
       pushback(c);
       warn_balanced("-", "unary operator", c);
-      return '-';
+      return $('-');
     }
     
     case '.':
@@ -956,7 +957,7 @@ this.yylex = function yylex ()
         yyerror("no .<digit> floating literal anymore; put 0 before dot");
       }
       lexer.lex_state = EXPR_DOT;
-      return '.';
+      return $('.');
     }
     
     case '0':
@@ -978,6 +979,7 @@ this.yylex = function yylex ()
       lexer.paren_nest--;
     case '}':
     {
+      var t = $(c);
       lexer.COND_LEXPOP();
       lexer.CMDARG_LEXPOP();
       if (c == ')')
@@ -987,9 +989,9 @@ this.yylex = function yylex ()
       if (c == '}')
       {
         if (!lexer.brace_nest--)
-          c = tSTRING_DEND;
+          t = tSTRING_DEND;
       }
-      return c;
+      return t;
     }
     
     case ':':
