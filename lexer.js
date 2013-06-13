@@ -212,7 +212,11 @@ function nthchar (i)
 // then `$pos` will be 4: "abc\n|"
 function lex_goto_eol ()
 {
-  while (nextc() != '\n');
+  do
+  {
+    var c = nextc();
+  }
+  while (c != '\n' && c != '');
 }
 
 // forecast, if the nextc() will return character `c`
