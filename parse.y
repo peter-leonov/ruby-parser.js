@@ -1827,12 +1827,12 @@ trailer		: /* none */
 		| ','
 		;
 
-term		: ';' {yyerrok;}
+term		: ';' {yyerrok();}
 		| '\n'
 		;
 
 terms		: term
-		| terms ';' {yyerrok;}
+		| terms ';' {yyerrok();}
 		;
 
 none		: /* none */

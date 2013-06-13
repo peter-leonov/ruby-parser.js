@@ -203,6 +203,7 @@ function YYParser (yylexer)
   var yyntokens_ = this.yyntokens_ = ]b4_tokens_number[;
   
   var yyerrstatus_ = 0;
+  function yyerrok () {yyerrstatus_ = 0;}
   
   // Return whether error recovery is being done.
   // In this state, the parser reads token until it reaches a known state,
