@@ -892,18 +892,18 @@ YYParser.prototype =
 
   debug_stack_print: function debug_stack_print ()
   {
-    print("Stack now");
+    puts("Stack now");
 
     var yystack = this.yystack
     for (var i = 0, ih = yystack.height(); i <= ih; i++)
     {
-      print(' ' + yystack.stateAt(i));
+      puts(' ' + yystack.stateAt(i));
     }
   },
 
   debug_puts: function debug_puts (message)
   {
-    print(message);
+    puts(message);
   }
 }
 

@@ -1844,11 +1844,14 @@ none		: /* none */
 var YYLexer = 
 #include "lexer.js"
 
-var lexer = new YYLexer(read('ruby.rb'));
+global.parse = function (text)
+{
+  var lexer = new YYLexer(text);
 
-yyerror = function (msg) { lexer.yyerror(msg); }
+  yyerror = function (msg) { lexer.yyerror(msg); }
 
-var parser = new YYParser(lexer)
-parser.enableDebug()
+  var parser = new YYParser(lexer);
+  parser.enableDebug();
 
-print(parser.parse())
+  return parser.parse();
+}

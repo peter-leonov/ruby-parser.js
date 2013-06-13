@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Runner</title>
+
+<body>
+<script>
+this.global = this;
+this.puts = function () { console.log.apply(console, arguments) }
+</script>
+<script src="parse.js"></script>
+<script>
+console.log(parse('3 + 2 + 1'))
+</script>

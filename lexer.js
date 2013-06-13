@@ -1867,14 +1867,14 @@ var rb_reserved_word =
 
 function debug (msg)
 {
-  print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-  print(msg)
-  print(
+  puts('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+  puts(msg)
+  puts(
     $stream.substring($pos - 25, $pos) +
     '>>here<<' +
     $stream.substring($pos, $pos + 25)
   )
-  print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+  puts('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
 }
 function warning (msg) { debug('WARNING: ' + msg) }
 function compile_error (msg) { debug('COMPILE ERROR: ' + msg) }
