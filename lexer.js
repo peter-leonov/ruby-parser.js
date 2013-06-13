@@ -12,6 +12,10 @@ lexer.eofp = false;
 lexer.strterm = null;
 // the main point of interaction with the parser out there
 lexer.state = 0;
+// to store the main state
+lexer.last_state = 0;
+// have the lexer seen a space somewhere before the current char
+lexer.space_seen = false;
 // have no idea TODO
 lexer.command_start = false;
 // have no idea TODO
@@ -31,9 +35,13 @@ lexer.cmdarg_stack = 0;
 // all lexer states codes had been moved to parse.y prologue
 
 // the shortcut for checking `lexer.state` over and over again
-function IS_lex_state (state)
+function IS_lex_state (ls)
 {
-  return lexer.state & state
+  return lexer.state & ls;
+}
+function IS_lex_state_for (state, ls)
+{
+  return state & ls;
 }
 
 # define BITSTACK_PUSH(stack, n)	((stack) = ((stack)<<1)|((n)&1))
@@ -122,10 +130,37 @@ function ISSPACE_NOT_N (c)
 }
 
 // em…
-function IS_SPCARG (c) { return IS_ARG() && space_seen && !ISSPACE(c) }
+function IS_SPCARG (c)
+{
+  return IS_ARG() &&
+         lexer.space_seen &&
+         !ISSPACE(c);
+}
 
 function IS_AFTER_OPERATOR () { return IS_lex_state(EXPR_FNAME | EXPR_DOT) }
 
+function ambiguous_operator (op, syn)
+{
+  warning("`"+op+"' after local variable is interpreted as binary operator");
+  warning("even though it seems like "+syn);
+}
+// very specific warning function :)
+function warn_balanced (op, syn, c)
+{
+    if
+    (
+      !IS_lex_state_for
+      (
+        lexer.last_state,
+        EXPR_CLASS | EXPR_DOT | EXPR_FNAME | EXPR_ENDFN | EXPR_ENDARG
+      )
+      && lexer.space_seen
+      && !ISSPACE(c)
+    )
+    {
+      ambiguous_operator(op, syn);
+    }
+}
 
 var STR_FUNC_ESCAPE = 0x01;
 var STR_FUNC_EXPAND = 0x02;
@@ -346,7 +381,7 @@ function arg_ambiguous ()
 this.yylex = function yylex ()
 {
   var c = '';
-  var space_seen = false;
+  lexer.space_seen = false;
   
   if (false) // TODO
   // if (lexer.strterm)
@@ -378,7 +413,7 @@ this.yylex = function yylex ()
   
   retry: for (;;)
   {
-  var last_state = lexer.state;
+  lexer.last_state = lexer.state;
   the_giant_switch:
   switch (c = nextc())
   {
@@ -398,7 +433,7 @@ this.yylex = function yylex ()
     case '\r': // TODO: cream on `\r` everywhere, or clear it out
     case '\v':    // '\13'
     {
-      space_seen = true;
+      lexer.space_seen = true;
       continue retry;
     }
     
@@ -423,7 +458,7 @@ this.yylex = function yylex ()
           case '\f':
           case '\r':
           case '\v':    // '\13'
-            space_seen = 1;
+            lexer.space_seen = true;
             break;
           case '.':
           {
@@ -473,7 +508,7 @@ this.yylex = function yylex ()
         }
         else
         {
-          // warn_balanced("**", "argument prefix"); TODO
+          warn_balanced("**", "argument prefix", c);
           token = tPOW;
         }
       }
@@ -497,7 +532,7 @@ this.yylex = function yylex ()
         }
         else
         {
-          // warn_balanced("*", "argument prefix"); TODO
+          warn_balanced("*", "argument prefix", c);
           token = $('*');
         }
       }
@@ -560,11 +595,11 @@ this.yylex = function yylex ()
     
     case '<':
     {
-      last_state = lexer.state;
+      lexer.last_state = lexer.state;
       c = nextc();
       if (c == '<' &&
           !IS_lex_state(EXPR_DOT | EXPR_CLASS) &&
-          !IS_END() && (!IS_ARG() || space_seen))
+          !IS_END() && (!IS_ARG() || lexer.space_seen))
       {
         var token = heredoc_identifier();
         if (token)
@@ -598,7 +633,7 @@ this.yylex = function yylex ()
           return tOP_ASGN;
         }
         pushback(c);
-        // warn_balanced("<<", "here document"); TODO
+        warn_balanced("<<", "here document", c);
         return tLSHFT;
       }
       pushback(c);
@@ -782,7 +817,7 @@ this.yylex = function yylex ()
       }
       else
       {
-        // warn_balanced("&", "argument prefix"); TODO
+        warn_balanced("&", "argument prefix", c);
         c = '&';
       }
       lexer.state = IS_AFTER_OPERATOR()? EXPR_ARG : EXPR_BEG;
@@ -846,7 +881,7 @@ this.yylex = function yylex ()
       }
       lexer.state = EXPR_BEG;
       pushback(c);
-      // warn_balanced("+", "unary operator"); TODO
+      warn_balanced("+", "unary operator", c);
       return $('+');
     }
     
@@ -886,7 +921,7 @@ this.yylex = function yylex ()
       }
       lexer.state = EXPR_BEG;
       pushback(c);
-      // warn_balanced("-", "unary operator"); TODO
+      warn_balanced("-", "unary operator", c);
       return '-';
     }
     
@@ -960,7 +995,7 @@ this.yylex = function yylex ()
       if (IS_END() || ISSPACE(c))
       {
         pushback(c);
-        // warn_balanced(":", "symbol literal"); TODO
+        warn_balanced(":", "symbol literal", c);
         lexer.state = EXPR_BEG;
         return $(':');
       }
@@ -978,6 +1013,31 @@ this.yylex = function yylex ()
       }
       lexer.state = EXPR_FNAME;
       return tSYMBEG;
+    }
+    
+    case '/':
+    {
+      if (IS_lex_state(EXPR_BEG_ANY))
+      {
+        lexer.strterm = NEW_STRTERM(str_regexp, '/', '');
+        return tREGEXP_BEG;
+      }
+      if ((c = nextc()) == '=')
+      {
+        // set_yylval_id('/'); TODO
+        lexer.state = EXPR_BEG;
+        return tOP_ASGN;
+      }
+      pushback(c);
+      if (IS_SPCARG(c))
+      {
+        arg_ambiguous();
+        lexer.strterm = NEW_STRTERM(str_regexp, '/', '');
+        return tREGEXP_BEG;
+      }
+      lexer.state = IS_AFTER_OPERATOR()? EXPR_ARG : EXPR_BEG;
+      warn_balanced("/", "regexp literal", c);
+      return $('/');
     }
     
     // add before here :)
