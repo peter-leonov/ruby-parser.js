@@ -18,15 +18,84 @@ lexer.command_start = false;
 lexer.cond_stack = 0;
 // have no idea TODO
 lexer.cmdarg_stack = 0;
+// controls level of nesting in `()` or `[]`
+lexer.paren_nest = 0;
+lexer.lpar_beg = 0;
+// controls level of nesting in `{}`
+lexer.brace_nest = 0;
+// controls the nesting of states of condition-ness and cmdarg-ness
+lexer.cond_stack = 0;
+lexer.cmdarg_stack = 0;
 
 
-// all lexer states had been moved to parse.y prologue
+// all lexer states codes had been moved to parse.y prologue
 
 // the shortcut for checking `lexer.state` over and over again
 function IS_lex_state (state)
 {
   return lexer.state & state
 }
+
+# define BITSTACK_PUSH(stack, n)	((stack) = ((stack)<<1)|((n)&1))
+# define BITSTACK_POP(stack)	((stack) = (stack) >> 1)
+# define BITSTACK_LEXPOP(stack)	((stack) = ((stack) >> 1) | ((stack) & 1))
+# define BITSTACK_SET_P(stack)	((stack)&1)
+
+// interface to lexer.cond_stack
+// void
+lexer.COND_PUSH = function (n)
+{
+  // was: BITSTACK_PUSH(cond_stack, n)
+  lexer.cond_stack = (lexer.cond_stack << 1) | (n & 1);
+}
+// void
+lexer.COND_POP = function ()
+{
+  // was: BITSTACK_POP(cond_stack)
+  lexer.cond_stack >>= 1;
+}
+// void
+lexer.COND_LEXPOP = function ()
+{
+  // was: BITSTACK_LEXPOP(cond_stack)
+  var stack = lexer.cond_stack;
+  lexer.cond_stack = (stack >> 1) | (stack & 1);
+}
+// int
+lexer.COND_P = function ()
+{
+  // was: BITSTACK_SET_P(cond_stack)
+  return lexer.cond_stack & 1;
+}
+
+// interface to lexer.cmdarg_stack
+// void
+lexer.CMDARG_PUSH = function (n)
+{
+  // was: BITSTACK_PUSH(cmdarg_stack, n)
+  lexer.cmdarg_stack = (lexer.cmdarg_stack << 1) | (n & 1);
+}
+// void
+lexer.CMDARG_POP = function ()
+{
+  // was: BITSTACK_POP(cmdarg_stack)
+  lexer.cmdarg_stack >>= 1;
+}
+// void
+lexer.CMDARG_LEXPOP = function ()
+{
+  // was: BITSTACK_LEXPOP(cmdarg_stack)
+  var stack = lexer.cmdarg_stack;
+  lexer.cmdarg_stack = (stack >> 1) | (stack & 1);
+}
+// int
+lexer.CMDARG_P = function ()
+{
+  // was: BITSTACK_SET_P(cmdarg_stack)
+  return lexer.cmdarg_stack & 1;
+}
+
+
 
 // few more shortcuts
 function IS_ARG () { return lexer.state & EXPR_ARG_ANY }
@@ -341,9 +410,7 @@ this.yylex = function yylex ()
     }
     case '\n':
     {
-      if (IS_lex_state(
-          EXPR_BEG | EXPR_VALUE | EXPR_CLASS | EXPR_FNAME | EXPR_DOT
-      ))
+      if (IS_lex_state(EXPR_BEG | EXPR_VALUE | EXPR_CLASS | EXPR_FNAME | EXPR_DOT))
       {
         continue retry;
       }
@@ -856,6 +923,25 @@ this.yylex = function yylex ()
     case '9':
     {
       return start_num(c);
+    }
+    
+    case ')':
+    case ']':
+      lexer.paren_nest--;
+    case '}':
+    {
+      lexer.COND_LEXPOP();
+      lexer.CMDARG_LEXPOP();
+      if (c == ')')
+        lexer.state = EXPR_ENDFN;
+      else
+        lexer.state = EXPR_ENDARG;
+      if (c == '}')
+      {
+        if (!lexer.brace_nest--)
+          c = tSTRING_DEND;
+      }
+      return c;
     }
     
     // add before here :)

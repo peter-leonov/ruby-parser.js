@@ -837,11 +837,14 @@ call_args	: command
 
 command_args
   :
-    {}
+    {
+      $<val>$ = yylexer.cmdarg_stack;
+      yylexer.CMDARG_PUSH(1);
+    }
     call_args
     {
-      // touching this alters the parse.output
-      $<val>1;
+      // CMDARG_POP()
+      yylexer.cmdarg_stack = $<val>1;
     }
   ;
 
@@ -886,10 +889,14 @@ primary		: literal
 		| tFID
 		    {}
 		| k_begin
-		    {}
+		    {
+		      $<val>1 = yylexer.cmdarg_stack;
+		      yylexer.cmdarg_stack = 0;
+		    }
 		  bodystmt
 		  k_end
 		    {
+		      yylexer.cmdarg_stack = $<val>1;
 		      // touching this alters the parse.output
           $<num>2;
 		    }
@@ -1232,12 +1239,15 @@ bvar		: tIDENTIFIER
 		;
 
 lambda		:   {}
-		    {}
+		    {
+		      $<num>$ = yylexer.lpar_beg;
+		      yylexer.lpar_beg = ++yylexer.paren_nest;
+		    }
 		  f_larglist
 		  lambda_body
 		    {
+          yylexer.lpar_beg = $<num>2;
           // touching this alters the parse.output
-          $<num>2;
           $<vars>1;
 		    }
 		;
@@ -1481,6 +1491,10 @@ string_content	: tSTRING_CONTENT
 		    }
 		| tSTRING_DBEG
 		    {
+          $<val>1 = yylexer.cond_stack;
+          $<val>$ = yylexer.cmdarg_stack;
+          yylexer.cond_stack = 0;
+          yylexer.cmdarg_stack = 0;
 		    }
 		    {
 			$<node>$ = yylexer.strterm;
@@ -1493,10 +1507,10 @@ string_content	: tSTRING_CONTENT
 		    }
 		  compstmt tSTRING_DEND
 		    {
-			yylexer.cond_stack = $<val>1;
-			yylexer.cmdarg_stack = $<val>2;
-			yylexer.strterm = $<node>3;
-			yylexer.brace_nest = $<num>4;
+          yylexer.cond_stack = $<val>1;
+          yylexer.cmdarg_stack = $<val>2;
+          yylexer.strterm = $<node>3;
+          yylexer.brace_nest = $<num>4;
 		    }
 		;
 
