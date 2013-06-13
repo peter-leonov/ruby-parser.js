@@ -143,7 +143,7 @@ var yyerror;
 program
   :
     {
-      yylexer.state = EXPR_BEG;
+      yylexer.lex_state = EXPR_BEG;
     }
     top_compstmt
     {}
@@ -227,7 +227,7 @@ stmt
   :
     keyword_alias fitem
     {
-      yylexer.state = EXPR_FNAME;
+      yylexer.lex_state = EXPR_FNAME;
     }
     fitem
     {}
@@ -568,12 +568,12 @@ fname
   |
     op
     {
-      yylexer.state = EXPR_ENDFN;
+      yylexer.lex_state = EXPR_ENDFN;
     }
   |
     reswords
     {
-      yylexer.state = EXPR_ENDFN;
+      yylexer.lex_state = EXPR_ENDFN;
     }
   ;
 
@@ -599,7 +599,7 @@ undef_list
   |
     undef_list ','
     {
-      yylexer.state = EXPR_FNAME;
+      yylexer.lex_state = EXPR_FNAME;
     }
     fitem
     {}
@@ -902,13 +902,13 @@ primary		: literal
 		    }
 		| tLPAREN_ARG
 		{
-		  yylexer.state = EXPR_ENDARG;
+		  yylexer.lex_state = EXPR_ENDARG;
 		}
 		rparen
 		    {}
 		| tLPAREN_ARG expr
 		{
-		  yylexer.state = EXPR_ENDARG;
+		  yylexer.lex_state = EXPR_ENDARG;
 		}
 		rparen
 		    {}
@@ -1032,11 +1032,11 @@ primary		: literal
   |
     k_def singleton dot_or_colon
     {
-      yylexer.state = EXPR_FNAME;
+      yylexer.lex_state = EXPR_FNAME;
     }
     fname
     {
-      yylexer.state = EXPR_ENDFN; /* force for args */
+      yylexer.lex_state = EXPR_ENDFN; /* force for args */
     }
     f_arglist
     bodystmt
@@ -1482,7 +1482,7 @@ string_content	: tSTRING_CONTENT
 		    {
 			$<node>$ = yylexer.strterm;
 			yylexer.strterm = 0;
-			yylexer.state = EXPR_BEG;
+			yylexer.lex_state = EXPR_BEG;
 		    }
 		  string_dvar
 		    {
@@ -1499,7 +1499,7 @@ string_content	: tSTRING_CONTENT
 		    {
 			$<node>$ = yylexer.strterm;
 			yylexer.strterm = null;
-			yylexer.state = EXPR_BEG;
+			yylexer.lex_state = EXPR_BEG;
 		    }
 		    {
 			$<num>$ = yylexer.brace_nest;
@@ -1525,7 +1525,7 @@ string_dvar	: tGVAR
 
 symbol		: tSYMBEG sym
 		    {
-			yylexer.state = EXPR_END;
+			yylexer.lex_state = EXPR_END;
 		    }
 		;
 
@@ -1537,7 +1537,7 @@ sym		: fname
 
 dsym		: tSYMBEG xstring_contents tSTRING_END
 		    {
-			yylexer.state = EXPR_END;
+			yylexer.lex_state = EXPR_END;
 		    }
 		;
 
@@ -1588,7 +1588,7 @@ superclass	: term
 		    {}
 		| '<'
 		    {
-			yylexer.state = EXPR_BEG;
+			yylexer.lex_state = EXPR_BEG;
 			yylexer.command_start = TRUE;
 		    }
 		  expr_value term
@@ -1599,12 +1599,12 @@ superclass	: term
 
 f_arglist	: '(' f_args rparen
 		    {
-			yylexer.state = EXPR_BEG;
+			yylexer.lex_state = EXPR_BEG;
 			yylexer.command_start = TRUE;
 		    }
 		| f_args term
 		    {
-			yylexer.state = EXPR_BEG;
+			yylexer.lex_state = EXPR_BEG;
 			yylexer.command_start = TRUE;
 		    }
 		;
@@ -1762,7 +1762,7 @@ singleton	: var_ref
 		    {}
 		| '('
 		{
-		  yylexer.state = EXPR_BEG;
+		  yylexer.lex_state = EXPR_BEG;
 		}
 		expr rparen
 		    {}
