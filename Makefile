@@ -9,5 +9,10 @@ diff: build
 	git diff -- parse.js.output
 
 # just run the parser, it knows how to test itself
+# add --use_strict to enshure the whole script is under protection :)
 test: build
-	v8 parse.js
+	v8 --use_strict parse.js
+
+# profile with d8
+prof: build
+	d8 --prof parse.js
