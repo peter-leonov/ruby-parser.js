@@ -74,6 +74,13 @@ b4_copyright([Skeleton implementation for Bison LALR(1) parsers in JavaScript], 
 [
 ;(function(){ // start of the parser namespase
 /* First part of user declarations.  */
+
+// Tokens.
+// Token numbers, to be returned by the scanner.
+var
+]b4_token_enums(b4_tokens)[;
+
+
 ]b4_pre_prologue[
 
 /**
@@ -903,11 +910,6 @@ YYParser.bisonVersion = "]b4_version[";
 YYParser.bisonSkeleton = ]b4_skeleton[;
 
 ;(function(){ // epilogue namespace
-
-// Tokens.
-// Token numbers, to be returned by the scanner.
-var
-]b4_token_enums(b4_tokens)[;
 
 ]b4_epilogue[
 
