@@ -55,7 +55,9 @@ m4_define([b4_lhs_value], [yyval])
 
 # b4_rhs_value(RULE-LENGTH, NUM)
 # $N
-m4_define([b4_rhs_value], [(yystack.valueAt($1-($2)))])
+# TODO: optimize access to the N-th stack element
+# m4_define([b4_rhs_value], [(yystack.valueAt($1-($2)))])
+m4_define([b4_rhs_value], [[yystack.valueStack[yystack.valueStack.length-1-(($1-($2)))]]])
 
 
 # b4_rhs_location(RULE-LENGTH, NUM)
@@ -112,9 +114,9 @@ Location.prototype.toString = function () {
 
 function YYStack ()
 {
-  var stateStack = [];
-  var locStack = [];
-  var valueStack = [];
+  var stateStack = this.stateStack = [];
+  var locStack = this.locStack = [];
+  var valueStack = this.valueStack = [];
 
   this.push = function push (state, value, location)
   {
