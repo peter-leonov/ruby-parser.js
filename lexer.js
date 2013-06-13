@@ -1040,6 +1040,127 @@ this.yylex = function yylex ()
       return $('/');
     }
     
+    case '^':
+    {
+      if ((c = nextc()) == '=')
+      {
+        // set_yylval_id('^'); TODO
+        lexer.state = EXPR_BEG;
+        return tOP_ASGN;
+      }
+      lexer.state = IS_AFTER_OPERATOR()? EXPR_ARG : EXPR_BEG;
+      pushback(c);
+      return $('^');
+    }
+    
+    case ';':
+    {
+      lexer.state = EXPR_BEG;
+      lexer.command_start = true;
+      return $(';');
+    }
+    
+    case ',':
+    {
+      lexer.state = EXPR_BEG;
+      return $(',');
+    }
+    
+    case '~':
+    {
+      if (IS_AFTER_OPERATOR())
+      {
+        if ((c = nextc()) != '@')
+        {
+          pushback(c);
+        }
+        lexer.state = EXPR_ARG;
+      }
+      else
+      {
+        lexer.state = EXPR_BEG;
+      }
+      return $('~');
+    }
+    
+    case '(':
+    {
+      var t = $(c);
+      if (IS_BEG())
+      {
+        t = tLPAREN;
+      }
+      else if (IS_SPCARG(''))
+      {
+        t = tLPAREN_ARG;
+      }
+      lexer.paren_nest++;
+      lexer.COND_PUSH(0);
+      lexer.CMDARG_PUSH(0);
+      lexer.state = EXPR_BEG;
+      return t;
+    }
+    
+    case '[':
+    {
+      var t = $(c);
+      lexer.paren_nest++;
+      if (IS_AFTER_OPERATOR())
+      {
+        lexer.state = EXPR_ARG;
+        if ((c = nextc()) == ']')
+        {
+          if ((c = nextc()) == '=')
+          {
+            return tASET;
+          }
+          pushback(c);
+          return tAREF;
+        }
+        pushback(c);
+        return $('[');
+      }
+      else if (IS_BEG())
+      {
+        t = tLBRACK;
+      }
+      else if (IS_ARG() && lexer.space_seen)
+      {
+        t = tLBRACK;
+      }
+      lexer.state = EXPR_BEG;
+      lexer.COND_PUSH(0);
+      lexer.CMDARG_PUSH(0);
+      return t;
+    }
+    
+    case '{':
+    {
+      var t = $(c);
+      ++lexer.brace_nest;
+      if (lexer.lpar_beg && lexer.lpar_beg == lexer.paren_nest)
+      {
+        lexer.state = EXPR_BEG;
+        lexer.lpar_beg = 0;
+        --lexer.paren_nest;
+        lexer.COND_PUSH(0);
+        lexer.CMDARG_PUSH(0);
+        return tLAMBEG;
+      }
+      if (IS_ARG() || IS_lex_state(EXPR_END | EXPR_ENDFN))
+        t = $('{');                /* block (primary) */
+      else if (IS_lex_state(EXPR_ENDARG))
+        t = tLBRACE_ARG;        /* block (expr) */
+      else
+        t = tLBRACE;            /* hash */
+      lexer.COND_PUSH(0);
+      lexer.CMDARG_PUSH(0);
+      lexer.state = EXPR_BEG;
+      if (t != tLBRACE)
+        lexer.command_start = true;
+      return t;
+    }
+    
     // add before here :)
     
     default:
