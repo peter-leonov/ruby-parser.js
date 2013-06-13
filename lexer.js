@@ -466,7 +466,7 @@ this.yylex = function yylex ()
             {
               pushback(c);
               pushback('.');
-              continue retry;
+              continue retry; // was: goto retry;
             }
           }
           default:
@@ -1159,6 +1159,19 @@ this.yylex = function yylex ()
       if (t != tLBRACE)
         lexer.command_start = true;
       return t;
+    }
+    
+    case '\\':
+    {
+      c = nextc();
+      if (c == '\n')
+      {
+        lexer.space_seen = true;
+        // skip \\n
+        continue retry; // was: goto retry;
+      }
+      pushback(c);
+      return $('\\');
     }
     
     // add before here :)
