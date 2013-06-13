@@ -691,6 +691,7 @@ function YYParser (yylexer)
   ];
 
   // YYRLINE[YYN] -- Source line where rule number YYN was defined.
+  // TODO: hide this table under #if DEBUG
   var yyrline_ = this.yyrline_ =
   [
     //]]
