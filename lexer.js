@@ -944,6 +944,42 @@ this.yylex = function yylex ()
       return c;
     }
     
+    case ':':
+    {
+      c = nextc();
+      if (c == ':')
+      {
+        if (IS_BEG() || IS_lex_state(EXPR_CLASS) || IS_SPCARG(''))
+        {
+          lexer.state = EXPR_BEG;
+          return tCOLON3;
+        }
+        lexer.state = EXPR_DOT;
+        return tCOLON2;
+      }
+      if (IS_END() || ISSPACE(c))
+      {
+        pushback(c);
+        // warn_balanced(":", "symbol literal"); TODO
+        lexer.state = EXPR_BEG;
+        return $(':');
+      }
+      switch (c)
+      {
+        case '\'':
+          lexer.strterm = NEW_STRTERM(str_ssym, c, '');
+          break;
+        case '"':
+          lexer.strterm = NEW_STRTERM(str_dsym, c, '');
+          break;
+        default:
+          pushback(c);
+          break;
+      }
+      lexer.state = EXPR_FNAME;
+      return tSYMBEG;
+    }
+    
     // add before here :)
     
     default:
