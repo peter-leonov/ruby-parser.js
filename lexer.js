@@ -392,6 +392,10 @@ function ISDIGIT (c)
 {
   return /^\d$/.test(c);
 }
+function ISALNUM (c)
+{
+  return /^\w$/.test(c);
+}
 
 // TODO: get rid of such a piece of junk :)
 function arg_ambiguous ()
@@ -1201,6 +1205,138 @@ this.yylex = function yylex ()
       }
       pushback(c);
       return $('\\');
+    }
+    
+    case '%':
+    {
+      var term = '';
+      var paren = '';
+      
+      quotation:
+      for (;;) // a label
+      {
+        // this label enulating loop expects the lex_state
+        // to be constant within its boudaries
+        if (IS_lex_state(EXPR_BEG_ANY))
+        {
+          c = nextc();
+          // was: quotation:
+          if (c == '' || !ISALNUM(c))
+          {
+            term = c;
+            c = 'Q';
+          }
+          else
+          {
+            term = nextc();
+            if (ISALNUM(term) || !ISASCII(term))
+            {
+              yyerror("unknown type of %string");
+              return 0;
+            }
+          }
+          if (c == '' || term == '')
+          {
+            compile_error("unterminated quoted string meets end of file");
+            return 0;
+          }
+          paren = term;
+          if (term == '(')
+            term = ')';
+          else if (term == '[')
+            term = ']';
+          else if (term == '{')
+            term = '}';
+          else if (term == '<')
+            term = '>';
+          else
+            paren = '';
+
+          switch (c)
+          {
+            case 'Q':
+              lexer.lex_strterm = NEW_STRTERM(str_dquote, term, paren);
+              return tSTRING_BEG;
+
+            case 'q':
+              lexer.lex_strterm = NEW_STRTERM(str_squote, term, paren);
+              return tSTRING_BEG;
+
+            case 'W':
+              lexer.lex_strterm = NEW_STRTERM(str_dword, term, paren);
+              do
+              {
+                c = nextc();
+              }
+              while (ISSPACE(c));
+              pushback(c);
+              return tWORDS_BEG;
+
+            case 'w':
+              lexer.lex_strterm = NEW_STRTERM(str_sword, term, paren);
+              do
+              {
+                c = nextc();
+              }
+              while (ISSPACE(c));
+              pushback(c);
+              return tQWORDS_BEG;
+
+            case 'I':
+              lexer.lex_strterm = NEW_STRTERM(str_dword, term, paren);
+              do
+              {
+                c = nextc();
+              }
+              while (ISSPACE(c));
+              pushback(c);
+              return tSYMBOLS_BEG;
+
+            case 'i':
+              lexer.lex_strterm = NEW_STRTERM(str_sword, term, paren);
+              do
+              {
+                c = nextc();
+              }
+              while (ISSPACE(c));
+              pushback(c);
+              return tQSYMBOLS_BEG;
+
+            case 'x':
+              lexer.lex_strterm = NEW_STRTERM(str_xquote, term, paren);
+              return tXSTRING_BEG;
+
+            case 'r':
+              lexer.lex_strterm = NEW_STRTERM(str_regexp, term, paren);
+              return tREGEXP_BEG;
+
+            case 's':
+              lexer.lex_strterm = NEW_STRTERM(str_ssym, term, paren);
+              lexer.lex_state = EXPR_FNAME;
+              return tSYMBEG;
+
+            default:
+              yyerror("unknown type of %string");
+              return 0;
+          }
+        }
+        if ((c = nextc()) == '=')
+        {
+          // set_yylval_id('%'); TODO
+          lexer.lex_state = EXPR_BEG;
+          return tOP_ASGN;
+        }
+        if (IS_SPCARG(c))
+        {
+          pushback(c); // added to jump to top
+          continue quotation; // was: goto quotation;
+        }
+        break; // the for (;;) label-loop
+      } // for (;;) quotation
+      lexer.lex_state = IS_AFTER_OPERATOR()? EXPR_ARG : EXPR_BEG;
+      pushback(c);
+      warn_balanced("%%", "string literal", c);
+      return $('%');
     }
     
     // add before here :)
