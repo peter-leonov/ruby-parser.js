@@ -11,7 +11,7 @@ diff: build
 # just run the parser, it knows how to test itself
 # add --use_strict to enshure the whole script is under protection :)
 test: build
-	v8 --use_strict runner-console.js
+	d8 --use_strict runner-console.js
 
 # profile with d8
 prof: build
