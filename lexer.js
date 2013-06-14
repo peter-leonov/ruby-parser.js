@@ -1865,15 +1865,20 @@ var rb_reserved_word =
 'yield': {id0: keyword_yield, id1: keyword_yield, state: EXPR_ARG}
 };
 
+lexer.debugPosition = function ()
+{
+  return (
+    $stream.substring($pos - 25, $pos) +
+    '>>here<<' +
+    $stream.substring($pos, $pos + 25)
+  );
+}
+
 function debug (msg)
 {
   puts('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
   puts(msg)
-  puts(
-    $stream.substring($pos - 25, $pos) +
-    '>>here<<' +
-    $stream.substring($pos, $pos + 25)
-  )
+  puts(lexer.debugPosition())
   puts('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
 }
 function warning (msg) { debug('WARNING: ' + msg) }

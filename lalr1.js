@@ -170,6 +170,9 @@ function YYStack ()
 // Instantiates the Bison-generated parser.
 function YYParser (yylexer)
 {
+  // self
+  var yyparser = this;
+  
   // The scanner that will supply tokens to the parser.
   this.yylexer = yylexer;
 
@@ -450,7 +453,8 @@ function YYParser (yylexer)
           ++yynerrs_;
           if (yychar == yyempty_)
             yytoken = yyempty_;
-          this.yyerror(yylloc, this.yysyntax_error(yystate, yytoken));
+          // this.yyerror(yylloc, this.yysyntax_error(yystate, yytoken));
+          yyerror(this.yysyntax_error(yystate, yytoken));
         }
 
         yyerrloc = yylloc;
@@ -722,10 +726,10 @@ function YYParser (yylexer)
 // rare used functions
 YYParser.prototype =
 {
-  yyerror: function yyerror (location, message)
-  {
-    this.yylexer.yyerror(location, message);
-  },
+  // yyerror: function yyerror (location, message)
+  // {
+  //   this.yylexer.yyerror(location, message);
+  // },
   
   // Report on the debug stream that the rule yyrule is going to be reduced.
   debug_reduce_print: function debug_reduce_print (yyrule)
