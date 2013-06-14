@@ -4,7 +4,7 @@ build:
 	bison -l -r all -o parse.js.src parse.y
 	cpp -E -CC -P parse.js.src > parse.js
 
-# check the parser state machine been touched
+# check if the parser state machine been touched
 diff: build
 	git diff -- parse.js.output
 
@@ -16,3 +16,8 @@ test: build
 # profile with d8
 prof: build
 	d8 --prof --use_strict runner-console.js
+
+# convert the original parse.y to readable form
+# DISFUNCTIONAL
+original:
+	gindent -nut -bl -bli0 -cli2 -npcs ruby20parse.lexer.y -o ruby20parse.lexer.pretty.y
