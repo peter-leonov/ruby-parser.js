@@ -35,6 +35,8 @@ lexer.cmdarg_stack = 0;
 lexer.in_single = 0;
 // are we in def …
 lexer.in_def = 0;
+// current method id/name (while in def …)
+lexer.cur_mid = '';
 // defined? … has its own roles of lexing
 lexer.in_defined = false;
 // TODO: check out list of stateful variables with the original

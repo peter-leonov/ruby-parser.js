@@ -1055,6 +1055,9 @@ primary		: literal
 		    }
 		| k_def fname
 		    {
+		      $<id>$ = yylexer.cur_mid; // TODO
+    			yylexer.cur_mid = $2;
+    			
 		      yylexer.in_def++;
 		    }
 		  f_arglist
@@ -1064,7 +1067,7 @@ primary		: literal
 		      // touching this alters the parse.output
 			    $<num>1;
 			    yylexer.in_def--;
-			    $<id>3;
+			    yylexer.cur_mid = $<id>3;
 		    }
   |
     k_def singleton dot_or_colon
