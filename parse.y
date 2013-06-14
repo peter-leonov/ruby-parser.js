@@ -1252,7 +1252,7 @@ block_param	: f_arg ',' f_block_optarg ',' f_rest_arg opt_block_args_tail
 opt_block_param	: none
 		| block_param_def
 		    {
-			yylexer.command_start = TRUE;
+			yylexer.command_start = true;
 		    }
 		;
 
@@ -1632,7 +1632,7 @@ superclass	: term
 		| '<'
 		    {
 			yylexer.lex_state = EXPR_BEG;
-			yylexer.command_start = TRUE;
+			yylexer.command_start = true;
 		    }
 		  expr_value term
 		    {}
@@ -1645,12 +1645,12 @@ superclass	: term
 f_arglist	: '(' f_args rparen
 		    {
 			yylexer.lex_state = EXPR_BEG;
-			yylexer.command_start = TRUE;
+			yylexer.command_start = true;
 		    }
 		| f_args term
 		    {
 			yylexer.lex_state = EXPR_BEG;
-			yylexer.command_start = TRUE;
+			yylexer.command_start = true;
 		    }
 		;
 
