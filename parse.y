@@ -1523,14 +1523,14 @@ regexp_contents: /* none */
 string_content	: tSTRING_CONTENT
 		| tSTRING_DVAR
 		    {
-			$<node>$ = yylexer.strterm;
-			yylexer.strterm = 0;
+			$<node>$ = yylexer.lex_strterm;
+			yylexer.lex_strterm = null;
 			yylexer.lex_state = EXPR_BEG;
 		    }
 		  string_dvar
 		    {
 		    /*%%%*/
-			yylexer.strterm = $<node>2;
+			yylexer.lex_strterm = $<node>2;
 		    }
 		| tSTRING_DBEG
 		    {
@@ -1540,8 +1540,8 @@ string_content	: tSTRING_CONTENT
           yylexer.cmdarg_stack = 0;
 		    }
 		    {
-			$<node>$ = yylexer.strterm;
-			yylexer.strterm = null;
+			$<node>$ = yylexer.lex_strterm;
+			yylexer.lex_strterm = null;
 			yylexer.lex_state = EXPR_BEG;
 		    }
 		    {
@@ -1552,7 +1552,7 @@ string_content	: tSTRING_CONTENT
 		    {
           yylexer.cond_stack = $<val>1;
           yylexer.cmdarg_stack = $<val>2;
-          yylexer.strterm = $<node>3;
+          yylexer.lex_strterm = $<node>3;
           yylexer.brace_nest = $<num>4;
 		    }
 		;

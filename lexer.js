@@ -9,7 +9,7 @@ var lexer = this;
 // the end of stream had been reached
 lexer.eofp = false;
 // the string to be parsed in the nex lex() call
-lexer.strterm = null;
+lexer.lex_strterm = null;
 // the main point of interaction with the parser out there
 lexer.lex_state = 0;
 // to store the main state
@@ -411,24 +411,24 @@ this.yylex = function yylex ()
   lexer.space_seen = false;
   
   if (false) // TODO
-  // if (lexer.strterm)
+  // if (lexer.lex_strterm)
   {
     var token = 0;
-    if (lexer.strterm.type == 'NODE_HEREDOC')
+    if (lexer.lex_strterm.type == 'NODE_HEREDOC')
     {
-      token = here_document(lexer.strterm);
+      token = here_document(lexer.lex_strterm);
       if (token == tSTRING_END)
       {
-        lexer.strterm = null;
+        lexer.lex_strterm = null;
         lexer.lex_state = EXPR_END;
       }
     }
     else
     {
-      token = parse_string(lexer.strterm);
+      token = parse_string(lexer.lex_strterm);
       if (token == tSTRING_END || token == tREGEXP_END)
       {
-        lexer.strterm = null;
+        lexer.lex_strterm = null;
         lex_state = EXPR_END;
       }
     }
@@ -691,7 +691,7 @@ this.yylex = function yylex ()
     
     case '"':
     {
-      lexer.strterm = NEW_STRTERM(str_dquote, '"', '')
+      lexer.lex_strterm = NEW_STRTERM(str_dquote, '"', '')
       return tSTRING_BEG;
     }
     
@@ -710,13 +710,13 @@ this.yylex = function yylex ()
           lexer.lex_state = EXPR_ARG;
         return $(c);
       }
-      lexer.strterm = NEW_STRTERM(str_xquote, '`', '');
+      lexer.lex_strterm = NEW_STRTERM(str_xquote, '`', '');
       return tXSTRING_BEG;
     }
     
     case '\'':
     {
-      lexer.strterm = NEW_STRTERM(str_squote, '\'', '');
+      lexer.lex_strterm = NEW_STRTERM(str_squote, '\'', '');
       return tSTRING_BEG;
     }
     
@@ -1031,10 +1031,10 @@ this.yylex = function yylex ()
       switch (c)
       {
         case '\'':
-          lexer.strterm = NEW_STRTERM(str_ssym, c, '');
+          lexer.lex_strterm = NEW_STRTERM(str_ssym, c, '');
           break;
         case '"':
-          lexer.strterm = NEW_STRTERM(str_dsym, c, '');
+          lexer.lex_strterm = NEW_STRTERM(str_dsym, c, '');
           break;
         default:
           pushback(c);
@@ -1048,7 +1048,7 @@ this.yylex = function yylex ()
     {
       if (IS_lex_state(EXPR_BEG_ANY))
       {
-        lexer.strterm = NEW_STRTERM(str_regexp, '/', '');
+        lexer.lex_strterm = NEW_STRTERM(str_regexp, '/', '');
         return tREGEXP_BEG;
       }
       if ((c = nextc()) == '=')
@@ -1061,7 +1061,7 @@ this.yylex = function yylex ()
       if (IS_SPCARG(c))
       {
         arg_ambiguous();
-        lexer.strterm = NEW_STRTERM(str_regexp, '/', '');
+        lexer.lex_strterm = NEW_STRTERM(str_regexp, '/', '');
         return tREGEXP_BEG;
       }
       lexer.lex_state = IS_AFTER_OPERATOR()? EXPR_ARG : EXPR_BEG;
@@ -1458,7 +1458,7 @@ function heredoc_identifier ()
 
   tokfix();
   lex_goto_eol();
-  lexer.strterm = NEW_HEREDOCTERM(func, tok());
+  lexer.lex_strterm = NEW_HEREDOCTERM(func, tok());
   return term == '`' ? tXSTRING_BEG : tSTRING_BEG;
 }
 
@@ -1467,18 +1467,18 @@ function here_document_error (eos)
   // was: error:
     compile_error("can't find string \""+eos+"\" anywhere before EOF");
   // was: restore:
-    heredoc_restore(lexer.strterm);
-    lexer.strterm = null;
+    heredoc_restore(lexer.lex_strterm);
+    lexer.lex_strterm = null;
     return 0;
 }
 function here_document (here)
 {
   // instead of repeating the work just check the flag
-  if (lexer.strterm.heredoc_end_found_last_time)
+  if (lexer.lex_strterm.heredoc_end_found_last_time)
   {
     // was: dispatch_heredoc_end(); a noop out of ripper
-    heredoc_restore(lexer.strterm);
-    return tSTRING_END; // will erase `lexer.strterm`
+    heredoc_restore(lexer.lex_strterm);
+    return tSTRING_END; // will erase `lexer.lex_strterm`
   }
 
   // we're at the heredoc content start
@@ -1511,8 +1511,8 @@ function here_document (here)
         if (match_end !== -1)
         {
           end = $pos;
-          lexer.strterm.heredoc_end_found_last_time = true;
-          lexer.strterm.pos_after_eos = match_end;
+          lexer.lex_strterm.heredoc_end_found_last_time = true;
+          lexer.lex_strterm.pos_after_eos = match_end;
           break scaning; // the heredoc body
         }
         continue scaning; // the heredoc body
@@ -1562,7 +1562,7 @@ function here_document (here)
   //   str = STR_NEW3(tok(), toklen(), enc, func);
   // }
   // was: dispatch_heredoc_end(); a noop out of ripper
-  heredoc_restore(lexer.strterm);
+  heredoc_restore(lexer.lex_strterm);
   // lex_strterm = NEW_STRTERM(-1, 0, 0);
   // set_yylval_str(str); TODO:
   return tSTRING_CONTENT;
