@@ -1594,7 +1594,9 @@ superclass	: term
 		  expr_value term
 		    {}
 		| error term
-		    {}
+		    {
+		      yyerrok();
+		    }
 		;
 
 f_arglist	: '(' f_args rparen
