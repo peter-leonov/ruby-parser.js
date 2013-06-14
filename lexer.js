@@ -357,8 +357,8 @@ function NEW_STRTERM (func, term, paren)
 {
   return {
     type: 'NODE_STRTERM',
-    func: func,
-    tok: term,
+    nd_func: func,
+    term: term,
     paren: paren,
     pos_after_eos: 0, // to be calculated in `here_document()`
     heredoc_end_found_last_time: false,
@@ -370,7 +370,7 @@ function NEW_HEREDOCTERM (func, term)
 {
   return {
     type: 'NODE_HEREDOC',
-    func: func,
+    nd_func: func,
     tok: term,
     paren: '',
     pos_after_eos: 0, // to be calculated in `here_document()`
@@ -414,8 +414,7 @@ this.yylex = function yylex ()
   var c = '';
   lexer.space_seen = false;
   
-  if (false) // TODO
-  // if (lexer.lex_strterm)
+  if (lexer.lex_strterm)
   {
     var token = 0;
     if (lexer.lex_strterm.type == 'NODE_HEREDOC')
@@ -433,7 +432,7 @@ this.yylex = function yylex ()
       if (token == tSTRING_END || token == tREGEXP_END)
       {
         lexer.lex_strterm = null;
-        lex_state = EXPR_END;
+        lexer.lex_state = EXPR_END;
       }
     }
     return token;
@@ -1618,8 +1617,8 @@ function here_document (here)
   }
 
   // we're at the heredoc content start
-  var func = here.func,
-      eos  = here.tok,
+  var func = here.nd_func,
+      eos  = here.term,
       indent = func & STR_FUNC_INDENT;
 
   var c = ''
@@ -1703,6 +1702,85 @@ function here_document (here)
   // set_yylval_str(str); TODO:
   return tSTRING_CONTENT;
 }
+
+function parse_string (quote)
+{
+  // we're at the heredoc content start
+  var func = quote.nd_func,
+      term = quote.term,
+      paren = quote.term;
+  debug(func, term, paren)
+  var space = false;
+
+  if (func == -1)
+    return tSTRING_END;
+  var c = nextc();
+  if ((func & STR_FUNC_QWORDS) && ISSPACE(c))
+  {
+    do
+    {
+      c = nextc();
+    }
+    while (ISSPACE(c));
+    space = true;
+  }
+  if (c == term && !quote.nd_nest)
+  {
+    if (func & STR_FUNC_QWORDS)
+    {
+      quote.nd_func = -1;
+      return $(' ');
+    }
+    if (!(func & STR_FUNC_REGEXP))
+      return tSTRING_END;
+    set_yylval_num(regx_options());
+    return tREGEXP_END;
+  }
+  if (space)
+  {
+    pushback(c);
+    return $(' ');
+  }
+  newtok();
+  if ((func & STR_FUNC_EXPAND) && c == '#')
+  {
+    switch (c = nextc())
+    {
+      case '$':
+      case '@':
+        pushback(c);
+        return tSTRING_DVAR;
+      case '{':
+        lexer.command_start = true;
+        return tSTRING_DBEG;
+    }
+    tokadd('#');
+  }
+  pushback(c);
+  // if (tokadd_string(func, term, paren, &quote->nd_nest, &enc) == '')
+  if (tokadd_string(func, term, paren, quote) == '')
+  {
+    // ruby_sourceline = nd_line(quote); TODO
+    if (func & STR_FUNC_REGEXP)
+    {
+      if (lexer.eofp)
+        compile_error("unterminated regexp meets end of file");
+      return tREGEXP_END;
+    }
+    else
+    {
+      if (lexer.eofp)
+        compile_error("unterminated string meets end of file");
+      return tSTRING_END;
+    }
+  }
+
+  tokfix();
+  // set_yylval_str(STR_NEW3(tok(), toklen(), enc, func)); TODO
+
+  return tSTRING_CONTENT;
+}
+
 
 // checks if the current line matches `/\s*#{eos}\n/`;
 // `pos` tell us when the start point is:
@@ -2020,10 +2098,10 @@ lexer.debugPosition = function ()
   );
 }
 
-function debug (msg)
+function debug ()
 {
   puts('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-  puts(msg)
+  puts.apply(null, arguments)
   puts(lexer.debugPosition())
   puts('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
 }
