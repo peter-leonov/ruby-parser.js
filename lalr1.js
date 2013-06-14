@@ -61,7 +61,7 @@ m4_define([b4_rhs_value], [[yystack.valueStack[yystack.valueStack.length-1-(($1-
 
 
 # b4_rhs_location(RULE-LENGTH, NUM)
-# Expansion of @NUM, where the current rule has RULE-LENGTH symbols on RHS.
+# Expansion of NUM, where the current rule has RULE-LENGTH symbols on RHS.
 m4_define([b4_rhs_location], [yystack.locationAt($1-($2))])
 
 
