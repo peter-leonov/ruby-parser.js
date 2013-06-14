@@ -74,7 +74,7 @@ b4_copyright([Skeleton implementation for Bison LALR(1) parsers in JavaScript], 
 
 
 [
-;(function(){ // start of the parser namespase
+;(function(){ // start of the whole parser+lexer namespase
 /* First part of user declarations.  */
 
 // Tokens.
@@ -92,6 +92,7 @@ var
  * @@author Java skeleton ported by Peter Leonov.
  */
 
+var YYParser = (function(){ // start of the Parser very own namespase
 
 /**
 * A class defining a pair of positions.  Positions, defined by the
@@ -913,12 +914,16 @@ YYParser.bisonVersion = "]b4_version[";
 // Name of the skeleton that generated this parser.
 YYParser.bisonSkeleton = ]b4_skeleton[;
 
+return YYParser;
+
+})(); // end of the Parser very own namespase
+
 ;(function(){ // epilogue namespace
 
 ]b4_epilogue[
 
 })(); // end of epilogue namespace
 
-}).call(this); // end of the parser namespase
+}).call(this); // start of the whole parser+lexer namespase
 ]
 b4_output_end()
