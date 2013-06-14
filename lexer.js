@@ -39,6 +39,8 @@ lexer.in_def = 0;
 lexer.cur_mid = '';
 // defined? … has its own roles of lexing
 lexer.in_defined = false;
+// have we seen `__END__` already in lexer?
+lexer.ruby__end__seen = false;
 // TODO: check out list of stateful variables with the original
 
 // all lexer states codes had been moved to parse.y prologue
