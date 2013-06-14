@@ -4,7 +4,7 @@
 function Lexer ($stream)
 {
 
-// the lex() method and all public data sit here
+// the yylex() method and all public data sit here
 var lexer = this;
 // the end of stream had been reached
 lexer.eofp = false;
@@ -31,7 +31,13 @@ lexer.brace_nest = 0;
 // controls the nesting of states of condition-ness and cmdarg-ness
 lexer.cond_stack = 0;
 lexer.cmdarg_stack = 0;
-
+// how deep in in singleton definition are we?
+lexer.in_single = 0;
+// are we in def …
+lexer.in_def = 0;
+// defined? … has its own roles of lexing
+lexer.in_defined = false;
+// TODO: check out list of stateful variables with the original
 
 // all lexer states codes had been moved to parse.y prologue
 

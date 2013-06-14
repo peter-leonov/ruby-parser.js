@@ -262,7 +262,10 @@ stmt
     {}
   |
     keyword_END '{' compstmt '}'
-    {}
+    {
+      if (yylexer.in_def || yylexer.in_single)
+        rb_warn("END in method; use at_exit");
+    }
   |
     command_asgn
   |
@@ -499,10 +502,16 @@ mlhs_node
     {}
   |
     primary_value tCOLON2 tCONSTANT
-    {}
+    {
+      if (yylexer.in_def || yylexer.in_single)
+        yyerror("dynamic constant assignment");
+    }
   |
     tCOLON3 tCONSTANT
-    {}
+    {
+      if (yylexer.in_def || yylexer.in_single)
+        yyerror("dynamic constant assignment");
+    }
   |
     backref
     {}
@@ -529,10 +538,16 @@ lhs
     {}
   |
     primary_value tCOLON2 tCONSTANT
-    {}
+    {
+      if (yylexer.in_def || yylexer.in_single)
+        yyerror("dynamic constant assignment");
+    }
   |
     tCOLON3 tCONSTANT
-    {}
+    {
+      if (yylexer.in_def || yylexer.in_single)
+        yyerror("dynamic constant assignment");
+    }
   |
     backref
     {}
@@ -541,7 +556,9 @@ lhs
 cname
   :
     tIDENTIFIER
-    {}
+    {
+      yyerror("class/module name must be CONSTANT");
+    }
   |
     tCONSTANT
   ;
@@ -781,8 +798,10 @@ arg
     arg tOROP arg
     {}
   |
-    keyword_defined opt_nl {in_defined = 1;} arg
-    {}
+    keyword_defined opt_nl { yylexer.in_defined = true;} arg
+    {
+      yylexer.in_defined = false;
+    }
   |
     arg '?' arg opt_nl ':' arg
     {}
@@ -930,8 +949,10 @@ primary		: literal
 		    {}
 		| keyword_yield
 		    {}
-		| keyword_defined opt_nl '(' {in_defined = 1;} expr rparen
-		    {}
+		| keyword_defined opt_nl '(' { yylexer.in_defined = true;} expr rparen
+		    {
+		      yylexer.in_defined = false;
+		    }
 		| keyword_not '(' expr rparen
 		    {}
 		| keyword_not '(' rparen
@@ -993,7 +1014,11 @@ primary		: literal
 		  k_end
 		    {}
 		| k_class cpath superclass
-		    {}
+		    {
+          if (in_def || yylexer.in_single)
+            yyerror("class definition in method body");
+    			
+		    }
 		  bodystmt
 		  k_end
 		    {
@@ -1001,18 +1026,27 @@ primary		: literal
 			    $<num>4;
 		    }
 		| k_class tLSHFT expr
-		    {}
+		    {
+          $<num>$ = yylexer.in_def;
+          yylexer.in_def = 0;
+		    }
 		  term
-		    {}
+		    {
+		      $<num>$ = yylexer.in_single;
+		      yylexer.in_single = 0;
+		    }
 		  bodystmt
 		  k_end
 		    {
-		      // touching this alters the parse.output
-		      $<num>4;
-			    $<num>6;
+          yylexer.in_def = $<num>4;
+          yylexer.in_single = $<num>6;
 		    }
 		| k_module cpath
-		    {}
+		    {
+          if (yylexer.in_def || yylexer.in_single)
+            yyerror("module definition in method body");
+    			
+		    }
 		  bodystmt
 		  k_end
 		    {
@@ -1020,13 +1054,16 @@ primary		: literal
 			    $<num>3;
 		    }
 		| k_def fname
-		    {}
+		    {
+		      yylexer.in_def++;
+		    }
 		  f_arglist
 		  bodystmt
 		  k_end
 		    {
 		      // touching this alters the parse.output
 			    $<num>1;
+			    yylexer.in_def--;
 			    $<id>3;
 		    }
   |
@@ -1036,12 +1073,15 @@ primary		: literal
     }
     fname
     {
+      yylexer.in_single++;
       yylexer.lex_state = EXPR_ENDFN; /* force for args */
     }
     f_arglist
     bodystmt
     k_end
-    {}
+    {
+      yylexer.in_single--;
+    }
 		| keyword_break
 		    {}
 		| keyword_next
@@ -1660,13 +1700,21 @@ f_args		: f_arg ',' f_optarg ',' f_rest_arg opt_args_tail
 		;
 
 f_bad_arg	: tCONSTANT
-		    {}
+		    {
+		      yyerror("formal argument cannot be a constant");
+		    }
 		| tIVAR
-		    {}
+		    {
+		      yyerror("formal argument cannot be an instance variable");
+		    }
 		| tGVAR
-		    {}
+		    {
+		      yyerror("formal argument cannot be a global variable");
+		    }
 		| tCVAR
-		    {}
+		    {
+		      yyerror("formal argument cannot be a class variable");
+		    }
 		;
 
 f_norm_arg	: f_bad_arg
@@ -1741,7 +1789,11 @@ restarg_mark	: '*'
 		;
 
 f_rest_arg	: restarg_mark tIDENTIFIER
-		    {}
+		    {
+          if (!is_local_id($2)) // TODO
+            yyerror("rest argument must be local variable");
+    			
+		    }
 		| restarg_mark
 		    {}
 		;
@@ -1751,7 +1803,13 @@ blkarg_mark	: '&'
 		;
 
 f_block_arg	: blkarg_mark tIDENTIFIER
-		    {}
+		    {
+		      if (!is_local_id($2))
+            yyerror("block argument must be local variable");
+    			else if (!dyna_in_block() && local_id($2))
+            yyerror("duplicated block argument name");
+    			
+		    }
 		;
 
 opt_f_block_arg	: ',' f_block_arg
@@ -1767,7 +1825,27 @@ singleton	: var_ref
 		  yylexer.lex_state = EXPR_BEG;
 		}
 		expr rparen
-		    {}
+		    {
+          if ($3 == 0) {
+            yyerror("can't define singleton method for ().");
+          }
+          else {
+            switch (nd_type($3)) { // TODO
+              case NODE_STR:
+              case NODE_DSTR:
+              case NODE_XSTR:
+              case NODE_DXSTR:
+              case NODE_DREGX:
+              case NODE_LIT:
+              case NODE_ARRAY:
+              case NODE_ZARRAY:
+                yyerror("can't define singleton method for literals");
+              default:
+                value_expr($3); // TODO
+                break;
+            }
+          }
+		    }
 		;
 
 assoc_list	: none
