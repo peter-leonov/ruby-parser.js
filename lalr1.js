@@ -251,6 +251,7 @@ function YYParser (yylexer)
 
     yystack.pop(yylen);
     yylen = 0;
+    debug_stack_print(yystack);
 
     // Shift the result of the reduction.
     yyn = yyr1_[yyn];
@@ -316,7 +317,6 @@ function YYParser (yylexer)
       case YYNEWSTATE:
         // Unlike in the C/C++ skeletons, the state is already pushed when we come here.
 
-        debug_stack_print(yystack);
         debug_print("Entering state " + yystate + "\n");
 
         // Accept?
@@ -491,6 +491,7 @@ function YYParser (yylexer)
         // which action triggered this YYERROR.
         yystack.pop(yylen);
         yylen = 0;
+        debug_stack_print(yystack);
         yystate = yystack.stateAt(0);
         // goto
         label = YYERRLAB1;
@@ -525,7 +526,7 @@ function YYParser (yylexer)
           yyerrloc = yystack.locationAt(0);
           yystack.pop(1);
           yystate = yystack.stateAt(0);
-          debug_stack_print(yystack)
+          debug_stack_print(yystack);
         }
 
 
@@ -904,7 +905,7 @@ YYParser.prototype =
       ary.push(yystack.stateAt(i));
     }
     
-    puts("Stack now " + ary.join(' '));
+    puts("Stack now " + ary.reverse().join(' '));
   },
 
   debug_print: function debug_print (message)
