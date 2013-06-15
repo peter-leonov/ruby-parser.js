@@ -331,7 +331,7 @@ function tokadd (c)
   tokenbuf += c;
   return c;
 }
-var tokadd_mbchar = tokadd;
+
 function tokfix () { /* was: tokenbuf[tokidx]='\0'*/ }
 function tok () { return tokenbuf; }
 function toklen () { return tokenbuf.length; }
@@ -365,7 +365,7 @@ function NEW_STRTERM (func, term, paren)
     term: term,
     paren: paren,
     nd_nest: 0, // for tokadd_string() and parse_string()
-    pos_after_eos: 0, // to be calculated in `here_document()`
+    pos_after_eos: -1, // to be calculated in `here_document()`
     heredoc_end_found_last_time: false,
     line: 0 // TODO: `ruby_sourceline`
   };
@@ -376,9 +376,9 @@ function NEW_HEREDOCTERM (func, term)
   return {
     type: 'NODE_HEREDOC',
     nd_func: func,
-    tok: term,
+    term: term,
     paren: '',
-    pos_after_eos: 0, // to be calculated in `here_document()`
+    pos_after_eos: -1, // to be calculated in `here_document()`
     heredoc_end_found_last_time: false,
     line: 0 // TODO: `ruby_sourceline`
   };
@@ -1489,7 +1489,7 @@ this.yylex = function yylex ()
     
     case '_':
     {
-      if (was_bol() && whole_match_p("__END__", false, $pos))
+      if (was_bol() && whole_match_p("__END__", false, 0))
       {
         lexer.ruby__end__seen = true;
         lexer.eofp = true;
@@ -1686,7 +1686,7 @@ this.yylex = function yylex ()
 
 function heredoc_identifier ()
 {
-  var term = 0, func = 0, len = 0;
+  var term = '', func = 0;
   
   var c = nextc()
   if (c == '-')
@@ -1718,7 +1718,7 @@ function heredoc_identifier ()
       term = c;
       while ((c = nextc()) != '' && c != term)
       {
-        if (tokadd_mbchar(c) == '')
+        if (tokadd(c) == '')
           return 0;
       }
       if (c == '')
@@ -1742,10 +1742,10 @@ function heredoc_identifier ()
     // TODO: create token with $stream.substring(start, end)
     newtok();
     term = '"';
-    tokadd(func |= str_dquote);
+    func |= str_dquote;
     do
     {
-      if (tokadd_mbchar(c) == '')
+      if (tokadd(c) == '')
         return 0;
     }
     while ((c = nextc()) != '' && parser_is_identchar(c));
@@ -1762,6 +1762,10 @@ function here_document_error (eos)
 {
   // was: error:
     compile_error("can't find string \""+eos+"\" anywhere before EOF");
+    return here_document_restore(eos);
+}
+function here_document_restore (eos)
+{
   // was: restore:
     heredoc_restore(lexer.lex_strterm);
     lexer.lex_strterm = null;
@@ -1769,22 +1773,40 @@ function here_document_error (eos)
 }
 function here_document (here)
 {
+  debug(here.term)
+  // we're at the heredoc content start
+  var func = here.nd_func;
   // instead of repeating the work just check the flag
-  if (lexer.lex_strterm.heredoc_end_found_last_time)
+  if (func === -1)
   {
     // was: dispatch_heredoc_end(); a noop out of ripper
     heredoc_restore(lexer.lex_strterm);
     return tSTRING_END; // will set `lexer.lex_strterm` to `null`
   }
-
-  // we're at the heredoc content start
-  var func = here.nd_func,
-      eos  = here.term,
+  
+  var eos  = here.term,
       indent = !!(func & STR_FUNC_INDENT);
 
-  var c = ''
-  // // do not look for `#{}` stuff here
-  // if (!(func & STR_FUNC_EXPAND))
+  var match_end = 0;
+
+  var c = nextc();
+  if (c == '')
+  {
+    here_document_error(eos);
+    return 0;
+  }
+  
+  if (was_bol() && (match_end = whole_match_p(eos, indent, -1)) != -1)
+  {
+    here.nd_func = -1; // signal ourself that the end reached
+    here.pos_after_eos = match_end;
+    
+    heredoc_restore(lexer.lex_strterm);
+    return tSTRING_END;
+  }
+  
+  // do not look for `#{}` stuff here
+  if (!(func & STR_FUNC_EXPAND))
   {
     // mark a start of the string token
     var start = $pos, end = 0;
@@ -1795,7 +1817,8 @@ function here_document (here)
       // EOF reached in the middle of the heredoc
       if (c === '')
       {
-        return here_document_error(eos);
+        here_document_error(eos); // was: goto error;
+        return 0;
       }
       
       // end of line here
@@ -1803,61 +1826,69 @@ function here_document (here)
       {
         // try to match the end of heredoc
         // and get the position right after it
-        var match_end = whole_match_p(eos, indent, $pos);
+        match_end = whole_match_p(eos, indent, 0);
         if (match_end !== -1)
         {
           end = $pos;
-          lexer.lex_strterm.heredoc_end_found_last_time = true;
-          lexer.lex_strterm.pos_after_eos = match_end;
+          here.nd_func = -1; // signal ourself that the end reached
+          here.pos_after_eos = match_end;
           break scaning; // the heredoc body
         }
         continue scaning; // the heredoc body
       }
     }
   }
-  // // try to find all the `#{}` stuff here
-  // else
-  // {
-  //   /*      int mb = ENC_CODERANGE_7BIT, *mbp = &mb; */
-  //   newtok();
-  //   if (c == '#')
-  //   {
-  //     switch (c = nextc())
-  //     {
-  //       case '$':
-  //       case '@':
-  //         pushback(c);
-  //         return tSTRING_DVAR;
-  //       case '{':
-  //         lexer.command_start = TRUE;
-  //         return tSTRING_DBEG;
-  //     }
-  //     tokadd('#');
-  //   }
-  //   do
-  //   {
-  //     pushback(c);
-  //     if ((c = tokadd_string(func, '\n', 0, NULL, &enc)) == -1)
-  //     {
-  //       if (parser->eofp)
-  //         goto error;
-  //       goto restore;
-  //     }
-  //     if (c != '\n')
-  //     {
-  //       set_yylval_str(STR_NEW3(tok(), toklen(), enc, func));
-  //       flush_string_content(enc);
-  //       return tSTRING_CONTENT;
-  //     }
-  //     tokadd(nextc());
-  //     /*      if (mbp && mb == ENC_CODERANGE_UNKNOWN) mbp = 0; */
-  //     if ((c = nextc()) == -1)
-  //       goto error;
-  //   }
-  //   while (!whole_match_p(eos, indent, $pos-1));
-  //   str = STR_NEW3(tok(), toklen(), enc, func);
-  // }
-  // was: dispatch_heredoc_end(); a noop out of ripper
+  // try to find all the `#{}` stuff here
+  else
+  {
+    /*      int mb = ENC_CODERANGE_7BIT, *mbp = &mb; */
+    newtok();
+    if (c == '#')
+    {
+      switch (c = nextc())
+      {
+        case '$':
+        case '@':
+          pushback(c);
+          return tSTRING_DVAR;
+        case '{':
+          lexer.command_start = true;
+          return tSTRING_DBEG;
+      }
+      tokadd('#');
+    }
+    do
+    {
+      pushback(c);
+      if ((c = tokadd_string(func, '\n', '', null)) == '')
+      {
+        if (parser.eofp)
+        {
+          here_document_error(eos); // was: goto error;
+          return 0;
+        }
+        here_document_restore(); // was: goto restore;
+        return 0;
+      }
+      if (c != '\n')
+      {
+        // set_yylval_str(STR_NEW3(tok(), toklen(), enc, func)); TODO
+        return tSTRING_CONTENT;
+      }
+      tokadd(nextc());
+      
+      if ((c = nextc()) == '')
+      {
+        here_document_error(eos); // was: goto error;
+        return 0;
+      }
+    }
+    while ((match_end = whole_match_p(eos, indent, -1)) === -1); // while not match
+    here.nd_func = -1; // signal ourself that the end reached
+    here.pos_after_eos = match_end;
+    // str = STR_NEW3(tok(), toklen(), enc, func); TODO
+  }
+  
   heredoc_restore(lexer.lex_strterm);
   // lex_strterm = NEW_STRTERM(-1, 0, 0);
   // set_yylval_str(str); TODO:
@@ -1954,7 +1985,7 @@ function tokadd_string (func, term, paren, str_term)
     }
     else if (c == term)
     {
-      if (!str_term.nd_nest)
+      if (!str_term || !str_term.nd_nest)
       {
         pushback(c);
         break;
@@ -2077,12 +2108,13 @@ function tokadd_escape ()
 }
 
 // checks if the current line matches `/\s*#{eos}\n/`;
-// `pos` tell us when the start point is:
-// for `pos` = 2 "ab|c".
+// `pos` tell us when the start point is relative to the current:
+// for `pos` = -2 "|ab[we'rhere]c".
 // Returns the position after the trailing `\n\:
 //   "…\n    EOS\n|"
-function whole_match_p (eos, indent, pos)
+function whole_match_p (eos, indent, dpos)
 {
+  var pos = $pos + dpos;
   // skip all white spaces if in `indent` mode
   if (indent)
   {
@@ -2100,6 +2132,13 @@ function whole_match_p (eos, indent, pos)
 
 function heredoc_restore (here)
 {
+  var pos_after_eos = here.pos_after_eos;
+  if (pos_after_eos == -1)
+  {
+    yyerror("invalid heredoc restore point");
+    $pos = $streamLength;
+    return;
+  }
   $pos = here.pos_after_eos;
 }
 
@@ -2383,7 +2422,7 @@ var rb_reserved_word =
 'yield': {id0: keyword_yield, id1: keyword_yield, state: EXPR_ARG}
 };
 
-lexer.debugPosition = function ()
+lexer.cursorPosition = function ()
 {
   return (
     $stream.substring($pos - 25, $pos) +
@@ -2394,14 +2433,36 @@ lexer.debugPosition = function ()
 
 function debug ()
 {
+  puts('\n\n')
+  puts(':::::::::::::::::::::::::::::::::::::::::::')
+  puts(':::::::::::::::::::::::::::::::::::::::::::')
+  puts(':::::::::::::::::::::::::::::::::::::::::::')
+  puts(':::::::::::::::::::::::::::::::::::::::::::')
+  puts(':::::::::::::::::::::::::::::::::::::::::::')
+  puts(':::::::::::::::::::::::::::::::::::::::::::')
+  puts(':::::::::::::::::::::::::::::::::::::::::::')
+  puts.apply(null, arguments)
+  puts(':::::::::::::::::::::::::::::::::::::::::::')
+  puts(lexer.cursorPosition())
+  puts(':::::::::::::::::::::::::::::::::::::::::::')
+  puts(':::::::::::::::::::::::::::::::::::::::::::')
+  puts(':::::::::::::::::::::::::::::::::::::::::::')
+  puts(':::::::::::::::::::::::::::::::::::::::::::')
+  puts(':::::::::::::::::::::::::::::::::::::::::::')
+  puts(':::::::::::::::::::::::::::::::::::::::::::')
+  puts(':::::::::::::::::::::::::::::::::::::::::::')
+  puts('\n\n')
+}
+function print_error ()
+{
   puts('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
   puts.apply(null, arguments)
-  puts(lexer.debugPosition())
+  puts(lexer.cursorPosition())
   puts('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
 }
-function warning (msg) { debug('WARNING: ' + msg) }
-function compile_error (msg) { debug('COMPILE ERROR: ' + msg) }
-function yyerror (msg) { debug('YYERROR: ' + msg) }
+function warning (msg) { print_error('WARNING: ' + msg) }
+function compile_error (msg) { print_error('COMPILE ERROR: ' + msg) }
+function yyerror (msg) { print_error('YYERROR: ' + msg) }
 this.yyerror = yyerror;
 
 } // function Lexer

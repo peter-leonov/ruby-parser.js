@@ -930,6 +930,6 @@ return YYParser;
 
 })(); // end of epilogue namespace
 
-}).call(this); // start of the whole parser+lexer namespase
+}).call(this); // end of the whole parser+lexer namespase
 ]
 b4_output_end()
