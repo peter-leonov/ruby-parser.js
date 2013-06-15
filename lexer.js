@@ -1487,6 +1487,17 @@ this.yylex = function yylex ()
       break;
     }
     
+    case '_':
+    {
+      if (was_bol() && whole_match_p("__END__", false, $pos))
+      {
+        lexer.ruby__end__seen = true;
+        lexer.eofp = true;
+        return 0; // was: return -1;
+      }
+      newtok();
+      break;
+    }
     // add before here :)
     
     default:
@@ -1768,7 +1779,7 @@ function here_document (here)
   // we're at the heredoc content start
   var func = here.nd_func,
       eos  = here.term,
-      indent = func & STR_FUNC_INDENT;
+      indent = !!(func & STR_FUNC_INDENT);
 
   var c = ''
   // // do not look for `#{}` stuff here
@@ -1791,7 +1802,7 @@ function here_document (here)
       {
         // try to match the end of heredoc
         // and get the position right after it
-        var match_end = lookahead_whole_match_pos(eos, indent, $pos);
+        var match_end = whole_match_p(eos, indent, $pos);
         if (match_end !== -1)
         {
           end = $pos;
@@ -1842,7 +1853,7 @@ function here_document (here)
   //     if ((c = nextc()) == -1)
   //       goto error;
   //   }
-  //   while (!lookahead_whole_match_pos(eos, indent, $pos-1));
+  //   while (!whole_match_p(eos, indent, $pos-1));
   //   str = STR_NEW3(tok(), toklen(), enc, func);
   // }
   // was: dispatch_heredoc_end(); a noop out of ripper
@@ -2069,7 +2080,7 @@ function tokadd_escape ()
 // for `pos` = 2 "ab|c".
 // Returns the position after the trailing `\n\:
 //   "…\n    EOS\n|"
-function lookahead_whole_match_pos (eos, indent, pos)
+function whole_match_p (eos, indent, pos)
 {
   // skip all white spaces if in `indent` mode
   if (indent)
