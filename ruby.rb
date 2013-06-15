@@ -1,24 +1,24 @@
-# p "#{<<AEND}, #{<<BEND}".length
-# a content
-# AEND
-# b content
-# BEND
-
-<<AAA + <<BBB + "
+"#{<<AAA}, #{<<BBB}" + 2
 a content
 AAA
 b content
-#{<<CCC
-c content
-CCC
-}
-#{<<DDD
-c content
-DDD
-}
 BBB
 
-
-string"
+# <<AAA + <<BBB + "
+# a content
+# AAA
+# b content
+# #{<<CCC
+# c content
+# CCC
+# }
+# #{<<DDD
+# d content
+# DDD
+# }
+# BBB
+# 
+# 
+# string"
 
 # puts ?\
