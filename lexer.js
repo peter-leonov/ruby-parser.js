@@ -1773,7 +1773,6 @@ function here_document_restore (eos)
 }
 function here_document (here)
 {
-  debug(here.term)
   // we're at the heredoc content start
   var func = here.nd_func;
   // instead of repeating the work just check the flag
@@ -2453,6 +2452,8 @@ function debug ()
   puts(':::::::::::::::::::::::::::::::::::::::::::')
   puts('\n\n')
 }
+lexer.debug = debug;
+
 function print_error ()
 {
   puts('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
