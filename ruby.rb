@@ -4,8 +4,21 @@
 # b content
 # BEND
 
-<<AEND + <<BEND
+<<AAA + <<BBB + "
 a content
-AEND
+AAA
 b content
-BEND
+#{<<CCC
+c content
+CCC
+}
+#{<<DDD
+c content
+DDD
+}
+BBB
+
+
+string"
+
+# puts ?\
