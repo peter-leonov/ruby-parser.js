@@ -1457,6 +1457,36 @@ this.yylex = function yylex ()
       break;
     }
     
+    case '@':
+    {
+      c = nextc();
+      newtok();
+      tokadd('@');
+      if (c == '@')
+      {
+        tokadd('@');
+        c = nextc();
+      }
+      if (c != '' && ISDIGIT(c))
+      {
+        if (toklen() == 1)
+        {
+          compile_error("`@"+c+"' is not allowed as an instance variable name");
+        }
+        else
+        {
+          compile_error("`@@"+c+"' is not allowed as a class variable name");
+        }
+        return 0;
+      }
+      if (!parser_is_identchar(c))
+      {
+        pushback(c);
+        return $('@');
+      }
+      break;
+    }
+    
     // add before here :)
     
     default:
