@@ -1708,8 +1708,8 @@ function parse_string (quote)
   // we're at the heredoc content start
   var func = quote.nd_func,
       term = quote.term,
-      paren = quote.term;
-  debug(func, term, paren)
+      paren = quote.paren;
+  
   var space = false;
 
   if (func == -1)
