@@ -41,6 +41,12 @@ lexer.cur_mid = '';
 lexer.in_defined = false;
 // have we seen `__END__` already in lexer?
 lexer.ruby__end__seen = false;
+// parser needs access to the line number,
+// AFAICT, parser never changes it, only sets nd_line on nodes
+lexer.ruby_sourceline = 0;
+// parser doesn't touch it, but what is it?
+lexer.heredoc_end = 0;
+lexer.line_count = 0;
 // TODO: check out list of stateful variables with the original
 
 // all lexer states codes had been moved to parse.y prologue
