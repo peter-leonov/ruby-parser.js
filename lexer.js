@@ -395,10 +395,10 @@ function NEW_STRTERM (func, term, paren)
     nd_func: func,
     nd_orig: '', // stub
     nd_nth: 0, // stub
-    term: term,
-    paren: paren,
+    nd_line: lexer.ruby_sourceline,
     nd_nest: 0, // for tokadd_string() and parse_string()
-    line: 0 // TODO: `ruby_sourceline`
+    term: term,
+    paren: paren
   };
 }
 // our addition
@@ -409,9 +409,10 @@ function NEW_HEREDOCTERM (func, term)
     nd_func: func,
     nd_orig: lex_lastline,
     nd_nth: lex_p,
+    nd_line: lexer.ruby_sourceline,
+    nd_nest: 0,
     term: term,
-    paren: '',
-    line: 0 // TODO: `ruby_sourceline`
+    paren: ''
   };
 }
 
@@ -1953,7 +1954,7 @@ function parse_string (quote)
   pushback(c);
   if (tokadd_string(func, term, paren, quote) == '')
   {
-    // ruby_sourceline = nd_line(quote); TODO
+    lexer.ruby_sourceline = quote.nd_line;
     if (func & STR_FUNC_REGEXP)
     {
       if (lexer.eofp)
