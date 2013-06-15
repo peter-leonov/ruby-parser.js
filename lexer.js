@@ -1867,7 +1867,7 @@ function here_document (here)
       pushback(c);
       if ((c = tokadd_string(func, '\n', '', null)) == '')
       {
-        if (parser.eofp)
+        if (lexer.eofp)
         {
           here_document_error(eos); // was: goto error;
           return 0;
