@@ -536,8 +536,8 @@ this.yylex = function yylex ()
             }
           }
           default:
-            // --ruby_sourceline; TODO
-            // lex_nextline = lex_lastline; TODO
+            --lexer.ruby_sourceline;
+            lex_nextline = lex_lastline;
             
           // EOF no decrement
           case '':
