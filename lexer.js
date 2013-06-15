@@ -214,80 +214,109 @@ function ISSPACE_NOT_N (c)
   )
 }
 
-var $streamLength = $stream.length;
-var $pos = 0;
 
-// just an emulation of pos[i] from C
-function nthchar (i)
+var lex_pbeg = 0, // lex_pbeg never changes
+    lex_p = 0,
+    lex_pend = 0;
+
+var $stream_pos = 0;
+// returns empty line as EOF
+function lex_getline ()
 {
-  return $stream[$pos + i];
+  var i = $stream.indexOf('\n', $stream_pos);
+  // didn't get any more newlines
+  if (i === -1)
+  {
+    // the rest of the line
+    // e.g. match the `$`
+    i = $stream.length;
+  }
+  else
+  {
+    i++; // include the `\n` char
+  }
+  
+  var line = $stream.substring($stream_pos, i);
+  $stream_pos = i;
+  return line;
 }
 
-// search for `\n` and stop right after it,
-// if the position of `\n` been found at 3: "abc|\n"
-// then `$pos` will be 4: "abc\n|"
+
+var lex_nextline = '',
+    lex_lastline = '';
+function nextc ()
+{
+  if (lex_p == lex_pend)
+  {
+    var v = lex_nextline;
+    lex_nextline = '';
+    if (!v)
+    {
+      if (lexer.eofp)
+        return '';
+
+      if (!(v = lex_getline()))
+      {
+        lexer.eofp = true;
+        lex_goto_eol();
+        return '';
+      }
+    }
+    {
+      if (lexer.heredoc_end > 0)
+      {
+        lexer.ruby_sourceline = lexer.heredoc_end;
+        lexer.heredoc_end = 0;
+      }
+      lexer.ruby_sourceline++;
+      lexer.line_count++;
+      lex_pbeg = lex_p = 0;
+      lex_pend = v.length;
+      lex_lastline = v;
+    }
+  }
+  
+  return lex_lastline[lex_p++];
+}
+// jump right to the end of current buffered line,
+// here: "abc\n|" or here "abc|"
 function lex_goto_eol ()
 {
-  do
-  {
-    var c = nextc();
-  }
-  while (c != '\n' && c != '');
+  lex_p = lex_pend;
+}
+
+// just an emulation of lex_p[i] from C
+function nthchar (i)
+{
+  return lex_lastline[lex_p+i];
+}
+// just an emulation of *lex_p from C
+function lex_pv ()
+{
+  return lex_lastline[lex_p];
 }
 
 // forecast, if the nextc() will return character `c`
 function peek (c)
 {
-  return $pos < $streamLength && c == $stream[$pos];
+  return lex_p < lex_pend && c === lex_lastline[lex_p];
 }
 
 // forecast, if the nextc() will return character `c`
 // after n calls
 function peek_n (c, n)
 {
-  var pos = $pos + n;
-  return pos < $streamLength && c == $stream[pos];
+  var pos = lex_p + n;
+  return pos < lex_pend && c === lex_lastline[pos];
 }
 
-// returns next character from the `$stream`,
-// or an empty string '' if there is no more characters
-function nextc ()
-{
-  if ($pos >= $streamLength)
-  {
-    lexer.eofp = true;
-    return '';
-  }
-  
-  return $stream[$pos++];
-}
-// our addition
-function what_nextc ()
-{
-  if ($pos >= $streamLength)
-  {
-    return '';
-  }
-  
-  return $stream[$pos];
-}
-function what_nextc_n (n)
-{
-  var pos = $pos + n;
-  if (pos >= $streamLength)
-  {
-    return '';
-  }
-  
-  return $stream[pos];
-}
 // expects rex in this form: `/blablabla|/g`
 // that means `blablabla` or empty string (to prevent deep search)
 function match_grex (rex)
 {
-  rex.lastIndex = $pos;
-  // there is always a match for empty string
-  return rex.exec($stream)[0];
+  rex.lastIndex = lex_p;
+  // there is always a match or an empty string in [0]
+  return rex.exec(lex_lastline)[0];
 }
 // step back for one character and check
 // if the current character is equal to `c`
@@ -295,63 +324,59 @@ function pushback (c)
 {
   if (c == '')
   {
-    if ($pos != $streamLength)
-      throw 'lexer error: pushing back wrong EOF char';
+    if (lex_p != lex_pend)
+      throw 'lexer error: pushing back wrong EOF char'; // TODO
     return;
   }
   
-  $pos--;
-  if ($stream[$pos] != c)
-    throw 'lexer error: pushing back wrong "'+c+'" char';
+  lex_p--;
+  if (lex_lastline[lex_p] != c)
+    throw 'lexer error: pushing back wrong "'+c+'" char'; // TODO
 }
 
 // was begin af a line (`^` in terms of regexps) before last `nextc()`,
 // that true if we're here "a|bc" of here "abc\na|bc"
 function was_bol ()
 {
-  return $pos === 1 || $stream[$pos-2] === '\n'
-}
-// out own addition
-// is begin af a line (`^` in terms of regexps) at the `$pos`,
-// that true if we're here "|abc" of here "abc\n|abc"
-function is_bol ()
-{
-  return $pos === 0 || $stream[$pos-1] === '\n'
-}
-function is_eol ()
-{
-  return $pos === $streamLength || $stream[$pos] === '\n'
+  return lex_p === /*lex_pbeg +*/ 1; // lex_pbeg never changes
 }
 
 
 // token related stuff
 
-var tokenbuf = ''
+var $tokenbuf = '',
+    $tok_start = 0,
+    $tok_end = 0;
+    
 function newtok ()
 {
-  tokenbuf = '';
-  return tokenbuf;
+  $tok_start = $stream_pos;
+  $tokenbuf = '';
+  return $tokenbuf;
 }
 function tokadd (c)
 {
-  tokenbuf += c;
+  $tokenbuf += c;
   return c;
 }
 
-function tokfix () { /* was: tokenbuf[tokidx]='\0'*/ }
-function tok () { return tokenbuf; }
-function toklen () { return tokenbuf.length; }
+function tokfix ()
+{
+  $tok_end = $stream_pos;
+  /* was: tokenbuf[tokidx]='\0'*/
+}
+function tok () { return $tokenbuf; }
+function toklen () { return $tokenbuf.length; }
 function toklast ()
 {
-  return tokenbuf.substr(-1)
+  return $tokenbuf.substr(-1)
   // was: tokidx>0?tokenbuf[tokidx-1]:0)
 }
 
-
 // TODO
-this.getStartPos = function () { return $pos; }
-this.getEndPos = function () { return $pos + 1; }
-this.getLVal = function () { return tokenbuf; }
+this.getStartPos = function () { return $tok_start; }
+this.getEndPos = function () { return $tok_end; }
+this.getLVal = function () { return $tokenbuf; }
 
 
 
@@ -368,11 +393,11 @@ function NEW_STRTERM (func, term, paren)
   return {
     type: 'NODE_STRTERM',
     nd_func: func,
+    nd_orig: '', // stub
+    nd_nth: 0, // stub
     term: term,
     paren: paren,
     nd_nest: 0, // for tokadd_string() and parse_string()
-    pos_after_eos: -1, // to be calculated in `here_document()`
-    heredoc_end_found_last_time: false,
     line: 0 // TODO: `ruby_sourceline`
   };
 }
@@ -382,10 +407,10 @@ function NEW_HEREDOCTERM (func, term)
   return {
     type: 'NODE_HEREDOC',
     nd_func: func,
+    nd_orig: lex_lastline,
+    nd_nth: lex_p,
     term: term,
     paren: '',
-    pos_after_eos: -1, // to be calculated in `here_document()`
-    heredoc_end_found_last_time: false,
     line: 0 // TODO: `ruby_sourceline`
   };
 }
@@ -785,7 +810,7 @@ this.yylex = function yylex ()
       }
       
       // the `?ab` construction
-      if (parser_is_identchar(c) && parser_is_identchar(what_nextc()))
+      if (parser_is_identchar(c) && lex_p < lex_pend && parser_is_identchar(lex_pv()))
       {
         pushback(c);
         lex_state = EXPR_VALUE;
@@ -1495,7 +1520,7 @@ this.yylex = function yylex ()
     
     case '_':
     {
-      if (was_bol() && whole_match_p("__END__", false, 0))
+      if (was_bol() && whole_match_p("__END__", false))
       {
         lexer.ruby__end__seen = true;
         lexer.eofp = true;
@@ -1759,8 +1784,8 @@ function heredoc_identifier ()
   } // defaultt:
 
   tokfix();
-  lex_goto_eol();
   lexer.lex_strterm = NEW_HEREDOCTERM(func, tok());
+  lex_goto_eol();
   return term == '`' ? tXSTRING_BEG : tSTRING_BEG;
 }
 
@@ -1784,16 +1809,15 @@ function here_document (here)
   // instead of repeating the work just check the flag
   if (func === -1)
   {
-    // was: dispatch_heredoc_end(); a noop out of ripper
     heredoc_restore(lexer.lex_strterm);
     return tSTRING_END; // will set `lexer.lex_strterm` to `null`
   }
   
-  var eos  = here.term,
+  var eos = here.term,
       indent = !!(func & STR_FUNC_INDENT);
-
-  var match_end = 0;
-
+  
+  var str = ''; // accumulate string content here
+  
   var c = nextc();
   if (c == '')
   {
@@ -1801,10 +1825,9 @@ function here_document (here)
     return 0;
   }
   
-  if (was_bol() && (match_end = whole_match_p(eos, indent, -1)) != -1)
+  if (was_bol() && whole_match_p(eos, indent))
   {
     here.nd_func = -1; // signal ourself that the end reached
-    here.pos_after_eos = match_end;
     
     heredoc_restore(lexer.lex_strterm);
     return tSTRING_END;
@@ -1814,34 +1837,19 @@ function here_document (here)
   if (!(func & STR_FUNC_EXPAND))
   {
     // mark a start of the string token
-    var start = $pos, end = 0;
-    scaning: // the heredoc body
-    for (;;)
+    do
     {
-      c = nextc();
+      str += lex_lastline;
+      
       // EOF reached in the middle of the heredoc
-      if (c === '')
+      lex_goto_eol();
+      if (nextc() === '')
       {
         here_document_error(eos); // was: goto error;
         return 0;
       }
-      
-      // end of line here
-      if (c === '\n')
-      {
-        // try to match the end of heredoc
-        // and get the position right after it
-        match_end = whole_match_p(eos, indent, 0);
-        if (match_end !== -1)
-        {
-          end = $pos;
-          here.nd_func = -1; // signal ourself that the end reached
-          here.pos_after_eos = match_end;
-          break scaning; // the heredoc body
-        }
-        continue scaning; // the heredoc body
-      }
     }
+    while (!whole_match_p(eos, indent));
   }
   // try to find all the `#{}` stuff here
   else
@@ -1888,12 +1896,10 @@ function here_document (here)
         return 0;
       }
     }
-    while ((match_end = whole_match_p(eos, indent, -1)) === -1); // while not match
-    here.nd_func = -1; // signal ourself that the end reached
-    here.pos_after_eos = match_end;
+    while (!whole_match_p(eos, indent));
     // str = STR_NEW3(tok(), toklen(), enc, func); TODO
   }
-  
+  here.nd_func = -1; // signal ourself that the end reached
   heredoc_restore(lexer.lex_strterm);
   // lex_strterm = NEW_STRTERM(-1, 0, 0);
   // set_yylval_str(str); TODO:
@@ -1997,7 +2003,7 @@ function tokadd_string (func, term, paren, str_term)
       }
       --str_term.nd_nest;
     }
-    else if ((func & STR_FUNC_EXPAND) && c == '#' && !is_eol())
+    else if ((func & STR_FUNC_EXPAND) && c == '#' && lex_p < lex_pend)
     {
       var c2 = nthchar(0);
       if (c2 == '$' || c2 == '@' || c2 == '{')
@@ -2112,39 +2118,30 @@ function tokadd_escape ()
   // TODO
 }
 
-// checks if the current line matches `/\s*#{eos}\n/`;
-// `pos` tell us when the start point is relative to the current:
-// for `pos` = -2 "|ab[we'rhere]c".
-// Returns the position after the trailing `\n\:
-//   "…\n    EOS\n|"
-function whole_match_p (eos, indent, dpos)
+// checks if the current line matches `/^\s*#{eos}\n?$/`;
+function whole_match_p (eos, indent)
 {
-  var pos = $pos + dpos;
-  // skip all white spaces if in `indent` mode
-  if (indent)
+  if (!indent)
   {
-    while (ISSPACE_NOT_N($stream[pos]))
-      pos++;
+    return lex_lastline == eos + '\n' || lex_lastline == eos;
   }
   
-  var len = eos.length;
-  // check first if the `eos` fits the rest of the line
-  if ($stream[pos + len] !== '\n')
-    return -1;
-  
-  return $stream.substr(pos, len) === eos ? (pos + len + 1) : -1;
+  // `eos` is an identifier and doesn't need to be escaped
+  var rex = new RegExp('^[ \\t]*' + eos + '$', 'm'); // TODO: cache
+  return rex.test(lex_lastline);
 }
 
 function heredoc_restore (here)
 {
-  var pos_after_eos = here.pos_after_eos;
-  if (pos_after_eos == -1)
-  {
-    yyerror("invalid heredoc restore point");
-    $pos = $streamLength;
-    return;
-  }
-  $pos = here.pos_after_eos;
+  // restores the line from where the heredoc occured to begin
+  lex_lastline = here.nd_orig;
+  lex_pbeg = 0;
+  lex_pend = lex_lastline.length;
+  // restores the position in the line, right after heredoc token
+  lex_p = here.nd_nth;
+  // have no ideas yet :)
+  lexer.heredoc_end = lexer.ruby_sourceline;
+  lexer.ruby_sourceline = here.nd_line;
 }
 
 /* return value is for ?\u3042 */
@@ -2187,7 +2184,7 @@ function parser_tokadd_utf8 (string_literal, symbol_literal, regexp_literal)
         return '';
       }
       
-      $pos += hex.length;
+      lex_p += hex.length;
       if (regexp_literal)
       {
         tokadd(hex);
@@ -2230,7 +2227,7 @@ function parser_tokadd_utf8 (string_literal, symbol_literal, regexp_literal)
     }
     var codepoint = parseInt(hex, 16);
     var the_char = $$(codepoint);
-    $pos += 4;
+    lex_p += 4;
     if (regexp_literal)
     {
       tokadd(hex);
@@ -2430,9 +2427,9 @@ var rb_reserved_word =
 lexer.cursorPosition = function ()
 {
   return (
-    $stream.substring($pos - 25, $pos) +
+    lex_lastline.substring(0, lex_p) +
     '>>here<<' +
-    $stream.substring($pos, $pos + 25)
+    lex_lastline.substring(lex_p)
   );
 }
 
