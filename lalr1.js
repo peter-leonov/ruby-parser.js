@@ -762,7 +762,7 @@ YYParser.prototype =
       + this.yytname_[yytype]
       + " ("
       // + yylocationp + ": "
-      // + (yyvaluep == null ? "(null)" : yyvaluep)
+      // + (yyvaluep == null ? "(null)" : JSON.stringify(yyvaluep))
       + ")\n"
     );
   },
