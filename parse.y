@@ -1935,6 +1935,9 @@ global.parse = function (text)
 
   var parser = new YYParser(lexer);
   parser.enableDebug();
-
-  return parser.parse();
+  
+  var begin = new Date();
+  var res = parser.parse();
+  print('time: ' + (new Date - begin));
+  return res;
 }
