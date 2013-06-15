@@ -312,6 +312,10 @@ function is_bol ()
 {
   return $pos === 0 || $stream[$pos-1] === '\n'
 }
+function is_eol ()
+{
+  return $pos === $streamLength || $stream[$pos] === '\n'
+}
 
 
 // token related stuff
@@ -360,6 +364,7 @@ function NEW_STRTERM (func, term, paren)
     nd_func: func,
     term: term,
     paren: paren,
+    nd_nest: 0, // for tokadd_string() and parse_string()
     pos_after_eos: 0, // to be calculated in `here_document()`
     heredoc_end_found_last_time: false,
     line: 0 // TODO: `ruby_sourceline`
@@ -1613,7 +1618,7 @@ function here_document (here)
   {
     // was: dispatch_heredoc_end(); a noop out of ripper
     heredoc_restore(lexer.lex_strterm);
-    return tSTRING_END; // will erase `lexer.lex_strterm`
+    return tSTRING_END; // will set `lexer.lex_strterm` to `null`
   }
 
   // we're at the heredoc content start
@@ -1705,7 +1710,6 @@ function here_document (here)
 
 function parse_string (quote)
 {
-  // we're at the heredoc content start
   var func = quote.nd_func,
       term = quote.term,
       paren = quote.paren;
@@ -1724,6 +1728,8 @@ function parse_string (quote)
     while (ISSPACE(c));
     space = true;
   }
+  // quote.nd_nest is increased in tokadd_string()
+  // once for every `paren` char met
   if (c == term && !quote.nd_nest)
   {
     if (func & STR_FUNC_QWORDS)
@@ -1733,7 +1739,7 @@ function parse_string (quote)
     }
     if (!(func & STR_FUNC_REGEXP))
       return tSTRING_END;
-    set_yylval_num(regx_options());
+    // set_yylval_num(regx_options()); TODO
     return tREGEXP_END;
   }
   if (space)
@@ -1757,7 +1763,6 @@ function parse_string (quote)
     tokadd('#');
   }
   pushback(c);
-  // if (tokadd_string(func, term, paren, &quote->nd_nest, &enc) == '')
   if (tokadd_string(func, term, paren, quote) == '')
   {
     // ruby_sourceline = nd_line(quote); TODO
@@ -1781,6 +1786,139 @@ function parse_string (quote)
   return tSTRING_CONTENT;
 }
 
+
+function tokadd_string (func, term, paren, str_term)
+{
+  var c = '';
+  while ((c = nextc()) != '')
+  {
+    if (paren && c == paren)
+    {
+      ++str_term.nd_nest;
+    }
+    else if (c == term)
+    {
+      if (!str_term.nd_nest)
+      {
+        pushback(c);
+        break;
+      }
+      --str_term.nd_nest;
+    }
+    else if ((func & STR_FUNC_EXPAND) && c == '#' && !is_eol())
+    {
+      var c2 = nthchar(0);
+      if (c2 == '$' || c2 == '@' || c2 == '{')
+      {
+        pushback(c);
+        break;
+      }
+    }
+    else if (c == '\\')
+    {
+      c = nextc();
+      switch (c)
+      {
+        case '\n':
+          if (func & STR_FUNC_QWORDS)
+            break;
+          if (func & STR_FUNC_EXPAND)
+            continue;
+          tokadd('\\');
+          break;
+
+        case '\\':
+          if (func & STR_FUNC_ESCAPE)
+            tokadd(c);
+          break;
+
+        case 'u':
+          if ((func & STR_FUNC_EXPAND) == 0)
+          {
+            tokadd('\\');
+            break;
+          }
+          parser_tokadd_utf8(true, !!(func & STR_FUNC_SYMBOL), !!(func & STR_FUNC_REGEXP));
+          continue;
+
+        default:
+          if (c == '')
+            return '';
+          if (!ISASCII(c))
+          {
+            if ((func & STR_FUNC_EXPAND) == 0)
+              tokadd('\\');
+            // was: goto non_ascii;
+            if (tokadd(c) == '')
+              return '';
+            continue;
+          }
+          if (func & STR_FUNC_REGEXP)
+          {
+            if (c == term && !simple_re_meta(c))
+            {
+              tokadd(c);
+              continue;
+            }
+            pushback(c);
+            if ((c = tokadd_escape()) == '') // TODO
+              return '';
+            continue;
+          }
+          else if (func & STR_FUNC_EXPAND)
+          {
+            pushback(c);
+            if (func & STR_FUNC_ESCAPE)
+              tokadd('\\');
+            // TODO:
+            // c = read_escape(0, &enc);
+          }
+          else if ((func & STR_FUNC_QWORDS) && ISSPACE(c))
+          {
+            /* ignore backslashed spaces in %w */
+          }
+          else if (c != term && !(paren && c == paren))
+          {
+            tokadd('\\');
+            pushback(c);
+            continue;
+          }
+      }
+    }
+    else if ((func & STR_FUNC_QWORDS) && ISSPACE(c))
+    {
+      pushback(c);
+      break;
+    }
+    tokadd(c);
+  }
+  return c;
+}
+
+function simple_re_meta (c)
+{
+  // TODO: optimize!
+  switch (c)
+  {
+    case '$':
+    case '*':
+    case '+':
+    case '.':
+    case '?':
+    case '^':
+    case '|':
+    case ')':
+      return true;
+    default:
+      return false;
+  }
+}
+
+
+function tokadd_escape ()
+{
+  // TODO
+}
 
 // checks if the current line matches `/\s*#{eos}\n/`;
 // `pos` tell us when the start point is:
