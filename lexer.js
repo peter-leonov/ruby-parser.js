@@ -1498,6 +1498,7 @@ this.yylex = function yylex ()
       newtok();
       break;
     }
+    
     // add before here :)
     
     default:
@@ -2103,7 +2104,7 @@ function heredoc_restore (here)
 }
 
 /* return value is for ?\u3042 */
-function parser_tokadd_utf8(string_literal, symbol_literal, regexp_literal)
+function parser_tokadd_utf8 (string_literal, symbol_literal, regexp_literal)
 {
   /*
    * If string_literal is true, then we allow multiple codepoints
