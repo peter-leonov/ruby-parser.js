@@ -475,7 +475,8 @@ function YYParser (yylexer)
           // Pop the current state because it cannot handle the error token.
           if (yystack.height() == 0)
           {
-            return false;
+            label = YYABORT;
+            continue goto_loop;
           }
 
           yystack.pop(1);
@@ -503,6 +504,10 @@ function YYParser (yylexer)
       // Abort.               |
       //---------------------/
       case YYABORT:
+        // debug_symbol_print("Error: popping", yystos_[yyn], yylval);
+        // yystack.pop(1);
+        // yystate = yystack.stateAt(0);
+        // debug_stack_print(yystack);
         return false;
 
       default:
