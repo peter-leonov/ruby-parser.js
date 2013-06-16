@@ -838,7 +838,7 @@ this.yylex = function yylex ()
           c = parser_tokadd_utf8(false, false, false);
           tokadd(c);
         }
-        else if (!lex_eol_p() && (c = lex_pv(), ISASCII(c)))
+        else if (!lex_eol_p() && !(c = lex_pv(), ISASCII(c)))
         {
           nextc();
           if (tokadd(c) == '')
@@ -846,7 +846,7 @@ this.yylex = function yylex ()
         }
         else
         {
-          c = read_escape(0); // TODO
+          c = read_escape(0);
           tokadd(c);
         }
       }
@@ -2067,7 +2067,7 @@ function tokadd_string (func, term, paren, str_term)
             pushback(c);
             if (func & STR_FUNC_ESCAPE)
               tokadd('\\');
-            // c = read_escape(0, &enc); // TODO
+            c = read_escape(0);
           }
           else if ((func & STR_FUNC_QWORDS) && ISSPACE(c))
           {
@@ -2143,7 +2143,148 @@ function heredoc_restore (here)
   lexer.ruby_sourceline = here.nd_line;
 }
 
-/* return value is for ?\u3042 */
+var ESCAPE_CONTROL = 1,
+    ESCAPE_META = 2;
+
+function read_escape_eof ()
+{
+  yyerror("Invalid escape character syntax");
+  return '\0';
+}
+function read_escape (flags)
+{
+  var c = nextc();
+  switch (c)
+  {
+    case '\\':                 /* Backslash */
+      return c;
+
+    case 'n':                  /* newline */
+      return '\n';
+
+    case 't':                  /* horizontal tab */
+      return '\t';
+
+    case 'r':                  /* carriage-return */
+      return '\r';
+
+    case 'f':                  /* form-feed */
+      return '\f';
+
+    case 'v':                  /* vertical tab */
+      return '\v'; // \13
+
+    case 'a':                  /* alarm(bell) */
+      return '\a'; // \007
+
+    case 'e':                  /* escape */
+      return '\x1b'; // 033
+
+    case '0':
+    case '1':
+    case '2':
+    case '3':                  /* octal constant */
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+      pushback(c);
+      // was: c = scan_oct(lex_p, 3, &numlen);
+      var oct = match_grex(/[0-7]{1,3}|/g);
+      c = $$(parseInt(oct, 8));
+      lex_p += oct.length;
+      return c;
+
+    case 'x':                  /* hex constant */
+      // was: c = tok_hex(&numlen);
+      var hex = match_grex(/[0-9a-fA-F]{1,2}|/g);
+      if (!hex)
+      {
+        yyerror("invalid hex escape");
+        return '';
+      }
+      lex_p += hex.length;
+      c = $$(parseInt(hex, 16));
+      return c;
+
+    case 'b':                  /* backspace */
+      return '\x08'; // \010
+
+    case 's':                  /* space */
+      return ' ';
+
+    case 'M':
+      if (flags & ESCAPE_META)
+      {
+        // was: goto eof;
+        return read_escape_eof();
+      }
+      if ((c = nextc()) != '-')
+      {
+        pushback(c);
+        // was: goto eof;
+        return read_escape_eof();
+      }
+      if ((c = nextc()) == '\\')
+      {
+        if (peek('u'))
+        {
+          // was: goto eof;
+          return read_escape_eof();
+        }
+        return $$($(read_escape(flags | ESCAPE_META)) | 0x80);
+      }
+      else if (c == '' || !ISASCII(c))
+      {
+        // was: goto eof;
+        return read_escape_eof();
+      }
+      else
+      {
+        return $$(($(c) & 0xff) | 0x80);
+      }
+
+    case 'C':
+      if ((c = nextc()) != '-')
+      {
+        pushback(c);
+        // was: goto eof;
+        return read_escape_eof();
+      }
+    case 'c':
+      if (flags & ESCAPE_CONTROL)
+      {
+        // was: goto eof;
+        return read_escape_eof();
+      }
+      if ((c = nextc()) == '\\')
+      {
+        if (peek('u'))
+        {
+          // was: goto eof;
+          return read_escape_eof();
+        }
+        c = read_escape(flags | ESCAPE_CONTROL);
+      }
+      else if (c == '?')
+        return '\x7f'; // 0177;
+      else if (c == '' || !ISASCII(c))
+      {
+        // was: goto eof;
+        return read_escape_eof();
+      }
+      return $$($(c) & 0x9f);
+
+    // was: eof:
+    case -1:
+      return read_escape_eof();
+
+    default:
+      return c;
+  }
+}
+
+/* return value is for \u3042 */
 function parser_tokadd_utf8 (string_literal, symbol_literal, regexp_literal)
 {
   /*
