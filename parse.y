@@ -1934,7 +1934,6 @@ global.parse = function (text)
   yyerror = function (msg) { lexer.yyerror(msg); }
 
   var parser = new YYParser(lexer);
-  parser.enableDebug();
   
   var begin = new Date();
   var res = parser.parse();

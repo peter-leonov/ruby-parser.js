@@ -179,6 +179,17 @@ function YYParser (yylexer)
   // True if verbose error messages are enabled.
   this.errorVerbose = true;
 
+#if DEBUG
+  var debug_reduce_print = this.debug_reduce_print.bind(this);
+  var debug_symbol_print = this.debug_symbol_print.bind(this);
+  var debug_stack_print  = this.debug_stack_print.bind(this);
+  var debug_print        = this.debug_print.bind(this);
+#else
+#define debug_reduce_print(yyn)
+#define debug_symbol_print(message, yytype, yyvaluep, yylocationp)
+#define debug_stack_print(yystack)
+#define debug_print(message)
+#endif // DEBUG
   
 
   // Token returned by the scanner to signal the end of its input.
@@ -565,22 +576,6 @@ function YYParser (yylexer)
     return false
   }
 
-
-  // enabling debug will switch these functions to the usefull variants
-  function debug_reduce_print (yyn) {}
-  function debug_symbol_print (message, yytype, yyvaluep, yylocationp) {}
-  function debug_stack_print (yystack) {}
-  function debug_print (message) {}
-
-  this.enableDebug = function enableDebug ()
-  {
-    debug_reduce_print = this.debug_reduce_print.bind(this)
-    debug_symbol_print = this.debug_symbol_print.bind(this)
-    debug_stack_print  = this.debug_stack_print.bind(this)
-    debug_print        = this.debug_print.bind(this)
-  }
-
-
   // YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing STATE-NUM.
   var yypact_ninf_ = this.yypact_ninf_ = ]b4_pact_ninf[;
   var yypact_ = this.yypact_ =
@@ -731,6 +726,7 @@ YYParser.prototype =
   // },
   
   // Report on the debug stream that the rule yyrule is going to be reduced.
+#if DEBUG
   debug_reduce_print: function debug_reduce_print (yyrule)
   {
     var yystack = this.yystack;
@@ -768,6 +764,24 @@ YYParser.prototype =
       + ")\n"
     );
   },
+
+  debug_stack_print: function debug_stack_print ()
+  {
+    var yystack = this.yystack,
+      ary = [];
+    for (var i = 0, ih = yystack.height(); i <= ih; i++)
+    {
+      ary.push(yystack.stateAt(i));
+    }
+    
+    puts("Stack now " + ary.reverse().join(' '));
+  },
+
+  debug_print: function debug_print (message)
+  {
+    write(message);
+  },
+#endif // DEBUG
 
   // Generate an error message.
   yysyntax_error: function yysyntax_error (yystate, tok)
@@ -896,23 +910,6 @@ YYParser.prototype =
 
       return yystr;
     }
-  },
-
-  debug_stack_print: function debug_stack_print ()
-  {
-    var yystack = this.yystack,
-      ary = [];
-    for (var i = 0, ih = yystack.height(); i <= ih; i++)
-    {
-      ary.push(yystack.stateAt(i));
-    }
-    
-    puts("Stack now " + ary.reverse().join(' '));
-  },
-
-  debug_print: function debug_print (message)
-  {
-    write(message);
   }
 }
 
