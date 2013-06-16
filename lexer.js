@@ -284,6 +284,10 @@ function lex_goto_eol ()
 {
   lex_p = lex_pend;
 }
+function lex_eol_p ()
+{
+  return lex_p >= lex_pend;
+}
 
 // just an emulation of lex_p[i] from C
 function nthchar (i)
@@ -384,8 +388,13 @@ this.getLVal = function () { return $tokenbuf; }
 
 function parser_is_identchar (c)
 {
-  // \w = [A-Za-z0-9_]
-  return /^\w/.test(c)
+  return !lexer.eofp && is_identchar(c);
+  
+}
+function is_identchar (c)
+{
+  // \w = [A-Za-z0-9_] = (isalnum(c) || c == '_')
+  return /^\w/.test(c) || !ISASCII(c);
 }
 
 function NEW_STRTERM (func, term, paren)
@@ -809,37 +818,36 @@ this.yylex = function yylex ()
         lexer.lex_state = EXPR_VALUE;
         return $('?');
       }
-      
-      // the `?ab` construction
-      if (parser_is_identchar(c) && lex_p < lex_pend && parser_is_identchar(lex_pv()))
+      newtok();
+      if (!ISASCII(c))
+      {
+        if (tokadd(c) == '')
+          return 0;
+      }
+      else if (is_identchar(c) && lex_p < lex_pend && is_identchar(lex_pv()))
       {
         pushback(c);
-        lex_state = EXPR_VALUE;
+        lexer.lex_state = EXPR_VALUE;
         return $('?');
       }
-      
-      // definitely it's a character
-      
-      newtok();
-      if (c == '\\')
+      else if (c == '\\')
       {
-        c = nextc();
-        if (c === 'u')
+        if (peek('u'))
         {
+          nextc();
           c = parser_tokadd_utf8(false, false, false);
           tokadd(c);
         }
-        else if (!(ISASCII(c)))
+        else if (!lex_eol_p() && (c = lex_pv(), ISASCII(c)))
         {
+          nextc();
           if (tokadd(c) == '')
             return 0;
         }
         else
         {
-          pushback(c);
-          // TODO:
-          // c = read_escape(0, &enc);
-          // tokadd(c);
+          c = read_escape(0); // TODO
+          tokadd(c);
         }
       }
       else
@@ -2059,8 +2067,7 @@ function tokadd_string (func, term, paren, str_term)
             pushback(c);
             if (func & STR_FUNC_ESCAPE)
               tokadd('\\');
-            // TODO:
-            // c = read_escape(0, &enc);
+            // c = read_escape(0, &enc); // TODO
           }
           else if ((func & STR_FUNC_QWORDS) && ISSPACE(c))
           {
