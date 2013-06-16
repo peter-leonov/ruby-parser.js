@@ -179,11 +179,10 @@ function YYParser (yylexer)
   // True if verbose error messages are enabled.
   this.errorVerbose = true;
 
-  // Token returned by the scanner to signal the end of its input.
-  var EOF = 0;
-
   
 
+  // Token returned by the scanner to signal the end of its input.
+  var EOF = 0;
 
   // Returned by a Bison action in order to stop the parsing process
   // and return success (<tt>true</tt>).
