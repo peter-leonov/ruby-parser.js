@@ -23,6 +23,10 @@ test: build_debug
 prof: build
 	d8 --prof --use_strict runner-console.js
 
+# benchmark agains giant ruby file
+bench: build
+	v8 benchmark-console.js
+
 DIFF=git diff --no-index --color --
 CLEAN_BISON_LOG=sed -E 's/ +\(line [0-9]+\)| \(\)//g'
 compare: build_debug
