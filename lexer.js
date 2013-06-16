@@ -2,12 +2,16 @@
 
 // at first, read this: http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/
 
-// $stream: plain old JS string with ruby source code
-function Lexer ($stream)
+function Lexer ()
 {
-
 // the yylex() method and all public data sit here
 var lexer = this;
+
+// $text: plain old JS string with ruby source code,
+// to be set later in `setText()`
+var $text = '';
+lexer.setText = function (text) { $text = text; }
+
 // the end of stream had been reached
 lexer.eofp = false;
 // the string to be parsed in the nex lex() call
@@ -225,25 +229,25 @@ var lex_pbeg = 0, // lex_pbeg never changes
     lex_p = 0,
     lex_pend = 0;
 
-var $stream_pos = 0;
+var $text_pos = 0;
 // returns empty line as EOF
 function lex_getline ()
 {
-  var i = $stream.indexOf('\n', $stream_pos);
+  var i = $text.indexOf('\n', $text_pos);
   // didn't get any more newlines
   if (i === -1)
   {
     // the rest of the line
     // e.g. match the `$`
-    i = $stream.length;
+    i = $text.length;
   }
   else
   {
     i++; // include the `\n` char
   }
   
-  var line = $stream.substring($stream_pos, i);
-  $stream_pos = i;
+  var line = $text.substring($text_pos, i);
+  $text_pos = i;
   return line;
 }
 
@@ -377,7 +381,7 @@ var $tokenbuf = '',
     
 function newtok ()
 {
-  $tok_start = $stream_pos;
+  $tok_start = $text_pos;
   $tokenbuf = '';
 }
 function tokadd (c)
@@ -388,7 +392,7 @@ function tokadd (c)
 
 function tokfix ()
 {
-  $tok_end = $stream_pos;
+  $tok_end = $text_pos;
   /* was: tokenbuf[tokidx]='\0'*/
 }
 function tok () { return $tokenbuf; }
@@ -1801,7 +1805,7 @@ function heredoc_identifier ()
       }
       return 0;
     }
-    // TODO: create token with $stream.substring(start, end)
+    // TODO: create token with $text.substring(start, end)
     newtok();
     term = '"';
     func |= str_dquote;

@@ -1929,7 +1929,8 @@ var YYLexer =
 
 global.parse = function (text)
 {
-  var lexer = new YYLexer(text);
+  var lexer = new YYLexer();
+  lexer.setText(text);
 
   yyerror = function (msg) { lexer.yyerror(msg); }
 
