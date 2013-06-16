@@ -17,7 +17,14 @@ test: build
 prof: build
 	d8 --prof --use_strict runner-console.js
 
+CLEANUP=sed -E 's/ +\(line [0-9]+\)| \(\)//g'
+compare: build
+	ruby20 -yc ruby.rb 2>&1 | $(CLEANUP) >a.tmp
+	d8 --use_strict runner-console.js | $(CLEANUP) >b.tmp
+	diff a.tmp b.tmp
+
 # convert the original parse.y to readable form
 # DISFUNCTIONAL
-original:
+ruby_source:
 	gindent -nut -bl -bli0 -cli2 -npcs ruby20parse.lexer.y -o ruby20parse.lexer.pretty.y
+
