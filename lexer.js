@@ -1,5 +1,7 @@
 (function(){
 
+// at first, read this: http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/
+
 // $stream: plain old JS string with ruby source code
 function Lexer ($stream)
 {
@@ -16,12 +18,16 @@ lexer.lex_state = 0;
 lexer.last_state = 0;
 // have the lexer seen a space somewhere before the current char
 lexer.space_seen = false;
-// have no idea TODO
+// parser and lexer set this for lexer,
+// becomes `true` after `\n`, `;` or `(` is met
 lexer.command_start = false;
+// temp var for command_start during single run of `yylex`
 lexer.cmd_state = false;
-// have no idea TODO
+// used in `COND_*` macro-methods,
+// another spot of interlacing parser and lexer
 lexer.cond_stack = 0;
-// have no idea TODO
+// used in `CMDARG_*` macro-methods,
+// another spot of interlacing parser and lexer
 lexer.cmdarg_stack = 0;
 // controls level of nesting in `()` or `[]`
 lexer.paren_nest = 0;
@@ -2058,7 +2064,7 @@ function tokadd_string (func, term, paren, str_term)
               continue;
             }
             pushback(c);
-            if ((c = tokadd_escape()) == '') // TODO
+            if ((c = tokadd_escape()) == '')
               return '';
             continue;
           }
