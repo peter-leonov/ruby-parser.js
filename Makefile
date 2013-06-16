@@ -17,11 +17,12 @@ test: build
 prof: build
 	d8 --prof --use_strict runner-console.js
 
-CLEANUP=sed -E 's/ +\(line [0-9]+\)| \(\)//g'
+DIFF=git diff --no-index --color --
+CLEAN_BISON_LOG=sed -E 's/ +\(line [0-9]+\)| \(\)//g'
 compare: build
-	ruby20 -yc ruby.rb 2>&1 | $(CLEANUP) >a.tmp
-	d8 --use_strict runner-console.js | $(CLEANUP) >b.tmp
-	diff a.tmp b.tmp
+	ruby20 -yc ruby.rb 2>&1 | $(CLEAN_BISON_LOG) >a.tmp
+	d8 --use_strict runner-console.js | $(CLEAN_BISON_LOG) >b.tmp
+	$(DIFF) a.tmp b.tmp | cat
 
 # convert the original parse.y to readable form
 # DISFUNCTIONAL
