@@ -2365,6 +2365,7 @@ function is_local_id (ident)
   // TODO :)
   return false;
 }
+lexer.is_local_id = is_local_id;
 function lvar_defined (ident)
 {
   // TODO :)

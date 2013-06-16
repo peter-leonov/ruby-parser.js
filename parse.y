@@ -1015,7 +1015,7 @@ primary		: literal
 		    {}
 		| k_class cpath superclass
 		    {
-          if (in_def || yylexer.in_single)
+          if (yylexer.in_def || yylexer.in_single)
             yyerror("class definition in method body");
     			
 		    }
@@ -1793,7 +1793,7 @@ restarg_mark	: '*'
 
 f_rest_arg	: restarg_mark tIDENTIFIER
 		    {
-          if (!is_local_id($2)) // TODO
+          if (!yylexer.is_local_id($2)) // TODO
             yyerror("rest argument must be local variable");
     			
 		    }
@@ -1807,7 +1807,7 @@ blkarg_mark	: '&'
 
 f_block_arg	: blkarg_mark tIDENTIFIER
 		    {
-		      if (!is_local_id($2))
+		      if (!yylexer.is_local_id($2))
             yyerror("block argument must be local variable");
     			else if (!dyna_in_block() && local_id($2))
             yyerror("duplicated block argument name");
