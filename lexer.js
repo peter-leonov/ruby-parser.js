@@ -388,8 +388,6 @@ function toklast ()
 }
 
 // TODO
-this.getStartPos = function () { return $tok_start; }
-this.getEndPos = function () { return $tok_end; }
 this.getLVal = function () { return $tokenbuf; }
 
 
