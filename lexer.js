@@ -339,7 +339,7 @@ function match_grex (rex)
 #endif
   rex.lastIndex = lex_p;
   // there is always a match or an empty string in [0]
-  return rex.exec(lex_lastline)[0];
+  return rex.exec(lex_lastline);
 }
 // step back for one character and check
 // if the current character is equal to `c`
@@ -970,7 +970,8 @@ this.yylex = function yylex ()
         pushback(c);
         if (c != '' && ISDIGIT(c))
         {
-          c = '+';
+          // c = '+';
+          // return start_num(c); // was: goto start_num;
           return start_num(c); // was: goto start_num;
         }
         return tUPLUS;
@@ -1053,6 +1054,7 @@ this.yylex = function yylex ()
     case '8':
     case '9':
     {
+      pushback(c);
       return start_num(c);
     }
     
@@ -2210,14 +2212,14 @@ function read_escape (flags)
     case '7':
       pushback(c);
       // was: c = scan_oct(lex_p, 3, &numlen);
-      var oct = match_grex(/[0-7]{1,3}|/g);
+      var oct = match_grex(/[0-7]{1,3}|/g)[0];
       c = $$(parseInt(oct, 8));
       lex_p += oct.length;
       return c;
 
     case 'x':                  /* hex constant */
       // was: c = tok_hex(&numlen);
-      var hex = match_grex(/[0-9a-fA-F]{1,2}|/g);
+      var hex = match_grex(/[0-9a-fA-F]{1,2}|/g)[0];
       if (!hex)
       {
         yyerror("invalid hex escape");
@@ -2330,7 +2332,7 @@ function parser_tokadd_utf8 (string_literal, symbol_literal, regexp_literal)
     for (;;)
     {
       // match hex digits or empty string
-      var hex = match_grex(/[0-9a-fA-F]{1,6}|/g);
+      var hex = match_grex(/[0-9a-fA-F]{1,6}|/g)[0];
       if (hex == '')
       {
         yyerror("invalid Unicode escape");
@@ -2379,7 +2381,7 @@ function parser_tokadd_utf8 (string_literal, symbol_literal, regexp_literal)
   else
   {
     // match 4 hex digits or empty string
-    var hex = match_grex(/[0-9a-fA-F]{4}|/g);
+    var hex = match_grex(/[0-9a-fA-F]{4}|/g)[0];
     if (hex === '')
     {
       yyerror("invalid Unicode escape");
@@ -2402,7 +2404,10 @@ function parser_tokadd_utf8 (string_literal, symbol_literal, regexp_literal)
   }
 }
 
-// here `c` matches [0-9\+\-]
+// here `c` matches [0-9],
+// `c` is the first char of the future number,
+// as of Ruby 2.0 we don't expect to be called from leading '-' match,
+// the `c` has been pushed back by caller
 function start_num (c)
 {
   var is_float = false,
@@ -2412,118 +2417,53 @@ function start_num (c)
   
   lexer.lex_state = EXPR_END;
   newtok();
-  if (c == '-' || c == '+')
-  {
-    tokadd(c);
-    c = nextc();
-  }
   if (c == '0')
   {
-    // if (match_grex(/[xX0-9bBdD_oO]/g))
-    if (!peek('.'))
+    if (match_grex(/0[xX0-9bBdD_oO]|/g)[0])
       warning('0-leading digits to be supported soon');
   }
-
-  scan_loop:
-  for (;;)
+  
+  // as far as we know the first char is a digit, there is no need
+  // for any `\d[\d_]*` trickery to avoid error with leading `_` char.
+  // that means:
+  // 
+  //   \d+(_\d+)*                 000_000_000…
+  // 
+  // optionally followed by:
+  // 
+  //   \.\d+(?:_\d+)*            .000_000_000…
+  // 
+  // optionally followed by:
+  // 
+  //   [eE][+\-]?\d+(_\d+)*      e000_000_000…
+  // 
+  // so we could parse: `10_0.0_0e+0_0` as `100.0`
+  var drex = /\d+(?:_\d+)*(\.\d+(?:_\d+)*)?(?:[eE][+\-]?\d+(?:_\d+)*)?|/g;
+  var m = match_grex(drex);
+  var decimal = m[0];
+  if (!drex)
   {
-    switch (c)
-    {
-      case '0':
-      case '1':
-      case '2':
-      case '3':
-      case '4':
-      case '5':
-      case '6':
-      case '7':
-      case '8':
-      case '9':
-        nondigit = '';
-        tokadd(c);
-        break;
-
-      case '.':
-        if (nondigit)
-          break scan_loop; // was: goto trailing_uc;
-        if (seen_point || seen_e)
-        {
-          break scan_loop; // was: goto decode_num;
-        }
-        else
-        {
-          var c0 = nextc();
-          if (c0 == '' || !ISDIGIT(c0))
-          {
-            pushback(c0);
-            break scan_loop; // was: goto decode_num;
-          }
-          c = c0;
-        }
-        tokadd('.');
-        tokadd(c);
-        is_float = true;
-        seen_point = true;
-        nondigit = '';
-        break;
-
-      case 'e':
-      case 'E':
-        if (nondigit)
-        {
-          pushback(c);
-          c = nondigit;
-          break scan_loop; // was: goto decode_num;
-        }
-        if (seen_e)
-        {
-          break scan_loop; // was: goto decode_num;
-        }
-        tokadd(c);
-        seen_e = true;
-        is_float = true;
-        nondigit = c;
-        c = nextc();
-        if (c != '-' && c != '+')
-          continue;
-        tokadd(c);
-        nondigit = c;
-        break;
-
-      // `_' in number just ignored
-      case '_':
-        if (nondigit)
-          break scan_loop; // was: goto decode_num;
-        nondigit = c;
-        break;
-
-      default:
-        break scan_loop; // was: goto decode_num;
-    }
-    c = nextc();
+    yyerror("broken decimal number");
+    return tINTEGER;
   }
-
-  // was: decode_num:
-  pushback(c);
+  lex_p += decimal.length;
+  var nondigit = match_grex(/\w+|/g)[0];
   if (nondigit)
   {
-    // was: trailing_uc:
     yyerror("trailing `"+nondigit+"' in number");
+    return tINTEGER;
   }
-  tokfix();
-  if (is_float)
+
+  if (m[1]) // matched (\.\d+(?:_\d+)*)
   {
-    var d = parseFloat(tok());
-    if (isNaN(d))
-    {
-      // TODO: add real range check
-      warning("Float "+tok()+" out of range");
-    }
-    // set_yylval_literal(DBL2NUM(d)); TODO
+    // set_yylval_literal(rb_cstr_to_inum(tok(), 10, FALSE)); TODO
     return tFLOAT;
   }
-  // set_yylval_literal(rb_cstr_to_inum(tok(), 10, FALSE)); TODO
-  return tINTEGER;
+  else
+  {
+    // set_yylval_literal(rb_cstr_to_inum(tok(), 10, FALSE)); TODO
+    return tINTEGER;
+  }
 }
 
 
