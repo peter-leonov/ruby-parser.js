@@ -189,48 +189,6 @@ function YYParser (yylexer)
   }
 
   var yyval, yystack;
-  var actionsTable =
-  {
-    ]b4_list_of_actions[
-  }
-
-  function yyaction (yyn, yylen)
-  {
-    /* If YYLEN is nonzero, implement the default value of the action:
-       `$$ = $1'.  Otherwise, use the top of the stack.
-
-       Otherwise, the following line sets YYVAL to garbage.
-       This behavior is undocumented and Bison
-       users should not rely upon it.  */
-    // var yyval; moved up in scope chain to share with actions
-    if (yylen > 0)
-      yyval = yystack.valueAt(yylen - 1);
-    else
-      yyval = yystack.valueAt(0);
-
-    debug_reduce_print(yyn);
-
-    var actionClosure = actionsTable[yyn]
-    if (actionClosure)
-      actionClosure(yystack)
-
-    debug_symbol_print("-> $$ =", yyr1_[yyn], yyval);
-
-    yystack.pop(yylen);
-    yylen = 0;
-    debug_stack_print(yystack);
-
-    // Shift the result of the reduction.
-    yyn = yyr1_[yyn];
-    var yystate = yypgoto_[yyn - yyntokens_] + yystack.stateAt(0);
-    if (0 <= yystate && yystate <= yylast_ && yycheck_[yystate] == yystack.stateAt(0))
-      yystate = yytable_[yystate];
-    else
-      yystate = yydefgoto_[yyn - yyntokens_];
-
-    yystack.push(yystate, yyval);
-    // was: usless: return YYNEWSTATE;
-  }
 
   /**
    * Parse input from the scanner that was specified at object construction
@@ -517,6 +475,52 @@ function YYParser (yylexer)
 
     // won't reach here
     return false
+  }
+
+  var actionsTable; // defined lated in tables section
+
+  function yyaction (yyn, yylen)
+  {
+    /* If YYLEN is nonzero, implement the default value of the action:
+       `$$ = $1'.  Otherwise, use the top of the stack.
+
+       Otherwise, the following line sets YYVAL to garbage.
+       This behavior is undocumented and Bison
+       users should not rely upon it.  */
+    // var yyval; moved up in scope chain to share with actions
+    if (yylen > 0)
+      yyval = yystack.valueAt(yylen - 1);
+    else
+      yyval = yystack.valueAt(0);
+
+    debug_reduce_print(yyn);
+
+    var actionClosure = actionsTable[yyn]
+    if (actionClosure)
+      actionClosure(yystack)
+
+    debug_symbol_print("-> $$ =", yyr1_[yyn], yyval);
+
+    yystack.pop(yylen);
+    yylen = 0;
+    debug_stack_print(yystack);
+
+    // Shift the result of the reduction.
+    yyn = yyr1_[yyn];
+    var yystate = yypgoto_[yyn - yyntokens_] + yystack.stateAt(0);
+    if (0 <= yystate && yystate <= yylast_ && yycheck_[yystate] == yystack.stateAt(0))
+      yystate = yytable_[yystate];
+    else
+      yystate = yydefgoto_[yyn - yyntokens_];
+
+    yystack.push(yystate, yyval);
+    // was: usless: return YYNEWSTATE;
+  }
+
+  // declared erlier, before `action()`
+  actionsTable =
+  {
+    ]b4_list_of_actions[
   }
 
   // YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing STATE-NUM.
