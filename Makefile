@@ -1,3 +1,5 @@
+default: build
+
 # bake parser.js.src out of Bison file parse.y,
 # then preprocess the result with C preprocessor (cpp)
 build:

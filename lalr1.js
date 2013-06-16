@@ -695,16 +695,15 @@ function YYParser (yylexer)
     b4_prhs
     //[[
   ];
-
+#if DEBUG
   // YYRLINE[YYN] -- Source line where rule number YYN was defined.
-  // TODO: hide this table under #if DEBUG
   var yyrline_ = this.yyrline_ =
   [
     //]]
     b4_rline
     //[[
   ];
-
+#endif
   // YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.
   var yytranslate_table_ =
   [
@@ -736,7 +735,11 @@ YYParser.prototype =
   debug_reduce_print: function debug_reduce_print (yyrule)
   {
     var yystack = this.yystack;
+#if DEBUG
     var yylno = this.yyrline_[yyrule];
+#else
+    var yylno = 0;
+#endif
     var yynrhs = this.yyr2_[yyrule];
     // Print the symbols being reduced, and their result.
     this.debug_print("Reducing stack by rule " + (yyrule - 1) + " (line " + yylno + "):\n");
