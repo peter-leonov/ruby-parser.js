@@ -881,7 +881,6 @@ finish:
 static int
 parser_yyerror(struct parser_params *parser, const char *msg)
 {
-#ifndef RIPPER
   const int max_line_margin = 30;
   const char *p, *pe;
   char *buf;
@@ -949,9 +948,6 @@ parser_yyerror(struct parser_params *parser, const char *msg)
     buf[i + 1] = '\0';
     rb_compile_error_append("%s%s", pre, buf);
   }
-#else
-  dispatch1(parse_error, STR_NEW2(msg));
-#endif /* !RIPPER */
   return 0;
 }
 
