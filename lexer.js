@@ -366,7 +366,6 @@ function newtok ()
 {
   $tok_start = $stream_pos;
   $tokenbuf = '';
-  return $tokenbuf;
 }
 function tokadd (c)
 {
