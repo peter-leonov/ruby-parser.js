@@ -2406,8 +2406,9 @@ function start_num (c)
   }
   if (c == '0')
   {
-    // TODO
-    warning('0-leading digits to be supported soon');
+    // if (match_grex(/[xX0-9bBdD_oO]/g))
+    if (!peek('.'))
+      warning('0-leading digits to be supported soon');
   }
 
   scan_loop:
