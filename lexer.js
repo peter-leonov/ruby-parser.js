@@ -324,6 +324,19 @@ function peek_n (c, n)
 // that means `blablabla` or empty string (to prevent deep search)
 function match_grex (rex)
 {
+#if DEBUG
+  // check if the rex is in proper form
+  if (!rex.global)
+  {
+    yyerror('match_grex() allows only global regexps: `…|/g`');
+    throw 'DEBUG';
+  }
+  if (rex.source.substr(-1) != '|')
+  {
+    yyerror('match_grex() need trailing empty string match: `…|/g`');
+    throw 'DEBUG';
+  }
+#endif
   rex.lastIndex = lex_p;
   // there is always a match or an empty string in [0]
   return rex.exec(lex_lastline)[0];
