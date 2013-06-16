@@ -247,7 +247,7 @@ function YYParser (yylexer)
     if (actionClosure)
       actionClosure(yystack)
 
-    debug_symbol_print("-> $$ =", yyr1_[yyn], yyval, yyloc); // TODO: step into
+    debug_symbol_print("-> $$ =", yyr1_[yyn], yyval, yyloc);
 
     yystack.pop(yylen);
     yylen = 0;
