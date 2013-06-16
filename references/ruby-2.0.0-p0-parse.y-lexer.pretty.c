@@ -769,62 +769,7 @@ ripper_yylval_id(ID x)
 # define yylval_id() yylval.id
 #endif
 
-#ifndef RIPPER
 #define ripper_flush(p) (void)(p)
-#else
-#define ripper_flush(p) ((p)->tokp = (p)->parser_lex_p)
-
-#define yylval_rval (*(RB_TYPE_P(yylval.val, T_NODE) ? &yylval.node->nd_rval : &yylval.val))
-
-static int
-ripper_has_scan_event(struct parser_params *parser)
-{
-
-  if (lex_p < parser->tokp)
-    rb_raise(rb_eRuntimeError, "lex_p < tokp");
-  return lex_p > parser->tokp;
-}
-
-static VALUE
-ripper_scan_event_val(struct parser_params *parser, int t)
-{
-  VALUE str = STR_NEW(parser->tokp, lex_p - parser->tokp);
-  VALUE rval = ripper_dispatch1(parser, ripper_token2eventid(t), str);
-  ripper_flush(parser);
-  return rval;
-}
-
-static void
-ripper_dispatch_scan_event(struct parser_params *parser, int t)
-{
-  if (!ripper_has_scan_event(parser))
-    return;
-  yylval_rval = ripper_scan_event_val(parser, t);
-}
-
-static void
-ripper_dispatch_ignored_scan_event(struct parser_params *parser, int t)
-{
-  if (!ripper_has_scan_event(parser))
-    return;
-  (void) ripper_scan_event_val(parser, t);
-}
-
-static void
-ripper_dispatch_delayed_token(struct parser_params *parser, int t)
-{
-  int saved_line = ruby_sourceline;
-  const char *saved_tokp = parser->tokp;
-
-  ruby_sourceline = parser->delayed_line;
-  parser->tokp = lex_pbeg + parser->delayed_col;
-  yylval_rval =
-    ripper_dispatch1(parser, ripper_token2eventid(t), parser->delayed);
-  parser->delayed = Qnil;
-  ruby_sourceline = saved_line;
-  parser->tokp = saved_tokp;
-}
-#endif /* RIPPER */
 
 #include "ruby/regex.h"
 #include "ruby/util.h"
@@ -2256,23 +2201,6 @@ parser_here_document(struct parser_params *parser, NODE * here)
   error:
     compile_error(PARSER_ARG "can't find string \"%s\" anywhere before EOF",
                   eos);
-#ifdef RIPPER
-    if (NIL_P(parser->delayed))
-    {
-      ripper_dispatch_scan_event(parser, tSTRING_CONTENT);
-    }
-    else
-    {
-      if (str ||
-          ((len = lex_p - parser->tokp) > 0 &&
-           (str = STR_NEW3(parser->tokp, len, enc, func), 1)))
-      {
-        rb_str_append(parser->delayed, str);
-      }
-      ripper_dispatch_delayed_token(parser, tSTRING_CONTENT);
-    }
-    lex_goto_eol(parser);
-#endif
   restore:
     heredoc_restore(lex_strterm);
     lex_strterm = 0;
@@ -2374,11 +2302,7 @@ parser_here_document(struct parser_params *parser, NODE * here)
 static void
 arg_ambiguous_gen(struct parser_params *parser)
 {
-#ifndef RIPPER
   rb_warning0("ambiguous first argument; put parentheses or even spaces");
-#else
-  dispatch0(arg_ambiguous);
-#endif
 }
 
 #define arg_ambiguous() (arg_ambiguous_gen(parser), 1)
