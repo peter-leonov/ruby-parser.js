@@ -703,14 +703,7 @@ YYParser.prototype =
 
   debug_stack_print: function debug_stack_print ()
   {
-    var yystack = this.yystack,
-      ary = [];
-    for (var i = 0, ih = yystack.height(); i <= ih; i++)
-    {
-      ary.push(yystack.stateAt(i));
-    }
-    
-    puts("Stack now " + ary.reverse().join(' '));
+    puts("Stack now " + this.yystack.stateStack.join(' '));
   },
 
   debug_print: function debug_print (message)
