@@ -31,8 +31,6 @@ var EXPR_ARG_ANY = EXPR_ARG | EXPR_CMDARG;
 var EXPR_END_ANY = EXPR_END | EXPR_ENDARG | EXPR_ENDFN;
 
 
-var yyerror;
-
 %}
 
 %skeleton "./lalr1.js"
@@ -217,7 +215,7 @@ stmt_or_begin
   |
     keyword_BEGIN
     {
-      yyerror("BEGIN is permitted only at toplevel");
+      yylexer.yyerror("BEGIN is permitted only at toplevel");
     }
     '{' top_compstmt '}'
     {}
@@ -240,7 +238,7 @@ stmt
   |
     keyword_alias tGVAR tNTH_REF
     {
-      yyerror("can't make alias for the number variables");
+      yylexer.yyerror("can't make alias for the number variables");
     }
   |
     keyword_undef undef_list
@@ -504,13 +502,13 @@ mlhs_node
     primary_value tCOLON2 tCONSTANT
     {
       if (yylexer.in_def || yylexer.in_single)
-        yyerror("dynamic constant assignment");
+        yylexer.yyerror("dynamic constant assignment");
     }
   |
     tCOLON3 tCONSTANT
     {
       if (yylexer.in_def || yylexer.in_single)
-        yyerror("dynamic constant assignment");
+        yylexer.yyerror("dynamic constant assignment");
     }
   |
     backref
@@ -540,13 +538,13 @@ lhs
     primary_value tCOLON2 tCONSTANT
     {
       if (yylexer.in_def || yylexer.in_single)
-        yyerror("dynamic constant assignment");
+        yylexer.yyerror("dynamic constant assignment");
     }
   |
     tCOLON3 tCONSTANT
     {
       if (yylexer.in_def || yylexer.in_single)
-        yyerror("dynamic constant assignment");
+        yylexer.yyerror("dynamic constant assignment");
     }
   |
     backref
@@ -557,7 +555,7 @@ cname
   :
     tIDENTIFIER
     {
-      yyerror("class/module name must be CONSTANT");
+      yylexer.yyerror("class/module name must be CONSTANT");
     }
   |
     tCONSTANT
@@ -1016,7 +1014,7 @@ primary		: literal
 		| k_class cpath superclass
 		    {
           if (yylexer.in_def || yylexer.in_single)
-            yyerror("class definition in method body");
+            yylexer.yyerror("class definition in method body");
     			
 		    }
 		  bodystmt
@@ -1044,7 +1042,7 @@ primary		: literal
 		| k_module cpath
 		    {
           if (yylexer.in_def || yylexer.in_single)
-            yyerror("module definition in method body");
+            yylexer.yyerror("module definition in method body");
     			
 		    }
 		  bodystmt
@@ -1704,19 +1702,19 @@ f_args		: f_arg ',' f_optarg ',' f_rest_arg opt_args_tail
 
 f_bad_arg	: tCONSTANT
 		    {
-		      yyerror("formal argument cannot be a constant");
+		      yylexer.yyerror("formal argument cannot be a constant");
 		    }
 		| tIVAR
 		    {
-		      yyerror("formal argument cannot be an instance variable");
+		      yylexer.yyerror("formal argument cannot be an instance variable");
 		    }
 		| tGVAR
 		    {
-		      yyerror("formal argument cannot be a global variable");
+		      yylexer.yyerror("formal argument cannot be a global variable");
 		    }
 		| tCVAR
 		    {
-		      yyerror("formal argument cannot be a class variable");
+		      yylexer.yyerror("formal argument cannot be a class variable");
 		    }
 		;
 
@@ -1794,7 +1792,7 @@ restarg_mark	: '*'
 f_rest_arg	: restarg_mark tIDENTIFIER
 		    {
           if (!yylexer.is_local_id($2)) // TODO
-            yyerror("rest argument must be local variable");
+            yylexer.yyerror("rest argument must be local variable");
     			
 		    }
 		| restarg_mark
@@ -1808,9 +1806,9 @@ blkarg_mark	: '&'
 f_block_arg	: blkarg_mark tIDENTIFIER
 		    {
 		      if (!yylexer.is_local_id($2))
-            yyerror("block argument must be local variable");
+            yylexer.yyerror("block argument must be local variable");
     			else if (!dyna_in_block() && local_id($2))
-            yyerror("duplicated block argument name");
+            yylexer.yyerror("duplicated block argument name");
     			
 		    }
 		;
@@ -1830,7 +1828,7 @@ singleton	: var_ref
 		expr rparen
 		    {
           if ($3 == 0) {
-            yyerror("can't define singleton method for ().");
+            yylexer.yyerror("can't define singleton method for ().");
           }
           else {
             switch (nd_type($3)) { // TODO
@@ -1842,7 +1840,7 @@ singleton	: var_ref
               case NODE_LIT:
               case NODE_ARRAY:
               case NODE_ZARRAY:
-                yyerror("can't define singleton method for literals");
+                yylexer.yyerror("can't define singleton method for literals");
               default:
                 value_expr($3); // TODO
                 break;
@@ -1930,9 +1928,8 @@ var YYLexer =
 global.parse = function (text)
 {
   var lexer = new YYLexer();
+  lexer.filename = 'ruby.rb';
   lexer.setText(text);
-
-  yyerror = function (msg) { lexer.yyerror(msg); }
 
   var parser = new YYParser(lexer);
   

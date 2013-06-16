@@ -54,9 +54,13 @@ lexer.ruby__end__seen = false;
 // parser needs access to the line number,
 // AFAICT, parser never changes it, only sets nd_line on nodes
 lexer.ruby_sourceline = 0;
+// file name for meningfull error reporting
+lexer.filename = '(eval)';
 // parser doesn't touch it, but what is it?
 lexer.heredoc_end = 0;
 lexer.line_count = 0;
+// errors count
+lexer.nerr = 0;
 // TODO: check out list of stateful variables with the original
 
 // all lexer states codes had been moved to parse.y prologue
@@ -254,6 +258,10 @@ function lex_getline ()
 
 var lex_nextline = '',
     lex_lastline = '';
+
+// lex_lastline reader for error reporting
+lexer.get_lex_lastline = function () { return lex_lastline; }
+
 function nextc ()
 {
   if (lex_p == lex_pend)
@@ -332,12 +340,12 @@ function match_grex (rex)
   // check if the rex is in proper form
   if (!rex.global)
   {
-    yyerror('match_grex() allows only global regexps: `…|/g`');
+    lexer.yyerror('match_grex() allows only global regexps: `…|/g`');
     throw 'DEBUG';
   }
   if (rex.source.substr(-1) != '|')
   {
-    yyerror('match_grex() need trailing empty string match: `…|/g`');
+    lexer.yyerror('match_grex() need trailing empty string match: `…|/g`');
     throw 'DEBUG';
   }
 #endif
@@ -1041,7 +1049,7 @@ this.yylex = function yylex ()
       pushback(c);
       if (c != '' && ISDIGIT(c))
       {
-        yyerror("no .<digit> floating literal anymore; put 0 before dot");
+        lexer.yyerror("no .<digit> floating literal anymore; put 0 before dot");
       }
       lexer.lex_state = EXPR_DOT;
       return $('.');
@@ -1301,7 +1309,7 @@ this.yylex = function yylex ()
             term = nextc();
             if (ISALNUM(term) || !ISASCII(term))
             {
-              yyerror("unknown type of %string");
+              lexer.yyerror("unknown type of %string");
               return 0;
             }
           }
@@ -1386,7 +1394,7 @@ this.yylex = function yylex ()
               return tSYMBEG;
 
             default:
-              yyerror("unknown type of %string");
+              lexer.yyerror("unknown type of %string");
               return 0;
           }
         }
@@ -2174,7 +2182,7 @@ var ESCAPE_CONTROL = 1,
 
 function read_escape_eof ()
 {
-  yyerror("Invalid escape character syntax");
+  lexer.yyerror("Invalid escape character syntax");
   return '\0';
 }
 function read_escape (flags)
@@ -2226,7 +2234,7 @@ function read_escape (flags)
       var hex = match_grex(/[0-9a-fA-F]{1,2}|/g)[0];
       if (!hex)
       {
-        yyerror("invalid hex escape");
+        lexer.yyerror("invalid hex escape");
         return '';
       }
       lex_p += hex.length;
@@ -2339,14 +2347,14 @@ function parser_tokadd_utf8 (string_literal, symbol_literal, regexp_literal)
       var hex = match_grex(/[0-9a-fA-F]{1,6}|/g)[0];
       if (hex == '')
       {
-        yyerror("invalid Unicode escape");
+        lexer.yyerror("invalid Unicode escape");
         return '';
       }
       var codepoint = parseInt(hex, 16);
       var the_char = $$(codepoint);
       if (codepoint > 0x10ffff)
       {
-        yyerror("invalid Unicode codepoint "+codepoint+" (too large)");
+        lexer.yyerror("invalid Unicode codepoint "+codepoint+" (too large)");
         return '';
       }
       
@@ -2369,7 +2377,7 @@ function parser_tokadd_utf8 (string_literal, symbol_literal, regexp_literal)
 
     if (c !== '}')
     {
-      yyerror("unterminated Unicode escape");
+      lexer.yyerror("unterminated Unicode escape");
       return '';
     }
 
@@ -2388,7 +2396,7 @@ function parser_tokadd_utf8 (string_literal, symbol_literal, regexp_literal)
     var hex = match_grex(/[0-9a-fA-F]{4}|/g)[0];
     if (hex === '')
     {
-      yyerror("invalid Unicode escape");
+      lexer.yyerror("invalid Unicode escape");
       return '';
     }
     var codepoint = parseInt(hex, 16);
@@ -2447,15 +2455,14 @@ function start_num (c)
   var decimal = m[0];
   if (!drex)
   {
-    yyerror("broken decimal number");
+    lexer.yyerror("broken decimal number");
     return tINTEGER;
   }
   lex_p += decimal.length;
-  var nondigit = match_grex(/\w+|/g)[0];
+  var nondigit = match_grex(/\w|/g)[0];
   if (nondigit)
   {
-    yyerror("trailing `"+nondigit+"' in number");
-    return tINTEGER;
+    lexer.yyerror("trailing `"+nondigit+"' in number");
   }
 
   if (m[1]) // matched (\.\d+(?:_\d+)*)
@@ -2571,9 +2578,29 @@ function print_error ()
   puts('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
 }
 function warning (msg) { print_error('WARNING: ' + msg) }
-function compile_error (msg) { print_error('COMPILE ERROR: ' + msg) }
-function yyerror (msg) { print_error('YYERROR: ' + msg) }
-this.yyerror = yyerror;
+
+function compile_error (msg)
+{
+  lexer.nerr++;
+
+  puts
+  (
+    lexer.filename +
+    ':' +
+    lexer.ruby_sourceline +
+    ': ' +
+    msg
+  );
+}
+
+lexer.yyerror = function yyerror (msg)
+{
+  compile_error(msg);
+  var arrow = [];
+  arrow[lex_p] = '^';
+  puts(lexer.get_lex_lastline());
+  puts(arrow.join(' '));
+}
 
 } // function Lexer
 

@@ -412,7 +412,7 @@ function YYParser (yylexer)
           ++yynerrs_;
           if (yychar == yyempty_)
             yytoken = yyempty_;
-          yyerror(this.yysyntax_error(yystate, yytoken));
+          yylexer.yyerror(this.yysyntax_error(yystate, yytoken));
         }
 
         if (yyerrstatus_ == 3)
