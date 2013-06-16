@@ -1,10 +1,11 @@
 this.global = this;
 this.puts = print;
 
-load('parse.js');
-
-var text = read('tests/lexer/text.txt');
 var begin = new Date()
-if (!parse(text))
-  puts('Error.')
-print('time: ' + (new Date() - begin))
+load('parse.js');
+print('load: ' + (new Date() - begin))
+var text = read('tests/lexer/text.txt');
+
+var begin = new Date()
+parse(text)
+print('parse: ' + (new Date() - begin))
