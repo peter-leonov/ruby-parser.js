@@ -1844,6 +1844,7 @@ function heredoc_identifier ()
       return 0;
     }
     // TODO: create token with $text.substring(start, end)
+    // TODO: or remove all the function with a regexp ;)
     newtok();
     term = '"';
     func |= str_dquote;
@@ -2071,7 +2072,9 @@ function tokadd_string (func, term, paren, str_term)
       var c2 = lex_pv();
       if (c2 == '$' || c2 == '@' || c2 == '{')
       {
+        // push the '#' back
         pushback(c);
+        // and leave it for the caller to process
         break;
       }
     }
@@ -2461,6 +2464,7 @@ function start_num (c)
   newtok();
   if (c == '0')
   {
+    // TODO: implement all the bestiary
     if (match_grex(/0[xX0-9bBdD_oO]|/g)[0])
       warning('0-leading digits to be supported soon');
   }
