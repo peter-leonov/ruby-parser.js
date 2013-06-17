@@ -224,7 +224,8 @@ function YYParser (yylexer)
     // Initialize the stack.
     yystack.push(yystate, yylval);
 
-    // have tried: recursive closures, breaking blocks - switch is faster
+    // have tried: recursive closures, breaking blocks - switch is faster,
+    // next step: asm.js for the whole `parse()` function
     var label = YYNEWSTATE;
     goto_loop: for (;;)
     switch (label)
