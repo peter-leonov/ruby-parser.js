@@ -41,6 +41,8 @@ x = 0.5e8
 x = +0.5e8
 x = 1e5
 
++x
+
 # # TODO: add to error reporting tests
 # x = +0.5e8_e
 # x = +0.5e8e
