@@ -1036,7 +1036,7 @@ this.yylex = function yylex ()
       if (IS_BEG() || (IS_SPCARG(c) && arg_ambiguous()))
       {
         lexer.lex_state = EXPR_BEG;
-        pushback(c);
+        pushback(c); // pushing back char after `+`
         if (c != '' && ISDIGIT(c))
         {
           // c = '+';
