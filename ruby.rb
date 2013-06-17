@@ -1,11 +1,11 @@
 #!ruby
 # encoding: utf-8
 
-# "#{<<AAA}, #{<<BBB}" + 2
-# a content
-# AAA
-# b content
-# BBB
+"#{<<AAA}, #{<<BBB}" + 2
+a content
+AAA
+b content
+BBB
 
 <<AAA + <<BBB + "
 a content
