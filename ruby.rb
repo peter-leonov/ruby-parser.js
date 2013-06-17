@@ -29,13 +29,14 @@ puts ?\
 puts ?\x80 + "\x80"
 
 
-  rex = /a\x0\123\\\cM\C-xaa/
+# # TODO: add to error reporting tests
+#   rex = /a\x0\123\\\cM\C-xaa/
 
 x = 0.5e8
 x = +0.5e8
 x = 1e5
 
-# TODO: add to error reporting tests
+# # TODO: add to error reporting tests
 # x = +0.5e8_e
 # x = +0.5e8e
 # x = +0.5e8_.
