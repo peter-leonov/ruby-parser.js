@@ -32,6 +32,11 @@ puts ?\x80 + "\x80"
 # # TODO: add to error reporting tests
 #   rex = /a\x0\123\\\cM\C-xaa/
 
+0.i
+1.i
+
+x = 0
+x = 5
 x = 0.5e8
 x = +0.5e8
 x = 1e5
