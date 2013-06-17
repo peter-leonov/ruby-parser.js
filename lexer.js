@@ -2569,6 +2569,7 @@ function start_num (c)
   
   lexer.lex_state = EXPR_END;
   newtok();
+  // `c` has been pushed back by the caller
   if (c == '0')
   {
     // TODO: implement all the bestiary
