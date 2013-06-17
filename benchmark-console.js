@@ -4,7 +4,7 @@ this.puts = print;
 var begin = new Date()
 load('parse.js');
 print('load: ' + (new Date() - begin))
-var text = read('tests/lexer/text.txt');
+var text = read('tests/lexer/text.rb');
 
 var begin = new Date()
 parse(text)

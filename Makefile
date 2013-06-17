@@ -21,7 +21,7 @@ test: build_debug
 
 # profile with d8
 prof: build
-	d8 --prof --use_strict runner-console.js
+	d8 --prof --use_strict benchmark-console.js
 
 # benchmark agains giant ruby file
 bench: build
