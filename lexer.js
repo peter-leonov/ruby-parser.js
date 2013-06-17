@@ -2590,7 +2590,7 @@ function start_num (c)
   //   [eE][+\-]?\d+(_\d+)*      e000_000_000…
   // 
   // so we could parse: `10_0.0_0e+0_0` as `100.0`
-  var drex = /\d+(?:_\d+)*(\.\d+(?:_\d+)*)?(?:[eE][+\-]?\d+(?:_\d+)*)?|/g;
+  var drex = /\d+(?:_\d+)*(?:(\.)\d+(?:_\d+)*)?(?:([eE])[+\-]?\d+(?:_\d+)*)?(\w)?|/g;
   var m = match_grex(drex);
   var decimal = m[0];
   if (!drex)
@@ -2605,7 +2605,7 @@ function start_num (c)
     lexer.yyerror("trailing `"+nondigit+"' in number");
   }
 
-  if (m[1]) // matched (\.\d+(?:_\d+)*)
+  if (m[1] || m[2]) // matched `.` or `e`
   {
     // set_yylval_literal(rb_cstr_to_inum(tok(), 10, FALSE)); TODO
     return tFLOAT;
