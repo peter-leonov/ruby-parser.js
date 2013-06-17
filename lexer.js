@@ -2740,9 +2740,18 @@ function compile_error (msg)
 lexer.yyerror = function yyerror (msg)
 {
   compile_error(msg);
+
+  // to clean up \n \t and others
+  var line = lexer.get_lex_lastline();
+  var begin = line.substring(0, lex_p)
+                  .replace(/[\n\r]+/g, '')
+                  .replace(/\s+/g, ' ');
+  var end =   line.substring(lex_p)
+                  .replace(/[\n\r]+/g, '')
+                  .replace(/\s+/g, ' ');
   var arrow = [];
-  arrow[lex_p] = '^';
-  puts(lexer.get_lex_lastline());
+  arrow[begin.length] = '^';
+  puts(begin + end);
   puts(arrow.join(' '));
 }
 
