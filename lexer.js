@@ -2599,9 +2599,13 @@ function start_num (c)
     return tINTEGER;
   }
   lex_p += decimal.length;
-  var nondigit = match_grex(/\w|/g)[0];
+  var nondigit = m[3];
   if (nondigit)
   {
+    if (peek('.'))
+      lex_p++;
+    else
+      lex_p--;
     lexer.yyerror("trailing `"+nondigit+"' in number");
   }
 
