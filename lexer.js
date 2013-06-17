@@ -359,6 +359,29 @@ function match_grex (rex)
   // there is always a match or an empty string in [0]
   return rex.exec(lex_lastline);
 }
+// the same as `match_grex()` but does'n return the match,
+// treats the empty match as a `false`
+function test_grex (rex)
+{
+#if DEBUG
+  // check if the rex is in proper form
+  if (!rex.global)
+  {
+    lexer.yyerror('test_grex() allows only global regexps: `…|/g`');
+    throw 'DEBUG';
+  }
+  if (rex.source.substr(-1) != '|')
+  {
+    lexer.yyerror('test_grex() need trailing empty string match: `…|/g`');
+    throw 'DEBUG';
+  }
+#endif
+  rex.lastIndex = lex_p;
+  // there is always a match for an empty string
+  rex.test(lex_lastline);
+  // and on the actual match there coud be a change in `lastIndex`
+  return rex.lastIndex != lex_p;
+}
 // step back for one character and check
 // if the current character is equal to `c`
 function pushback (c)
@@ -402,6 +425,10 @@ function tokadd (c)
 {
   $tokenbuf += c;
   return c;
+}
+function tokcopy (n)
+{
+  $tokenbuf += $text.substring($text_pos - n, $text_pos);
 }
 
 function tokfix ()
@@ -2125,7 +2152,7 @@ function tokadd_string (func, term, paren, str_term)
               continue;
             }
             pushback(c);
-            if ((c = tokadd_escape()) == '')
+            if (!tokadd_escape()) // useless `c = ` was here
               return '';
             continue;
           }
@@ -2178,10 +2205,89 @@ function simple_re_meta (c)
 }
 
 
+function tokadd_escape_eof ()
+{
+  lexer.yyerror("Invalid escape character syntax");
+}
+// return `true` on success and `false` on failure,
+// it is quite different from original source,
+// however the returning value is a flag only there too;
 function tokadd_escape ()
 {
-  // TODO
-  return 'TODO';
+  var c = '';
+  var flags = 0;
+
+  switch (c = nextc())
+  {
+    case '\n':
+      return true;                 /* just ignore */
+
+    case '0':
+    case '1':
+    case '2':
+    case '3':                  /* octal constant */
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    {
+      // was: scan_oct(lex_p, 3, &numlen);
+      
+      // we're here: "\|012",
+      // so just match one or two more digits
+      var oct = match_grex(/[0-7]{1,2}|/g);
+      if (!oct)
+      {
+        // was: goto eof;
+        tokadd_escape_eof();
+        return false;
+      }
+      lex_p += oct.length;
+      tokadd('\\' + c + oct);
+    }
+    return true;
+
+    case 'x':                  /* hex constant */
+      {
+        // was: tok_hex(&numlen);
+        
+        // we're here: "\x|AB",
+        // so just match one or two more digits
+        var hex = match_grex(/[0-9a-fA-F]{1,2}|/g);
+        if (!hex)
+        {
+          yyerror("invalid hex escape");
+          return false;
+        }
+        lex_p += hex.length;
+        tokadd('\\x' + hex);
+      }
+      return true;
+    
+    case '':
+      tokadd_escape_eof();
+      return false;
+    
+    case 'c':
+      tokadd("\\c");
+      return true;
+    
+    case 'M':
+    case 'C':
+      lexer.yyerror("JavaScript doesn't support `\\"+c+"-' in regexp");
+      if ((c = nextc()) != '-')
+      {
+        pushback(c);
+        tokadd_escape_eof();
+        return false;
+      }
+      tokcopy(3); // add though
+      return true;
+    
+    default:
+      tokadd("\\"+c);
+  }
+  return true;
 }
 
 // checks if the current line matches `/^\s*#{eos}\n?$/`;

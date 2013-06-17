@@ -1,3 +1,6 @@
+#!ruby
+# encoding: utf-8
+
 # "#{<<AAA}, #{<<BBB}" + 2
 # a content
 # AAA
@@ -26,6 +29,7 @@ puts ?\
 puts ?\x80 + "\x80"
 
 
+  rex = /a\x0\123\\\cM\C-xaa/
 
 x = 0.5e8
 x = +0.5e8
