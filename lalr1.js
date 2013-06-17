@@ -224,6 +224,7 @@ function YYParser (yylexer)
     // Initialize the stack.
     yystack.push(yystate, yylval);
 
+    // have tried: recursive closures, breaking blocks - switch is faster
     var label = YYNEWSTATE;
     goto_loop: for (;;)
     switch (label)
