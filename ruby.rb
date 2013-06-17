@@ -33,6 +33,14 @@ puts ?\x80 + "\x80"
 
 x = 0.5e8
 x = +0.5e8
+x = 1e5
+
+# TODO: add to error reporting tests
+# x = +0.5e8_e
+# x = +0.5e8e
+# x = +0.5e8_.
+
+
 x = 0.5_0e1_000
 x = 10_0.0_0e+0_0
 
