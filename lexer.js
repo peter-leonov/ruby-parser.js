@@ -1041,6 +1041,7 @@ this.yylex = function yylex ()
         {
           // c = '+';
           // return start_num(c); // was: goto start_num;
+          tokadd(c);
           return start_num(c); // was: goto start_num;
         }
         return tUPLUS;
