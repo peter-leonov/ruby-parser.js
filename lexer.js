@@ -317,6 +317,12 @@ function lex_pv ()
 {
   return lex_lastline[lex_p];
 }
+// emulation of `strncmp(lex_p, "begin", 5)`,
+// but you better use a precompiled regexp if `str` is a constant
+function strncmp_lex_p (str)
+{
+  return $test.substring(lex_p, lex_p + str.length) == str;
+}
 
 // forecast, if the nextc() will return character `c`
 function peek (c)
@@ -538,7 +544,7 @@ this.yylex = function yylex ()
     case ' ':
     case '\t':
     case '\f':
-    case '\r': // TODO: cream on `\r` everywhere, or clear it out
+    case '\r': // TODO: scream on `\r` everywhere, or clear it out
     case '\v':    // '\13'
     {
       lexer.space_seen = true;
@@ -677,7 +683,31 @@ this.yylex = function yylex ()
     
     case '=':
     {
-      // TODO: skip embedded rd document */
+      if (was_bol())
+      {
+        /* skip embedded rd document */
+        if (match_grex(/begin[\n \t]|/g)[0])
+        {
+          for (;;)
+          {
+            lex_goto_eol();
+            c = nextc();
+            if (c == '')
+            {
+              compile_error("embedded document meets end of file");
+              return 0;
+            }
+            if (c != '=')
+              continue;
+            if (match_grex(/end(?:[\n \t]|$)|/gm)[0])
+            {
+              break;
+            }
+          }
+          lex_goto_eol();
+          continue retry; // was: goto retry;
+        }
+      }
 
       lexer.lex_state = IS_AFTER_OPERATOR()? EXPR_ARG : EXPR_BEG;
       if ((c = nextc()) == '=')
