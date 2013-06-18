@@ -2955,6 +2955,7 @@ lexer.cursorPosition = function ()
   );
 }
 
+#if DEBUG
 function debug ()
 {
   puts('\n\n')
@@ -2978,6 +2979,9 @@ function debug ()
   puts('\n\n')
 }
 lexer.debug = debug;
+#else
+#define debug(msg)
+#endif
 
 function warning (msg)
 {
