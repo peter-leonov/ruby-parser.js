@@ -503,6 +503,10 @@ function ISDIGIT (c)
 {
   return /^\d$/.test(c);
 }
+function ISXDIGIT (c)
+{
+  return /^[0-9a-fA-F]/.test(c);
+}
 function ISALNUM (c)
 {
   return /^\w$/.test(c);
@@ -1036,15 +1040,13 @@ this.yylex = function yylex ()
       if (IS_BEG() || (IS_SPCARG(c) && arg_ambiguous()))
       {
         lexer.lex_state = EXPR_BEG;
+        pushback(c); // pushing back char after `+`
         if (c != '' && ISDIGIT(c))
         {
-          // c = '+';
-          // return start_num(c); // was: goto start_num;
-          tokadd(c);
-          // `start_num()` pushbacks the `c` on its own
+          c = '+';
           return start_num(c); // was: goto start_num;
         }
-        pushback(c); // pushing back char after `+`
+        
         return tUPLUS;
       }
       lexer.lex_state = EXPR_BEG;
@@ -1125,7 +1127,6 @@ this.yylex = function yylex ()
     case '8':
     case '9':
     {
-      // `start_num()` pushbacks on its needs
       return start_num(c);
     }
     
@@ -2562,116 +2563,307 @@ function parser_tokadd_utf8 (string_literal, symbol_literal, regexp_literal)
 // as of Ruby 2.0 we don't expect to be called from leading '-' match
 function start_num (c)
 {
+  var is_float = false,
+      seen_point = false,
+      seen_e = false,
+      nondigit = '';
+
   lexer.lex_state = EXPR_END;
   newtok();
-  if (c == '0' && !peek('.')) // `peek()` to skip all the rexes on `D.`
+  if (c == '-' || c == '+')
   {
-    // be careful! all these decimals beginnings may get here:
-    //   `0_`, `0e`, `0+`, `0\n`, `0;`, etc,
-    // so fallback to the decimal parser a chance after all this beasts
-    
-    
-    
-    // it is ok to use regexp here unconditionally
-    // as far as we know for "0-nondot" strings
-    // that in 99% the first hex rex will match.
-    
-    // hex
-    if (peek('x'))
+    tokadd(c);
+    c = nextc();
+  }
+  
+  goto_trailing_uc: {
+  goto_decode_num: {
+  goto_invalid_octal: {
+  
+  if (c == '0')
+  {
+    var start = toklen();
+    c = nextc();
+    if (c == 'x' || c == 'X')
     {
-      lex_p++; // eat `x`
-      var m = match_grex(/[\da-fA-F]+(?:(_)[\da-fA-F]+)*|/g);
-      var hex = m[0];
-      if (!hex)
+      /* hexadecimal */
+      c = nextc();
+      if (c != '' && ISXDIGIT(c))
+      {
+        do
+        {
+          if (c == '_')
+          {
+            if (nondigit)
+              break;
+            nondigit = c;
+            continue;
+          }
+          if (!ISXDIGIT(c))
+            break;
+          nondigit = '';
+          tokadd(c);
+        }
+        while ((c = nextc()) != '');
+      }
+      pushback(c);
+      tokfix();
+      if (toklen() == start)
       {
         lexer.yyerror("numeric literal without digits");
         return 0;
       }
-      lex_p += hex.length;
-      // check if there was any underscores and rip them out
-      if (m[1]) // (_)
-        hex = hex.replace(/_/g,'');
-      tokadd(hex);
-      tokfix();
-      var v = parseInt(hex, 16);
-      // set_yylval_literal(rb_cstr_to_inum(tok(), 10, FALSE)); TODO
+      else if (nondigit)
+        break goto_trailing_uc; // was: goto trailing_uc;
+      // set_yylval_literal(rb_cstr_to_inum(tok(), 16, FALSE)); TODO
       return tINTEGER;
-    } // hex
-    
-    pushback(c); // the `0` char
-    
-    // octals
-    octals: {
-      var m = match_grex(/0(?:(_?)\d+)+|/g); // ruby matches 0-9
-      var oct = m[0];
-      if (!oct)
-        break octals;
-      lex_p += oct.length;
-      if (/[89]/.test(oct))
+    }
+    if (c == 'b' || c == 'B')
+    {
+      /* binary */
+      c = nextc();
+      if (c == '0' || c == '1')
       {
-        lexer.yyerror("Invalid octal digit");
-        lex_p -= oct.length;
-        break octals;
+        do
+        {
+          if (c == '_')
+          {
+            if (nondigit)
+              break;
+            nondigit = c;
+            continue;
+          }
+          if (c != '0' && c != '1')
+            break;
+          nondigit = '';
+          tokadd(c);
+        }
+        while ((c = nextc()) != '');
       }
-      tokadd(oct);
+      pushback(c);
       tokfix();
-      // check if there was any underscores and rip them out
-      if (m[1]) // (_)
-        oct = oct.replace(/_/g,'');
-      var v = parseInt(oct, 8);
+      if (toklen() == start)
+      {
+        lexer.yyerror("numeric literal without digits");
+        return 0;
+      }
+      else if (nondigit)
+        break goto_trailing_uc; // was: goto trailing_uc;
+      // set_yylval_literal(rb_cstr_to_inum(tok(), 2, FALSE)); TODO
+      return tINTEGER;
+    }
+    if (c == 'd' || c == 'D')
+    {
+      /* decimal */
+      c = nextc();
+      if (c != '' && ISDIGIT(c))
+      {
+        do
+        {
+          if (c == '_')
+          {
+            if (nondigit)
+              break;
+            nondigit = c;
+            continue;
+          }
+          if (!ISDIGIT(c))
+            break;
+          nondigit = '';
+          tokadd(c);
+        }
+        while ((c = nextc()) != '');
+      }
+      pushback(c);
+      tokfix();
+      if (toklen() == start)
+      {
+        lexer.yyerror("numeric literal without digits");
+        return 0;
+      }
+      else if (nondigit)
+        break goto_trailing_uc; // was: goto trailing_uc;
       // set_yylval_literal(rb_cstr_to_inum(tok(), 10, FALSE)); TODO
       return tINTEGER;
-    } // octals
-    
-    if (match_grex(/0[bBdDoO]|/g)[0])
-      warning('TODO: other 0-leading numbers to be supported soon');
-    
-    // fall through to give decimals a chance on all the 0*
-  }
-  else
+    }
+    // was: if (c == '_')
+    // was: {
+    // was:   /* 0_0 */
+    // was:   goto octal_number;
+    // was: }
+    // and moved after the next if block
+    if (c == 'o' || c == 'O')
+    {
+      /* prefixed octal */
+      c = nextc();
+      if (c == '' || c == '_' || !ISDIGIT(c))
+      {
+        lexer.yyerror("numeric literal without digits");
+        return 0;
+      }
+    }
+    if ((c >= '0' && c <= '7') || c == '_')
+    {
+      /* octal */
+      // was:  octal_number:
+      do
+      {
+        if (c == '_')
+        {
+          if (nondigit)
+            break;
+          nondigit = c;
+          continue;
+        }
+        if (c < '0' || c > '9')
+          break;
+        if (c > '7')
+        {
+          lexer.yyerror("Invalid octal digit");
+          break goto_invalid_octal; // was: goto invalid_octal;
+        }
+        nondigit = '';
+        tokadd(c);
+      }
+      while ((c = nextc()) != '');
+      if (toklen() > start)
+      {
+        pushback(c);
+        tokfix();
+        if (nondigit)
+          break goto_trailing_uc; // was: goto trailing_uc;
+        // set_yylval_literal(rb_cstr_to_inum(tok(), 8, FALSE)); TODO
+        return tINTEGER;
+      }
+      if (nondigit)
+      {
+        pushback(c);
+        break goto_trailing_uc; // was: goto trailing_uc;
+      }
+    }
+    if (c > '7' && c <= '9')
+    {
+      // was: invalid_octal:
+      lexer.yyerror("Invalid octal digit");
+    }
+    else if (c == '.' || c == 'e' || c == 'E')
+    {
+      tokadd('0');
+    }
+    else
+    {
+      pushback(c);
+      // set_yylval_literal(INT2FIX(0)); TODO
+      return tINTEGER;
+    }
+  } // c == '0'
+
+  } // goto_invalid_octal
+
+  for (;;)
   {
-    // pushback here for decimals
-    pushback(c);
-  }
+    switch (c)
+    {
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+        nondigit = '';
+        tokadd(c);
+        break;
+
+      case '.':
+        if (nondigit)
+          break goto_trailing_uc; // was: goto trailing_uc;
+        if (seen_point || seen_e)
+        {
+          break goto_decode_num; // was: goto decode_num;
+        }
+        else
+        {
+          var c0 = nextc();
+          if (c0 == '' || !ISDIGIT(c0))
+          {
+            pushback(c0);
+            break goto_decode_num; // was: goto decode_num;
+          }
+          c = c0;
+        }
+        tokadd('.');
+        tokadd(c);
+        is_float = true;
+        seen_point = true;
+        nondigit = '';
+        break;
+
+      case 'e':
+      case 'E':
+        if (nondigit)
+        {
+          pushback(c);
+          c = nondigit;
+          break goto_decode_num; // was: goto decode_num;
+        }
+        if (seen_e)
+        {
+          break goto_decode_num; // was: goto decode_num;
+        }
+        tokadd(c);
+        seen_e = true;
+        is_float = true;
+        nondigit = c;
+        c = nextc();
+        if (c != '-' && c != '+')
+          continue;
+        tokadd(c);
+        nondigit = c;
+        break;
+
+      case '_':          /* `_' in number just ignored */
+        if (nondigit)
+          break goto_decode_num; // was: goto decode_num;
+        nondigit = c;
+        break;
+
+      default:
+        break goto_decode_num; // was: goto decode_num;
+    }
+    c = nextc();
+  } // decimal for
+
+  } // goto_decode_num
   
-  // as far as we know the first char (just pushed it back)
-  // is a digit, there is no need for any `\d[\d_]*` trickery
-  // to avoid error with leading `_` char.
-  // that means:
-  // 
-  //   \d+(_\d+)*                 000_000_000…
-  // 
-  // optionally followed by:
-  // 
-  //   \.\d+(?:_\d+)*            .000_000_000…
-  // 
-  // optionally followed by:
-  // 
-  //   [eE][+\-]?\d+(_\d+)*      e000_000_000…
-  // 
-  // so we could parse: `10_0.0_0e+0_0` as `100.0`
-  var drex = /\d+(?:_\d+)*(?:(\.)\d+(?:(_)\d+)*)?(?:([eE])[+\-]?\d+(?:(_)\d+)*)?|/g;
-  var m = match_grex(drex);
-  var decimal = m[0]; // there is always a match for pushbacked digit
-  lex_p += decimal.length;
-  tokadd(decimal);
+  // was: decode_num:
+  pushback(c);
+  
+  } // goto_trailing_uc:
+  
+  if (nondigit) // always true after `break goto_trailing_uc;`
+  {
+    // was: trailing_uc:
+    lexer.yyerror("trailing `"+nondigit+"' in number");
+  }
   tokfix();
-  
-  // check if there was any underscores and rip them out
-  if (m[2] || m[4]) // (_)
-    decimal = decimal.replace(/_/g,'');
-  var v = +decimal;
-  if (m[1] || m[3]) // matched `.` or `e`
+  if (is_float)
   {
-    // set_yylval_literal(rb_cstr_to_inum(v), 10, FALSE); TODO
+    var d = parseInt(tok(), 10);
+    // if (errno == ERANGE)
+    // {
+    //   rb_warningS("Float %s out of range", tok());
+    //   errno = 0;
+    // }
+    // set_yylval_literal(DBL2NUM(d)); TODO
     return tFLOAT;
   }
-  else
-  {
-    // set_yylval_literal(rb_cstr_to_inum(v), 10, FALSE); TODO
-    return tINTEGER;
-  }
-  
+  // set_yylval_literal(rb_cstr_to_inum(tok(), 10, FALSE)); TODO
+  return tINTEGER;
+
   // why are we so certain about returning `tFLOAT` or `tINTEGER`?
   // because we have got here meating a digit :)
 }
