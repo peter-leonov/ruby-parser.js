@@ -2292,6 +2292,7 @@ function tokadd_escape ()
 }
 
 // checks if the current line matches `/^\s*#{eos}\n?$/`;
+var whole_match_p_rexcache = {};
 function whole_match_p (eos, indent)
 {
   if (!indent)
@@ -2299,8 +2300,15 @@ function whole_match_p (eos, indent)
     return lex_lastline == eos + '\n' || lex_lastline == eos;
   }
   
-  // `eos` is an identifier and doesn't need to be escaped
-  var rex = new RegExp('^[ \\t]*' + eos + '$', 'm'); // TODO: cache
+  // here there are all with indentation enabled!
+  var rex = whole_match_p_rexcache[eos];
+  if (!rex)
+  {
+    // `eos` is an identifier and doesn't need to be escaped
+    rex = new RegExp('^[ \\t]*' + eos + '$', 'm');
+    whole_match_p_rexcache[eos] = rex;
+  }
+  
   return rex.test(lex_lastline);
 }
 
