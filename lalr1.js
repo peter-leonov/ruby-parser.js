@@ -127,7 +127,7 @@ function YYStack ()
 }
 
 // Instantiates the Bison-generated parser.
-function YYParser (lexer)
+function YYParser (lexer, gen)
 {
   // self
   var yyparser = this;

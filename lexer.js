@@ -2,7 +2,7 @@
 
 // at first, read this: http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/
 
-function Lexer ()
+function Lexer (gen)
 {
 // the yylex() method and all public data sit here
 var lexer = this;

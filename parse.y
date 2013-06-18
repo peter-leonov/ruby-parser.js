@@ -1922,13 +1922,17 @@ none		: /* none */
 
 %%
 
-var YYLexer = 
+var YYLexer =
 #include "lexer.js"
+
+var YYGenerator =
+#include "generator.js"
 
 global.parse = function (text)
 {
-  var lexer = new YYLexer();
-  var parser = new YYParser(lexer);
+  var gen    = new YYGenerator();
+  var lexer  = new YYLexer(gen);
+  var parser = new YYParser(lexer, gen);
   
   lexer.filename = 'ruby.rb';
   lexer.setText(text);
