@@ -52,6 +52,9 @@ x = 1e5
 x = 0.5_0e1_000
 x = 10_0.0_0e+0_0
 
+
+y = 0x45
+y = 0x4_5_0
 =begin
 sdfasf)
 asdf

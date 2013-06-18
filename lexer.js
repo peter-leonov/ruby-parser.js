@@ -1036,14 +1036,15 @@ this.yylex = function yylex ()
       if (IS_BEG() || (IS_SPCARG(c) && arg_ambiguous()))
       {
         lexer.lex_state = EXPR_BEG;
-        pushback(c); // pushing back char after `+`
         if (c != '' && ISDIGIT(c))
         {
           // c = '+';
           // return start_num(c); // was: goto start_num;
           tokadd(c);
+          // `start_num()` pushbacks the `c` on its own
           return start_num(c); // was: goto start_num;
         }
+        pushback(c); // pushing back char after `+`
         return tUPLUS;
       }
       lexer.lex_state = EXPR_BEG;
@@ -1124,7 +1125,7 @@ this.yylex = function yylex ()
     case '8':
     case '9':
     {
-      pushback(c);
+      // `start_num()` pushbacks on its needs
       return start_num(c);
     }
     
@@ -2558,27 +2559,58 @@ function parser_tokadd_utf8 (string_literal, symbol_literal, regexp_literal)
 
 // here `c` matches [0-9],
 // `c` is the first char of the future number,
-// as of Ruby 2.0 we don't expect to be called from leading '-' match,
-// the `c` has been pushed back by caller
+// as of Ruby 2.0 we don't expect to be called from leading '-' match
 function start_num (c)
 {
-  var is_float = false,
-      seen_point = false,
-      seen_e = false,
-      nondigit = '';
-  
   lexer.lex_state = EXPR_END;
   newtok();
-  // `c` has been pushed back by the caller
-  if (c == '0')
+  if (c == '0' && !peek('.')) // `peek()` to skip all the rexes on `D.`
   {
-    // TODO: implement all the bestiary
-    if (match_grex(/0[xX0-9bBdD_oO]|/g)[0])
-      warning('0-leading digits to be supported soon');
+    // be careful! all these decimals beginnings may get here:
+    //   `0_`, `0e`, `0+`, `0\n`, `0;`, etc,
+    // so fallback to the decimal parser a chance after all this beasts
+    
+    pushback(c);
+    
+    // it is ok to use regexp here unconditionally
+    // as far as we know for "0-nondot" strings
+    // that in 99% the first (the `hrex`) will match
+    
+    // hex
+    var hrex = /0x([\da-fA-F]+(?:(_)[\da-fA-F]+)*)(\w)?|/g;
+    var m = match_grex(hrex);
+    var hex = m[0];
+    if (hex)
+    {
+      lex_p += hex.length;
+      var nondigit = m[3]; // (\w)?
+      if (nondigit)
+      {
+        lexer.yyerror("trailing `"+nondigit+"' in number");
+      }
+      var digits = m[1];
+      // check if there was any underscores and rip them out
+      if (m[2]) // (_)
+        digits = digits.replace(/_/g,'');
+      var v = parseInt(digits, 16);
+      // set_yylval_literal(rb_cstr_to_inum(tok(), 10, FALSE)); TODO
+      return tINTEGER;
+    }
+    
+    if (match_grex(/0[0-9bBdD_oO]|/g)[0])
+      warning('TODO: other 0-leading numbers to be supported soon');
+    
+    // fall through to give decimals a chance on all the 0*
+  }
+  else
+  {
+    // pushback here for decimals too
+    pushback(c);
   }
   
-  // as far as we know the first char is a digit, there is no need
-  // for any `\d[\d_]*` trickery to avoid error with leading `_` char.
+  // as far as we know the first char (just pushed it back)
+  // is a digit, there is no need for any `\d[\d_]*` trickery
+  // to avoid error with leading `_` char.
   // that means:
   // 
   //   \d+(_\d+)*                 000_000_000…
@@ -2594,12 +2626,7 @@ function start_num (c)
   // so we could parse: `10_0.0_0e+0_0` as `100.0`
   var drex = /\d+(?:_\d+)*(?:(\.)\d+(?:_\d+)*)?(?:([eE])[+\-]?\d+(?:_\d+)*)?(\w)?|/g;
   var m = match_grex(drex);
-  var decimal = m[0];
-  if (!drex)
-  {
-    lexer.yyerror("broken decimal number");
-    return tINTEGER;
-  }
+  var decimal = m[0]; // there is always a match for pushbacked digit
   lex_p += decimal.length;
   var nondigit = m[3];
   if (nondigit)
@@ -2610,17 +2637,23 @@ function start_num (c)
       lex_p--;
     lexer.yyerror("trailing `"+nondigit+"' in number");
   }
-
+  tokadd(decimal);
+  tokfix();
+  
+  var v = +tok();
   if (m[1] || m[2]) // matched `.` or `e`
   {
-    // set_yylval_literal(rb_cstr_to_inum(tok(), 10, FALSE)); TODO
+    // set_yylval_literal(rb_cstr_to_inum(v), 10, FALSE); TODO
     return tFLOAT;
   }
   else
   {
-    // set_yylval_literal(rb_cstr_to_inum(tok(), 10, FALSE)); TODO
+    // set_yylval_literal(rb_cstr_to_inum(v), 10, FALSE); TODO
     return tINTEGER;
   }
+  
+  // why are we so certain about returning `tFLOAT` or `tINTEGER`?
+  // because we have got here meating a digit :)
 }
 
 
