@@ -1874,7 +1874,6 @@ function heredoc_identifier ()
       return 0;
     }
     // TODO: create token with $text.substring(start, end)
-    // TODO: or remove all the function with a regexp ;)
     newtok();
     term = '"';
     func |= str_dquote;
@@ -2190,7 +2189,6 @@ function tokadd_string (func, term, paren, str_term)
 
 function simple_re_meta (c)
 {
-  // TODO: optimize!
   switch (c)
   {
     case '$':
