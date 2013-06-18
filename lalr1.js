@@ -127,13 +127,13 @@ function YYStack ()
 }
 
 // Instantiates the Bison-generated parser.
-function YYParser (yylexer)
+function YYParser (lexer)
 {
   // self
   var yyparser = this;
   
   // The scanner that will supply tokens to the parser.
-  this.yylexer = yylexer;
+  this.lexer = lexer;
 
   // True if verbose error messages are enabled.
   this.errorVerbose = true;
@@ -256,9 +256,9 @@ function YYParser (yylexer)
         if (yychar == yyempty_)
         {
           debug_print("Reading a token: ");
-          yychar = yylexer.yylex();
+          yychar = lexer.yylex();
 
-          yylval = yylexer.getLVal();
+          yylval = lexer.getLVal();
         }
 
 
@@ -372,7 +372,7 @@ function YYParser (yylexer)
           ++yynerrs_;
           if (yychar == yyempty_)
             yytoken = yyempty_;
-          yylexer.yyerror(this.yysyntax_error(yystate, yytoken));
+          lexer.yyerror(this.yysyntax_error(yystate, yytoken));
         }
 
         if (yyerrstatus_ == 3)

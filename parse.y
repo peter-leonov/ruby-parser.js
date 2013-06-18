@@ -141,7 +141,7 @@ var EXPR_END_ANY = EXPR_END | EXPR_ENDARG | EXPR_ENDFN;
 program
   :
     {
-      yylexer.lex_state = EXPR_BEG;
+      lexer.lex_state = EXPR_BEG;
     }
     top_compstmt
     {}
@@ -215,7 +215,7 @@ stmt_or_begin
   |
     keyword_BEGIN
     {
-      yylexer.yyerror("BEGIN is permitted only at toplevel");
+      lexer.yyerror("BEGIN is permitted only at toplevel");
     }
     '{' top_compstmt '}'
     {}
@@ -225,7 +225,7 @@ stmt
   :
     keyword_alias fitem
     {
-      yylexer.lex_state = EXPR_FNAME;
+      lexer.lex_state = EXPR_FNAME;
     }
     fitem
     {}
@@ -238,7 +238,7 @@ stmt
   |
     keyword_alias tGVAR tNTH_REF
     {
-      yylexer.yyerror("can't make alias for the number variables");
+      lexer.yyerror("can't make alias for the number variables");
     }
   |
     keyword_undef undef_list
@@ -261,7 +261,7 @@ stmt
   |
     keyword_END '{' compstmt '}'
     {
-      if (yylexer.in_def || yylexer.in_single)
+      if (lexer.in_def || lexer.in_single)
         rb_warn("END in method; use at_exit");
     }
   |
@@ -501,14 +501,14 @@ mlhs_node
   |
     primary_value tCOLON2 tCONSTANT
     {
-      if (yylexer.in_def || yylexer.in_single)
-        yylexer.yyerror("dynamic constant assignment");
+      if (lexer.in_def || lexer.in_single)
+        lexer.yyerror("dynamic constant assignment");
     }
   |
     tCOLON3 tCONSTANT
     {
-      if (yylexer.in_def || yylexer.in_single)
-        yylexer.yyerror("dynamic constant assignment");
+      if (lexer.in_def || lexer.in_single)
+        lexer.yyerror("dynamic constant assignment");
     }
   |
     backref
@@ -537,14 +537,14 @@ lhs
   |
     primary_value tCOLON2 tCONSTANT
     {
-      if (yylexer.in_def || yylexer.in_single)
-        yylexer.yyerror("dynamic constant assignment");
+      if (lexer.in_def || lexer.in_single)
+        lexer.yyerror("dynamic constant assignment");
     }
   |
     tCOLON3 tCONSTANT
     {
-      if (yylexer.in_def || yylexer.in_single)
-        yylexer.yyerror("dynamic constant assignment");
+      if (lexer.in_def || lexer.in_single)
+        lexer.yyerror("dynamic constant assignment");
     }
   |
     backref
@@ -555,7 +555,7 @@ cname
   :
     tIDENTIFIER
     {
-      yylexer.yyerror("class/module name must be CONSTANT");
+      lexer.yyerror("class/module name must be CONSTANT");
     }
   |
     tCONSTANT
@@ -583,12 +583,12 @@ fname
   |
     op
     {
-      yylexer.lex_state = EXPR_ENDFN;
+      lexer.lex_state = EXPR_ENDFN;
     }
   |
     reswords
     {
-      yylexer.lex_state = EXPR_ENDFN;
+      lexer.lex_state = EXPR_ENDFN;
     }
   ;
 
@@ -614,7 +614,7 @@ undef_list
   |
     undef_list ','
     {
-      yylexer.lex_state = EXPR_FNAME;
+      lexer.lex_state = EXPR_FNAME;
     }
     fitem
     {}
@@ -796,9 +796,9 @@ arg
     arg tOROP arg
     {}
   |
-    keyword_defined opt_nl { yylexer.in_defined = true;} arg
+    keyword_defined opt_nl { lexer.in_defined = true;} arg
     {
-      yylexer.in_defined = false;
+      lexer.in_defined = false;
     }
   |
     arg '?' arg opt_nl ':' arg
@@ -855,13 +855,13 @@ call_args	: command
 command_args
   :
     {
-      $<val>$ = yylexer.cmdarg_stack;
-      yylexer.CMDARG_PUSH(1);
+      $<val>$ = lexer.cmdarg_stack;
+      lexer.CMDARG_PUSH(1);
     }
     call_args
     {
       // CMDARG_POP()
-      yylexer.cmdarg_stack = $<val>1;
+      lexer.cmdarg_stack = $<val>1;
     }
   ;
 
@@ -907,25 +907,25 @@ primary		: literal
 		    {}
 		| k_begin
 		    {
-		      $<val>1 = yylexer.cmdarg_stack;
-		      yylexer.cmdarg_stack = 0;
+		      $<val>1 = lexer.cmdarg_stack;
+		      lexer.cmdarg_stack = 0;
 		    }
 		  bodystmt
 		  k_end
 		    {
-		      yylexer.cmdarg_stack = $<val>1;
+		      lexer.cmdarg_stack = $<val>1;
 		      // touching this alters the parse.output
           $<num>2;
 		    }
 		| tLPAREN_ARG
 		{
-		  yylexer.lex_state = EXPR_ENDARG;
+		  lexer.lex_state = EXPR_ENDARG;
 		}
 		rparen
 		    {}
 		| tLPAREN_ARG expr
 		{
-		  yylexer.lex_state = EXPR_ENDARG;
+		  lexer.lex_state = EXPR_ENDARG;
 		}
 		rparen
 		    {}
@@ -947,9 +947,9 @@ primary		: literal
 		    {}
 		| keyword_yield
 		    {}
-		| keyword_defined opt_nl '(' { yylexer.in_defined = true;} expr rparen
+		| keyword_defined opt_nl '(' { lexer.in_defined = true;} expr rparen
 		    {
-		      yylexer.in_defined = false;
+		      lexer.in_defined = false;
 		    }
 		| keyword_not '(' expr rparen
 		    {}
@@ -974,22 +974,22 @@ primary		: literal
 		    {}
 		| k_while
 		  {
-		    yylexer.COND_PUSH(1);
+		    lexer.COND_PUSH(1);
 		  }
 		  expr_value do
 		  {
-		    yylexer.COND_POP();
+		    lexer.COND_POP();
 		  }
 		  compstmt
 		  k_end
 		    {}
 		| k_until
 		{
-		  yylexer.COND_PUSH(1);
+		  lexer.COND_PUSH(1);
 		}
 		expr_value do
 		{
-		  yylexer.COND_POP();
+		  lexer.COND_POP();
 		}
 		  compstmt
 		  k_end
@@ -1002,19 +1002,19 @@ primary		: literal
 		    {}
 		| k_for for_var keyword_in
 		  {
-		    yylexer.COND_PUSH(1);
+		    lexer.COND_PUSH(1);
 		  }
 		  expr_value do
 		  {
-		    yylexer.COND_POP();
+		    lexer.COND_POP();
 		  }
 		  compstmt
 		  k_end
 		    {}
 		| k_class cpath superclass
 		    {
-          if (yylexer.in_def || yylexer.in_single)
-            yylexer.yyerror("class definition in method body");
+          if (lexer.in_def || lexer.in_single)
+            lexer.yyerror("class definition in method body");
     			
 		    }
 		  bodystmt
@@ -1025,24 +1025,24 @@ primary		: literal
 		    }
 		| k_class tLSHFT expr
 		    {
-          $<num>$ = yylexer.in_def;
-          yylexer.in_def = 0;
+          $<num>$ = lexer.in_def;
+          lexer.in_def = 0;
 		    }
 		  term
 		    {
-		      $<num>$ = yylexer.in_single;
-		      yylexer.in_single = 0;
+		      $<num>$ = lexer.in_single;
+		      lexer.in_single = 0;
 		    }
 		  bodystmt
 		  k_end
 		    {
-          yylexer.in_def = $<num>4;
-          yylexer.in_single = $<num>6;
+          lexer.in_def = $<num>4;
+          lexer.in_single = $<num>6;
 		    }
 		| k_module cpath
 		    {
-          if (yylexer.in_def || yylexer.in_single)
-            yylexer.yyerror("module definition in method body");
+          if (lexer.in_def || lexer.in_single)
+            lexer.yyerror("module definition in method body");
     			
 		    }
 		  bodystmt
@@ -1053,10 +1053,10 @@ primary		: literal
 		    }
 		| k_def fname
 		    {
-		      $<id>$ = yylexer.cur_mid; // TODO
-    			yylexer.cur_mid = $2;
+		      $<id>$ = lexer.cur_mid; // TODO
+    			lexer.cur_mid = $2;
     			
-		      yylexer.in_def++;
+		      lexer.in_def++;
 		    }
 		  f_arglist
 		  bodystmt
@@ -1064,24 +1064,24 @@ primary		: literal
 		    {
 		      // touching this alters the parse.output
 			    $<num>1;
-			    yylexer.in_def--;
-			    yylexer.cur_mid = $<id>3;
+			    lexer.in_def--;
+			    lexer.cur_mid = $<id>3;
 		    }
   |
     k_def singleton dot_or_colon
     {
-      yylexer.lex_state = EXPR_FNAME;
+      lexer.lex_state = EXPR_FNAME;
     }
     fname
     {
-      yylexer.in_single++;
-      yylexer.lex_state = EXPR_ENDFN; /* force for args */
+      lexer.in_single++;
+      lexer.lex_state = EXPR_ENDFN; /* force for args */
     }
     f_arglist
     bodystmt
     k_end
     {
-      yylexer.in_single--;
+      lexer.in_single--;
     }
 		| keyword_break
 		    {}
@@ -1250,7 +1250,7 @@ block_param	: f_arg ',' f_block_optarg ',' f_rest_arg opt_block_args_tail
 opt_block_param	: none
 		| block_param_def
 		    {
-			yylexer.command_start = true;
+			lexer.command_start = true;
 		    }
 		;
 
@@ -1281,13 +1281,13 @@ bvar		: tIDENTIFIER
 
 lambda		:   {}
 		    {
-		      $<num>$ = yylexer.lpar_beg;
-		      yylexer.lpar_beg = ++yylexer.paren_nest;
+		      $<num>$ = lexer.lpar_beg;
+		      lexer.lpar_beg = ++lexer.paren_nest;
 		    }
 		  f_larglist
 		  lambda_body
 		    {
-          yylexer.lpar_beg = $<num>2;
+          lexer.lpar_beg = $<num>2;
           // touching this alters the parse.output
           $<vars>1;
 		    }
@@ -1521,37 +1521,37 @@ regexp_contents: /* none */
 string_content	: tSTRING_CONTENT
 		| tSTRING_DVAR
 		    {
-			$<node>$ = yylexer.lex_strterm;
-			yylexer.lex_strterm = null;
-			yylexer.lex_state = EXPR_BEG;
+			$<node>$ = lexer.lex_strterm;
+			lexer.lex_strterm = null;
+			lexer.lex_state = EXPR_BEG;
 		    }
 		  string_dvar
 		    {
 		    /*%%%*/
-			yylexer.lex_strterm = $<node>2;
+			lexer.lex_strterm = $<node>2;
 		    }
 		| tSTRING_DBEG
 		    {
-          $<val>1 = yylexer.cond_stack;
-          $<val>$ = yylexer.cmdarg_stack;
-          yylexer.cond_stack = 0;
-          yylexer.cmdarg_stack = 0;
+          $<val>1 = lexer.cond_stack;
+          $<val>$ = lexer.cmdarg_stack;
+          lexer.cond_stack = 0;
+          lexer.cmdarg_stack = 0;
 		    }
 		    {
-			$<node>$ = yylexer.lex_strterm;
-			yylexer.lex_strterm = null;
-			yylexer.lex_state = EXPR_BEG;
+			$<node>$ = lexer.lex_strterm;
+			lexer.lex_strterm = null;
+			lexer.lex_state = EXPR_BEG;
 		    }
 		    {
-			$<num>$ = yylexer.brace_nest;
-			yylexer.brace_nest = 0;
+			$<num>$ = lexer.brace_nest;
+			lexer.brace_nest = 0;
 		    }
 		  compstmt tSTRING_DEND
 		    {
-          yylexer.cond_stack = $<val>1;
-          yylexer.cmdarg_stack = $<val>2;
-          yylexer.lex_strterm = $<node>3;
-          yylexer.brace_nest = $<num>4;
+          lexer.cond_stack = $<val>1;
+          lexer.cmdarg_stack = $<val>2;
+          lexer.lex_strterm = $<node>3;
+          lexer.brace_nest = $<num>4;
 		    }
 		;
 
@@ -1566,7 +1566,7 @@ string_dvar	: tGVAR
 
 symbol		: tSYMBEG sym
 		    {
-			yylexer.lex_state = EXPR_END;
+			lexer.lex_state = EXPR_END;
 		    }
 		;
 
@@ -1578,7 +1578,7 @@ sym		: fname
 
 dsym		: tSYMBEG xstring_contents tSTRING_END
 		    {
-			yylexer.lex_state = EXPR_END;
+			lexer.lex_state = EXPR_END;
 		    }
 		;
 
@@ -1629,8 +1629,8 @@ superclass	: term
 		    {}
 		| '<'
 		    {
-			yylexer.lex_state = EXPR_BEG;
-			yylexer.command_start = true;
+			lexer.lex_state = EXPR_BEG;
+			lexer.command_start = true;
 		    }
 		  expr_value term
 		    {}
@@ -1642,13 +1642,13 @@ superclass	: term
 
 f_arglist	: '(' f_args rparen
 		    {
-			yylexer.lex_state = EXPR_BEG;
-			yylexer.command_start = true;
+			lexer.lex_state = EXPR_BEG;
+			lexer.command_start = true;
 		    }
 		| f_args term
 		    {
-			yylexer.lex_state = EXPR_BEG;
-			yylexer.command_start = true;
+			lexer.lex_state = EXPR_BEG;
+			lexer.command_start = true;
 		    }
 		;
 
@@ -1702,19 +1702,19 @@ f_args		: f_arg ',' f_optarg ',' f_rest_arg opt_args_tail
 
 f_bad_arg	: tCONSTANT
 		    {
-		      yylexer.yyerror("formal argument cannot be a constant");
+		      lexer.yyerror("formal argument cannot be a constant");
 		    }
 		| tIVAR
 		    {
-		      yylexer.yyerror("formal argument cannot be an instance variable");
+		      lexer.yyerror("formal argument cannot be an instance variable");
 		    }
 		| tGVAR
 		    {
-		      yylexer.yyerror("formal argument cannot be a global variable");
+		      lexer.yyerror("formal argument cannot be a global variable");
 		    }
 		| tCVAR
 		    {
-		      yylexer.yyerror("formal argument cannot be a class variable");
+		      lexer.yyerror("formal argument cannot be a class variable");
 		    }
 		;
 
@@ -1791,8 +1791,8 @@ restarg_mark	: '*'
 
 f_rest_arg	: restarg_mark tIDENTIFIER
 		    {
-          if (!yylexer.is_local_id($2)) // TODO
-            yylexer.yyerror("rest argument must be local variable");
+          if (!lexer.is_local_id($2)) // TODO
+            lexer.yyerror("rest argument must be local variable");
     			
 		    }
 		| restarg_mark
@@ -1805,10 +1805,10 @@ blkarg_mark	: '&'
 
 f_block_arg	: blkarg_mark tIDENTIFIER
 		    {
-		      if (!yylexer.is_local_id($2))
-            yylexer.yyerror("block argument must be local variable");
-    			else if (!yylexer.dyna_in_block() && yylexer.local_id($2))
-            yylexer.yyerror("duplicated block argument name");
+		      if (!lexer.is_local_id($2))
+            lexer.yyerror("block argument must be local variable");
+    			else if (!lexer.dyna_in_block() && lexer.local_id($2))
+            lexer.yyerror("duplicated block argument name");
     			
 		    }
 		;
@@ -1823,12 +1823,12 @@ singleton	: var_ref
 		    {}
 		| '('
 		{
-		  yylexer.lex_state = EXPR_BEG;
+		  lexer.lex_state = EXPR_BEG;
 		}
 		expr rparen
 		    {
           if ($3 == 0) {
-            yylexer.yyerror("can't define singleton method for ().");
+            lexer.yyerror("can't define singleton method for ().");
           }
           else {
             switch (nd_type($3)) { // TODO
@@ -1840,7 +1840,7 @@ singleton	: var_ref
               case NODE_LIT:
               case NODE_ARRAY:
               case NODE_ZARRAY:
-                yylexer.yyerror("can't define singleton method for literals");
+                lexer.yyerror("can't define singleton method for literals");
               default:
                 value_expr($3); // TODO
                 break;
