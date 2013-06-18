@@ -2608,7 +2608,7 @@ function start_num (c)
     
     // octals
     octals: {
-      var m = match_grex(/[0-7]+(?:(_)[0-7]+)*(\w)?|/g);
+      var m = match_grex(/[0-7]+(?:(_)[0-7]+)*([89_])?|/g);
       var oct = m[0];
       lex_p += oct.length;
       var nondigit = m[2]; // (\w)?
@@ -2616,17 +2616,14 @@ function start_num (c)
       {
         if (/[89]/.test(nondigit))
         {
-          var dl = nondigit.length-1
-          lex_p -= dl;
           lexer.yyerror("Invalid octal digit");
-          lex_p += dl;
           lex_p -= oct.length;
           break octals; // goto decimals
         }
         else
         {
-          lex_p -= nondigit.length;
           lexer.yyerror("trailing `"+nondigit[0]+"' in number");
+          break octals; // goto decimals
         }
       }
       tokadd(oct);
