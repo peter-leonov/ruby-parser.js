@@ -73,6 +73,7 @@ z = 0677_10
 # z = 08888
 
 
+puts {}.class
 
 def returns(sexp)
   return returns s(:nil) unless sexp
