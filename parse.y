@@ -1807,7 +1807,7 @@ f_block_arg	: blkarg_mark tIDENTIFIER
 		    {
 		      if (!yylexer.is_local_id($2))
             yylexer.yyerror("block argument must be local variable");
-    			else if (!dyna_in_block() && local_id($2))
+    			else if (!yylexer.dyna_in_block() && yylexer.local_id($2))
             yylexer.yyerror("duplicated block argument name");
     			
 		    }

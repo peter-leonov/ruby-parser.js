@@ -2877,12 +2877,24 @@ function start_num (c)
 
 // struct kwtable {const char *name; int id[2]; enum lex_state_e state;};
 
+function dyna_in_block ()
+{
+  // TODO :)
+  return true;
+}
+lexer.dyna_in_block = dyna_in_block;
 function is_local_id (ident)
 {
   // TODO :)
-  return false;
+  return true;
 }
 lexer.is_local_id = is_local_id;
+function local_id (ident)
+{
+  // TODO :)
+  return true;
+}
+lexer.local_id = local_id;
 function lvar_defined (ident)
 {
   // TODO :)
