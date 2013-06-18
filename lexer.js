@@ -2595,6 +2595,8 @@ function start_num (c)
       {
         lexer.yyerror("trailing `"+nondigit+"' in number");
       }
+      tokadd(decimal);
+      tokfix();
       // check if there was any underscores and rip them out
       if (m[1]) // (_)
         hex = hex.replace(/_/g,'');
@@ -2631,11 +2633,11 @@ function start_num (c)
   //   [eE][+\-]?\d+(_\d+)*      e000_000_000…
   // 
   // so we could parse: `10_0.0_0e+0_0` as `100.0`
-  var drex = /\d+(?:_\d+)*(?:(\.)\d+(?:_\d+)*)?(?:([eE])[+\-]?\d+(?:_\d+)*)?(\w)?|/g;
+  var drex = /\d+(?:_\d+)*(?:(\.)\d+(?:(_)\d+)*)?(?:([eE])[+\-]?\d+(?:(_)\d+)*)?(\w)?|/g;
   var m = match_grex(drex);
   var decimal = m[0]; // there is always a match for pushbacked digit
   lex_p += decimal.length;
-  var nondigit = m[3];
+  var nondigit = m[5];
   if (nondigit)
   {
     if (peek('.'))
@@ -2647,8 +2649,11 @@ function start_num (c)
   tokadd(decimal);
   tokfix();
   
-  var v = +tok();
-  if (m[1] || m[2]) // matched `.` or `e`
+  // check if there was any underscores and rip them out
+  if (m[2] || m[4]) // (_)
+    decimal = decimal.replace(/_/g,'');
+  var v = +decimal;
+  if (m[1] || m[3]) // matched `.` or `e`
   {
     // set_yylval_literal(rb_cstr_to_inum(v), 10, FALSE); TODO
     return tFLOAT;
