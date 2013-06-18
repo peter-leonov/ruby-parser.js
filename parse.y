@@ -1928,10 +1928,10 @@ var YYLexer =
 global.parse = function (text)
 {
   var lexer = new YYLexer();
+  var parser = new YYParser(lexer);
+  
   lexer.filename = 'ruby.rb';
   lexer.setText(text);
-
-  var parser = new YYParser(lexer);
   
   var begin = new Date();
   var res = parser.parse();
