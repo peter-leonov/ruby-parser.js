@@ -2594,11 +2594,11 @@ function start_num (c)
       {
         lexer.yyerror("trailing `"+nondigit+"' in number");
       }
-      tokadd(decimal);
-      tokfix();
       // check if there was any underscores and rip them out
       if (m[1]) // (_)
         hex = hex.replace(/_/g,'');
+      tokadd(hex);
+      tokfix();
       var v = parseInt(hex, 16);
       // set_yylval_literal(rb_cstr_to_inum(tok(), 10, FALSE)); TODO
       return tINTEGER;
