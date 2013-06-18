@@ -2604,18 +2604,51 @@ function start_num (c)
       return tINTEGER;
     } // hex
     
-    pushback(c);
-    if (match_grex(/0[0-9bBdD_oO]|/g)[0])
+    pushback(c); // the `0` char
+    
+    // octals
+    octals: {
+      var m = match_grex(/[0-7]+(?:(_)[0-7]+)*(\w)?|/g);
+      var oct = m[0];
+      lex_p += oct.length;
+      var nondigit = m[2]; // (\w)?
+      if (nondigit)
+      {
+        if (/[89]/.test(nondigit))
+        {
+          var dl = nondigit.length-1
+          lex_p -= dl;
+          lexer.yyerror("Invalid octal digit");
+          lex_p += dl;
+          lex_p -= oct.length;
+          break octals; // goto decimals
+        }
+        else
+        {
+          lex_p -= nondigit.length;
+          lexer.yyerror("trailing `"+nondigit[0]+"' in number");
+        }
+      }
+      tokadd(oct);
+      tokfix();
+      // check if there was any underscores and rip them out
+      if (m[1]) // (_)
+        oct = oct.replace(/_/g,'');
+      var v = parseInt(oct, 8);
+      // set_yylval_literal(rb_cstr_to_inum(tok(), 10, FALSE)); TODO
+      return tINTEGER;
+    } // octals
+    
+    if (match_grex(/0[bBdDoO]|/g)[0])
       warning('TODO: other 0-leading numbers to be supported soon');
     
     // fall through to give decimals a chance on all the 0*
   }
   else
   {
-    // pushback here for decimals too
+    // pushback here for decimals
     pushback(c);
   }
-  
   // as far as we know the first char (just pushed it back)
   // is a digit, there is no need for any `\d[\d_]*` trickery
   // to avoid error with leading `_` char.
