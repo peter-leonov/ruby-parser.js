@@ -2574,14 +2574,13 @@ function start_num (c)
     
     // it is ok to use regexp here unconditionally
     // as far as we know for "0-nondot" strings
-    // that in 99% the first (the `hrex`) will match
+    // that in 99% the first hex rex will match.
     
     // hex
     if (peek('x'))
     {
-      lex_p++;
-      var hrex = /[\da-fA-F]+(?:(_)[\da-fA-F]+)*(\w)?|/g;
-      var m = match_grex(hrex);
+      lex_p++; // eat `x`
+      var m = match_grex(/[\da-fA-F]+(?:(_)[\da-fA-F]+)*(\w)?|/g);
       var hex = m[0];
       if (!hex)
       {
