@@ -48,7 +48,7 @@ x = 1e5
 # x = +0.5e8e
 # x = +0.5e8_.
 
-
+x = 0e0
 x = 0.5_0e1_0
 x = 10_0.0_0e+0_0
 
@@ -67,6 +67,10 @@ z = 0677_10
 z = 08
 z = 08888
 z = 0678_10
+# z = 067_
+# z = 07e5 # no to exponential octs
+
+
 =begin
 sdfasf)
 asdf

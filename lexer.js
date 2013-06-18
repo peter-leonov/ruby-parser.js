@@ -2580,20 +2580,14 @@ function start_num (c)
     if (peek('x'))
     {
       lex_p++; // eat `x`
-      var m = match_grex(/[\da-fA-F]+(?:(_)[\da-fA-F]+)*(\w)?|/g);
+      var m = match_grex(/[\da-fA-F]+(?:(_)[\da-fA-F]+)*|/g);
       var hex = m[0];
       if (!hex)
       {
         lexer.yyerror("numeric literal without digits");
         return 0;
       }
-      
       lex_p += hex.length;
-      var nondigit = m[2]; // (\w)?
-      if (nondigit)
-      {
-        lexer.yyerror("trailing `"+nondigit+"' in number");
-      }
       // check if there was any underscores and rip them out
       if (m[1]) // (_)
         hex = hex.replace(/_/g,'');
@@ -2608,23 +2602,16 @@ function start_num (c)
     
     // octals
     octals: {
-      var m = match_grex(/[0-7]+(?:(_)[0-7]+)*([89_])?|/g);
+      var m = match_grex(/0(?:(_?)\d+)+|/g); // ruby matches 0-9
       var oct = m[0];
+      if (!oct)
+        break octals;
       lex_p += oct.length;
-      var nondigit = m[2]; // (\w)?
-      if (nondigit)
+      if (/[89]/.test(oct))
       {
-        if (/[89]/.test(nondigit))
-        {
-          lexer.yyerror("Invalid octal digit");
-          lex_p -= oct.length;
-          break octals; // goto decimals
-        }
-        else
-        {
-          lexer.yyerror("trailing `"+nondigit[0]+"' in number");
-          break octals; // goto decimals
-        }
+        lexer.yyerror("Invalid octal digit");
+        lex_p -= oct.length;
+        break octals;
       }
       tokadd(oct);
       tokfix();
@@ -2646,6 +2633,7 @@ function start_num (c)
     // pushback here for decimals
     pushback(c);
   }
+  
   // as far as we know the first char (just pushed it back)
   // is a digit, there is no need for any `\d[\d_]*` trickery
   // to avoid error with leading `_` char.
@@ -2662,19 +2650,10 @@ function start_num (c)
   //   [eE][+\-]?\d+(_\d+)*      e000_000_000…
   // 
   // so we could parse: `10_0.0_0e+0_0` as `100.0`
-  var drex = /\d+(?:_\d+)*(?:(\.)\d+(?:(_)\d+)*)?(?:([eE])[+\-]?\d+(?:(_)\d+)*)?(\w)?|/g;
+  var drex = /\d+(?:_\d+)*(?:(\.)\d+(?:(_)\d+)*)?(?:([eE])[+\-]?\d+(?:(_)\d+)*)?|/g;
   var m = match_grex(drex);
   var decimal = m[0]; // there is always a match for pushbacked digit
   lex_p += decimal.length;
-  var nondigit = m[5];
-  if (nondigit)
-  {
-    if (peek('.'))
-      lex_p++;
-    else
-      lex_p--;
-    lexer.yyerror("trailing `"+nondigit+"' in number");
-  }
   tokadd(decimal);
   tokfix();
   
