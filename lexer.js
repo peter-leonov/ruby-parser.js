@@ -2570,33 +2570,40 @@ function start_num (c)
     //   `0_`, `0e`, `0+`, `0\n`, `0;`, etc,
     // so fallback to the decimal parser a chance after all this beasts
     
-    pushback(c);
+    
     
     // it is ok to use regexp here unconditionally
     // as far as we know for "0-nondot" strings
     // that in 99% the first (the `hrex`) will match
     
     // hex
-    var hrex = /0x([\da-fA-F]+(?:(_)[\da-fA-F]+)*)(\w)?|/g;
-    var m = match_grex(hrex);
-    var hex = m[0];
-    if (hex)
+    if (peek('x'))
     {
+      lex_p++;
+      var hrex = /[\da-fA-F]+(?:(_)[\da-fA-F]+)*(\w)?|/g;
+      var m = match_grex(hrex);
+      var hex = m[0];
+      if (!hex)
+      {
+        lexer.yyerror("numeric literal without digits");
+        return 0;
+      }
+      
       lex_p += hex.length;
-      var nondigit = m[3]; // (\w)?
+      var nondigit = m[2]; // (\w)?
       if (nondigit)
       {
         lexer.yyerror("trailing `"+nondigit+"' in number");
       }
-      var digits = m[1];
       // check if there was any underscores and rip them out
-      if (m[2]) // (_)
-        digits = digits.replace(/_/g,'');
-      var v = parseInt(digits, 16);
+      if (m[1]) // (_)
+        hex = hex.replace(/_/g,'');
+      var v = parseInt(hex, 16);
       // set_yylval_literal(rb_cstr_to_inum(tok(), 10, FALSE)); TODO
       return tINTEGER;
-    }
+    } // hex
     
+    pushback(c);
     if (match_grex(/0[0-9bBdD_oO]|/g)[0])
       warning('TODO: other 0-leading numbers to be supported soon');
     

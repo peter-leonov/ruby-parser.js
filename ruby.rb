@@ -1,7 +1,7 @@
 #!ruby
 # encoding: utf-8
 
-"#{<<AAA}, #{<<BBB}" + 2
+"#{<<AAA}, #{<<BBB}" + 2.to_s
 a content
 AAA
 b content
@@ -55,6 +55,13 @@ x = 10_0.0_0e+0_0
 
 y = 0x45
 y = 0x4_5_0
+
+# # TODO: add to error reporting tests
+# y = 0x
+# y = 0x_4_5_6
+# y = 0x4_5_
+# y = 0x4_5_.
+
 =begin
 sdfasf)
 asdf
