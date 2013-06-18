@@ -2967,14 +2967,17 @@ function debug ()
 }
 lexer.debug = debug;
 
-function print_error ()
+function warning (msg)
 {
-  puts('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-  puts.apply(null, arguments)
-  puts(lexer.cursorPosition())
-  puts('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+  puts
+  (
+    lexer.filename +
+    ':' +
+    lexer.ruby_sourceline +
+    ': ' +
+    msg
+  );
 }
-function warning (msg) { print_error('WARNING: ' + msg) }
 
 function compile_error (msg)
 {
