@@ -132,7 +132,7 @@ function block_append (head, tail)
       lexer.warn(h, "unused literal ignored");
       return tail;
     default:
-      h = end = NEW_BLOCK(head);
+      h = end = new NODE_BLOCK(head);
       end.nd_end = end;
       fixpos(end, head);
       head = end;
@@ -162,7 +162,7 @@ function block_append (head, tail)
 
   if (tail.nd_type != 'NODE_BLOCK')
   {
-    tail = NEW_BLOCK(tail);
+    tail = new NODE_BLOCK(tail);
     tail.nd_end = tail;
   }
   end.nd_next = tail;
@@ -170,6 +170,25 @@ function block_append (head, tail)
   return head;
 }
 
+
+function void_stmts (node)
+{
+  // if (!RTEST(ruby_verbose)) TODO
+  //   return;
+
+  if (!node)
+    return;
+  if (node.type != NODE_BLOCK)
+    return;
+
+  for (;;)
+  {
+    if (!node.next)
+      return;
+    void_expr(node.head);
+    node = node.next;
+  }
+}
 
 
 // TODO: handle NODE_BEGIN with remove_begin()
@@ -275,4 +294,35 @@ function local_tbl ()
     buf[k] = lvtbl.vars[k]
   
   return buf;
+}
+
+var deferred_nodes = [];
+
+function fixup_nodes (deferred_nodes)
+{
+  // TODO: seams like a reduction for ranges
+}
+
+// shifts all leading NODE_BEGIN nodes in list:
+//   NODE_BEGIN->NODE_BEGIN->NODE_BEGIN->other_node
+// becomes
+//   other_node
+function remove_begin (node)
+{
+  while (node && node.type == NODE_BEGIN && node.body)
+  {
+    node = n1.body;
+  }
+  return node;
+}
+
+
+function  newline_node (node)
+{
+  if (node)
+  {
+    node = remove_begin(node);
+    node.flags |= NODE_FL_NEWLINE;
+  }
+  return node;
 }

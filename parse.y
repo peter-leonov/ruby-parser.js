@@ -165,31 +165,36 @@ program:
                   void_expr(node.head);
                 }
             }
-            ruby_eval_tree = new SCOPE(null, block_append(ruby_eval_tree, $2));
+            ruby_eval_tree = 
+              new NODE_SCOPE(null, block_append(ruby_eval_tree, $2));
             // creates the chain link off `lvtbl`es and restores it
             local_pop();
     };
 
-top_compstmt
-  :
+top_compstmt:
     top_stmts opt_terms
-    {}
-  ;
+    {
+      void_stmts($1);
+      fixup_nodes(deferred_nodes);
+      $$ = $1;
+    };
 
-top_stmts
-  :
+top_stmts:
   none
+    {
+      $$ = new NODE_BEGIN(null); // empty body
+    }
+
+  | top_stmt
+    {
+      $$ = newline_node($1);
+    }
+  
+  | top_stmts terms top_stmt
     {}
-  |
-    top_stmt
-    {}
-  |
-    top_stmts terms top_stmt
-    {}
-  |
-    error top_stmt
-    {}
-  ;
+  
+  | error top_stmt
+    {};
 
 top_stmt
   :
