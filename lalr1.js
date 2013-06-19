@@ -131,7 +131,16 @@ function YYParser (lexer)
 
 // the three variables shared by Parser's guts and actions world
 // (`lexer` is shared too)
-var yyval, yystack;
+var yyval, yystack, actionsTable;
+
+;(function(){ // actions table namespace start
+
+actionsTable =
+{
+  ]b4_list_of_actions[
+};
+
+})(); // actions table namespace end
 
 
 ;(function(){ // start of the Parser very own namespase
@@ -478,8 +487,6 @@ var yyval, yystack;
     return false
   }
 
-  var actionsTable; // defined lated in tables section
-
   function yyaction (yyn, yylen)
   {
     /* If YYLEN is nonzero, implement the default value of the action:
@@ -516,12 +523,6 @@ var yyval, yystack;
 
     yystack.push(yystate, yyval);
     // was: usless: return YYNEWSTATE;
-  }
-
-  // declared erlier, before `action()`
-  actionsTable =
-  {
-    ]b4_list_of_actions[
   }
 
   // YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing STATE-NUM.
