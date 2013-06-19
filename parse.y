@@ -1,34 +1,9 @@
 %{
 "use strict";
 
-// lexer states from lexer.js
+// at first, read this: http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/
 
-// ignore newline, +/- is a sign.
-var EXPR_BEG    = 1 << 0;
-// newline significant, +/- is an operator.
-var EXPR_END    = 1 << 1;
-// ditto, and unbound braces.
-var EXPR_ENDARG = 1 << 2;
-// ditto, and unbound braces.
-var EXPR_ENDFN  = 1 << 3;
-// newline significant, +/- is an operator.
-var EXPR_ARG    = 1 << 4;
-// newline significant, +/- is an operator.
-var EXPR_CMDARG = 1 << 5;
-// newline significant, +/- is an operator.
-var EXPR_MID    = 1 << 6;
-// ignore newline, no reserved words.
-var EXPR_FNAME  = 1 << 7;
-// right after `.' or `::', no reserved words.
-var EXPR_DOT    = 1 << 8;
-// immediate after `class', no here document.
-var EXPR_CLASS  = 1 << 9;
-// alike EXPR_BEG but label is disallowed.
-var EXPR_VALUE  = 1 << 10;
-
-var EXPR_BEG_ANY = EXPR_BEG | EXPR_VALUE | EXPR_MID | EXPR_CLASS;
-var EXPR_ARG_ANY = EXPR_ARG | EXPR_CMDARG;
-var EXPR_END_ANY = EXPR_END | EXPR_ENDARG | EXPR_ENDFN;
+#include "lexer.js"
 
 
 %}
@@ -1921,24 +1896,11 @@ none        : /* none */
 
 %%
 
-var YYLexer =
-#include "lexer.js"
-
-var YYGenerator =
-#include "generator.js"
-
 global.parse = function (text)
 {
-  var gen    = new YYGenerator();
-  var lexer  = new YYLexer(gen);
-  var parser = new YYParser(lexer, gen);
-  gen.setLexer(lexer);
-  
+  var lexer = new YYLexer(text);
   lexer.filename = 'ruby.rb';
-  lexer.setText(text);
   
-  var begin = new Date();
-  var res = parser.parse();
-  // print('time: ' + (new Date - begin));
-  return res;
+  var parser = new YYParser(lexer);
+  return parser.parse();
 }

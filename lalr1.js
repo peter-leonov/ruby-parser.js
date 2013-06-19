@@ -87,8 +87,6 @@ var
  * @@author Java skeleton ported by Peter Leonov.
  */
 
-var YYParser = (function(){ // start of the Parser very own namespase
-
 function YYStack ()
 {
   var stateStack = this.stateStack = [];
@@ -127,13 +125,16 @@ function YYStack ()
 }
 
 // Instantiates the Bison-generated parser.
-function YYParser (lexer, gen)
+// `lexer` is the scanner that will supply tokens to the parser.
+function YYParser (lexer)
 {
-  // self
-  var yyparser = this;
-  
-  // The scanner that will supply tokens to the parser.
-  this.lexer = lexer;
+
+// the three variables shared by Parser's guts and actions world
+// (`lexer` is shared too)
+var yyval, yystack;
+
+
+;(function(){ // start of the Parser very own namespase
 
   // True if verbose error messages are enabled.
   this.errorVerbose = true;
@@ -187,8 +188,6 @@ function YYParser (lexer, gen)
   {
     return yyerrstatus_ == 0;
   }
-
-  var yyval, yystack;
 
   /**
    * Parse input from the scanner that was specified at object construction
@@ -664,7 +663,10 @@ function YYParser (lexer, gen)
 
   var yyuser_token_number_max_ = ]b4_user_token_number_max[;
   var yyundef_token_ = ]b4_undef_token_number[;
-}
+
+}).call(this); // end of the Parser very own namespase
+
+} // YYParser
 
 // rare used functions
 YYParser.prototype =
@@ -854,16 +856,9 @@ YYParser.bisonVersion = "]b4_version[";
 // Name of the skeleton that generated this parser.
 YYParser.bisonSkeleton = ]b4_skeleton[;
 
-return YYParser;
-
-})(); // end of the Parser very own namespase
-
-;(function(){ // epilogue namespace
-
+// here goes the epilog
 ]b4_epilogue[
 
-})(); // end of epilogue namespace
-
-}).call(this); // end of the whole parser+lexer namespase
+})(); // end of the whole parser+lexer namespase
 ]
 b4_output_end()

@@ -1,16 +1,38 @@
-(function(){
+// expose the constant to outer world (e.g. parser)
 
-// at first, read this: http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/
+// ignore newline, +/- is a sign.
+var EXPR_BEG    = 1 << 0;
+// newline significant, +/- is an operator.
+var EXPR_END    = 1 << 1;
+// ditto, and unbound braces.
+var EXPR_ENDARG = 1 << 2;
+// ditto, and unbound braces.
+var EXPR_ENDFN  = 1 << 3;
+// newline significant, +/- is an operator.
+var EXPR_ARG    = 1 << 4;
+// newline significant, +/- is an operator.
+var EXPR_CMDARG = 1 << 5;
+// newline significant, +/- is an operator.
+var EXPR_MID    = 1 << 6;
+// ignore newline, no reserved words.
+var EXPR_FNAME  = 1 << 7;
+// right after `.' or `::', no reserved words.
+var EXPR_DOT    = 1 << 8;
+// immediate after `class', no here document.
+var EXPR_CLASS  = 1 << 9;
+// alike EXPR_BEG but label is disallowed.
+var EXPR_VALUE  = 1 << 10;
 
-function Lexer (gen)
+var EXPR_BEG_ANY = EXPR_BEG | EXPR_VALUE | EXPR_MID | EXPR_CLASS;
+var EXPR_ARG_ANY = EXPR_ARG | EXPR_CMDARG;
+var EXPR_END_ANY = EXPR_END | EXPR_ENDARG | EXPR_ENDFN;
+
+
+// $text: plain old JS string with ruby source code,
+function YYLexer ($text)
 {
 // the yylex() method and all public data sit here
 var lexer = this;
-
-// $text: plain old JS string with ruby source code,
-// to be set later in `setText()`
-var $text = '';
-lexer.setText = function (text) { $text = text; }
 
 // the end of stream had been reached
 lexer.eofp = false;
@@ -3017,7 +3039,3 @@ lexer.yyerror = function yyerror (msg)
 }
 
 } // function Lexer
-
-return Lexer;
-
-})();
