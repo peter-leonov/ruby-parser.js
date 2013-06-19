@@ -151,6 +151,10 @@ def expression?(sexp)
   !STATEMENTS.include?(sexp.first)
 end
 
+def a
+  class B
+  end
+end
 
 =begin
 sdfasf)
