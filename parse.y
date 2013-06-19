@@ -142,6 +142,7 @@ program
   :
     {
       lexer.lex_state = EXPR_BEG;
+      gen.local_push(true);
     }
     top_compstmt
     {}
