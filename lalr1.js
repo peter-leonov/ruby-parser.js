@@ -67,16 +67,14 @@ m4_ifval(m4_defn([b4_symbol_destructors]), [b4_fatal([%s: %%destructor does not 
 b4_output_begin([b4_parser_file_name])
 b4_copyright([Skeleton implementation for Bison LALR(1) parsers in JavaScript], [2007-2013])
 
-
-[]b4_pre_prologue[
-
-;(function(){ // start of the whole parser+lexer namespase
 /* First part of user declarations.  */
+[]b4_pre_prologue[
 
 // Tokens.
 // Token numbers, to be returned by the scanner.
 var
 ]b4_token_enums(b4_tokens)[;
+
 
 // here goes all the lexer code that depends on token numbers
 ]b4_percent_code_get([[lexer]])[
@@ -863,9 +861,8 @@ YYParser.Stack = function Stack ()
 }
 
 
-// here goes the epilog
+// here goes the epilogue
 ]b4_epilogue[
 
-})(); // end of the whole parser+lexer namespase
 ]
 b4_output_end()

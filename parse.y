@@ -1,6 +1,8 @@
 // at first, read this: http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/
 
 %{
+;(function(){ // whole parser and lexer namespase start
+
 "use strict";
 
 %}
@@ -130,6 +132,12 @@
 %right '!' '~' tUPLUS
 
 %token tLAST_TOKEN
+
+// in rules we have access to those things:
+//   * all the code from prologue (not much though);
+//   * `lexer`: instance of our Lexer class from the lexer code block;
+//   * $$ and $N through the `yyval` and `yystack` local variables
+//   * all the code and variables from `rules` code block.
 
 %%
 program
@@ -1915,6 +1923,11 @@ none        : /* none */
 
 %%
 
+
+// Exports part.
+// Here we have to expose our YY* classes to outer world somehow.
+// And yes, all the two YYParser and YYLexer are visible here
+
 global.parse = function (text)
 {
   var lexer = new YYLexer(text);
@@ -1923,3 +1936,5 @@ global.parse = function (text)
   var parser = new YYParser(lexer);
   return parser.parse();
 }
+
+})(); // whole parser and lexer namespase start
