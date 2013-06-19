@@ -5,8 +5,14 @@
 
 #include "lexer.js"
 
-
 %}
+
+%code actions {
+
+// here goes the code nedded in rules only, when generating nodes
+// #include "generator.js"
+
+}
 
 %skeleton "./lalr1.js"
 

@@ -135,6 +135,8 @@ var yyval, yystack, actionsTable;
 
 ;(function(){ // actions table namespace start
 
+]b4_percent_code_get([[actions]])[
+
 actionsTable =
 {
   ]b4_list_of_actions[
