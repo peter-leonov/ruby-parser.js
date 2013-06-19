@@ -161,8 +161,8 @@ function IS_AFTER_OPERATOR () { return IS_lex_state(EXPR_FNAME | EXPR_DOT) }
 
 function ambiguous_operator (op, syn)
 {
-  warning("`"+op+"' after local variable is interpreted as binary operator");
-  warning("even though it seems like "+syn);
+  warn("`"+op+"' after local variable is interpreted as binary operator");
+  warn("even though it seems like "+syn);
 }
 // very specific warning function :)
 function warn_balanced (op, syn, c)
@@ -515,7 +515,7 @@ function ISALNUM (c)
 // TODO: get rid of such a piece of junk :)
 function arg_ambiguous ()
 {
-  warning("ambiguous first argument; put parentheses or even spaces");
+  warn("ambiguous first argument; put parentheses or even spaces");
   return true;
 }
 
@@ -644,7 +644,7 @@ this.yylex = function yylex ()
         pushback(c);
         if (IS_SPCARG(c))
         {
-          warning("`**' interpreted as argument prefix");
+          warn("`**' interpreted as argument prefix");
           token = tDSTAR;
         }
         else if (IS_BEG())
@@ -668,7 +668,7 @@ this.yylex = function yylex ()
         pushback(c);
         if (IS_SPCARG(c))
         {
-          warning("`*' interpreted as argument prefix");
+          warn("`*' interpreted as argument prefix");
           token = tSTAR;
         }
         else if (IS_BEG())
@@ -904,7 +904,7 @@ this.yylex = function yylex ()
           }
           if (c2)
           {
-            warning("invalid character syntax; use ?\\" + c2);
+            warn("invalid character syntax; use ?\\" + c2);
           }
         }
         pushback(c);
@@ -977,7 +977,7 @@ this.yylex = function yylex ()
       var t = $(c);
       if (IS_SPCARG(c))
       {
-        warning("`&' interpreted as argument prefix");
+        warn("`&' interpreted as argument prefix");
         t = tAMPER;
       }
       else if (IS_BEG())
@@ -2983,30 +2983,24 @@ lexer.debug = debug;
 #define debug(msg)
 #endif
 
-function warning (msg)
+function warn (msg, lineno, filename)
 {
   puts
   (
-    lexer.filename +
+    (filename || lexer.filename) +
     ':' +
-    lexer.ruby_sourceline +
+    (lineno || lexer.ruby_sourceline) +
     ': ' +
     msg
   );
 }
+this.warn = warn;
 
 function compile_error (msg)
 {
   lexer.nerr++;
 
-  puts
-  (
-    lexer.filename +
-    ':' +
-    lexer.ruby_sourceline +
-    ': ' +
-    msg
-  );
+  warn(msg);
 }
 
 lexer.yyerror = function yyerror (msg)
