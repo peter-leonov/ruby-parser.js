@@ -1,15 +1,28 @@
+// at first, read this: http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/
+
 %{
 "use strict";
 
-// at first, read this: http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/
+%}
+
+%code lexer {
+
+// here we know all the token numbers as a list of constant variables
+// 
+//   var END_OF_INPUT = 0;
+//   var keyword_class = 258;
+//   var keyword_module = 259;
+// 
+// and so on.
 
 #include "lexer.js"
 
-%}
+}
 
 %code actions {
 
-// here goes the code nedded in rules only, when generating nodes
+// here goes the code needed in rules only, when generating nodes,
+// we still know all the token numbers here too.
 // #include "generator.js"
 
 }

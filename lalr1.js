@@ -68,7 +68,8 @@ b4_output_begin([b4_parser_file_name])
 b4_copyright([Skeleton implementation for Bison LALR(1) parsers in JavaScript], [2007-2013])
 
 
-[
+[]b4_pre_prologue[
+
 ;(function(){ // start of the whole parser+lexer namespase
 /* First part of user declarations.  */
 
@@ -77,8 +78,9 @@ b4_copyright([Skeleton implementation for Bison LALR(1) parsers in JavaScript], 
 var
 ]b4_token_enums(b4_tokens)[;
 
+// here goes all the lexer code that depends on token numbers
+]b4_percent_code_get([[lexer]])[
 
-]b4_pre_prologue[
 
 /**
  * A Bison parser, automatically generated from <tt>]m4_bpatsubst(b4_file_name, [^"\(.*\)"$], [\1])[</tt>.
