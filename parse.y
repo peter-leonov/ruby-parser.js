@@ -25,7 +25,7 @@
 
 // here goes the code needed in rules only, when generating nodes,
 // we still know all the token numbers here too.
-// #include "generator.js"
+#include "generator.js"
 
 }
 
@@ -133,22 +133,42 @@
 
 %token tLAST_TOKEN
 
-// in rules we have access to those things:
+// in rules (and generator) we have access to those things:
 //   * all the code from prologue (not much though);
 //   * `lexer`: instance of our Lexer class from the lexer code block;
 //   * $$ and $N through the `yyval` and `yystack` local variables
 //   * all the code and variables from `rules` code block.
+// 
+// Repeated in generator.js
 
 %%
-program
-  :
+program:
     {
-      lexer.lex_state = EXPR_BEG;
-      gen.local_push(true);
+            lexer.lex_state = EXPR_BEG;
+            // creates a new chain link of `lvtbl`es
+            local_push(compile_for_eval || rb_parse_in_main());
     }
     top_compstmt
-    {}
-  ;
+    {
+            if ($2 && !compile_for_eval)
+            {
+                /* last expression should not be void */
+                if ($2.type != NODE_BLOCK)
+                  void_expr($2);
+                else
+                {
+                  var node = $2;
+                  while (node.next)
+                  {
+                      node = node.next;
+                  }
+                  void_expr(node.head);
+                }
+            }
+            ruby_eval_tree = new SCOPE(null, block_append(ruby_eval_tree, $2));
+            // creates the chain link off `lvtbl`es and restores it
+            local_pop();
+    };
 
 top_compstmt
   :
@@ -1828,11 +1848,11 @@ singleton    : var_ref
         }
         expr rparen
             {
-          if ($3 == 0) {
+          if ($3 == null) {
             lexer.yyerror("can't define singleton method for ().");
           }
           else {
-            switch (nd_type($3)) { // TODO
+            switch ($3.type) { // TODO
               case NODE_STR:
               case NODE_DSTR:
               case NODE_XSTR:
