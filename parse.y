@@ -1932,6 +1932,7 @@ global.parse = function (text)
   var gen    = new YYGenerator();
   var lexer  = new YYLexer(gen);
   var parser = new YYParser(lexer, gen);
+  gen.setLexer(lexer);
   
   lexer.filename = 'ruby.rb';
   lexer.setText(text);
