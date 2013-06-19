@@ -87,42 +87,6 @@ var
  * @@author Java skeleton ported by Peter Leonov.
  */
 
-function YYStack ()
-{
-  var stateStack = this.stateStack = [];
-  var valueStack = this.valueStack = [];
-
-  this.push = function push (state, value)
-  {
-    stateStack.push(state);
-    valueStack.push(value);
-  }
-
-  this.pop = function pop (num)
-  {
-    if (num <= 0)
-      return;
-
-    valueStack.length -= num;
-    stateStack.length -= num; // TODO: original code lacks this line
-  }
-
-  this.stateAt = function stateAt (i)
-  {
-    return stateStack[stateStack.length-1 - i];
-  }
-
-  this.valueAt = function valueAt (i)
-  {
-    return valueStack[valueStack.length-1 - i];
-  }
-
-  // used in debug mode or in an error recovery mode only
-  this.height = function height ()
-  {
-    return stateStack.length-1;
-  }
-}
 
 // Instantiates the Bison-generated parser.
 // `lexer` is the scanner that will supply tokens to the parser.
@@ -219,7 +183,7 @@ actionsTable =
     var yystate = 0;
 
     // the only place yystack value is changed
-    yystack = this.yystack = new YYStack();
+    yystack = this.yystack = new YYParser.Stack();
 
     /* Error handling.  */
     var yynerrs_ = 0;
@@ -858,6 +822,44 @@ YYParser.bisonVersion = "]b4_version[";
 
 // Name of the skeleton that generated this parser.
 YYParser.bisonSkeleton = ]b4_skeleton[;
+
+YYParser.Stack = function Stack ()
+{
+  var stateStack = this.stateStack = [];
+  var valueStack = this.valueStack = [];
+
+  this.push = function push (state, value)
+  {
+    stateStack.push(state);
+    valueStack.push(value);
+  }
+
+  this.pop = function pop (num)
+  {
+    if (num <= 0)
+      return;
+
+    valueStack.length -= num;
+    stateStack.length -= num; // TODO: original code lacks this line
+  }
+
+  this.stateAt = function stateAt (i)
+  {
+    return stateStack[stateStack.length-1 - i];
+  }
+
+  this.valueAt = function valueAt (i)
+  {
+    return valueStack[valueStack.length-1 - i];
+  }
+
+  // used in debug mode or in an error recovery mode only
+  this.height = function height ()
+  {
+    return stateStack.length-1;
+  }
+}
+
 
 // here goes the epilog
 ]b4_epilogue[
