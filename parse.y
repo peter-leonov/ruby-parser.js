@@ -174,7 +174,7 @@ program:
                 }
             }
             ruby_eval_tree = 
-              new NODE_SCOPE(null, block_append(ruby_eval_tree, $2));
+              new NODE_SCOPE(null, block_append(ruby_eval_tree, $2), null);
             // creates the chain link off `lvtbl`es and restores it
             local_pop();
     };
@@ -373,7 +373,15 @@ stmt
     keyword_END '{' compstmt '}'
     {
       if (lexer.in_def || lexer.in_single)
-        rb_warn("END in method; use at_exit");
+      {
+        lexer.warn("END in method; use at_exit");
+      }
+      $$ = new NODE_POSTEXE(new NODE_SCOPE
+      (
+        null, // tbl
+        $3,   // body
+        null  // args
+      ));
     }
   |
     command_asgn

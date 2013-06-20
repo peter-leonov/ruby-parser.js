@@ -53,15 +53,15 @@ function NODE_DEFINED () {}
 
 
 
-function NODE_SCOPE (head, body)
+function NODE_SCOPE (tbl, body, args)
 {
   this.type = NODE_SCOPE;
   this.flags = 0;
   this.line = 0;
 
-  this.local_tbl = local_tbl();
-  this.head = head;
+  this.tbl = tbl || local_tbl();
   this.body = body;
+  this.args = args;
 }
 
 function NODE_BLOCK (head)
@@ -232,5 +232,14 @@ function NODE_UNTIL (cond, body, n)
   this.cond = cond;
   this.body = body;
   this.n = n; // TODO: n what?
+}
+
+function NODE_POSTEXE (body)
+{
+  this.type = NODE_POSTEXE;
+  this.flags = 0;
+  this.line = 0;
+  
+  this.body = body;
 }
 
