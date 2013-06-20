@@ -2914,6 +2914,17 @@ function lvar_defined (ident)
   return false;
 }
 
+// TODO:
+// function rb_intern (name)
+// {
+//   var id = global_symbols[name];
+//   if (id)
+//     return id;
+//   
+//   return global_symbols_add(id);
+// }
+
+
 var rb_reserved_word =
 {
 '__ENCODING__': {id0: keyword__ENCODING__, id1: keyword__ENCODING__, state: EXPR_END},
