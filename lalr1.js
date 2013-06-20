@@ -116,17 +116,17 @@ actionsTable =
   // True if verbose error messages are enabled.
   this.errorVerbose = true;
 
-#if DEBUG
+#if YYDEBUG
   var debug_reduce_print = this.debug_reduce_print.bind(this);
   var debug_symbol_print = this.debug_symbol_print.bind(this);
   var debug_stack_print  = this.debug_stack_print.bind(this);
   var debug_print        = this.debug_print.bind(this);
-#else
+#else // YYDEBUG
 #define debug_reduce_print(yyn)
 #define debug_symbol_print(message, yytype, yyvaluep)
 #define debug_stack_print(yystack)
 #define debug_print(message)
-#endif // DEBUG
+#endif // YYDEBUG
   
 
   // Token returned by the scanner to signal the end of its input.
@@ -605,7 +605,7 @@ actionsTable =
     b4_prhs
     //[[
   ];
-#if DEBUG
+#if YYDEBUG
   // YYRLINE[YYN] -- Source line where rule number YYN was defined.
   var yyrline_ = this.yyrline_ =
   [
@@ -613,7 +613,7 @@ actionsTable =
     b4_rline
     //[[
   ];
-#endif
+#endif // YYDEBUG
   // YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.
   var yytranslate_table_ =
   [
@@ -640,15 +640,11 @@ actionsTable =
 YYParser.prototype =
 {
   // Report on the debug stream that the rule yyrule is going to be reduced.
-#if DEBUG
+#if YYDEBUG
   debug_reduce_print: function debug_reduce_print (yyrule)
   {
     var yystack = this.yystack;
-#if DEBUG
     var yylno = this.yyrline_[yyrule];
-#else
-    var yylno = 0;
-#endif
     var yynrhs = this.yyr2_[yyrule];
     // Print the symbols being reduced, and their result.
     this.debug_print("Reducing stack by rule " + (yyrule - 1) + " (line " + yylno + "):\n");
@@ -686,7 +682,7 @@ YYParser.prototype =
   {
     write(message);
   },
-#endif // DEBUG
+#endif // YYDEBUG
 
   // Generate an error message.
   yysyntax_error: function yysyntax_error (yystate, tok)
