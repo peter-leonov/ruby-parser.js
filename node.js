@@ -28,7 +28,6 @@ function NODE_GVAR () {}
 function NODE_IVAR () {}
 function NODE_CVAR () {}
 function NODE_NTH_REF () {}
-function NODE_BACK_REF () {}
 function NODE_CONST () {}
 function NODE_LIT () {}
 function NODE_STR () {}
@@ -125,5 +124,14 @@ function NODE_VALIAS (name, entity) // TODO: fix names
   
   this.name = name;
   this.entity = entity;
+}
+
+function NODE_BACK_REF (name)
+{
+  this.type = NODE_BACK_REF;
+  this.flags = 0;
+  this.line = 0;
+  
+  this.name = name;
 }
 

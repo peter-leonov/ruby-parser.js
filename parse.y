@@ -305,7 +305,7 @@ stmt
   |
     keyword_alias tGVAR tBACK_REF
     {
-      $$ = new NODE_VALIAS($2, '$'+$3.nth);
+      $$ = new NODE_VALIAS($2, new NODE_BACK_REF($3));
     }
   |
     keyword_alias tGVAR tNTH_REF
@@ -1693,9 +1693,12 @@ var_lhs        : user_variable
             {}
         ;
 
-backref        : tNTH_REF
-        | tBACK_REF
-        ;
+backref:
+    tNTH_REF
+    | tBACK_REF
+    {
+      $$ = new NODE_BACK_REF($1);
+    };
 
 superclass    : term
             {}
