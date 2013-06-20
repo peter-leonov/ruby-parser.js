@@ -20,7 +20,6 @@ function NODE_DASGN () {}
 function NODE_DASGN_CURR () {}
 function NODE_GASGN () {}
 function NODE_IASGN () {}
-function NODE_STR () {}
 function NODE_SELF () {}
 function NODE_TRUE () {}
 function NODE_FALSE () {}
@@ -30,14 +29,12 @@ function NODE_BREAK () {}
 function NODE_NEXT () {}
 function NODE_REDO () {}
 function NODE_RETRY () {}
-function NODE_CALL () {}
 function NODE_LVAR () {}
 function NODE_DVAR () {}
 function NODE_IVAR () {}
 function NODE_CVAR () {}
 function NODE_NTH_REF () {}
 function NODE_CONST () {}
-function NODE_STR () {}
 function NODE_DSTR () {}
 function NODE_DREGX () {}
 function NODE_DREGX_ONCE () {}
@@ -241,5 +238,56 @@ function NODE_POSTEXE (body)
   this.line = 0;
   
   this.body = body;
+}
+
+function NODE_OP_ASGN_OR (vid, val)
+{
+  this.type = NODE_OP_ASGN_OR;
+  this.flags = 0;
+  this.line = 0;
+  
+  this.vid = vid;
+  this.val = val;
+}
+
+function NODE_OP_ASGN_AND (vid, val)
+{
+  this.type = NODE_OP_ASGN_AND;
+  this.flags = 0;
+  this.line = 0;
+  
+  this.vid = vid;
+  this.val = val;
+}
+
+function NODE_CALL (vid, val)
+{
+  this.type = NODE_CALL;
+  this.flags = 0;
+  this.line = 0;
+  
+  this.vid = vid;
+  this.val = val;
+}
+
+function NODE_ARRAY (val)
+{
+  this.type = NODE_ARRAY;
+  this.flags = 0;
+  this.line = 0;
+  
+  this.val = val;
+  this.len = 1; // TODO: check if it's a `len`
+}
+
+var NODE_LIST = NODE_ARRAY;
+
+function NODE_STR (lit) // literal
+{
+  this.type = NODE_ARRAY;
+  this.flags = 0;
+  this.line = 0;
+  
+  this.lit = lit;
 }
 

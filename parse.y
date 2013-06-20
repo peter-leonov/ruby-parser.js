@@ -387,10 +387,17 @@ stmt
     command_asgn
   |
     mlhs '=' command_call
-    {}
+    {
+      value_expr($3);
+      $1.value = $3;
+      $$ = $1;
+    }
   |
     var_lhs tOP_ASGN command_call
-    {}
+    {
+      value_expr($3);
+      $$ = new_op_assign($1, $2, $3);
+    }
   |
     primary_value '[' opt_call_args rbracket tOP_ASGN command_call
     {}

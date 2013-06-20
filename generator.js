@@ -565,3 +565,100 @@ function value_expr (node)
 
   return true;
 }
+
+function new_op_assign (lhs, op, rhs)
+{
+  var asgn = null;
+
+  if (lhs)
+  {
+    var vid = lhs.vid; // TODO: ID op operation: tPOW, $('*'), tLSHFT, etc.
+    if (op == tOROP)
+    {
+      lhs.value = rhs;
+      asgn = new NODE_OP_ASGN_OR(gettable(vid), lhs);
+      if (is_asgn_or_id(vid))
+      {
+        asgn.aid = vid;
+      }
+    }
+    else if (op == tANDOP)
+    {
+      lhs.value = rhs;
+      asgn = new NODE_OP_ASGN_AND(gettable(vid), lhs);
+    }
+    else
+    {
+      asgn = lhs;
+      asgn.value = new NODE_CALL(gettable(vid), op, new NODE_LIST(rhs));
+    }
+  }
+  else
+  {
+    asgn = new NODE_BEGIN(null);
+  }
+  return asgn;
+}
+
+// TODO: understand and... rewrite :)
+function gettable (id)
+{
+  throw 'TODO: function gettable (id)';
+  switch (id)
+  {
+    case keyword_self:
+      return NEW_SELF();
+    case keyword_nil:
+      return NEW_NIL();
+    case keyword_true:
+      return NEW_TRUE();
+    case keyword_false:
+      return NEW_FALSE();
+    case keyword__FILE__:
+      return
+        new NODE_STR(ruby_sourcefile);
+    case keyword__LINE__:
+      return NEW_LIT(INT2FIX(tokline));
+    case keyword__ENCODING__:
+      return NEW_LIT(rb_enc_from_encoding(current_enc));
+  }
+  switch (id_type(id))
+  {
+    case ID_LOCAL:
+      if (dyna_in_block() && dvar_defined(id))
+        return NEW_DVAR(id);
+      if (local_id(id))
+        return NEW_LVAR(id);
+      /* method call without arguments */
+      return NEW_VCALL(id);
+    case ID_GLOBAL:
+      return NEW_GVAR(id);
+    case ID_INSTANCE:
+      return NEW_IVAR(id);
+    case ID_CONST:
+      return NEW_CONST(id);
+    case ID_CLASS:
+      return NEW_CVAR(id);
+  }
+  lexer.compile_error("identifier %s is not valid to get", rb_id2name(id));
+  return null;
+}
+
+// used only in new_op_assign()
+// TODO: understand
+function is_asgn_or_id (id)
+{
+  // ((is_notop_id(id)) && \ // isn't an operator
+  // (((id)&ID_SCOPE_MASK) == ID_GLOBAL || \    // $*
+  // ((id)&ID_SCOPE_MASK) == ID_INSTANCE || \   // @*
+  // ((id)&ID_SCOPE_MASK) == ID_CLASS))         // @@*
+  
+  // may translate to:
+  // typeof id == "string"
+  // id[0] == '$'
+  // id[0] == '@' && id[1] != '@'
+  // id[0] == '@' && id[1] == '@'
+  
+  return true;
+}
+

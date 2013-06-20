@@ -3026,6 +3026,7 @@ function compile_error (msg)
 
   warn(msg);
 }
+lexer.compile_error = compile_error
 
 lexer.yyerror = function yyerror (msg)
 {
