@@ -15,6 +15,7 @@
 // they all will be local to the parser actions.
 
 
+var ruby_verbose = true;
 
 // just a constants to compare to
 var DVARS_INHERIT = {},  // (NODE *) 1
@@ -103,12 +104,12 @@ function fixpos (node, orig)
     return;
   if (orig == DVARS_INHERIT) // (NODE *) 1
     return;
-  node.nd_line = orig.nd_line;
+  node.line = orig.line;
 }
 
 function parser_warning (node, mesg)
 {
-  lexer.warn(mesg, node.nd_line);
+  lexer.warn(mesg, node.line);
 }
 
 
@@ -121,36 +122,36 @@ function block_append (head, tail)
 
   if (h == null)
     return tail;
-  switch (h.nd_type)
+  switch (h.type)
   {
-    case 'NODE_LIT':
-    case 'NODE_STR':
-    case 'NODE_SELF':
-    case 'NODE_TRUE':
-    case 'NODE_FALSE':
-    case 'NODE_NIL':
+    case NODE_LIT:
+    case NODE_STR:
+    case NODE_SELF:
+    case NODE_TRUE:
+    case NODE_FALSE:
+    case NODE_NIL:
       lexer.warn(h, "unused literal ignored");
       return tail;
     default:
       h = end = new NODE_BLOCK(head);
-      end.nd_end = end;
+      end.end = end;
       fixpos(end, head);
       head = end;
       break;
     case NODE_BLOCK:
-      end = h.nd_end;
+      end = h.end;
       break;
   }
 
-  var nd = end.nd_head;
-  switch (nd_type(nd))
+  var nd = end.head;
+  switch (nd.type)
   {
     case NODE_RETURN:
     case NODE_BREAK:
     case NODE_NEXT:
     case NODE_REDO:
     case NODE_RETRY:
-      if (RTEST(ruby_verbose))
+      if (ruby_verbose)
       {
         parser_warning(tail, "statement not reached");
       }
@@ -160,21 +161,21 @@ function block_append (head, tail)
       break;
   }
 
-  if (tail.nd_type != 'NODE_BLOCK')
+  if (tail.type != NODE_BLOCK)
   {
     tail = new NODE_BLOCK(tail);
-    tail.nd_end = tail;
+    tail.end = tail;
   }
-  end.nd_next = tail;
-  h.nd_end = tail.nd_end;
+  end.next = tail;
+  h.end = tail.end;
   return head;
 }
 
 
 function void_stmts (node)
 {
-  // if (!RTEST(ruby_verbose)) TODO
-  //   return;
+  if (!ruby_verbose) TODO
+    return;
 
   if (!node)
     return;
@@ -196,15 +197,15 @@ function void_expr (node)
 {
   var useless = '';
 
-  // if (!RTEST(ruby_verbose)) TODO: hide in development mode
-  //   return;
+  if (!ruby_verbose) // TODO: hide in development mode
+    return;
 
   if (!node)
     return;
-  switch (node.nd_type)
+  switch (node.type)
   {
     case NODE_CALL:
-      switch (node.nd_mid)
+      switch (node.mid)
       {
         case $('+'):
         case $('-'):
@@ -224,7 +225,7 @@ function void_expr (node)
         case tLEQ:
         case tEQ:
         case tNEQ:
-          useless = rb_id2name(node.nd_mid);
+          useless = rb_id2name(node.mid);
           break;
       }
       break;
@@ -277,7 +278,7 @@ function void_expr (node)
 
   if (useless)
   {
-    var l = node.nd_line;
+    var l = node.line;
     lexer.warn("possibly useless use of "+useless+" in void context", l);
   }
 }

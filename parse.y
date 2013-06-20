@@ -191,7 +191,9 @@ top_stmts:
     }
   
   | top_stmts terms top_stmt
-    {}
+    {
+      $$ = block_append($1, newline_node($3));
+    }
   
   | error top_stmt
     {};
