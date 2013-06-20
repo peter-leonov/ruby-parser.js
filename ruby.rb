@@ -25,6 +25,7 @@ BBB
 string"
 
 x resque nil;
+x if nil;
 
 begin
   

@@ -334,16 +334,41 @@ stmt
     }
   |
     stmt modifier_unless expr_value
-    {}
+    {
+      // #define NEW_UNLESS(c,t,e) NEW_IF(c,e,t)
+      $$ = new NODE_IF(check_cond($3), null, remove_begin($1));
+      fixpos($$, $3);
+    }
   |
     stmt modifier_while expr_value
-    {}
+    {
+      if ($1 && $1.type == NODE_BEGIN)
+      {
+        $$ = new NODE_WHILE(check_cond($3), $1.body, 0);
+      }
+      else
+      {
+        $$ = new NODE_WHILE(check_cond($3), $1, 1);
+      }
+    }
   |
     stmt modifier_until expr_value
-    {}
+    {
+      if ($1 && $1.type == NODE_BEGIN)
+      {
+        $$ = new NODE_UNTIL(check_cond($3), $1.body, 0);
+      }
+      else
+      {
+        $$ = new NODE_UNTIL(check_cond($3), $1, 1);
+      }
+    }
   |
     stmt modifier_rescue stmt
-    {}
+    {
+      var resq = new NODE_RESBODY(null, remove_begin($3), null);
+      $$ = new NODE_RESCUE(remove_begin($1), resq, null);
+    }
   |
     keyword_END '{' compstmt '}'
     {

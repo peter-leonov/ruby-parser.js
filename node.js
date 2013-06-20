@@ -95,6 +95,17 @@ function NODE_RESCUE (body, rescue, elsee) // elsee for else
   this.elsee = elsee;
 }
 
+function NODE_RESBODY (exclude, body, rescue) // elsee for else
+{
+  this.type = NODE_RESBODY;
+  this.flags = 0;
+  this.line = 0;
+
+  this.exclude = exclude;
+  this.body = body;
+  this.rescue = rescue;
+}
+
 function NODE_ENSURE (body, enshure) // elsee for else
 {
   this.type = NODE_ENSURE;
@@ -199,5 +210,27 @@ function NODE_LIT (lit, lit_type)
   
   this.lit = lit;
   this.lit_type = lit_type;
+}
+
+function NODE_WHILE (cond, body, n)
+{
+  this.type = NODE_WHILE;
+  this.flags = 0;
+  this.line = 0;
+  
+  this.cond = cond;
+  this.body = body;
+  this.n = n; // TODO: n what?
+}
+
+function NODE_UNTIL (cond, body, n)
+{
+  this.type = NODE_UNTIL;
+  this.flags = 0;
+  this.line = 0;
+  
+  this.cond = cond;
+  this.body = body;
+  this.n = n; // TODO: n what?
 }
 
