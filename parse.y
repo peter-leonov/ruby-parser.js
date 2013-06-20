@@ -319,13 +319,19 @@ stmt
     keyword_alias tGVAR tNTH_REF
     {
       lexer.yyerror("can't make alias for the number variables");
+      $$ = new NODE_BEGIN(null);
     }
   |
     keyword_undef undef_list
-    {}
+    {
+      $$ = $2;
+    }
   |
     stmt modifier_if expr_value
-    {}
+    {
+      $$ = new NODE_IF(check_cond($3), remove_begin($1), null);
+      fixpos($$, $3);
+    }
   |
     stmt modifier_unless expr_value
     {}

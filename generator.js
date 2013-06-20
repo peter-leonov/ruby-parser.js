@@ -328,3 +328,240 @@ function  newline_node (node)
   }
   return node;
 }
+
+
+function check_cond (node)
+{
+  if (node == null)
+    return null;
+  assign_in_cond(node);
+
+  switch (node.type)
+  {
+    case NODE_DSTR:
+    case NODE_EVSTR:
+    case NODE_STR:
+      lexer.warn("string literal in condition");
+      break;
+
+    case NODE_DREGX:
+    case NODE_DREGX_ONCE:
+      parser_warning(node, "regex literal in condition");
+      return new NODE_MATCH2(node, new NODE_GVAR("$_"));
+
+    case NODE_AND:
+    case NODE_OR:
+      node.nd_1st = check_cond(node.nd_1st);
+      node.nd_2nd = check_cond(node.nd_2nd);
+      break;
+
+    case NODE_DOT2:
+    case NODE_DOT3:
+      node.beg = range_op(node.beg);
+      node.end = range_op(node.end);
+      if (node.type == NODE_DOT2)
+        // was: nd_set_type(node, NODE_FLIP2); TODO: understand
+        node.type = NODE_FLIP2;
+      else if (nd_type(node) == NODE_DOT3)
+        // was: nd_set_type(node, NODE_FLIP3); TODO: understand
+        node.type = NODE_FLIP3;
+      // if (!e_option_supplied(parser)) // TODO
+      {
+        var b = literal_node(node.beg);
+        var e = literal_node(node.end);
+        if ((b == 1 && e == 1) || (b + e >= 2 && ruby_verbose))
+        {
+          parser_warning(node, "range literal in condition");
+        }
+      }
+      break;
+
+    case NODE_DSYM:
+      parser_warning(node, "literal in condition");
+      break;
+
+    case NODE_LIT:
+      if (node.lit_type == 'REGEXP')
+      {
+        parser_warning(node, "regex literal in condition");
+        // was: nd_set_type(node, NODE_MATCH); TODO: understand
+        node.type = NODE_MATCH;
+      }
+      else
+      {
+        parser_warning(node, "literal in condition");
+      }
+    default:
+      break;
+  }
+  return node;
+}
+
+
+function assign_in_cond (node)
+{
+  switch (node.type)
+  {
+    case NODE_MASGN:
+      lexer.yyerror("multiple assignment in conditional");
+      return true;
+
+    case NODE_LASGN:
+    case NODE_DASGN:
+    case NODE_DASGN_CURR:
+    case NODE_GASGN:
+    case NODE_IASGN:
+      break;
+
+    default:
+      return false;
+  }
+
+  if (!node.value)
+    return true;
+  if (is_static_content(node.value))
+  {
+    /* reports always */
+    parser_warning(node.value, "found = in conditional, should be ==");
+  }
+  return true;
+}
+
+function range_op (node)
+{
+  if (node == null)
+    return null;
+
+  var type = node.type;
+  value_expr(node);
+  if (type == NODE_LIT && node.lit_type == 'FIXNUM')
+  {
+    warn_unless_e_option(parser, node,
+                         "integer literal in conditional range");
+    return NEW_CALL(node, tEQ, NEW_LIST(NEW_GVAR(rb_intern("$."))));
+  }
+  return cond0(parser, node);
+}
+
+
+function literal_node (node)
+{
+  if (!node)
+    return 1;        /* same as NODE_NIL */ // TODO: understand
+  switch (node.type)
+  {
+    case NODE_LIT:
+    case NODE_STR:
+    case NODE_DSTR:
+    case NODE_EVSTR:
+    case NODE_DREGX:
+    case NODE_DREGX_ONCE:
+    case NODE_DSYM:
+      return 2;
+    case NODE_TRUE:
+    case NODE_FALSE:
+    case NODE_NIL:
+      return 1;
+  }
+  return 0;
+}
+
+
+function is_static_content (node)
+{
+  if (!node)
+    return true;
+  switch (node.type)
+  {
+    case NODE_HASH:
+      if (!(node = node.head))
+        break;
+    case NODE_ARRAY:
+      do
+      {
+        if (!is_static_content(node.head))
+          return false;
+      }
+      while ((node = node.next) != null);
+    case NODE_LIT:
+    case NODE_STR:
+    case NODE_NIL:
+    case NODE_TRUE:
+    case NODE_FALSE:
+    case NODE_ZARRAY:
+      break;
+    default:
+      return false;
+  }
+  return true;
+}
+
+
+function value_expr (node)
+{
+  var cond = false;
+
+  if (!node)
+  {
+    lexer.warn("empty expression");
+  }
+  while (node)
+  {
+    switch (node.type)
+    {
+      case NODE_DEFN:
+      case NODE_DEFS:
+        parser_warning(node, "void value expression");
+        return false;
+
+      case NODE_RETURN:
+      case NODE_BREAK:
+      case NODE_NEXT:
+      case NODE_REDO:
+      case NODE_RETRY:
+        if (!cond)
+          lexer.yyerror("void value expression");
+        /* or "control never reach"? */
+        return false;
+
+      case NODE_BLOCK:
+        while (node.next)
+        {
+          node = node.next;
+        }
+        node = node.head;
+        break;
+
+      case NODE_BEGIN:
+        node = node.body;
+        break;
+
+      case NODE_IF:
+        if (!node.body) // aka "then"
+        {
+          node = node.elsee;
+          break;
+        }
+        else if (!node.elsee)
+        {
+          node = node.body;
+          break;
+        }
+        if (!value_expr(node.body))
+          return false;
+        node = node.elsee;
+        break;
+
+      case NODE_AND:
+      case NODE_OR:
+        cond = true;
+        node = node.nd_2nd;
+        break;
+
+      default:
+        return true;
+    }
+  }
+
+  return true;
+}

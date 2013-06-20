@@ -10,7 +10,16 @@ var NODE_FL_CREF_OMOD_SHARED = 1<<6;
 
 
 // TODO: implement them all
-function NODE_LIT () {}
+function NODE_DSYM () {}
+function NODE_AND () {}
+function NODE_OR () {}
+function NODE_EVSTR () {}
+function NODE_MASGN () {}
+function NODE_LASGN () {}
+function NODE_DASGN () {}
+function NODE_DASGN_CURR () {}
+function NODE_GASGN () {}
+function NODE_IASGN () {}
 function NODE_STR () {}
 function NODE_SELF () {}
 function NODE_TRUE () {}
@@ -24,20 +33,16 @@ function NODE_RETRY () {}
 function NODE_CALL () {}
 function NODE_LVAR () {}
 function NODE_DVAR () {}
-function NODE_GVAR () {}
 function NODE_IVAR () {}
 function NODE_CVAR () {}
 function NODE_NTH_REF () {}
 function NODE_CONST () {}
-function NODE_LIT () {}
 function NODE_STR () {}
 function NODE_DSTR () {}
 function NODE_DREGX () {}
 function NODE_DREGX_ONCE () {}
 function NODE_COLON2 () {}
 function NODE_COLON3 () {}
-function NODE_DOT2 () {}
-function NODE_DOT3 () {}
 function NODE_SELF () {}
 function NODE_NIL () {}
 function NODE_TRUE () {}
@@ -65,8 +70,9 @@ function NODE_BLOCK (head)
   this.flags = 0;
   this.line = 0;
 
-  this.head = head;
-  this.body = null;
+  this.head = head; // set later
+  this.next = null;
+  this.end = null; // set later
 }
 
 function NODE_BEGIN (body)
@@ -133,5 +139,65 @@ function NODE_BACK_REF (name)
   this.line = 0;
   
   this.name = name;
+}
+
+function NODE_IF (cond, body, elsee)
+{
+  this.type = NODE_IF;
+  this.flags = 0;
+  this.line = 0;
+  
+  this.cond = cond;
+  this.body = body; // aka "then"
+  this.elsee = elsee;
+}
+
+function NODE_MATCH2 (nd_1st, nd_2nd)
+{
+  this.type = NODE_MATCH2;
+  this.flags = 0;
+  this.line = 0;
+  
+  this.nd_1st = nd_1st;
+  this.nd_2nd = nd_2nd;
+}
+
+function NODE_GVAR (name)
+{
+  this.type = NODE_GVAR;
+  this.flags = 0;
+  this.line = 0;
+  
+  this.name = name;
+}
+
+function NODE_DOT2 (beg, end)
+{
+  this.type = NODE_DOT2;
+  this.flags = 0;
+  this.line = 0;
+  
+  this.beg = beg;
+  this.end = end;
+}
+
+function NODE_DOT3 (beg, end)
+{
+  this.type = NODE_DOT3;
+  this.flags = 0;
+  this.line = 0;
+  
+  this.beg = beg;
+  this.end = end;
+}
+
+function NODE_LIT (lit, lit_type)
+{
+  this.type = NODE_LIT;
+  this.flags = 0;
+  this.line = 0;
+  
+  this.lit = lit;
+  this.lit_type = lit_type;
 }
 
