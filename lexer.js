@@ -1554,8 +1554,7 @@ this.yylex = function yylex ()
         case '+':              /* $+: string matches last paren. */
           if (IS_lex_state_for(lexer.last_state, EXPR_FNAME))
           {
-            tokadd('$');
-            tokadd(c);
+            tokadd('$'+c);
             // was: goto gvar;
             tokfix();
             lexer.yylval = tok(); // intern string
