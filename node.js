@@ -107,3 +107,23 @@ function NODE_NIL ()
   this.line = 0;
 }
 
+function NODE_ALIAS (name, entity) // TODO: fix names
+{
+  this.type = NODE_ALIAS;
+  this.flags = 0;
+  this.line = 0;
+  
+  this.name = name;
+  this.entity = entity;
+}
+
+function NODE_VALIAS (name, entity) // TODO: fix names
+{
+  this.type = NODE_VALIAS;
+  this.flags = 0;
+  this.line = 0;
+  
+  this.name = name;
+  this.entity = entity;
+}
+

@@ -130,6 +130,10 @@ def returns(sexp)
   end
 end
 
+class AAA
+  
+  alias :subjectA :subjectB
+  
 def top(sexp, options = {})
   code = nil
 
@@ -155,6 +159,8 @@ end
 def expression?(sexp)
   !STATEMENTS.include?(sexp.first)
 end
+
+end # class AAA
 
 def a
   class B

@@ -271,18 +271,21 @@ stmts:
       $$ = remove_begin($2);
     };
 
-stmt_or_begin
-  :
+stmt_or_begin:
     stmt
-    {}
-  |
-    keyword_BEGIN
+    {
+      $$ = $1;
+    }
+
+  | keyword_BEGIN
     {
       lexer.yyerror("BEGIN is permitted only at toplevel");
     }
     '{' top_compstmt '}'
-    {}
-  ;
+    {
+      ruby_eval_tree_begin = block_append(ruby_eval_tree_begin, $4);
+      $$ = new NODE_BEGIN(null);
+    };
 
 stmt
   :
@@ -291,13 +294,19 @@ stmt
       lexer.lex_state = EXPR_FNAME;
     }
     fitem
-    {}
+    {
+      $$ = new NODE_ALIAS($2, $4);
+    }
   |
     keyword_alias tGVAR tGVAR
-    {}
+    {
+      $$ = new NODE_VALIAS($2, $3);
+    }
   |
     keyword_alias tGVAR tBACK_REF
-    {}
+    {
+      $$ = new NODE_VALIAS($2, '$'+$3.nth);
+    }
   |
     keyword_alias tGVAR tNTH_REF
     {
@@ -1979,9 +1988,11 @@ terms        : term
         | terms ';' {yyerrok();}
         ;
 
-none        : /* none */
-            {}
-        ;
+none: /* none */
+    {
+      // empty ensure or else block for example
+      $$ = null;
+    };
 
 %%
 
