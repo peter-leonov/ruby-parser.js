@@ -24,6 +24,8 @@ BBB
 
 string"
 
+x resque nil;
+
 begin
   
   

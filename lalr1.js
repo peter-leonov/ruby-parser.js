@@ -92,9 +92,11 @@ var
 // `lexer` is the scanner that will supply tokens to the parser.
 function YYParser (lexer)
 {
+// self
+var parser = this;
 
 // the three variables shared by Parser's guts and actions world
-// (`lexer` is shared too)
+// (`lexer` and `parser` are shared too)
 var yyval, yystack, actionsTable;
 
 ;(function(){ // actions table namespace start
@@ -154,7 +156,7 @@ actionsTable =
   var yyntokens_ = this.yyntokens_ = ]b4_tokens_number[;
   
   var yyerrstatus_ = 0;
-  function yyerrok () {yyerrstatus_ = 0;}
+  parser.yyerrok = function yyerrok () { yyerrstatus_ = 0; }
   
   // Return whether error recovery is being done.
   // In this state, the parser reads token until it reaches a known state,

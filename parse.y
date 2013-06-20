@@ -1725,7 +1725,7 @@ superclass    : term
             {}
         | error term
             {
-              yyerrok();
+              parser.yyerrok();
             }
         ;
 
@@ -1997,13 +1997,21 @@ trailer        : /* none */
         | ','
         ;
 
-term        : ';' {yyerrok();}
-        | '\n'
-        ;
+term
+  :
+    ';'
+    { parser.yyerrok(); }
+  |
+    '\n'
+  ;
 
-terms        : term
-        | terms ';' {yyerrok();}
-        ;
+terms
+  :
+    term
+  |
+    terms ';'
+    { parser.yyerrok(); }
+  ;
 
 none: /* none */
     {
