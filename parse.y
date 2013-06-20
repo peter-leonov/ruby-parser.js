@@ -242,26 +242,34 @@ bodystmt:
       fixpos($$, $1);
     };
 
-compstmt
-  :
+compstmt:
     stmts opt_terms
-    {}
-  ;
+    {
+      void_stmts($1);
+      fixup_nodes(deferred_nodes);
+      $$ = $1;
+    };
 
-stmts
-  :
+stmts:
     none
-    {}
-  |
-    stmt_or_begin
-    {}
-  |
-    stmts terms stmt_or_begin
-    {}
-  |
-    error stmt
-    {}
-  ;
+    {
+      $$ = new NODE_BEGIN(null);
+    }
+
+  | stmt_or_begin
+    {
+      $$ = newline_node($1);
+    }
+
+  | stmts terms stmt_or_begin
+    {
+      $$ = block_append($1, newline_node($3));
+    }
+
+  | error stmt
+    {
+      $$ = remove_begin($2);
+    };
 
 stmt_or_begin
   :
