@@ -29,6 +29,9 @@ diff: build
 test: build_debug
 	d8 --use_strict runner-console.js
 
+debug-yacc: build_debug_yacc
+	d8 --use_strict runner-console.js
+
 # profile with d8
 prof: build
 	d8 --prof --use_strict benchmark-console.js
