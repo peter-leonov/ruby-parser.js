@@ -90,6 +90,7 @@ function rb_parse_in_main () { return parse_in_eval < 0; }
 
 // the root node, I think
 var ruby_eval_tree = null;
+var ruby_eval_tree_begin = null;
 
 
 

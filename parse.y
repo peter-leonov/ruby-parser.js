@@ -196,7 +196,9 @@ top_stmts:
     }
   
   | error top_stmt
-    {};
+    {
+      $$ = remove_begin($2);
+    };
 
 top_stmt
   :
@@ -205,15 +207,40 @@ top_stmt
     keyword_BEGIN
     {}
     '{' top_compstmt '}'
-    {}
+    {
+      ruby_eval_tree_begin = block_append(ruby_eval_tree_begin, $4);
+      $$ = new NODE_BEGIN(null);
+      puts(123)
+    }
   ;
 
 bodystmt:
     compstmt opt_rescue opt_else opt_ensure
     {
+      $$ = $1;
+      if ($2)
+      {
+        $$ = new NODE_RESCUE($1, $2, $3);
+      }
+      else if ($3)
+      {
+        lexer.warn("else without rescue is useless");
+        $$ = block_append($$, $3);
+      }
       
-    }
-  ;
+      if ($4)
+      {
+        if ($$)
+        {
+          $$ = new NODE_ENSURE($$, $4);
+        }
+        else
+        {
+          $$ = block_append($4, new NODE_NIL());
+        }
+      }
+      fixpos($$, $1);
+    };
 
 compstmt
   :

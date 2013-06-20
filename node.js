@@ -9,36 +9,6 @@ var NODE_FL_CREF_OMOD_SHARED = 1<<6;
 
 
 
-function NODE_SCOPE (head, body)
-{
-  this.type = NODE_SCOPE;
-  this.flags = 0;
-
-  this.local_tbl = local_tbl();
-  this.head = head;
-  this.body = body;
-}
-
-function NODE_BLOCK (head)
-{
-  this.type = NODE_BLOCK;
-  this.flags = 0;
-
-  this.head = head;
-  this.body = null;
-}
-
-function NODE_BEGIN (body)
-{
-  this.type = NODE_BEGIN;
-  this.flags = 0;
-
-  this.head = null;
-  this.body = body;
-}
-
-
-
 // TODO: implement them all
 function NODE_LIT () {}
 function NODE_STR () {}
@@ -74,4 +44,66 @@ function NODE_NIL () {}
 function NODE_TRUE () {}
 function NODE_FALSE () {}
 function NODE_DEFINED () {}
+
+
+
+
+
+function NODE_SCOPE (head, body)
+{
+  this.type = NODE_SCOPE;
+  this.flags = 0;
+  this.line = 0;
+
+  this.local_tbl = local_tbl();
+  this.head = head;
+  this.body = body;
+}
+
+function NODE_BLOCK (head)
+{
+  this.type = NODE_BLOCK;
+  this.flags = 0;
+  this.line = 0;
+
+  this.head = head;
+  this.body = null;
+}
+
+function NODE_BEGIN (body)
+{
+  this.type = NODE_BEGIN;
+  this.flags = 0;
+  this.line = 0;
+
+  this.body = body;
+}
+
+function NODE_RESCUE (body, rescue, elsee) // elsee for else
+{
+  this.type = NODE_RESCUE;
+  this.flags = 0;
+  this.line = 0;
+
+  this.body = body;
+  this.rescue = rescue;
+  this.elsee = elsee;
+}
+
+function NODE_ENSURE (body, enshure) // elsee for else
+{
+  this.type = NODE_ENSURE;
+  this.flags = 0;
+  this.line = 0;
+
+  this.body = body;
+  this.enshure = enshure;
+}
+
+function NODE_NIL ()
+{
+  this.type = NODE_NIL;
+  this.flags = 0;
+  this.line = 0;
+}
 

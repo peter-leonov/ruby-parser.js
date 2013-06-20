@@ -24,6 +24,11 @@ BBB
 
 string"
 
+begin
+  
+  
+end
+
 puts ?\
 
 puts ?\x80 + "\x80"
