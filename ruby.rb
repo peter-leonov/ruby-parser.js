@@ -165,10 +165,11 @@ end
 
 end # class AAA
 
-def a
-  class B
-  end
-end
+# TODO: add to error reporting tests
+# def a
+#   class B
+#   end
+# end
 
 =begin
 sdfasf)
