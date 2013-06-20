@@ -400,7 +400,22 @@ stmt
     }
   |
     primary_value '[' opt_call_args rbracket tOP_ASGN command_call
-    {}
+    {
+      value_expr($6);
+      if (!$3)
+        $3 = new NODE_ZARRAY();
+      var args = arg_concat($3, $6);
+      if ($5 == tOROP)
+      {
+        $5 = 0;
+      }
+      else if ($5 == tANDOP)
+      {
+        $5 = 1;
+      }
+      $$ = NEW_OP_ASGN1($1, $5, args);
+      fixpos($$, $1);
+    }
   |
     primary_value '.' tIDENTIFIER tOP_ASGN command_call
     {}

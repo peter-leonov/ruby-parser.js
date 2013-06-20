@@ -662,3 +662,58 @@ function is_asgn_or_id (id)
   return true;
 }
 
+function arg_concat_gen (node1, node2)
+{
+  if (!node2)
+    return node1;
+  switch (node1.type)
+  {
+    case NODE_BLOCK_PASS:
+      if (node1.head)
+        node1.head = arg_concat(node1.head, node2);
+      else
+        node1.head = new NODE_LIST(node2);
+      return node1;
+    case NODE_ARGSPUSH:
+      if (node2.type != NODE_ARRAY)
+        break;
+      node1.body = list_concat(new NODE_LIST(node1.body), node2);
+      // was: nd_set_type(node1, NODE_ARGSCAT);
+      node1.type = NODE_ARGSCAT; // TODO
+      return node1;
+    case NODE_ARGSCAT:
+      if (node2.type != NODE_ARRAY ||
+          node1.body.type != NODE_ARRAY)
+        break;
+      node1.body = list_concat(node1.body, node2);
+      return node1;
+  }
+  return new NODE_ARGSCAT(node1, node2);
+}
+
+function list_concat (head, tail)
+{
+  var last = null;
+
+  if (head.next)
+  {
+    last = head.next.end;
+  }
+  else
+  {
+    last = head;
+  }
+
+  head.alen += tail.alen;
+  last.next = tail;
+  if (tail.next)
+  {
+    head.next.end = tail.next.end;
+  }
+  else
+  {
+    head.next.end = tail;
+  }
+
+  return head;
+}

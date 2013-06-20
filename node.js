@@ -2,14 +2,14 @@
 
 // nodes classes
 
-
 var NODE_FL_NEWLINE = 1<<7;
 var NODE_FL_CREF_PUSHED_BY_EVAL = NODE_FL_NEWLINE;
 var NODE_FL_CREF_OMOD_SHARED = 1<<6;
 
 
-
 // TODO: implement them all
+function NODE_BLOCK_PASS () {}
+function NODE_ARGSPUSH () {}
 function NODE_DSYM () {}
 function NODE_AND () {}
 function NODE_OR () {}
@@ -250,6 +250,17 @@ function NODE_OP_ASGN_OR (vid, val)
   this.val = val;
 }
 
+function NODE_OP_ASGN1 (vid, op, args)
+{
+  this.type = NODE_OP_ASGN_OR;
+  this.flags = 0;
+  this.line = 0;
+  
+  this.vid = vid;
+  this.op = op;
+  this.args = args;
+}
+
 function NODE_OP_ASGN_AND (vid, val)
 {
   this.type = NODE_OP_ASGN_AND;
@@ -270,24 +281,39 @@ function NODE_CALL (vid, val)
   this.val = val;
 }
 
-function NODE_ARRAY (val)
+function NODE_ARRAY (next)
 {
   this.type = NODE_ARRAY;
   this.flags = 0;
   this.line = 0;
   
-  this.val = val;
-  this.len = 1; // TODO: check if it's a `len`
+  this.next = next;
+  this.end = null;
+  this.alen = 1;
 }
 
 var NODE_LIST = NODE_ARRAY;
 
 function NODE_STR (lit) // literal
 {
-  this.type = NODE_ARRAY;
+  this.type = NODE_STR;
   this.flags = 0;
   this.line = 0;
   
   this.lit = lit;
+}
+
+function NODE_ZARRAY () // literal
+{
+  this.type = NODE_ZARRAY;
+  this.flags = 0;
+  this.line = 0;
+}
+
+function NODE_ARGSCAT () // literal
+{
+  this.type = NODE_ARGSCAT;
+  this.flags = 0;
+  this.line = 0;
 }
 
