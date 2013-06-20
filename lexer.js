@@ -85,7 +85,8 @@ lexer.line_count = 0;
 lexer.nerr = 0;
 // TODO: check out list of stateful variables with the original
 
-// all lexer states codes had been moved to parse.y prologue
+// the token value to be stored in the values stack
+lexer.yylval = null;
 
 // the shortcut for checking `lexer.lex_state` over and over again
 function IS_lex_state (ls)
@@ -461,11 +462,6 @@ function toklast ()
   // was: tokidx>0?tokenbuf[tokidx-1]:0)
 }
 
-// TODO
-this.getLVal = function () { return $tokenbuf; }
-
-
-
 // other stuff
 
 function parser_is_identchar (c)
@@ -654,7 +650,7 @@ this.yylex = function yylex ()
       {
         if ((c = nextc()) == '=')
         {
-          // set_yylval_id(tPOW); TODO
+          lexer.yylval = tPOW; // TODO: maybe a string needed
           lexer.lex_state = EXPR_BEG;
           return tOP_ASGN;
         }
@@ -678,7 +674,7 @@ this.yylex = function yylex ()
       {
         if (c == '=')
         {
-          // set_yylval_id('*'); TODO
+          lexer.yylval = $('*'); // ID
           lexer.lex_state = EXPR_BEG;
           return tOP_ASGN;
         }
@@ -814,7 +810,7 @@ this.yylex = function yylex ()
       {
         if ((c = nextc()) == '=')
         {
-          // set_yylval_id(tLSHFT); TODO
+          lexer.yylval = tLSHFT; // ID
           lexer.lex_state = EXPR_BEG;
           return tOP_ASGN;
         }
@@ -837,7 +833,7 @@ this.yylex = function yylex ()
       {
         if ((c = nextc()) == '=')
         {
-          // set_yylval_id(tRSHFT); TODO
+          lexer.yylval = tRSHFT; // ID
           lexer.lex_state = EXPR_BEG;
           return tOP_ASGN;
         }
@@ -965,7 +961,7 @@ this.yylex = function yylex ()
         tokadd(c);
       }
       tokfix();
-      // set_yylval_str(STR_NEW3(tok(), toklen(), enc, 0)); TODO
+      lexer.yylval = tok(); // plain string
       lexer.lex_state = EXPR_END;
       return tCHAR;
     }
@@ -977,7 +973,7 @@ this.yylex = function yylex ()
         lexer.lex_state = EXPR_BEG;
         if ((c = nextc()) == '=')
         {
-          // set_yylval_id(tANDOP); TODO
+          lexer.yylval = tANDOP; // ID
           lexer.lex_state = EXPR_BEG;
           return tOP_ASGN;
         }
@@ -986,7 +982,7 @@ this.yylex = function yylex ()
       }
       else if (c == '=')
       {
-        // set_yylval_id('&'); TODO
+        lexer.yylval= $('&'); // ID
         lexer.lex_state = EXPR_BEG;
         return tOP_ASGN;
       }
@@ -1017,7 +1013,7 @@ this.yylex = function yylex ()
         lexer.lex_state = EXPR_BEG;
         if ((c = nextc()) == '=')
         {
-          // set_yylval_id(tOROP); TODO
+          lexer.yylval = tOROP; // ID
           lexer.lex_state = EXPR_BEG;
           return tOP_ASGN;
         }
@@ -1026,7 +1022,7 @@ this.yylex = function yylex ()
       }
       if (c == '=')
       {
-        // set_yylval_id('|'); TODO
+        lexer.yylval = $('|'); // ID
         lexer.lex_state = EXPR_BEG;
         return tOP_ASGN;
       }
@@ -1050,7 +1046,7 @@ this.yylex = function yylex ()
       }
       if (c == '=')
       {
-        // set_yylval_id('+'); TODO
+        lexer.yylval = $('+'); // ID
         lexer.lex_state = EXPR_BEG;
         return tOP_ASGN;
       }
@@ -1087,7 +1083,7 @@ this.yylex = function yylex ()
       }
       if (c == '=')
       {
-        // set_yylval_id('-'); TODO
+        lexer.yylval = $('-'); // ID
         lexer.lex_state = EXPR_BEG;
         return tOP_ASGN;
       }
@@ -1212,7 +1208,7 @@ this.yylex = function yylex ()
       }
       if ((c = nextc()) == '=')
       {
-        // set_yylval_id('/'); TODO
+        lexer.yylval = $('/'); // ID
         lexer.lex_state = EXPR_BEG;
         return tOP_ASGN;
       }
@@ -1232,7 +1228,7 @@ this.yylex = function yylex ()
     {
       if ((c = nextc()) == '=')
       {
-        // set_yylval_id('^'); TODO
+        lexer.yylval = $('^'); // ID
         lexer.lex_state = EXPR_BEG;
         return tOP_ASGN;
       }
@@ -1477,7 +1473,7 @@ this.yylex = function yylex ()
         }
         if ((c = nextc()) == '=')
         {
-          // set_yylval_id('%'); TODO
+          lexer.yylval = $('%'); // ID
           lexer.lex_state = EXPR_BEG;
           return tOP_ASGN;
         }
@@ -1531,7 +1527,7 @@ this.yylex = function yylex ()
           tokadd('$');
           tokadd(c);
           tokfix();
-          // set_yylval_name(rb_intern(tok())); TODO
+          lexer.yylval = tok(); // intern string
           return tGVAR;
 
         case '-':
@@ -1549,7 +1545,7 @@ this.yylex = function yylex ()
           }
         // was: gvar:
           tokfix();
-          // set_yylval_name(rb_intern(tok())); TODO
+          lexer.yylval = tok(); // intern string
           return tGVAR;
 
         case '&':              /* $&: last match */
@@ -1562,10 +1558,11 @@ this.yylex = function yylex ()
             tokadd(c);
             // was: goto gvar;
             tokfix();
-            // set_yylval_name(rb_intern(tok())); TODO
+            lexer.yylval = tok(); // intern string
             return tGVAR;
           }
-          // set_yylval_node(NEW_BACK_REF(c)); TODO
+          // was: set_yylval_node(NEW_BACK_REF(c)); TODO: check after time
+          lexer.yylval = c; // we create new NODE_BACK_REF in parser
           return tBACK_REF;
 
         case '1':

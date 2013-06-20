@@ -231,8 +231,7 @@ actionsTable =
         {
           debug_print("Reading a token: ");
           yychar = lexer.yylex();
-
-          yylval = lexer.getLVal();
+          yylval = lexer.yylval;
         }
 
 
