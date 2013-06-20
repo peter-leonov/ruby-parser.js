@@ -717,3 +717,31 @@ function list_concat (head, tail)
 
   return head;
 }
+
+function new_attr_op_assign (lhs, attr, op, rhs)
+{
+  if (op == tOROP)
+  {
+    op = 0;
+  }
+  else if (op == tANDOP)
+  {
+    op = 1;
+  }
+  // var asgn = new NEW_OP_ASGN2(lhs, attr, op, rhs);
+  
+  var asgn = new NODE_OP_ASGN2
+  (
+    lhs,
+    rhs,
+    new NODE_OP_ASGN2
+    (
+      attr,
+      op,
+      rb_id_attrset(attr)
+    )
+  )
+  
+  fixpos(asgn, lhs);
+  return asgn;
+}

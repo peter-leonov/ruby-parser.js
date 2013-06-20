@@ -261,6 +261,17 @@ function NODE_OP_ASGN1 (vid, op, args)
   this.args = args;
 }
 
+function NODE_OP_ASGN2 (vid, op, args)
+{
+  this.type = NODE_OP_ASGN_OR;
+  this.flags = 0;
+  this.line = 0;
+  
+  this.vid = vid;
+  this.op = op;
+  this.args = args;
+}
+
 function NODE_OP_ASGN_AND (vid, val)
 {
   this.type = NODE_OP_ASGN_AND;
