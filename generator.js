@@ -1001,17 +1001,8 @@ function new_attr_op_assign (lhs, attr, op, rhs)
   }
   // var asgn = new NEW_OP_ASGN2(lhs, attr, op, rhs);
   
-  var asgn = NEW_OP_ASGN2
-  (
-    lhs,
-    rhs,
-    NEW_OP_ASGN2
-    (
-      attr,
-      op,
-      rb_id_attrset(attr)
-    )
-  )
+  // TODO: check rb_id_attrset(attr)
+  var asgn = NEW_OP_ASGN2(lhs, attr, op, rhs);
   
   fixpos(asgn, lhs);
   return asgn;
