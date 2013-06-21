@@ -26,3 +26,5 @@ To briefly test the lexer+parser tandem, run `make compare`. It will compare the
 # Ruby
 
 To update the parser of the original ruby from Bison 2.3 (2006) to bison 2.7 (2012) install the new version of bison and delete file `parse.c` from its sources to force make calling bison.
+
+And one more thing. Make your very own ruby 2.0 executable visible by `ruby20` name.
