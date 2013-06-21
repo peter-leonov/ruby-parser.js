@@ -36,7 +36,7 @@ test-lexer: build_debug
 
 # profile with d8
 prof: build
-	d8 --prof --use_strict run/console.js parse.js run/bench.js
+	d8 --prof --use_strict run/console.js run/bench.js
 
 # benchmark agains giant ruby file
 bench: build
