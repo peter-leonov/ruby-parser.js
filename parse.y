@@ -873,10 +873,14 @@ arg
     {}
   |
     tUMINUS_NUM tINTEGER tPOW arg
-    {}
+    {
+      // TODO: convert tINTEGER to NODE_LIT()
+    }
   |
     tUMINUS_NUM tFLOAT tPOW arg
-    {}
+    {
+      // TODO: convert tFLOAT to NODE_LIT()
+    }
   |
     tUPLUS arg
     {}
@@ -1728,12 +1732,20 @@ dsym        : tSYMBEG xstring_contents tSTRING_END
         ;
 
 numeric     : tINTEGER
+            {
+              // TODO: convert tINTEGER to NODE_LIT()
+            }
         | tFLOAT
+            {
+              // TODO: convert tFLOAT to NODE_LIT()
+            }
         | tUMINUS_NUM tINTEGER           %prec tLOWEST
             {
+              // TODO: convert tINTEGER to NODE_LIT()
             }
         | tUMINUS_NUM tFLOAT           %prec tLOWEST
             {
+              // TODO: convert tFLOAT to NODE_LIT()
             }
         ;
 
