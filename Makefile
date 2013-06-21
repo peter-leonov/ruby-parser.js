@@ -27,18 +27,18 @@ diff: build
 # just run the parser, it knows how to test itself
 # add --use_strict to enshure the whole script is under protection :)
 test: build_debug
-	d8 --use_strict run/console.js
+	d8 --use_strict run/console.js parse.js run/test.js
 
 debug-yacc: build_debug_yacc
-	d8 --use_strict run/console.js
+	d8 --use_strict run/console.js parse.js run/test.js
 
 # profile with d8
 prof: build
-	d8 --prof --use_strict run/benchmark/console.js
+	d8 --prof --use_strict run/console.js parse.js run/bench.js
 
 # benchmark agains giant ruby file
 bench: build
-	v8 run/benchmark/console.js
+	v8 run/console.js parse.js run/bench.js
 
 DIFF=git diff --no-index --color --
 CLEAN_BISON_LOG=sed -E 's/ +\(line [0-9]+\)| \(\)//g'
