@@ -14,7 +14,6 @@
 // everything on IDs is here
 
 var tLAST_OP_ID = tLAST_TOKEN;
-var ID_SCOPE_MASK = 0x07;
 
 var ID_SCOPE_SHIFT  = 3,
     ID_SCOPE_MASK   = 0x07,                
