@@ -29,6 +29,10 @@ diff: build
 test: build_debug
 	d8 --use_strict run/console.js parse.js run/test.js
 
+test-lexer: build_debug
+	d8 --use_strict run/console.js parse.js run/test-lexer.js \
+		| grep 'Next token'
+
 
 # profile with d8
 prof: build
