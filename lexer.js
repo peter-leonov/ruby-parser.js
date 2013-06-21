@@ -1545,7 +1545,7 @@ this.yylex = function yylex ()
           }
         // was: gvar:
           tokfix();
-          lexer.yylval = tok(); // intern string
+          lexer.yylval = tok(); // ID, intern string
           return tGVAR;
 
         case '&':              /* $&: last match */
@@ -1557,7 +1557,7 @@ this.yylex = function yylex ()
             tokadd('$'+c);
             // was: goto gvar;
             tokfix();
-            lexer.yylval = tok(); // intern string
+            lexer.yylval = tok(); // ID, intern string
             return tGVAR;
           }
           // was: set_yylval_node(NEW_BACK_REF(c)); TODO: check after time
