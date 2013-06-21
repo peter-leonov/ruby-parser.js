@@ -210,7 +210,7 @@ function block_append (head, tail)
 
 function void_stmts (node)
 {
-  if (!ruby_verbose) TODO
+  if (!ruby_verbose) // TODO
     return;
 
   if (!node)
