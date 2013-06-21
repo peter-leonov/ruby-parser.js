@@ -6,8 +6,43 @@
 // > in rules (and generator) we have access to those things:
 // >   * all the code from prologue (not much though);
 // >   * `lexer`: instance of our Lexer class from the lexer code block;
+// >   * `parser`: instance of our Parser class;
 // >   * $$ and $N through the `yyval` and `yystack` local variables
 // >   * all the code and variables from `rules` code block.
+
+
+function dyna_in_block ()
+{
+  // TODO :)
+  return true;
+}
+
+function is_local_id (ident)
+{
+  // TODO :)
+  return true;
+}
+function lvar_defined (ident)
+{
+  puts('::::::::::::::::::::::::::::::::::::::::::::::::new lvar', ident)
+  // TODO :)
+  return false;
+}
+
+// point of ident knowlage exchange,
+// some kind of export inside out :)
+lexer.setGenerator
+({
+  is_local_id: is_local_id,
+  lvar_defined: lvar_defined
+});
+
+function local_id (ident)
+{
+  // TODO :)
+  return true;
+}
+
 
 
 // This file is incuded into its own namesapase closure,

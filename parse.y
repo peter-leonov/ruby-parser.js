@@ -144,6 +144,7 @@
 // in rules (and generator) we have access to those things:
 //   * all the code from prologue (not much though);
 //   * `lexer`: instance of our Lexer class from the lexer code block;
+//   * `parser`: instance of our Parser class;
 //   * $$ and $N through the `yyval` and `yystack` local variables
 //   * all the code and variables from `rules` code block.
 // 
@@ -1938,7 +1939,7 @@ restarg_mark    : '*'
 
 f_rest_arg    : restarg_mark tIDENTIFIER
             {
-          if (!lexer.is_local_id($2)) // TODO
+          if (!is_local_id($2)) // TODO
             lexer.yyerror("rest argument must be local variable");
                 
             }
@@ -1952,9 +1953,9 @@ blkarg_mark    : '&'
 
 f_block_arg    : blkarg_mark tIDENTIFIER
             {
-              if (!lexer.is_local_id($2))
+              if (!is_local_id($2))
             lexer.yyerror("block argument must be local variable");
-                else if (!lexer.dyna_in_block() && lexer.local_id($2))
+                else if (!dyna_in_block() && local_id($2))
             lexer.yyerror("duplicated block argument name");
                 
             }

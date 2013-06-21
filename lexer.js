@@ -34,6 +34,10 @@ function YYLexer ($text)
 // the yylex() method and all public data sit here
 var lexer = this;
 
+// connection to the generator
+var gen = null;
+lexer.setGenerator = function (g) { gen = g; }
+
 // the end of stream had been reached
 lexer.eofp = false;
 // the string to be parsed in the nex lex() call
@@ -1822,7 +1826,7 @@ this.yylex = function yylex ()
       // was: set_yylval_name(ident); TODO: check
       lexer.yylval = ident;
       if (!IS_lex_state_for(lexer.last_state, EXPR_DOT | EXPR_FNAME) &&
-          is_local_id(ident) && lvar_defined(ident))
+          gen.is_local_id(ident) && gen.lvar_defined(ident))
       {
         lexer.lex_state = EXPR_END;
       }
@@ -2897,42 +2901,6 @@ function start_num (c)
 
 
 // struct kwtable {const char *name; int id[2]; enum lex_state_e state;};
-
-function dyna_in_block ()
-{
-  // TODO :)
-  return true;
-}
-lexer.dyna_in_block = dyna_in_block;
-function is_local_id (ident)
-{
-  // TODO :)
-  return true;
-}
-lexer.is_local_id = is_local_id;
-function local_id (ident)
-{
-  // TODO :)
-  return true;
-}
-lexer.local_id = local_id;
-function lvar_defined (ident)
-{
-  // TODO :)
-  return false;
-}
-
-// TODO:
-// function rb_intern (name)
-// {
-//   var id = global_symbols[name];
-//   if (id)
-//     return id;
-//   
-//   return global_symbols_add(id);
-// }
-
-
 var rb_reserved_word =
 {
 '__ENCODING__': {id0: keyword__ENCODING__, id1: keyword__ENCODING__, state: EXPR_END},
