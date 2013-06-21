@@ -95,21 +95,10 @@ function YYParser (lexer)
 // self
 var parser = this;
 
-// the three variables shared by Parser's guts and actions world
-// (`lexer` and `parser` are shared too)
+// The three variables shared by Parser's guts and actions world
+// defined after the Parser very own namespace.
+// (`lexer` and `parser` are shared too),
 var yyval, yystack, actionsTable;
-
-;(function(){ // actions table namespace start
-
-]b4_percent_code_get([[actions]])[
-
-actionsTable =
-{
-  ]b4_list_of_actions[
-};
-
-})(); // actions table namespace end
-
 
 ;(function(){ // start of the Parser very own namespase
 
@@ -642,6 +631,18 @@ actionsTable =
   var yyundef_token_ = ]b4_undef_token_number[;
 
 }).call(this); // end of the Parser very own namespase
+
+;(function(){ // actions table namespace start
+
+]b4_percent_code_get([[actions]])[
+
+actionsTable =
+{
+  ]b4_list_of_actions[
+};
+
+})(); // actions table namespace end
+
 
 } // YYParser
 

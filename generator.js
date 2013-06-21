@@ -11,6 +11,7 @@
 // >   * all the code and variables from `rules` code block.
 
 
+var tLAST_OP_ID = parser.yyntokens_;
 function dyna_in_block ()
 {
   // TODO :)
