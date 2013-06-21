@@ -360,7 +360,7 @@ function NEW_OP_ASGN_OR (vid, val)
 function NEW_OP_ASGN1 (vid, op, args)
 {
   var n = new N();
-  n.type = NODE_OP_ASGN_OR;
+  n.type = NEW_OP_ASGN1;
   n.flags = 0;
   n.line = 0;
   
@@ -373,7 +373,7 @@ function NEW_OP_ASGN1 (vid, op, args)
 function NEW_OP_ASGN2 (vid, op, args)
 {
   var n = new N();
-  n.type = NODE_OP_ASGN_OR;
+  n.type = NODE_OP_ASGN2;
   n.flags = 0;
   n.line = 0;
   
