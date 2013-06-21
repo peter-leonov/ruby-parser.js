@@ -24,6 +24,8 @@ BBB
 
 string"
 
+def a(a=1, (b, f), d, &e); end
+
 x resque nil;
 x if nil;
 
