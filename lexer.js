@@ -1526,15 +1526,13 @@ this.yylex = function yylex ()
         case '<':              /* $<: reading filename */
         case '>':              /* $>: default output handle */
         case '\"':             /* $": already loaded files */
-          tokadd('$');
-          tokadd(c);
+          tokadd('$'+c);
           tokfix();
-          lexer.yylval = tok(); // intern string
+          lexer.yylval = tok(); // ID: intern string
           return tGVAR;
 
         case '-':
-          tokadd('$');
-          tokadd(c);
+          tokadd('$'+c);
           c = nextc();
           if (parser_is_identchar(c))
           {
@@ -1575,7 +1573,7 @@ this.yylex = function yylex ()
         case '7':
         case '8':
         case '9':
-          tokadd('$');
+          // was: tokadd('$');
           do
           {
             tokadd(c);
