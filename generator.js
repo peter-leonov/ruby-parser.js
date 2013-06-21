@@ -188,20 +188,94 @@ var NODE_FL_CREF_OMOD_SHARED = 1<<6;
 
 function dyna_in_block ()
 {
-  // TODO :)
-  return true;
+  return lvtbl.vars && lvtbl.vars.prev != DVARS_TOPSCOPE;
 }
 
-function is_local_id (ident)
+function rb_dvar_defined (id)
 {
-  // TODO :)
-  return true;
+  // search through the local vars in runtime
+  // for `eval()` or maybe `binding`
+  // http://rxr.whitequark.org/mri/source/compile.c?v=2.0.0-p0#5802
+  return false;
 }
+function dvar_defined (id, get)
+{
+  var args = lvtbl.args;
+  var vars = lvtbl.vars;
+  var used = lvtbl.used;
+
+  // search throgh the local variables chain
+  while (vars)
+  {
+    if (args[id])
+    {
+      return true;
+    }
+    if (vars[id])
+    {
+      // var i = vtable_included(vars, id); TODO
+      // if (used)
+      //   used->tbl[ - 1] |= LVAR_USED;
+      return true;
+    }
+    args = args.prev;
+    vars = vars.prev;
+    // if (get) TODO
+    //   used = null;
+    // if (used)
+    //   used = used.prev;
+  }
+
+  // we're very likely in eval,
+  // so we need to check with virtual machine's state
+  if (vars == DVARS_INHERIT)
+  {
+    return rb_dvar_defined(id);
+  }
+
+  return false;
+}
+function dvar_defined_get (id)
+  { return dvar_defined(id, true); }
+
 function lvar_defined (ident)
 {
-  // puts('::::::::::::::::::::::::::::::::::::::::::::::::new lvar', ident)
-  // TODO :)
-  return false;
+  return (dyna_in_block() && dvar_defined_get(id)) || local_id(id);
+}
+function local_id (id)
+{
+  var vars = lvtbl.vars;
+  var args = lvtbl.args;
+  // var used = lvtbl.used; TODO
+
+  // go to the bottom of the vars chain
+  // TODO: reinvent
+  while (vars && vars.prev)
+  {
+    vars = vars.prev;
+    args = args.prev;
+    // if (used)
+    //   used = used.prev;
+  }
+
+  if (vars && vars.prev == DVARS_INHERIT)
+  {
+    return rb_local_defined(id);
+  }
+  else if (args[id])
+  {
+    return true;
+  }
+  else
+  {
+    if (vars[id])
+    {
+      // if (used)
+      //   used[id] |= LVAR_USED;
+      return true;
+    }
+    return false;
+  }
 }
 
 // point of ident knowlage exchange,
@@ -211,12 +285,6 @@ lexer.setGenerator
   is_local_id: is_local_id,
   lvar_defined: lvar_defined
 });
-
-function local_id (ident)
-{
-  // TODO :)
-  return true;
-}
 
 
 
@@ -248,9 +316,9 @@ function local_push (inherit_dvars)
   var local =
   {
     prev: lvtbl,
-    args: vtable_alloc(0),
+    args: vtable_alloc(null),
     vars: vtable_alloc(inherit_dvars ? DVARS_INHERIT : DVARS_TOPSCOPE),
-    used: vtable_alloc(0)
+    used: vtable_alloc(null)
   };
   lvtbl = local;
 }
@@ -267,11 +335,12 @@ function local_pop ()
 
 function warn_unused_var (local)
 {
-  // TODO
+  lexer.warn('TODO: warn_unused_var()');
 }
 
 function rb_bug ()
 {
+  throw 'TODO: rb_bug()';
   // TODO: scream, of even log to the base.
 }
 
