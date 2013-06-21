@@ -40,7 +40,7 @@ prof: build
 
 # benchmark agains giant ruby file
 bench: build
-	v8 run/console.js parse.js run/bench.js
+	v8 run/console.js run/bench.js
 
 DIFF=git diff --no-index --color --
 CLEAN_BISON_LOG=sed -E 's/ +\(line [0-9]+\)| \(\)//g'
