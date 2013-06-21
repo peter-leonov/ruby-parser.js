@@ -11,7 +11,190 @@
 // >   * all the code and variables from `rules` code block.
 
 
-var tLAST_OP_ID = parser.yyntokens_;
+// everything on IDs is here
+
+var tLAST_OP_ID = tLAST_TOKEN;
+var ID_SCOPE_MASK = 0x07;
+
+var ID_SCOPE_SHIFT  = 3,
+    ID_SCOPE_MASK   = 0x07,                
+    ID_LOCAL        = 0x00,
+    ID_GLOBAL       = 0x03,
+    ID_INSTANCE     = 0x01,
+    ID_ATTRSET      = 0x04,
+    ID_CONST        = 0x05,
+    ID_CLASS        = 0x06,
+    ID_JUNK         = 0x07;
+
+
+function is_notop_id (id)
+  { return id > tLAST_OP_ID }
+function is_local_id (id)
+  { return is_notop_id(id) && (id & ID_SCOPE_MASK) == ID_LOCAL }
+function is_global_id (id)
+  { return is_notop_id(id) && (id & ID_SCOPE_MASK) == ID_GLOBAL }
+function is_instance_id (id)
+  { return is_notop_id(id) && (id & ID_SCOPE_MASK) == ID_INSTANCE }
+function is_attrset_id (id)
+  { return is_notop_id(id) && (id & ID_SCOPE_MASK) == ID_ATTRSET }
+function is_const_id (id)
+  { return is_notop_id(id) && (id & ID_SCOPE_MASK) == ID_CONST }
+function is_class_id (id)
+  { return is_notop_id(id) && (id & ID_SCOPE_MASK) == ID_CLASS }
+function is_junk_id (id)
+  { return is_notop_id(id) && (id & ID_SCOPE_MASK) == ID_JUNK }
+function id_type (id)
+  { return is_notop_id(id) ? (id & ID_SCOPE_MASK) : -1 }
+function is_asgn_or_id (id)
+{
+  if (!is_notop_id(id))
+    return false;
+  var t = id & ID_SCOPE_MASK;
+  return t == ID_GLOBAL || t == ID_INSTANCE || t == ID_CLASS;
+}
+
+// cuts type bits (of count `ID_SCOPE_SHIFT`)
+// and sets one for `ID_ATTRSET`
+function rb_id_attrset (id)
+{
+  id &= ~ID_SCOPE_MASK;
+  id |= ID_ATTRSET;
+  return id;
+}
+
+
+var op_tbl = // TODO: rethink
+{
+  "..":         tDOT2,
+  "...":        tDOT3,
+  "+(binary)":  $('+'),
+  "-(binary)":  $('-'),
+  "**":         tPOW,
+  "**(dstar)":  tDSTAR,
+  "+@":         tUPLUS,
+  "-@":         tUMINUS,
+  "<=>":        tCMP,
+  ">=":         tGEQ,
+  "<=":         tLEQ,
+  "==":         tEQ,
+  "===":        tEQQ,
+  "!=":         tNEQ,
+  "=~":         tMATCH,
+  "!~":         tNMATCH,
+  "[]":         tAREF,
+  "[]=":        tASET,
+  "<<":         tLSHFT,
+  ">>":         tRSHFT,
+  "::":         tCOLON2
+};
+
+
+var rb_id2name = [];
+var global_symbols_name2id = {};
+for (var k in lexer.rb_reserved_word)
+{
+  var kw = lexer.rb_reserved_word[k];
+  rb_id2name[kw.id0] = k;
+  rb_id2name[kw.id1] = k;
+}
+
+rb_id2name.length = tLAST_OP_ID;
+
+function register_symid_str (id, name)
+{
+  rb_id2name[id] = name;
+  global_symbols_name2id[name] = id;
+}
+
+
+for (var k in op_tbl)
+{
+  var id = op_tbl[k];
+  register_symid_str(id, k);
+}
+
+// print(JSON.stringify(rb_id2name))
+// print(JSON.stringify(global_symbols_name2id))
+
+
+
+// rb_intern3 rb_intern2 rb_intern_str
+function rb_intern (name)
+{
+  var id = rb_id2name[name];
+  if (id !== undefined)
+    return id;
+
+  return intern_str(str);
+}
+
+function intern_str (name)
+{
+  var id = 0;
+  goto_id_register: {
+    switch (name[0])
+    {
+      case '$':
+        id |= ID_GLOBAL;
+        break;
+      case '@':
+        if (name[1] == '@')
+        {
+          id |= ID_CLASS;
+        }
+        else
+        {
+          id |= ID_INSTANCE;
+        }
+        break;
+      default:
+        // was: a seach through `op_tbl`, which is precalced above
+        //      so we could never get here through the `rb_intern()`
+
+        if (name[name.length-1] == '=')
+        {
+          /* attribute assignment */
+          id = rb_intern(name);
+          if (id > tLAST_OP_ID && !is_attrset_id(id))
+          {
+            id = rb_id_attrset(id); // sets type bits to `ID_ATTRSET`
+            break goto_id_register; // was: goto id_register;
+          }
+          id = ID_ATTRSET;
+        }
+        else if ('A' <= name[0] && name[0] <= 'Z')
+        {
+          id = ID_CONST;
+        }
+        else
+        {
+          id = ID_LOCAL;
+        }
+        break;
+    }
+    // was: new_id:
+    id |= ++global_symbols.last_id << ID_SCOPE_SHIFT;
+  } // was: id_register:
+  return register_symid_str(id, str);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 var NODE_FL_NEWLINE = 1<<7;
@@ -106,12 +289,6 @@ function warn_unused_var (local)
 function rb_bug ()
 {
   // TODO: scream, of even log to the base.
-}
-
-var id2name_table = [];
-function rb_id2name (id)
-{
-  return id2name_table[id] || 'unknown-id';
 }
 
 
@@ -269,7 +446,7 @@ function void_expr (node)
         case tLEQ:
         case tEQ:
         case tNEQ:
-          useless = rb_id2name(node.mid);
+          useless = rb_id2name[node.mid];
           break;
       }
       break;
@@ -682,7 +859,7 @@ function gettable (id)
     case ID_CLASS:
       return NEW_CVAR(id);
   }
-  lexer.compile_error("identifier %s is not valid to get", rb_id2name(id));
+  lexer.compile_error("identifier %s is not valid to get", rb_id2name[id]);
   return null;
 }
 

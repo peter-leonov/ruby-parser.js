@@ -507,10 +507,6 @@ function NEW_HEREDOCTERM (func, term)
   };
 }
 
-// char to code shortcut
-function $ (c) { return c.charCodeAt(0) }
-function $$ (code) { return String.fromCharCode(code) }
-
 function ISASCII (c)
 {
   return $(c) < 128;
@@ -656,7 +652,7 @@ this.yylex = function yylex ()
       {
         if ((c = nextc()) == '=')
         {
-          lexer.yylval = "**"; // TODO: maybe a token id needed
+          lexer.yylval = tPOW; // TODO: maybe a token id needed
           lexer.lex_state = EXPR_BEG;
           return tOP_ASGN;
         }
@@ -680,7 +676,7 @@ this.yylex = function yylex ()
       {
         if (c == '=')
         {
-          lexer.yylval = "*"; // ID
+          lexer.yylval = $('*'); // ID
           lexer.lex_state = EXPR_BEG;
           return tOP_ASGN;
         }
@@ -816,7 +812,7 @@ this.yylex = function yylex ()
       {
         if ((c = nextc()) == '=')
         {
-          lexer.yylval = "<<"; // ID
+          lexer.yylval = tLSHFT; // ID
           lexer.lex_state = EXPR_BEG;
           return tOP_ASGN;
         }
@@ -839,7 +835,7 @@ this.yylex = function yylex ()
       {
         if ((c = nextc()) == '=')
         {
-          lexer.yylval = ">>"; // ID
+          lexer.yylval = tRSHFT; // ID
           lexer.lex_state = EXPR_BEG;
           return tOP_ASGN;
         }
@@ -979,7 +975,7 @@ this.yylex = function yylex ()
         lexer.lex_state = EXPR_BEG;
         if ((c = nextc()) == '=')
         {
-          lexer.yylval = "&&"; // ID
+          lexer.yylval = tANDOP; // ID
           lexer.lex_state = EXPR_BEG;
           return tOP_ASGN;
         }
@@ -988,7 +984,7 @@ this.yylex = function yylex ()
       }
       else if (c == '=')
       {
-        lexer.yylval = "&"; // ID
+        lexer.yylval = $('&'); // ID
         lexer.lex_state = EXPR_BEG;
         return tOP_ASGN;
       }
@@ -1019,7 +1015,7 @@ this.yylex = function yylex ()
         lexer.lex_state = EXPR_BEG;
         if ((c = nextc()) == '=')
         {
-          lexer.yylval = "||"; // ID
+          lexer.yylval = tOROP; // ID
           lexer.lex_state = EXPR_BEG;
           return tOP_ASGN;
         }
@@ -1028,7 +1024,7 @@ this.yylex = function yylex ()
       }
       if (c == '=')
       {
-        lexer.yylval = "|"; // ID
+        lexer.yylval = $('|'); // ID
         lexer.lex_state = EXPR_BEG;
         return tOP_ASGN;
       }
@@ -1052,7 +1048,7 @@ this.yylex = function yylex ()
       }
       if (c == '=')
       {
-        lexer.yylval = "+"; // ID
+        lexer.yylval = $('+'); // ID
         lexer.lex_state = EXPR_BEG;
         return tOP_ASGN;
       }
@@ -1089,7 +1085,7 @@ this.yylex = function yylex ()
       }
       if (c == '=')
       {
-        lexer.yylval = "-"; // ID
+        lexer.yylval = $('-'); // ID
         lexer.lex_state = EXPR_BEG;
         return tOP_ASGN;
       }
@@ -1214,7 +1210,7 @@ this.yylex = function yylex ()
       }
       if ((c = nextc()) == '=')
       {
-        lexer.yylval = "/"; // ID
+        lexer.yylval = $('/'); // ID
         lexer.lex_state = EXPR_BEG;
         return tOP_ASGN;
       }
@@ -1234,7 +1230,7 @@ this.yylex = function yylex ()
     {
       if ((c = nextc()) == '=')
       {
-        lexer.yylval = "^"; // ID
+        lexer.yylval = $('^'); // ID
         lexer.lex_state = EXPR_BEG;
         return tOP_ASGN;
       }
@@ -1479,7 +1475,7 @@ this.yylex = function yylex ()
         }
         if ((c = nextc()) == '=')
         {
-          lexer.yylval = "%"; // ID
+          lexer.yylval = $('%'); // ID
           lexer.lex_state = EXPR_BEG;
           return tOP_ASGN;
         }
@@ -2901,7 +2897,7 @@ function start_num (c)
 
 
 // struct kwtable {const char *name; int id[2]; enum lex_state_e state;};
-var rb_reserved_word =
+var rb_reserved_word = lexer.rb_reserved_word =
 {
 '__ENCODING__': {id0: keyword__ENCODING__, id1: keyword__ENCODING__, state: EXPR_END},
 '__LINE__': {id0: keyword__LINE__, id1: keyword__LINE__, state: EXPR_END},

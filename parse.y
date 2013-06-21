@@ -5,6 +5,11 @@
 
 "use strict";
 
+// char to code shortcut
+function $ (c) { return c.charCodeAt(0) }
+function $$ (code) { return String.fromCharCode(code) }
+
+
 // TODO:
 // var global_symbols = {}; // name => ID
 // var global_symbols_counter = 0;
@@ -139,6 +144,7 @@
 %right tPOW
 %right '!' '~' tUPLUS
 
+// must be last indeed
 %token tLAST_TOKEN
 
 // in rules (and generator) we have access to those things:
