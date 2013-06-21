@@ -12,9 +12,6 @@ build: bison
 	cpp -E -CC -P parse.js.src > parse.js
 
 build_debug: bison
-	cpp -E -CC -P -DDEBUG parse.js.src > parse.js
-
-build_debug_yacc: bison
 	cpp -E -CC -P -DDEBUG -DYYDEBUG parse.js.src > parse.js
 
 
@@ -26,11 +23,12 @@ diff: build
 
 # just run the parser, it knows how to test itself
 # add --use_strict to enshure the whole script is under protection :)
-test: build_debug
-	d8 --use_strict run/console.js parse.js run/test.js
+# test: build_debug
+# 	d8 --use_strict run/console.js parse.js run/test.js
 
-debug-yacc: build_debug_yacc
-	d8 --use_strict run/console.js parse.js run/test.js
+test-lexer: build_debug
+	d8 --use_strict run/console.js parse.js run/test-lexer.js
+
 
 # profile with d8
 prof: build
@@ -42,7 +40,7 @@ bench: build
 
 DIFF=git diff --no-index --color --
 CLEAN_BISON_LOG=sed -E 's/ +\(line [0-9]+\)| \(\)//g'
-compare: build_debug_yacc
+compare: build_debug
 	ruby20 -yc ruby.rb 2>&1 | $(CLEAN_BISON_LOG) >tmp/a.tmp
 	d8 --use_strict run/console.js parse.js run/compare.js \
 		| $(CLEAN_BISON_LOG) >tmp/b.tmp

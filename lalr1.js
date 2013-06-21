@@ -117,6 +117,8 @@ actionsTable =
   this.errorVerbose = true;
 
 #if YYDEBUG
+  parser.yydebug = false;
+  parser.yydebug_yylval = true;
   var debug_reduce_print = this.debug_reduce_print.bind(this);
   var debug_symbol_print = this.debug_symbol_print.bind(this);
   var debug_stack_print  = this.debug_stack_print.bind(this);
@@ -471,6 +473,7 @@ actionsTable =
     debug_reduce_print(yyn);
 
     var actionClosure = actionsTable[yyn]
+    // print(actionClosure)
     if (actionClosure)
       actionClosure(yystack)
 
@@ -643,6 +646,9 @@ YYParser.prototype =
 #if YYDEBUG
   debug_reduce_print: function debug_reduce_print (yyrule)
   {
+    if (!this.yydebug)
+      return;
+
     var yystack = this.yystack;
     var yylno = this.yyrline_[yyrule];
     var yynrhs = this.yyr2_[yyrule];
@@ -662,24 +668,33 @@ YYParser.prototype =
 
   debug_symbol_print: function debug_symbol_print (message, yytype, yyvaluep)
   {
+    if (!this.yydebug)
+      return;
+
     this.debug_print
     (
       message
       + (yytype < this.yyntokens_ ? " token " : " nterm ")
       + this.yytname_[yytype]
       + " ("
-      // + (yyvaluep == null ? "(null)" : JSON.stringify(yyvaluep))
+      + (this.yydebug_yylval ? JSON.stringify(yyvaluep) : '')
       + ")\n"
     );
   },
 
   debug_stack_print: function debug_stack_print ()
   {
+    if (!this.yydebug)
+      return;
+
     puts("Stack now " + this.yystack.stateStack.join(' '));
   },
 
   debug_print: function debug_print (message)
   {
+    if (!this.yydebug)
+      return;
+
     write(message);
   },
 #endif // YYDEBUG

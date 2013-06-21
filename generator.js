@@ -24,7 +24,7 @@ function is_local_id (ident)
 }
 function lvar_defined (ident)
 {
-  puts('::::::::::::::::::::::::::::::::::::::::::::::::new lvar', ident)
+  // puts('::::::::::::::::::::::::::::::::::::::::::::::::new lvar', ident)
   // TODO :)
   return false;
 }

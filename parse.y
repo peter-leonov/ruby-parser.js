@@ -1,7 +1,7 @@
 // at first, read this: http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/
 
 %{
-;(function(){ // whole parser and lexer namespase start
+;(function(){ // whole parser and lexer namespace start
 
 "use strict";
 
@@ -2085,13 +2085,7 @@ none: /* none */
 // Here we have to expose our YY* classes to outer world somehow.
 // And yes, all the two YYParser and YYLexer are visible here
 
-global.parse = function (text)
-{
-  var lexer = new YYLexer(text);
-  lexer.filename = 'ruby.rb';
-  
-  var parser = new YYParser(lexer);
-  return parser.parse();
-}
+global.YYLexer = YYLexer;
+global.YYParser = YYParser;
 
-})(); // whole parser and lexer namespase start
+})(); // whole parser and lexer namespace start
