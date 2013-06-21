@@ -539,6 +539,8 @@ function arg_ambiguous ()
 
 this.yylex = function yylex ()
 {
+  lexer.yylval = null;
+  
   var c = '';
   lexer.space_seen = false;
   
