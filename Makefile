@@ -27,25 +27,25 @@ diff: build
 # just run the parser, it knows how to test itself
 # add --use_strict to enshure the whole script is under protection :)
 test: build_debug
-	d8 --use_strict runner-console.js
+	d8 --use_strict run/console.js
 
 debug-yacc: build_debug_yacc
-	d8 --use_strict runner-console.js
+	d8 --use_strict run/console.js
 
 # profile with d8
 prof: build
-	d8 --prof --use_strict benchmark-console.js
+	d8 --prof --use_strict run/benchmark/console.js
 
 # benchmark agains giant ruby file
 bench: build
-	v8 benchmark-console.js
+	v8 run/benchmark/console.js
 
 DIFF=git diff --no-index --color --
 CLEAN_BISON_LOG=sed -E 's/ +\(line [0-9]+\)| \(\)//g'
 compare: build_debug_yacc
-	ruby20 -yc ruby.rb 2>&1 | $(CLEAN_BISON_LOG) >a.tmp
-	d8 --use_strict runner-console.js | $(CLEAN_BISON_LOG) >b.tmp
-	$(DIFF) a.tmp b.tmp | cat
+	ruby20 -yc ruby.rb 2>&1 | $(CLEAN_BISON_LOG) >tmp/a.tmp
+	d8 --use_strict run/console.js | $(CLEAN_BISON_LOG) >tmp/b.tmp
+	$(DIFF) tmp/a.tmp tmp/b.tmp | cat
 
 # # convert the original parse.y to readable form
 # # DISFUNCTIONAL
