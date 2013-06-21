@@ -117,16 +117,22 @@ actionsTable =
   this.errorVerbose = true;
 
 #if YYDEBUG
+  // enable/disable all the debug messages
   parser.yydebug = false;
+  // enable/disable printing the token values
   parser.yydebug_yylval = true;
+  // enable/disable printing the whole action functions applied
+  parser.yydebug_action = false;
   var debug_reduce_print = this.debug_reduce_print.bind(this);
   var debug_symbol_print = this.debug_symbol_print.bind(this);
   var debug_stack_print  = this.debug_stack_print.bind(this);
+  var debug_action_print = this.debug_action_print.bind(this);
   var debug_print        = this.debug_print.bind(this);
 #else // YYDEBUG
 #define debug_reduce_print(yyn)
 #define debug_symbol_print(message, yytype, yyvaluep)
 #define debug_stack_print(yystack)
+#define debug_action_print(yystack)
 #define debug_print(message)
 #endif // YYDEBUG
   
@@ -473,7 +479,7 @@ actionsTable =
     debug_reduce_print(yyn);
 
     var actionClosure = actionsTable[yyn]
-    // print(actionClosure)
+    debug_action_print(actionClosure);
     if (actionClosure)
       actionClosure(yystack)
 
@@ -688,6 +694,16 @@ YYParser.prototype =
       return;
 
     puts("Stack now " + this.yystack.stateStack.join(' '));
+  },
+
+  debug_action_print: function debug_action_print (action)
+  {
+    if (!this.yydebug)
+      return;
+    if (!this.yydebug_action)
+      return;
+
+    puts(action);
   },
 
   debug_print: function debug_print (message)

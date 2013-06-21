@@ -6,6 +6,7 @@ function parse (text)
   var parser = new YYParser(lexer);
   parser.yydebug = true; // render all the states transitions
   parser.yydebug_yylval = true; // don't print token values
+  parser.yydebug_action = true; // print actions applied
   return parser.parse();
 }
 
