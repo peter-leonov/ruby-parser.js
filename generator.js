@@ -314,8 +314,7 @@ function void_expr (node)
 
   if (useless)
   {
-    var l = node.line;
-    lexer.warn("possibly useless use of "+useless+" in void context", l);
+    lexer.warn("possibly useless use of "+useless+" in void context", node.line);
   }
 }
 
