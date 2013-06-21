@@ -12,6 +12,13 @@
 
 
 var tLAST_OP_ID = parser.yyntokens_;
+
+
+var NODE_FL_NEWLINE = 1<<7;
+var NODE_FL_CREF_PUSHED_BY_EVAL = NODE_FL_NEWLINE;
+var NODE_FL_CREF_OMOD_SHARED = 1<<6;
+
+
 function dyna_in_block ()
 {
   // TODO :)

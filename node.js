@@ -2,11 +2,6 @@
 
 // nodes classes
 
-var NODE_FL_NEWLINE = 1<<7;
-var NODE_FL_CREF_PUSHED_BY_EVAL = NODE_FL_NEWLINE;
-var NODE_FL_CREF_OMOD_SHARED = 1<<6;
-
-
 // TODO: implement them all
 function NODE_BLOCK_PASS () {}
 function NODE_ARGSPUSH () {}
