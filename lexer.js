@@ -652,7 +652,7 @@ this.yylex = function yylex ()
       {
         if ((c = nextc()) == '=')
         {
-          lexer.yylval = tPOW; // TODO: maybe a string needed
+          lexer.yylval = "**"; // TODO: maybe a token id needed
           lexer.lex_state = EXPR_BEG;
           return tOP_ASGN;
         }
@@ -676,7 +676,7 @@ this.yylex = function yylex ()
       {
         if (c == '=')
         {
-          lexer.yylval = $('*'); // ID
+          lexer.yylval = "*"; // ID
           lexer.lex_state = EXPR_BEG;
           return tOP_ASGN;
         }
@@ -812,7 +812,7 @@ this.yylex = function yylex ()
       {
         if ((c = nextc()) == '=')
         {
-          lexer.yylval = tLSHFT; // ID
+          lexer.yylval = "<<"; // ID
           lexer.lex_state = EXPR_BEG;
           return tOP_ASGN;
         }
@@ -835,7 +835,7 @@ this.yylex = function yylex ()
       {
         if ((c = nextc()) == '=')
         {
-          lexer.yylval = tRSHFT; // ID
+          lexer.yylval = ">>"; // ID
           lexer.lex_state = EXPR_BEG;
           return tOP_ASGN;
         }
@@ -975,7 +975,7 @@ this.yylex = function yylex ()
         lexer.lex_state = EXPR_BEG;
         if ((c = nextc()) == '=')
         {
-          lexer.yylval = tANDOP; // ID
+          lexer.yylval = "&&"; // ID
           lexer.lex_state = EXPR_BEG;
           return tOP_ASGN;
         }
@@ -984,7 +984,7 @@ this.yylex = function yylex ()
       }
       else if (c == '=')
       {
-        lexer.yylval= $('&'); // ID
+        lexer.yylval = "&"; // ID
         lexer.lex_state = EXPR_BEG;
         return tOP_ASGN;
       }
@@ -1015,7 +1015,7 @@ this.yylex = function yylex ()
         lexer.lex_state = EXPR_BEG;
         if ((c = nextc()) == '=')
         {
-          lexer.yylval = tOROP; // ID
+          lexer.yylval = "||"; // ID
           lexer.lex_state = EXPR_BEG;
           return tOP_ASGN;
         }
@@ -1024,7 +1024,7 @@ this.yylex = function yylex ()
       }
       if (c == '=')
       {
-        lexer.yylval = $('|'); // ID
+        lexer.yylval = "|"; // ID
         lexer.lex_state = EXPR_BEG;
         return tOP_ASGN;
       }
@@ -1048,7 +1048,7 @@ this.yylex = function yylex ()
       }
       if (c == '=')
       {
-        lexer.yylval = $('+'); // ID
+        lexer.yylval = "+"; // ID
         lexer.lex_state = EXPR_BEG;
         return tOP_ASGN;
       }
@@ -1085,7 +1085,7 @@ this.yylex = function yylex ()
       }
       if (c == '=')
       {
-        lexer.yylval = $('-'); // ID
+        lexer.yylval = "-"; // ID
         lexer.lex_state = EXPR_BEG;
         return tOP_ASGN;
       }
@@ -1210,7 +1210,7 @@ this.yylex = function yylex ()
       }
       if ((c = nextc()) == '=')
       {
-        lexer.yylval = $('/'); // ID
+        lexer.yylval = "/"; // ID
         lexer.lex_state = EXPR_BEG;
         return tOP_ASGN;
       }
@@ -1230,7 +1230,7 @@ this.yylex = function yylex ()
     {
       if ((c = nextc()) == '=')
       {
-        lexer.yylval = $('^'); // ID
+        lexer.yylval = "^"; // ID
         lexer.lex_state = EXPR_BEG;
         return tOP_ASGN;
       }
@@ -1475,7 +1475,7 @@ this.yylex = function yylex ()
         }
         if ((c = nextc()) == '=')
         {
-          lexer.yylval = $('%'); // ID
+          lexer.yylval = "%"; // ID
           lexer.lex_state = EXPR_BEG;
           return tOP_ASGN;
         }
