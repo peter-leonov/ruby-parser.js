@@ -1587,11 +1587,13 @@ this.yylex = function yylex ()
           {
             // was: goto gvar;
             tokfix();
-            // set_yylval_name(rb_intern(tok())); TODO
+            // was: set_yylval_name(rb_intern(tok())); TODO: check
+            lexer.yylval = '$'+tok();
             return tGVAR;
           }
           tokfix();
-          // set_yylval_node(NEW_NTH_REF(atoi(tok() + 1))); TODO
+          // was: set_yylval_node(NEW_NTH_REF(atoi(tok() + 1))); TODO: check
+          lexer.yylval = +tok();
           return tNTH_REF;
 
         default:
@@ -1759,7 +1761,8 @@ this.yylex = function yylex ()
             lexer.lex_state = kw.state;
             if (state == EXPR_FNAME)
             {
-              // set_yylval_name(rb_intern(kw->name)); TODO
+              // was: set_yylval_name(rb_intern(kw->name)); TODO: check
+              lexer.yylval = kw.name;
               return kw.id0;
             }
             if (lexer.lex_state == EXPR_BEG)
@@ -1818,7 +1821,8 @@ this.yylex = function yylex ()
       // do not convert to a symbol, leave it to JS engine
       var ident = tok();
 
-      // set_yylval_name(ident); TODO
+      // was: set_yylval_name(ident); TODO: check
+      lexer.yylval = ident;
       if (!IS_lex_state_for(lexer.last_state, EXPR_DOT | EXPR_FNAME) &&
           is_local_id(ident) && lvar_defined(ident))
       {
@@ -1994,7 +1998,8 @@ function here_document (here)
       }
       if (c != '\n')
       {
-        // set_yylval_str(STR_NEW3(tok(), toklen(), enc, func)); TODO
+        // was: set_yylval_str(STR_NEW3(tok(), toklen(), enc, func));
+        lexer.yylval = tok()
         return tSTRING_CONTENT;
       }
       tokadd(nextc());
@@ -2006,11 +2011,12 @@ function here_document (here)
       }
     }
     while (!whole_match_p(eos, indent));
-    // str = STR_NEW3(tok(), toklen(), enc, func); TODO
+    str = tok();
   }
   heredoc_restore(lexer.lex_strterm);
   lexer.lex_strterm = NEW_STRTERM(-1, '', '');
-  // set_yylval_str(str); TODO:
+  // was: set_yylval_str(str); TODO:
+  lexer.yylval = str;
   return tSTRING_CONTENT;
 }
 
@@ -2087,7 +2093,8 @@ function parse_string (quote)
   }
 
   tokfix();
-  // set_yylval_str(STR_NEW3(tok(), toklen(), enc, func)); TODO
+  // was: set_yylval_str(STR_NEW3(tok(), toklen(), enc, func));
+  lexer.yylval = tok();
 
   return tSTRING_CONTENT;
 }
@@ -2636,7 +2643,7 @@ function start_num (c)
       }
       else if (nondigit)
         break goto_trailing_uc; // was: goto trailing_uc;
-      // set_yylval_literal(rb_cstr_to_inum(tok(), 16, FALSE)); TODO
+      lexer.yylval = parseInt(tok(), 1);
       return tINTEGER;
     }
     if (c == 'b' || c == 'B')
@@ -2670,7 +2677,7 @@ function start_num (c)
       }
       else if (nondigit)
         break goto_trailing_uc; // was: goto trailing_uc;
-      // set_yylval_literal(rb_cstr_to_inum(tok(), 2, FALSE)); TODO
+      lexer.yylval = parseInt(tok(), 2);
       return tINTEGER;
     }
     if (c == 'd' || c == 'D')
@@ -2704,7 +2711,7 @@ function start_num (c)
       }
       else if (nondigit)
         break goto_trailing_uc; // was: goto trailing_uc;
-      // set_yylval_literal(rb_cstr_to_inum(tok(), 10, FALSE)); TODO
+      lexer.yylval = parseInt(tok(), 10)
       return tINTEGER;
     }
     // was: if (c == '_')
@@ -2753,7 +2760,7 @@ function start_num (c)
         tokfix();
         if (nondigit)
           break goto_trailing_uc; // was: goto trailing_uc;
-        // set_yylval_literal(rb_cstr_to_inum(tok(), 8, FALSE)); TODO
+        lexer.yylval = parseInt(tok(), 8);
         return tINTEGER;
       }
       if (nondigit)
@@ -2774,7 +2781,8 @@ function start_num (c)
     else
     {
       pushback(c);
-      // set_yylval_literal(INT2FIX(0)); TODO
+      // was: set_yylval_literal(INT2FIX(0));
+      lexer.yylval = 0;
       return tINTEGER;
     }
   } // c == '0'
@@ -2876,13 +2884,13 @@ function start_num (c)
     var d = parseInt(tok(), 10);
     // if (errno == ERANGE)
     // {
-    //   rb_warningS("Float %s out of range", tok());
+    //   rb_warningS("Float %s out of range", tok()); TODO
     //   errno = 0;
     // }
-    // set_yylval_literal(DBL2NUM(d)); TODO
+    lexer.yylval = d;
     return tFLOAT;
   }
-  // set_yylval_literal(rb_cstr_to_inum(tok(), 10, FALSE)); TODO
+  lexer.yylval = parseInt(tok(), 10);
   return tINTEGER;
 
   // why are we so certain about returning `tFLOAT` or `tINTEGER`?
