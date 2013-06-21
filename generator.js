@@ -181,22 +181,6 @@ function intern_str (name)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 var NODE_FL_NEWLINE = 1<<7;
 var NODE_FL_CREF_PUSHED_BY_EVAL = NODE_FL_NEWLINE;
 var NODE_FL_CREF_OMOD_SHARED = 1<<6;
@@ -354,7 +338,7 @@ function block_append (head, tail)
       lexer.warn(h, "unused literal ignored");
       return tail;
     default:
-      h = end = new NODE_BLOCK(head);
+      h = end = NEW_BLOCK(head);
       end.end = end;
       fixpos(end, head);
       head = end;
@@ -384,7 +368,7 @@ function block_append (head, tail)
 
   if (tail.type != NODE_BLOCK)
   {
-    tail = new NODE_BLOCK(tail);
+    tail = NEW_BLOCK(tail);
     tail.end = tail;
   }
   end.next = tail;
@@ -566,7 +550,7 @@ function check_cond (node)
     case NODE_DREGX:
     case NODE_DREGX_ONCE:
       parser_warning(node, "regex literal in condition");
-      return new NODE_MATCH2(node, new NODE_GVAR("$_"));
+      return NEW_MATCH2(node, NEW_GVAR("$_"));
 
     case NODE_AND:
     case NODE_OR:
@@ -581,7 +565,7 @@ function check_cond (node)
       if (node.type == NODE_DOT2)
         // was: nd_set_type(node, NODE_FLIP2); TODO: understand
         node.type = NODE_FLIP2;
-      else if (nd_type(node) == NODE_DOT3)
+      else if (node.type == NODE_DOT3)
         // was: nd_set_type(node, NODE_FLIP3); TODO: understand
         node.type = NODE_FLIP3;
       // if (!e_option_supplied(parser)) // TODO
@@ -795,7 +779,7 @@ function new_op_assign (lhs, op, rhs)
     if (op == tOROP)
     {
       lhs.value = rhs;
-      asgn = new NODE_OP_ASGN_OR(gettable(vid), lhs);
+      asgn = NEW_OP_ASGN_OR(gettable(vid), lhs);
       if (is_asgn_or_id(vid))
       {
         asgn.aid = vid;
@@ -804,17 +788,17 @@ function new_op_assign (lhs, op, rhs)
     else if (op == tANDOP)
     {
       lhs.value = rhs;
-      asgn = new NODE_OP_ASGN_AND(gettable(vid), lhs);
+      asgn = NEW_OP_ASGN_AND(gettable(vid), lhs);
     }
     else
     {
       asgn = lhs;
-      asgn.value = new NODE_CALL(gettable(vid), op, new NODE_LIST(rhs));
+      asgn.value = NEW_CALL(gettable(vid), op, NEW_LIST(rhs));
     }
   }
   else
   {
-    asgn = new NODE_BEGIN(null);
+    asgn = NEW_BEGIN(null);
   }
   return asgn;
 }
@@ -835,7 +819,7 @@ function gettable (id)
       return NEW_FALSE();
     case keyword__FILE__:
       return
-        new NODE_STR(ruby_sourcefile);
+        NEW_STR(ruby_sourcefile);
     case keyword__LINE__:
       return NEW_LIT(INT2FIX(tokline));
     case keyword__ENCODING__:
@@ -891,12 +875,12 @@ function arg_concat_gen (node1, node2)
       if (node1.head)
         node1.head = arg_concat(node1.head, node2);
       else
-        node1.head = new NODE_LIST(node2);
+        node1.head = NEW_LIST(node2);
       return node1;
     case NODE_ARGSPUSH:
       if (node2.type != NODE_ARRAY)
         break;
-      node1.body = list_concat(new NODE_LIST(node1.body), node2);
+      node1.body = list_concat(NEW_LIST(node1.body), node2);
       // was: nd_set_type(node1, NODE_ARGSCAT);
       node1.type = NODE_ARGSCAT; // TODO
       return node1;
@@ -907,7 +891,7 @@ function arg_concat_gen (node1, node2)
       node1.body = list_concat(node1.body, node2);
       return node1;
   }
-  return new NODE_ARGSCAT(node1, node2);
+  return NEW_ARGSCAT(node1, node2);
 }
 
 function list_concat (head, tail)
@@ -949,11 +933,11 @@ function new_attr_op_assign (lhs, attr, op, rhs)
   }
   // var asgn = new NEW_OP_ASGN2(lhs, attr, op, rhs);
   
-  var asgn = new NODE_OP_ASGN2
+  var asgn = NEW_OP_ASGN2
   (
     lhs,
     rhs,
-    new NODE_OP_ASGN2
+    NEW_OP_ASGN2
     (
       attr,
       op,

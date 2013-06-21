@@ -181,7 +181,7 @@ program:
                 }
             }
             ruby_eval_tree = 
-              new NODE_SCOPE(null, block_append(ruby_eval_tree, $2), null);
+              NEW_SCOPE(null, block_append(ruby_eval_tree, $2), null);
             // creates the chain link off `lvtbl`es and restores it
             local_pop();
     };
@@ -197,7 +197,7 @@ top_compstmt:
 top_stmts:
   none
     {
-      $$ = new NODE_BEGIN(null); // empty body
+      $$ = NEW_BEGIN(null); // empty body
     }
 
   | top_stmt
@@ -224,7 +224,7 @@ top_stmt
     '{' top_compstmt '}'
     {
       ruby_eval_tree_begin = block_append(ruby_eval_tree_begin, $4);
-      $$ = new NODE_BEGIN(null);
+      $$ = NEW_BEGIN(null);
       puts(123)
     }
   ;
@@ -235,7 +235,7 @@ bodystmt:
       $$ = $1;
       if ($2)
       {
-        $$ = new NODE_RESCUE($1, $2, $3);
+        $$ = NEW_RESCUE($1, $2, $3);
       }
       else if ($3)
       {
@@ -247,11 +247,11 @@ bodystmt:
       {
         if ($$)
         {
-          $$ = new NODE_ENSURE($$, $4);
+          $$ = NEW_ENSURE($$, $4);
         }
         else
         {
-          $$ = block_append($4, new NODE_NIL());
+          $$ = block_append($4, NEW_NIL());
         }
       }
       fixpos($$, $1);
@@ -268,7 +268,7 @@ compstmt:
 stmts:
     none
     {
-      $$ = new NODE_BEGIN(null);
+      $$ = NEW_BEGIN(null);
     }
 
   | stmt_or_begin
@@ -299,7 +299,7 @@ stmt_or_begin:
     '{' top_compstmt '}'
     {
       ruby_eval_tree_begin = block_append(ruby_eval_tree_begin, $4);
-      $$ = new NODE_BEGIN(null);
+      $$ = NEW_BEGIN(null);
     };
 
 stmt
@@ -310,23 +310,23 @@ stmt
     }
     fitem
     {
-      $$ = new NODE_ALIAS($2, $4);
+      $$ = NEW_ALIAS($2, $4);
     }
   |
     keyword_alias tGVAR tGVAR
     {
-      $$ = new NODE_VALIAS($2, $3);
+      $$ = NEW_VALIAS($2, $3);
     }
   |
     keyword_alias tGVAR tBACK_REF
     {
-      $$ = new NODE_VALIAS($2, new NODE_BACK_REF($3));
+      $$ = NEW_VALIAS($2, NEW_BACK_REF($3));
     }
   |
     keyword_alias tGVAR tNTH_REF
     {
       lexer.yyerror("can't make alias for the number variables");
-      $$ = new NODE_BEGIN(null);
+      $$ = NEW_BEGIN(null);
     }
   |
     keyword_undef undef_list
@@ -336,14 +336,14 @@ stmt
   |
     stmt modifier_if expr_value
     {
-      $$ = new NODE_IF(check_cond($3), remove_begin($1), null);
+      $$ = NEW_IF(check_cond($3), remove_begin($1), null);
       fixpos($$, $3);
     }
   |
     stmt modifier_unless expr_value
     {
       // #define NEW_UNLESS(c,t,e) NEW_IF(c,e,t)
-      $$ = new NODE_IF(check_cond($3), null, remove_begin($1));
+      $$ = NEW_IF(check_cond($3), null, remove_begin($1));
       fixpos($$, $3);
     }
   |
@@ -351,11 +351,11 @@ stmt
     {
       if ($1 && $1.type == NODE_BEGIN)
       {
-        $$ = new NODE_WHILE(check_cond($3), $1.body, 0);
+        $$ = NEW_WHILE(check_cond($3), $1.body, 0);
       }
       else
       {
-        $$ = new NODE_WHILE(check_cond($3), $1, 1);
+        $$ = NEW_WHILE(check_cond($3), $1, 1);
       }
     }
   |
@@ -363,18 +363,18 @@ stmt
     {
       if ($1 && $1.type == NODE_BEGIN)
       {
-        $$ = new NODE_UNTIL(check_cond($3), $1.body, 0);
+        $$ = NEW_UNTIL(check_cond($3), $1.body, 0);
       }
       else
       {
-        $$ = new NODE_UNTIL(check_cond($3), $1, 1);
+        $$ = NEW_UNTIL(check_cond($3), $1, 1);
       }
     }
   |
     stmt modifier_rescue stmt
     {
-      var resq = new NODE_RESBODY(null, remove_begin($3), null);
-      $$ = new NODE_RESCUE(remove_begin($1), resq, null);
+      var resq = NEW_RESBODY(null, remove_begin($3), null);
+      $$ = NEW_RESCUE(remove_begin($1), resq, null);
     }
   |
     keyword_END '{' compstmt '}'
@@ -383,7 +383,7 @@ stmt
       {
         lexer.warn("END in method; use at_exit");
       }
-      $$ = new NODE_POSTEXE(new NODE_SCOPE
+      $$ = NEW_POSTEXE(NEW_SCOPE
       (
         null, // tbl
         $3,   // body
@@ -410,7 +410,7 @@ stmt
     {
       value_expr($6);
       if (!$3)
-        $3 = new NODE_ZARRAY();
+        $3 = NEW_ZARRAY();
       var args = arg_concat($3, $6);
       if ($5 == tOROP)
       {
@@ -1788,7 +1788,7 @@ backref:
     tNTH_REF
     | tBACK_REF
     {
-      $$ = new NODE_BACK_REF($1);
+      $$ = NEW_BACK_REF($1);
     };
 
 superclass    : term
