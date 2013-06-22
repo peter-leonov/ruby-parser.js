@@ -370,7 +370,7 @@ function NEW_OP_ASGN1 (vid, op, args)
   return n;
 }
 
-function NEW_OP_ASGN2 (lhs, attr, op, rhs)
+function NEW_OP_ASGN2 (lhs, type, attr, op, rhs)
 {
   var n = new N();
   n.type = NODE_OP_ASGN2;
@@ -378,6 +378,7 @@ function NEW_OP_ASGN2 (lhs, attr, op, rhs)
   n.line = 0;
   
   n.lhs = lhs;
+  n.otype = type;
   n.attr = attr;
   n.op = op;
   n.rhs = rhs;

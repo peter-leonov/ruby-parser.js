@@ -991,20 +991,20 @@ function list_concat (head, tail)
   return head;
 }
 
-function new_attr_op_assign (lhs, attr, op, rhs)
+function new_attr_op_assign (lhs, type, attr, op, rhs)
 {
-  if (op == tOROP)
-  {
-    op = 0;
-  }
-  else if (op == tANDOP)
-  {
-    op = 1;
-  }
+  // if (op == tOROP)
+  // {
+  //   op = 0;
+  // }
+  // else if (op == tANDOP)
+  // {
+  //   op = 1;
+  // }
   // var asgn = new NEW_OP_ASGN2(lhs, attr, op, rhs);
   
   // TODO: check rb_id_attrset(attr)
-  var asgn = NEW_OP_ASGN2(lhs, attr, op, rhs);
+  var asgn = NEW_OP_ASGN2(lhs, type, attr, op, rhs);
   
   fixpos(asgn, lhs);
   return asgn;
