@@ -1393,7 +1393,7 @@ this.yylex = function yylex ()
             term = nextc();
             if (ISALNUM(term) || !ISASCII(term))
             {
-              lexer.yyerror("unknown type of %string");
+              lexer.yyerror("unknown type of %string `"+term+"'");
               return 0;
             }
           }
