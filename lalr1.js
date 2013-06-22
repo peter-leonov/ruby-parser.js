@@ -679,8 +679,8 @@ YYParser.prototype =
       // Print the symbols being reduced, and their result.
       yylno = ''+yylno;
       
-      var pad = '             ';
-      write(yylno + pad.substr(yylno.length) + ' : ');
+      var pad = '..................................';
+      write(yylno + ' ' + pad.substr(yylno.length) + ' : ');
       
       // The symbols being reduced.
       for (var yyi = 0; yyi < yynrhs; yyi++)
@@ -695,6 +695,7 @@ YYParser.prototype =
         // The symbols being reduced.
         for (var yyi = 0; yyi < yynrhs; yyi++)
         {
+          var name = this.yytname_[[this.yyrhs_[this.yyprhs_[yyrule] + yyi]]];
           var value = ]b4_rhs_value(yynrhs, yyi + 1)[;
           this.print("$" + (yyi + 1) +" = "+ JSON.stringify(value) + "\n");
           this.print("\n");
