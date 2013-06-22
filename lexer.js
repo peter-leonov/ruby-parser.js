@@ -1372,15 +1372,16 @@ this.yylex = function yylex ()
     {
       var term = '';
       var paren = '';
-      
-      quotation:
-      for (;;) // a label
+      var goto_quotation = false;
+      goto_quotation: for (;;) // a label
       {
         // this label enulating loop expects the lex_state
         // to be constant within its boudaries
-        if (IS_lex_state(EXPR_BEG_ANY))
+        if (goto_quotation || IS_lex_state(EXPR_BEG_ANY))
         {
-          c = nextc();
+          if (!goto_quotation)
+            c = nextc();
+          goto_quotation = false; // got here, reset the flag
           // was: quotation:
           if (c == '' || !ISALNUM(c))
           {
@@ -1489,11 +1490,11 @@ this.yylex = function yylex ()
         }
         if (IS_SPCARG(c))
         {
-          pushback(c); // added to jump to top
-          continue quotation; // was: goto quotation;
+          goto_quotation = true; // added to skip state check
+          continue goto_quotation; // was: goto quotation;
         }
-        break; // the for (;;) label-loop
-      } // for (;;) quotation
+        break; // the goto_quotation for (;;) label-loop
+      } // for (;;) goto_quotation
       lexer.lex_state = IS_AFTER_OPERATOR()? EXPR_ARG : EXPR_BEG;
       pushback(c);
       warn_balanced("%%", "string literal", c);
