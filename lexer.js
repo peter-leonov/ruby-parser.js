@@ -231,6 +231,10 @@ function ISUPPER (c)
 {
   return 'A' <= c && c <= 'Z';
 }
+function ISALPHA (c)
+{
+  return /^[a-fA-F]/.test(c);
+}
 function ISSPACE (c)
 {
   return (
@@ -355,6 +359,11 @@ function nthchar (i)
 function lex_pv ()
 {
   return lex_lastline[lex_p];
+}
+// just an emulation of *p from C
+function p_pv (p)
+{
+  return lex_lastline[p];
 }
 // emulation of `strncmp(lex_p, "begin", 5)`,
 // but you better use a precompiled regexp if `str` is a constant
@@ -1963,17 +1972,11 @@ function here_document (here)
     newtok();
     if (c == '#')
     {
-      switch (c = nextc())
-      {
-        case '$':
-        case '@':
-          pushback(c);
-          return tSTRING_DVAR;
-        case '{':
-          lexer.command_start = true;
-          return tSTRING_DBEG;
-      }
+      var t = parser_peek_variable_name();
+      if (t)
+        return t;
       tokadd('#');
+      c = nextc();
     }
     do
     {
@@ -2054,17 +2057,11 @@ function parse_string (quote)
   newtok();
   if ((func & STR_FUNC_EXPAND) && c == '#')
   {
-    switch (c = nextc())
-    {
-      case '$':
-      case '@':
-        pushback(c);
-        return tSTRING_DVAR;
-      case '{':
-        lexer.command_start = true;
-        return tSTRING_DBEG;
-    }
+    var t = parser_peek_variable_name();
+    if (t)
+      return t;
     tokadd('#');
+    c = nextc();
   }
   pushback(c);
   if (tokadd_string(func, term, paren, quote) == '')
@@ -2883,6 +2880,49 @@ function start_num (c)
   // why are we so certain about returning `tFLOAT` or `tINTEGER`?
   // because we have got here meating a digit :)
 }
+
+function parser_peek_variable_name ()
+{
+  var p = lex_p;
+
+  if (p + 1 >= lex_pend)
+    return 0;
+  var c = p_pv(p++);
+  switch (c)
+  {
+    case '$':
+      if ((c = p_pv(p)) == '-')
+      {
+        if (++p >= lex_pend)
+          return 0;
+        c = p_pv(p);
+      }
+      else if (is_global_name_punct(c) || ISDIGIT(c))
+      {
+        return tSTRING_DVAR;
+      }
+      break;
+    case '@':
+      if ((c = p_pv(p)) == '@')
+      {
+        if (++p >= lex_pend)
+          return 0;
+        c = p_pv(p);
+      }
+      break;
+    case '{':
+      lex_p = p;
+      lexer.command_start = true;
+      return tSTRING_DBEG;
+    default:
+      return 0;
+  }
+
+  if (!ISASCII(c) || c == '_' || ISALPHA(c))
+    return tSTRING_DVAR;
+  return 0;
+}
+
 
 
 // struct kwtable {const char *name; int id[2]; enum lex_state_e state;};
