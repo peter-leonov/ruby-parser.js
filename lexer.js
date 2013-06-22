@@ -233,7 +233,7 @@ function ISUPPER (c)
 }
 function ISALPHA (c)
 {
-  return /^[a-fA-F]/.test(c);
+  return /^[a-zA-Z]/.test(c);
 }
 function ISSPACE (c)
 {
