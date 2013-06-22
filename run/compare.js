@@ -4,7 +4,7 @@ function parse (text)
   lexer.filename = 'ruby.rb';
   
   var parser = new YYParser(lexer);
-  parser.yydebug = true; // render all the states transitions
+  parser.yydebug = 2; // render all the states transitions
   parser.yydebug_yylval = false; // don't print token values
   return parser.parse();
 }

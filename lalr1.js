@@ -107,7 +107,7 @@ var yyval, yystack, actionsTable;
 
 #if YYDEBUG
   // enable/disable all the debug messages
-  parser.yydebug = false;
+  parser.yydebug = 0;
   // enable/disable printing the token values
   parser.yydebug_yylval = true;
   // enable/disable printing the whole action functions applied
@@ -653,29 +653,60 @@ YYParser.prototype =
 #if YYDEBUG
   debug_reduce_print: function debug_reduce_print (yyrule)
   {
-    if (!this.yydebug)
-      return;
-
-    var yystack = this.yystack;
-    var yylno = this.yyrline_[yyrule];
-    var yynrhs = this.yyr2_[yyrule];
-    // Print the symbols being reduced, and their result.
-    this.debug_print("Reducing stack by rule " + (yyrule - 1) + " (line " + yylno + "):\n");
-
-    // The symbols being reduced.
-    for (var yyi = 0; yyi < yynrhs; yyi++)
+    if (this.yydebug >= 2)
     {
-      this.debug_symbol_print(
-        "   $" + (yyi + 1) + " =",
-        this.yyrhs_[this.yyprhs_[yyrule] + yyi],
-        ]b4_rhs_value(yynrhs, yyi + 1)[
-      );
+      var yystack = this.yystack;
+      var yylno = this.yyrline_[yyrule];
+      var yynrhs = this.yyr2_[yyrule];
+      // Print the symbols being reduced, and their result.
+      this.debug_print("Reducing stack by rule " + (yyrule - 1) + " (line " + yylno + "):\n");
+
+      // The symbols being reduced.
+      for (var yyi = 0; yyi < yynrhs; yyi++)
+      {
+        this.debug_symbol_print(
+          "   $" + (yyi + 1) + " =",
+          this.yyrhs_[this.yyprhs_[yyrule] + yyi],
+          ]b4_rhs_value(yynrhs, yyi + 1)[
+        );
+      }
     }
+    else if (this.yydebug >= 1)
+    {
+      var yystack = this.yystack;
+      var yylno = this.yyrline_[yyrule];
+      var yynrhs = this.yyr2_[yyrule];
+      // Print the symbols being reduced, and their result.
+      yylno = ''+yylno;
+      
+      var pad = '             ';
+      write(yylno + pad.substr(yylno.length) + ' : ');
+      
+      // The symbols being reduced.
+      for (var yyi = 0; yyi < yynrhs; yyi++)
+      {
+        var name = this.yytname_[[this.yyrhs_[this.yyprhs_[yyrule] + yyi]]];
+        write(name + " ");
+      }
+      write("\n");
+      
+      if (this.yydebug_yylval)
+      {
+        // The symbols being reduced.
+        for (var yyi = 0; yyi < yynrhs; yyi++)
+        {
+          var value = ]b4_rhs_value(yynrhs, yyi + 1)[;
+          this.print("$" + (yyi + 1) +" = "+ JSON.stringify(value) + "\n");
+          this.print("\n");
+        }
+      }
+    }
+    // debug <= 0
   },
 
   debug_symbol_print: function debug_symbol_print (message, yytype, yyvaluep)
   {
-    if (!this.yydebug)
+    if (this.yydebug < 2)
       return;
 
     this.debug_print
@@ -691,7 +722,7 @@ YYParser.prototype =
 
   debug_stack_print: function debug_stack_print ()
   {
-    if (!this.yydebug)
+    if (this.yydebug < 2)
       return;
 
     puts("Stack now " + this.yystack.stateStack.join(' '));
@@ -699,7 +730,7 @@ YYParser.prototype =
 
   debug_action_print: function debug_action_print (action)
   {
-    if (!this.yydebug)
+    if (this.yydebug < 2)
       return;
     if (!this.yydebug_action)
       return;
@@ -709,9 +740,13 @@ YYParser.prototype =
 
   debug_print: function debug_print (message)
   {
-    if (!this.yydebug)
+    if (this.yydebug < 2)
       return;
 
+    write(message);
+  },
+  print: function print (message)
+  {
     write(message);
   },
 #endif // YYDEBUG
