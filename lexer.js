@@ -1606,7 +1606,8 @@ this.yylex = function yylex ()
           if (!parser_is_identchar(c))
           {
             pushback(c);
-            return $('$');
+            compile_error("`$"+c+"' is not allowed as a global variable name");
+            return 0;
           }
         case '0':
           tokadd('$');
