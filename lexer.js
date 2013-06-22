@@ -164,7 +164,7 @@ function IS_END () { return lexer.lex_state & EXPR_END_ANY }
 function IS_BEG () { return lexer.lex_state & EXPR_BEG_ANY }
 function IS_LABEL_POSSIBLE ()
 {
-  return (IS_lex_state(EXPR_BEG) && !lexer.cmd_state) || IS_ARG();
+  return (IS_lex_state(EXPR_BEG | EXPR_ENDFN) && !lexer.cmd_state) || IS_ARG();
 }
 function IS_LABEL_SUFFIX (n)
 {
