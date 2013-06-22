@@ -330,6 +330,10 @@ function nextc ()
         lexer.heredoc_end = 0;
       }
       lexer.ruby_sourceline++;
+#if DEBUG
+      if (lexer.print_line_numbers)
+        print(lexer.ruby_sourceline)
+#endif // DEBUG
       lexer.line_count++;
       lex_pbeg = lex_p = 0;
       lex_pend = v.length;
