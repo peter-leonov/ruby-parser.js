@@ -2201,14 +2201,8 @@ function tokadd_string (func, term, paren, str_term)
 
 function regx_options ()
 {
-  var options = '';
-
-  var c = '';
-  while (c = nextc(), ISALPHA(c))
-  {
-    options += c;
-  }
-  pushback(c);
+  var options = match_grex(/[a-zA-Z]+|/g)[0];
+  lex_p += options.length;
   return options;
 }
 
