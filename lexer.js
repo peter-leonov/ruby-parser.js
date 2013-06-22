@@ -1817,7 +1817,7 @@ this.yylex = function yylex ()
     {
       // just take a plain string for now,
       // do not convert to a symbol, leave it to JS engine
-      var ident = tok();
+      var ident = gen.rb_intern(tok());
 
       // was: set_yylval_name(ident); TODO: check
       lexer.yylval = ident;

@@ -6,4 +6,10 @@ if "abc"
 x += 123
 end
 
+def indent(&block)
+end
+
+def indent(*tmps)
+end
+
 # objectA.methodA += methodB()

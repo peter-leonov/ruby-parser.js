@@ -103,6 +103,7 @@ function register_symid_str (id, name)
 {
   rb_id2name[id] = name;
   global_symbols_name2id[name] = id;
+  return id;
 }
 
 
@@ -124,7 +125,7 @@ function rb_intern (name)
   if (id !== undefined)
     return id;
 
-  return intern_str(str);
+  return intern_str(name);
 }
 
 function intern_str (name)
@@ -172,9 +173,9 @@ function intern_str (name)
         break;
     }
     // was: new_id:
-    id |= ++global_symbols.last_id << ID_SCOPE_SHIFT;
+    id |= rb_id2name.length << ID_SCOPE_SHIFT;
   } // was: id_register:
-  return register_symid_str(id, str);
+  return register_symid_str(id, name);
 }
 
 
@@ -282,7 +283,8 @@ function local_id (id)
 lexer.setGenerator
 ({
   is_local_id: is_local_id,
-  lvar_defined: lvar_defined
+  lvar_defined: lvar_defined,
+  rb_intern: rb_intern
 });
 
 
@@ -296,7 +298,7 @@ var ruby_verbose = true;
 
 // just a constants to compare to
 var DVARS_INHERIT = {},  // (NODE *) 1
-    DVARS_TOPSCOPE = {}; // NULL
+    DVARS_TOPSCOPE = null; // NULL
 
 var lvtbl = null;
 
