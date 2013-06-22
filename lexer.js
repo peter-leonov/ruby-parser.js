@@ -239,6 +239,23 @@ function ISSPACE (c)
     c === '\f' || c === '\v'
   )
 }
+function ISASCII (c)
+{
+  return $(c) < 128;
+}
+function ISDIGIT (c)
+{
+  return /^\d$/.test(c);
+}
+function ISXDIGIT (c)
+{
+  return /^[0-9a-fA-F]/.test(c);
+}
+function ISALNUM (c)
+{
+  return /^\w$/.test(c);
+}
+
 // our own modification, does not match `\n`
 // used to avoid crossing end of line on white space search
 function ISSPACE_NOT_N (c)
@@ -505,24 +522,6 @@ function NEW_HEREDOCTERM (func, term)
     term: term,
     paren: ''
   };
-}
-
-function ISASCII (c)
-{
-  return $(c) < 128;
-}
-
-function ISDIGIT (c)
-{
-  return /^\d$/.test(c);
-}
-function ISXDIGIT (c)
-{
-  return /^[0-9a-fA-F]/.test(c);
-}
-function ISALNUM (c)
-{
-  return /^\w$/.test(c);
 }
 
 // TODO: get rid of such a piece of junk :)
