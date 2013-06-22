@@ -157,10 +157,11 @@ function intern_str (name)
         // was: a seach through `op_tbl`, which is precalced above
         //      so we could never get here through the `rb_intern()`
 
-        if (name[name.length-1] == '=')
+        var last = name.length-1;
+        if (name[last] == '=')
         {
           /* attribute assignment */
-          id = rb_intern(name);
+          id = rb_intern(name.substring(0, last));
           if (id > tLAST_OP_ID && !is_attrset_id(id))
           {
             id = rb_id_attrset(id); // sets type bits to `ID_ATTRSET`
