@@ -1764,7 +1764,7 @@ this.yylex = function yylex ()
             lexer.lex_state = kw.state;
             if (state == EXPR_FNAME)
             {
-              lexer.yylval = gen.rb_intern(kw.name);
+              lexer.yylval = gen.rb_intern(tok()); // was: kw.name
               return kw.id0;
             }
             if (lexer.lex_state == EXPR_BEG)
@@ -2971,9 +2971,6 @@ var rb_reserved_word = lexer.rb_reserved_word =
 'while': {id0: keyword_while, id1: modifier_while, state: EXPR_VALUE},
 'yield': {id0: keyword_yield, state: EXPR_ARG}
 };
-
-for (var k in rb_reserved_word)
-  rb_reserved_word[k].name = k;
 
 lexer.cursorPosition = function ()
 {
