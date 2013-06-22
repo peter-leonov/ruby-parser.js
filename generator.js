@@ -88,7 +88,7 @@ var op_tbl = // TODO: rethink
 };
 
 
-var rb_id2name = [];
+var rb_id2name = {};
 var global_symbols_name2id = {};
 for (var k in lexer.rb_reserved_word)
 {
@@ -97,7 +97,7 @@ for (var k in lexer.rb_reserved_word)
   rb_id2name[kw.id1] = k;
 }
 
-rb_id2name.length = tLAST_OP_ID;
+var global_symbols_last_id = tLAST_OP_ID;
 
 function register_symid_str (id, name)
 {
@@ -173,7 +173,7 @@ function intern_str (name)
         break;
     }
     // was: new_id:
-    id |= rb_id2name.length << ID_SCOPE_SHIFT;
+    id |= ++global_symbols_last_id << ID_SCOPE_SHIFT;
   } // was: id_register:
   return register_symid_str(id, name);
 }
