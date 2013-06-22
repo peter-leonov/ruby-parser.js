@@ -178,7 +178,7 @@ program:
             if ($2 && !compile_for_eval)
             {
                 /* last expression should not be void */
-                if ($2.type != NODE_BLOCK)
+                if ($2.type != 'BLOCK')
                   void_expr($2);
                 else
                 {
@@ -359,7 +359,7 @@ stmt
   |
     stmt modifier_while expr_value
     {
-      if ($1 && $1.type == NODE_BEGIN)
+      if ($1 && $1.type == 'BEGIN')
       {
         $$ = NEW_WHILE(check_cond($3), $1.body, 0);
       }
@@ -371,7 +371,7 @@ stmt
   |
     stmt modifier_until expr_value
     {
-      if ($1 && $1.type == NODE_BEGIN)
+      if ($1 && $1.type == 'BEGIN')
       {
         $$ = NEW_UNTIL(check_cond($3), $1.body, 0);
       }
@@ -890,12 +890,12 @@ arg
   |
     tUMINUS_NUM tINTEGER tPOW arg
     {
-      // TODO: convert tINTEGER to NODE_LIT()
+      // TODO: convert tINTEGER to NEW_LIT()
     }
   |
     tUMINUS_NUM tFLOAT tPOW arg
     {
-      // TODO: convert tFLOAT to NODE_LIT()
+      // TODO: convert tFLOAT to NEW_LIT()
     }
   |
     tUPLUS arg
@@ -1757,19 +1757,19 @@ dsym        : tSYMBEG xstring_contents tSTRING_END
 
 numeric     : tINTEGER
             {
-              // TODO: convert tINTEGER to NODE_LIT()
+              // TODO: convert tINTEGER to NEW_LIT()
             }
         | tFLOAT
             {
-              // TODO: convert tFLOAT to NODE_LIT()
+              // TODO: convert tFLOAT to NEW_LIT()
             }
         | tUMINUS_NUM tINTEGER           %prec tLOWEST
             {
-              // TODO: convert tINTEGER to NODE_LIT()
+              // TODO: convert tINTEGER to NEW_LIT()
             }
         | tUMINUS_NUM tFLOAT           %prec tLOWEST
             {
-              // TODO: convert tFLOAT to NODE_LIT()
+              // TODO: convert tFLOAT to NEW_LIT()
             }
         ;
 
@@ -2016,14 +2016,14 @@ singleton    : var_ref
           }
           else {
             switch ($3.type) { // TODO
-              case NODE_STR:
-              case NODE_DSTR:
-              case NODE_XSTR:
-              case NODE_DXSTR:
-              case NODE_DREGX:
-              case NODE_LIT:
-              case NODE_ARRAY:
-              case NODE_ZARRAY:
+              case 'STR':
+              case 'DSTR':
+              case 'XSTR':
+              case 'DXSTR':
+              case 'DREGX':
+              case 'LIT':
+              case 'ARRAY':
+              case 'ZARRAY':
                 lexer.yyerror("can't define singleton method for literals");
               default:
                 value_expr($3); // TODO

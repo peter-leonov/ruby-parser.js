@@ -405,12 +405,12 @@ function block_append (head, tail)
     return tail;
   switch (h.type)
   {
-    case NODE_LIT:
-    case NODE_STR:
-    case NODE_SELF:
-    case NODE_TRUE:
-    case NODE_FALSE:
-    case NODE_NIL:
+    case 'LIT':
+    case 'STR':
+    case 'SELF':
+    case 'TRUE':
+    case 'FALSE':
+    case 'NIL':
       lexer.warn(h, "unused literal ignored");
       return tail;
     default:
@@ -419,7 +419,7 @@ function block_append (head, tail)
       fixpos(end, head);
       head = end;
       break;
-    case NODE_BLOCK:
+    case 'BLOCK':
       end = h.end;
       break;
   }
@@ -427,11 +427,11 @@ function block_append (head, tail)
   var nd = end.head;
   switch (nd.type)
   {
-    case NODE_RETURN:
-    case NODE_BREAK:
-    case NODE_NEXT:
-    case NODE_REDO:
-    case NODE_RETRY:
+    case 'RETURN':
+    case 'BREAK':
+    case 'NEXT':
+    case 'REDO':
+    case 'RETRY':
       if (ruby_verbose)
       {
         parser_warning(tail, "statement not reached");
@@ -442,7 +442,7 @@ function block_append (head, tail)
       break;
   }
 
-  if (tail.type != NODE_BLOCK)
+  if (tail.type != 'BLOCK')
   {
     tail = NEW_BLOCK(tail);
     tail.end = tail;
@@ -460,7 +460,7 @@ function void_stmts (node)
 
   if (!node)
     return;
-  if (node.type != NODE_BLOCK)
+  if (node.type != 'BLOCK')
     return;
 
   for (;;)
@@ -473,7 +473,7 @@ function void_stmts (node)
 }
 
 
-// TODO: handle NODE_BEGIN with remove_begin()
+// TODO: handle BEGIN node with remove_begin()
 function void_expr (node)
 {
   var useless = '';
@@ -485,7 +485,7 @@ function void_expr (node)
     return;
   switch (node.type)
   {
-    case NODE_CALL:
+    case 'CALL':
       switch (node.mid)
       {
         case $('+'):
@@ -511,48 +511,48 @@ function void_expr (node)
       }
       break;
 
-    case NODE_LVAR:
-    case NODE_DVAR:
-    case NODE_GVAR:
-    case NODE_IVAR:
-    case NODE_CVAR:
-    case NODE_NTH_REF:
-    case NODE_BACK_REF:
+    case 'LVAR':
+    case 'DVAR':
+    case 'GVAR':
+    case 'IVAR':
+    case 'CVAR':
+    case 'NTH_REF':
+    case 'BACK_REF':
       useless = "a variable";
       break;
-    case NODE_CONST:
+    case 'CONST':
       useless = "a constant";
       break;
-    case NODE_LIT:
-    case NODE_STR:
-    case NODE_DSTR:
-    case NODE_DREGX:
-    case NODE_DREGX_ONCE:
+    case 'LIT':
+    case 'STR':
+    case 'DSTR':
+    case 'DREGX':
+    case 'DREGX_ONCE':
       useless = "a literal";
       break;
-    case NODE_COLON2:
-    case NODE_COLON3:
+    case 'COLON2':
+    case 'COLON3':
       useless = "::";
       break;
-    case NODE_DOT2:
+    case 'DOT2':
       useless = "..";
       break;
-    case NODE_DOT3:
+    case 'DOT3':
       useless = "...";
       break;
-    case NODE_SELF:
+    case 'SELF':
       useless = "self";
       break;
-    case NODE_NIL:
+    case 'NIL':
       useless = "nil";
       break;
-    case NODE_TRUE:
+    case 'TRUE':
       useless = "true";
       break;
-    case NODE_FALSE:
+    case 'FALSE':
       useless = "false";
       break;
-    case NODE_DEFINED:
+    case 'DEFINED':
       useless = "defined?";
       break;
   }
@@ -584,13 +584,13 @@ function fixup_nodes (deferred_nodes)
   // TODO: seams like a reduction for ranges
 }
 
-// shifts all leading NODE_BEGIN nodes in list:
-//   NODE_BEGIN->NODE_BEGIN->NODE_BEGIN->other_node
+// shifts all leading BEGIN node nodes in list:
+//   BEGIN->BEGIN->BEGIN->other_node
 // becomes
 //   other_node
 function remove_begin (node)
 {
-  while (node && node.type == NODE_BEGIN && node.body)
+  while (node && node.type == 'BEGIN' && node.body)
   {
     node = n1.body;
   }
@@ -617,33 +617,33 @@ function check_cond (node)
 
   switch (node.type)
   {
-    case NODE_DSTR:
-    case NODE_EVSTR:
-    case NODE_STR:
+    case 'DSTR':
+    case 'EVSTR':
+    case 'STR':
       lexer.warn("string literal in condition");
       break;
 
-    case NODE_DREGX:
-    case NODE_DREGX_ONCE:
+    case 'DREGX':
+    case 'DREGX_ONCE':
       parser_warning(node, "regex literal in condition");
       return NEW_MATCH2(node, NEW_GVAR("$_"));
 
-    case NODE_AND:
-    case NODE_OR:
+    case 'AND':
+    case 'OR':
       node.nd_1st = check_cond(node.nd_1st);
       node.nd_2nd = check_cond(node.nd_2nd);
       break;
 
-    case NODE_DOT2:
-    case NODE_DOT3:
+    case 'DOT2':
+    case 'DOT3':
       node.beg = range_op(node.beg);
       node.end = range_op(node.end);
-      if (node.type == NODE_DOT2)
+      if (node.type == 'DOT2')
         // was: nd_set_type(node, NODE_FLIP2); TODO: understand
-        node.type = NODE_FLIP2;
-      else if (node.type == NODE_DOT3)
+        node.type = 'FLIP2';
+      else if (node.type == 'DOT3')
         // was: nd_set_type(node, NODE_FLIP3); TODO: understand
-        node.type = NODE_FLIP3;
+        node.type = 'FLIP3';
       // if (!e_option_supplied(parser)) // TODO
       {
         var b = literal_node(node.beg);
@@ -655,16 +655,16 @@ function check_cond (node)
       }
       break;
 
-    case NODE_DSYM:
+    case 'DSYM':
       parser_warning(node, "literal in condition");
       break;
 
-    case NODE_LIT:
+    case 'LIT':
       if (node.lit_type == 'REGEXP')
       {
         parser_warning(node, "regex literal in condition");
         // was: nd_set_type(node, NODE_MATCH); TODO: understand
-        node.type = NODE_MATCH;
+        node.type = 'MATCH';
       }
       else
       {
@@ -681,15 +681,15 @@ function assign_in_cond (node)
 {
   switch (node.type)
   {
-    case NODE_MASGN:
+    case 'MASGN':
       lexer.yyerror("multiple assignment in conditional");
       return true;
 
-    case NODE_LASGN:
-    case NODE_DASGN:
-    case NODE_DASGN_CURR:
-    case NODE_GASGN:
-    case NODE_IASGN:
+    case 'LASGN':
+    case 'DASGN':
+    case 'DASGN_CURR':
+    case 'GASGN':
+    case 'IASGN':
       break;
 
     default:
@@ -713,7 +713,7 @@ function range_op (node)
 
   var type = node.type;
   value_expr(node);
-  if (type == NODE_LIT && node.lit_type == 'FIXNUM')
+  if (type == 'LIT' && node.lit_type == 'FIXNUM')
   {
     warn_unless_e_option(parser, node,
                          "integer literal in conditional range");
@@ -729,17 +729,17 @@ function literal_node (node)
     return 1;        /* same as NODE_NIL */ // TODO: understand
   switch (node.type)
   {
-    case NODE_LIT:
-    case NODE_STR:
-    case NODE_DSTR:
-    case NODE_EVSTR:
-    case NODE_DREGX:
-    case NODE_DREGX_ONCE:
-    case NODE_DSYM:
+    case 'LIT':
+    case 'STR':
+    case 'DSTR':
+    case 'EVSTR':
+    case 'DREGX':
+    case 'DREGX_ONCE':
+    case 'DSYM':
       return 2;
-    case NODE_TRUE:
-    case NODE_FALSE:
-    case NODE_NIL:
+    case 'TRUE':
+    case 'FALSE':
+    case 'NIL':
       return 1;
   }
   return 0;
@@ -752,22 +752,22 @@ function is_static_content (node)
     return true;
   switch (node.type)
   {
-    case NODE_HASH:
+    case 'HASH':
       if (!(node = node.head))
         break;
-    case NODE_ARRAY:
+    case 'ARRAY':
       do
       {
         if (!is_static_content(node.head))
           return false;
       }
       while ((node = node.next) != null);
-    case NODE_LIT:
-    case NODE_STR:
-    case NODE_NIL:
-    case NODE_TRUE:
-    case NODE_FALSE:
-    case NODE_ZARRAY:
+    case 'LIT':
+    case 'STR':
+    case 'NIL':
+    case 'TRUE':
+    case 'FALSE':
+    case 'ZARRAY':
       break;
     default:
       return false;
@@ -788,22 +788,22 @@ function value_expr (node)
   {
     switch (node.type)
     {
-      case NODE_DEFN:
-      case NODE_DEFS:
+      case 'DEFN':
+      case 'DEFS':
         parser_warning(node, "void value expression");
         return false;
 
-      case NODE_RETURN:
-      case NODE_BREAK:
-      case NODE_NEXT:
-      case NODE_REDO:
-      case NODE_RETRY:
+      case 'RETURN':
+      case 'BREAK':
+      case 'NEXT':
+      case 'REDO':
+      case 'RETRY':
         if (!cond)
           lexer.yyerror("void value expression");
         /* or "control never reach"? */
         return false;
 
-      case NODE_BLOCK:
+      case 'BLOCK':
         while (node.next)
         {
           node = node.next;
@@ -811,11 +811,11 @@ function value_expr (node)
         node = node.head;
         break;
 
-      case NODE_BEGIN:
+      case 'BEGIN':
         node = node.body;
         break;
 
-      case NODE_IF:
+      case 'IF':
         if (!node.body) // aka "then"
         {
           node = node.elsee;
@@ -831,8 +831,8 @@ function value_expr (node)
         node = node.elsee;
         break;
 
-      case NODE_AND:
-      case NODE_OR:
+      case 'AND':
+      case 'OR':
         cond = true;
         node = node.nd_2nd;
         break;
@@ -947,22 +947,22 @@ function arg_concat_gen (node1, node2)
     return node1;
   switch (node1.type)
   {
-    case NODE_BLOCK_PASS:
+    case 'BLOCK_PASS':
       if (node1.head)
         node1.head = arg_concat(node1.head, node2);
       else
         node1.head = NEW_LIST(node2);
       return node1;
-    case NODE_ARGSPUSH:
-      if (node2.type != NODE_ARRAY)
+    case 'ARGSPUSH':
+      if (node2.type != 'ARRAY')
         break;
       node1.body = list_concat(NEW_LIST(node1.body), node2);
       // was: nd_set_type(node1, NODE_ARGSCAT);
-      node1.type = NODE_ARGSCAT; // TODO
+      node1.type = 'ARGSCAT'; // TODO
       return node1;
-    case NODE_ARGSCAT:
-      if (node2.type != NODE_ARRAY ||
-          node1.body.type != NODE_ARRAY)
+    case 'ARGSCAT':
+      if (node2.type != 'ARRAY' ||
+          node1.body.type != 'ARRAY')
         break;
       node1.body = list_concat(node1.body, node2);
       return node1;
