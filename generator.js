@@ -121,6 +121,12 @@ for (var k in op_tbl)
 // rb_intern3 rb_intern2 rb_intern_str
 function rb_intern (name)
 {
+#if DEBUG
+  if (name === undefined)
+    throw 'undefined name in rb_id2name()'
+  if (name === '')
+    throw 'empty name in rb_id2name()'
+#endif // DEBUG
   var id = rb_id2name[name];
   if (id !== undefined)
     return id;
