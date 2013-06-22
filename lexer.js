@@ -78,7 +78,7 @@ lexer.in_defined = false;
 // have we seen `__END__` already in lexer?
 lexer.ruby__end__seen = false;
 // parser needs access to the line number,
-// AFAICT, parser never changes it, only sets nd_line on nodes
+// AFAICT, parser never changes it, only sets `nd_line` on nodes
 lexer.ruby_sourceline = 0;
 // file name for meningfull error reporting
 lexer.filename = '(eval)';
@@ -512,12 +512,12 @@ function is_identchar (c)
 function NEW_STRTERM (func, term, paren)
 {
   return {
-    type: 'NODE_STRTERM',
-    nd_func: func,
-    nd_orig: '', // stub
-    nd_nth: 0, // stub
-    nd_line: lexer.ruby_sourceline,
-    nd_nest: 0, // for tokadd_string() and parse_string()
+    type: 'strterm',
+    func: func,
+    lex_lastline: '', // stub
+    lex_p: 0, // stub
+    ruby_sourceline: lexer.ruby_sourceline,
+    nested: 0, // for tokadd_string() and parse_string()
     term: term,
     paren: paren
   };
@@ -526,12 +526,12 @@ function NEW_STRTERM (func, term, paren)
 function NEW_HEREDOCTERM (func, term)
 {
   return {
-    type: 'NODE_HEREDOC',
-    nd_func: func,
-    nd_orig: lex_lastline,
-    nd_nth: lex_p,
-    nd_line: lexer.ruby_sourceline,
-    nd_nest: 0,
+    type: 'heredoc',
+    func: func,
+    lex_lastline: lex_lastline,
+    lex_p: lex_p,
+    ruby_sourceline: lexer.ruby_sourceline,
+    nested: 0,
     term: term,
     paren: ''
   };
@@ -559,7 +559,7 @@ this.yylex = function yylex ()
   if (lexer.lex_strterm)
   {
     var token = 0;
-    if (lexer.lex_strterm.type == 'NODE_HEREDOC')
+    if (lexer.lex_strterm.type == 'heredoc')
     {
       token = here_document(lexer.lex_strterm);
       if (token == tSTRING_END)
@@ -1934,7 +1934,7 @@ function here_document_restore (eos)
 function here_document (here)
 {
   // we're at the heredoc content start
-  var func = here.nd_func,
+  var func = here.func,
       eos = here.term,
       indent = !!(func & STR_FUNC_INDENT);
   
@@ -2023,7 +2023,7 @@ function here_document (here)
 
 function parse_string (quote)
 {
-  var func = quote.nd_func,
+  var func = quote.func,
       term = quote.term,
       paren = quote.paren;
   
@@ -2041,13 +2041,13 @@ function parse_string (quote)
     while (ISSPACE(c));
     space = true;
   }
-  // quote.nd_nest is increased in tokadd_string()
+  // quote.nested is increased in tokadd_string()
   // once for every `paren` char met
-  if (c == term && !quote.nd_nest)
+  if (c == term && !quote.nested)
   {
     if (func & STR_FUNC_QWORDS)
     {
-      quote.nd_func = -1;
+      quote.func = -1;
       return $(' ');
     }
     if (!(func & STR_FUNC_REGEXP))
@@ -2072,7 +2072,7 @@ function parse_string (quote)
   pushback(c);
   if (tokadd_string(func, term, paren, quote) == '')
   {
-    lexer.ruby_sourceline = quote.nd_line;
+    lexer.ruby_sourceline = quote.ruby_sourceline;
     if (func & STR_FUNC_REGEXP)
     {
       if (lexer.eofp)
@@ -2102,16 +2102,16 @@ function tokadd_string (func, term, paren, str_term)
   {
     if (paren && c == paren)
     {
-      ++str_term.nd_nest;
+      ++str_term.nested;
     }
     else if (c == term)
     {
-      if (!str_term || !str_term.nd_nest)
+      if (!str_term || !str_term.nested)
       {
         pushback(c);
         break;
       }
-      --str_term.nd_nest;
+      --str_term.nested;
     }
     else if ((func & STR_FUNC_EXPAND) && c == '#' && lex_p < lex_pend)
     {
@@ -2334,14 +2334,14 @@ function whole_match_p (eos, indent)
 function heredoc_restore (here)
 {
   // restores the line from where the heredoc occured to begin
-  lex_lastline = here.nd_orig;
+  lex_lastline = here.lex_lastline;
   lex_pbeg = 0;
   lex_pend = lex_lastline.length;
   // restores the position in the line, right after heredoc token
-  lex_p = here.nd_nth;
+  lex_p = here.lex_p;
   // have no ideas yet :)
   lexer.heredoc_end = lexer.ruby_sourceline;
-  lexer.ruby_sourceline = here.nd_line;
+  lexer.ruby_sourceline = here.ruby_sourceline;
 }
 
 var ESCAPE_CONTROL = 1,
