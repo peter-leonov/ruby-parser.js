@@ -1170,13 +1170,14 @@ primary        : literal
             {
           if (lexer.in_def || lexer.in_single)
             lexer.yyerror("class definition in method body");
-                
+                local_push(false);
             }
           bodystmt
           k_end
             {
               // touching this alters the parse.output
                 $<num>4;
+                local_pop();
             }
         | k_class tLSHFT expr
             {
@@ -1187,10 +1188,12 @@ primary        : literal
             {
               $<num>$ = lexer.in_single;
               lexer.in_single = 0;
+              local_push(false);
             }
           bodystmt
           k_end
             {
+              local_pop();
           lexer.in_def = $<num>4;
           lexer.in_single = $<num>6;
             }
@@ -1198,13 +1201,14 @@ primary        : literal
             {
           if (lexer.in_def || lexer.in_single)
             lexer.yyerror("module definition in method body");
-                
+                local_push(false);
             }
           bodystmt
           k_end
             {
               // touching this alters the parse.output
                 $<num>3;
+                local_pop();
             }
         | k_def fname
             {
@@ -1212,6 +1216,7 @@ primary        : literal
                 lexer.cur_mid = $2;
                 
               lexer.in_def++;
+              local_push(false);
             }
           f_arglist
           bodystmt
@@ -1219,6 +1224,7 @@ primary        : literal
             {
               // touching this alters the parse.output
                 $<num>1;
+                local_pop();
                 lexer.in_def--;
                 lexer.cur_mid = $<id>3;
             }
@@ -1231,11 +1237,13 @@ primary        : literal
     {
       lexer.in_single++;
       lexer.lex_state = EXPR_ENDFN; /* force for args */
+      local_push(false);
     }
     f_arglist
     bodystmt
     k_end
     {
+      local_pop();
       lexer.in_single--;
     }
         | keyword_break
