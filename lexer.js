@@ -1625,8 +1625,9 @@ this.yylex = function yylex ()
         tokadd('@');
         c = nextc();
       }
-      if (c != '' && ISDIGIT(c))
+      if (c != '' && ISDIGIT(c) || !parser_is_identchar(c))
       {
+        pushback(c);
         if (toklen() == 1)
         {
           compile_error("`@"+c+"' is not allowed as an instance variable name");
@@ -1636,11 +1637,6 @@ this.yylex = function yylex ()
           compile_error("`@@"+c+"' is not allowed as a class variable name");
         }
         return 0;
-      }
-      if (!parser_is_identchar(c))
-      {
-        pushback(c);
-        return $('@');
       }
       break;
     }
