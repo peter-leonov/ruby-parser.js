@@ -2882,6 +2882,24 @@ function start_num (c)
   // because we have got here meating a digit :)
 }
 
+var ruby_global_name_punct_bits =
+{
+  '~': true, '*': true, '$':  true, '?':  true,
+  '!': true, '@': true, '/':  true, '\\': true,
+  ';': true, ',': true, '.':  true, '=':  true,
+  ':': true, '<': true, '>':  true, '\"': true,
+  '&': true, '`': true, '\'': true, '+':  true,
+  '0': true
+};
+
+function is_global_name_punct (c)
+{
+  if (c <= ' '/*0x20*/ || /*0x7e*/ '~' < c)
+    return false;
+  return ruby_global_name_punct_bits[c];
+}
+
+
 function parser_peek_variable_name ()
 {
   var p = lex_p;
