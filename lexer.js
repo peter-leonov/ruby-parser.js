@@ -1757,7 +1757,7 @@ this.yylex = function yylex ()
           // const struct kwtable *kw;
 
           // See if it is a reserved word.
-          var kw = rb_reserved_word[tok()];
+          var kw = ownProperty(rb_reserved_word, tok());
           if (kw)
           {
             var state = lexer.lex_state;

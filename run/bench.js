@@ -13,3 +13,6 @@ print('create: ' + (new Date() - begin))
 var begin = new Date()
 parser.parse(text)
 print('parse: ' + (new Date() - begin))
+
+print('lines: ' + lexer.ruby_sourceline)
+print('last: ' + lexer.get_lex_lastline())

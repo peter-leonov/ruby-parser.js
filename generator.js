@@ -310,10 +310,9 @@ var lvtbl = null;
 
 function vtable_alloc (prev)
 {
-  var tbl =
-  {
-    prev: prev
-  };
+  // TODO: check others fro Object.prototype collisions
+  var tbl = Object.create(null);
+  tbl.prev = prev;
   
   return tbl;
 }

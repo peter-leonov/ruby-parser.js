@@ -5,6 +5,16 @@
 
 "use strict";
 
+// returns own property or `undefined`
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+function ownProperty (obj, prop)
+{
+  if (hasOwnProperty.call(obj, prop))
+    return obj[prop];
+  // has no such property
+  return undefined;
+}
+
 // char to code shortcut
 function $ (c) { return c.charCodeAt(0) }
 function $$ (code) { return String.fromCharCode(code) }
