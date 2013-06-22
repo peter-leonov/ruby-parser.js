@@ -1791,9 +1791,13 @@ this.yylex = function yylex ()
               return kw.id0;
             else
             {
-              if (kw.id0 != kw.id1)
+              // packed `id1`
+              if (kw.id1) // was: kw.id0 != kw.id1
+              {
                 lexer.lex_state = EXPR_BEG;
-              return kw.id1;
+                return kw.id1;
+              }
+              return kw.id0;
             }
           }
         }
@@ -2925,47 +2929,47 @@ function parser_peek_variable_name ()
 // struct kwtable {const char *name; int id[2]; enum lex_state_e state;};
 var rb_reserved_word = lexer.rb_reserved_word =
 {
-'__ENCODING__': {id0: keyword__ENCODING__, id1: keyword__ENCODING__, state: EXPR_END},
-'__LINE__': {id0: keyword__LINE__, id1: keyword__LINE__, state: EXPR_END},
-'__FILE__': {id0: keyword__FILE__, id1: keyword__FILE__, state: EXPR_END},
-'BEGIN': {id0: keyword_BEGIN, id1: keyword_BEGIN, state: EXPR_END},
-'END': {id0: keyword_END, id1: keyword_END, state: EXPR_END},
-'alias': {id0: keyword_alias, id1: keyword_alias, state: EXPR_FNAME},
-'and': {id0: keyword_and, id1: keyword_and, state: EXPR_VALUE},
-'begin': {id0: keyword_begin, id1: keyword_begin, state: EXPR_BEG},
-'break': {id0: keyword_break, id1: keyword_break, state: EXPR_MID},
-'case': {id0: keyword_case, id1: keyword_case, state: EXPR_VALUE},
-'class': {id0: keyword_class, id1: keyword_class, state: EXPR_CLASS},
-'def': {id0: keyword_def, id1: keyword_def, state: EXPR_FNAME},
-'defined?': {id0: keyword_defined, id1: keyword_defined, state: EXPR_ARG},
-'do': {id0: keyword_do, id1: keyword_do, state: EXPR_BEG},
-'else': {id0: keyword_else, id1: keyword_else, state: EXPR_BEG},
-'elsif': {id0: keyword_elsif, id1: keyword_elsif, state: EXPR_VALUE},
-'end': {id0: keyword_end, id1: keyword_end, state: EXPR_END},
-'ensure': {id0: keyword_ensure, id1: keyword_ensure, state: EXPR_BEG},
-'false': {id0: keyword_false, id1: keyword_false, state: EXPR_END},
-'for': {id0: keyword_for, id1: keyword_for, state: EXPR_VALUE},
+'__ENCODING__': {id0: keyword__ENCODING__, state: EXPR_END},
+'__LINE__': {id0: keyword__LINE__, state: EXPR_END},
+'__FILE__': {id0: keyword__FILE__, state: EXPR_END},
+'BEGIN': {id0: keyword_BEGIN, state: EXPR_END},
+'END': {id0: keyword_END, state: EXPR_END},
+'alias': {id0: keyword_alias, state: EXPR_FNAME},
+'and': {id0: keyword_and, state: EXPR_VALUE},
+'begin': {id0: keyword_begin, state: EXPR_BEG},
+'break': {id0: keyword_break, state: EXPR_MID},
+'case': {id0: keyword_case, state: EXPR_VALUE},
+'class': {id0: keyword_class, state: EXPR_CLASS},
+'def': {id0: keyword_def, state: EXPR_FNAME},
+'defined?': {id0: keyword_defined, state: EXPR_ARG},
+'do': {id0: keyword_do, state: EXPR_BEG},
+'else': {id0: keyword_else, state: EXPR_BEG},
+'elsif': {id0: keyword_elsif, state: EXPR_VALUE},
+'end': {id0: keyword_end, state: EXPR_END},
+'ensure': {id0: keyword_ensure, state: EXPR_BEG},
+'false': {id0: keyword_false, state: EXPR_END},
+'for': {id0: keyword_for, state: EXPR_VALUE},
 'if': {id0: keyword_if, id1: modifier_if, state: EXPR_VALUE},
-'in': {id0: keyword_in, id1: keyword_in, state: EXPR_VALUE},
-'module': {id0: keyword_module, id1: keyword_module, state: EXPR_VALUE},
-'next': {id0: keyword_next, id1: keyword_next, state: EXPR_MID},
-'nil': {id0: keyword_nil, id1: keyword_nil, state: EXPR_END},
-'not': {id0: keyword_not, id1: keyword_not, state: EXPR_ARG},
-'or': {id0: keyword_or, id1: keyword_or, state: EXPR_VALUE},
-'redo': {id0: keyword_redo, id1: keyword_redo, state: EXPR_END},
+'in': {id0: keyword_in, state: EXPR_VALUE},
+'module': {id0: keyword_module, state: EXPR_VALUE},
+'next': {id0: keyword_next, state: EXPR_MID},
+'nil': {id0: keyword_nil, state: EXPR_END},
+'not': {id0: keyword_not, state: EXPR_ARG},
+'or': {id0: keyword_or, state: EXPR_VALUE},
+'redo': {id0: keyword_redo, state: EXPR_END},
 'rescue': {id0: keyword_rescue, id1: modifier_rescue, state: EXPR_MID},
-'retry': {id0: keyword_retry, id1: keyword_retry, state: EXPR_END},
-'return': {id0: keyword_return, id1: keyword_return, state: EXPR_MID},
-'self': {id0: keyword_self, id1: keyword_self, state: EXPR_END},
-'super': {id0: keyword_super, id1: keyword_super, state: EXPR_ARG},
-'then': {id0: keyword_then, id1: keyword_then, state: EXPR_BEG},
-'true': {id0: keyword_true, id1: keyword_true, state: EXPR_END},
-'undef': {id0: keyword_undef, id1: keyword_undef, state: EXPR_FNAME},
+'retry': {id0: keyword_retry, state: EXPR_END},
+'return': {id0: keyword_return, state: EXPR_MID},
+'self': {id0: keyword_self, state: EXPR_END},
+'super': {id0: keyword_super, state: EXPR_ARG},
+'then': {id0: keyword_then, state: EXPR_BEG},
+'true': {id0: keyword_true, state: EXPR_END},
+'undef': {id0: keyword_undef, state: EXPR_FNAME},
 'unless': {id0: keyword_unless, id1: modifier_unless, state: EXPR_VALUE},
 'until': {id0: keyword_until, id1: modifier_until, state: EXPR_VALUE},
-'when': {id0: keyword_when, id1: keyword_when, state: EXPR_VALUE},
+'when': {id0: keyword_when, state: EXPR_VALUE},
 'while': {id0: keyword_while, id1: modifier_while, state: EXPR_VALUE},
-'yield': {id0: keyword_yield, id1: keyword_yield, state: EXPR_ARG}
+'yield': {id0: keyword_yield, state: EXPR_ARG}
 };
 
 lexer.cursorPosition = function ()
