@@ -651,6 +651,11 @@ YYParser.prototype =
 {
   // Report on the debug stream that the rule yyrule is going to be reduced.
 #if YYDEBUG
+  inspect: function (obj)
+  {
+    return (obj && obj.inspect) ? obj.inspect() : JSON.stringify(obj);
+  },
+
   debug_reduce_print: function debug_reduce_print (yyrule)
   {
     if (this.yydebug >= 2)
@@ -697,9 +702,9 @@ YYParser.prototype =
         {
           var name = this.yytname_[[this.yyrhs_[this.yyprhs_[yyrule] + yyi]]];
           var value = ]b4_rhs_value(yynrhs, yyi + 1)[;
-          this.print("$" + (yyi + 1) +" = "+ JSON.stringify(value) + "\n");
-          this.print("\n");
+          this.print("$" + (yyi + 1) + " " + name + " = "+ this.inspect(value) + "\n");
         }
+        this.print("\n");
       }
     }
     // debug <= 0
@@ -716,7 +721,7 @@ YYParser.prototype =
       + (yytype < this.yyntokens_ ? " token " : " nterm ")
       + this.yytname_[yytype]
       + " ("
-      + (this.yydebug_yylval ? JSON.stringify(yyvaluep) : '')
+      + (this.yydebug_yylval ? this.inspect(yyvaluep) : '')
       + ")\n"
     );
   },
