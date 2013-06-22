@@ -29,3 +29,9 @@ ruby20_p195 = "#@
 #@ 
 #@.
 "
+
+code = "#@indent"
+code = "#@@indent"
+code = "\n#@indent#{@scope.to_vars}\n#@indent#{code}"
+code = "\n#$nnn#{@scope.to_vars}\n#$fgfg#{code}"
+
