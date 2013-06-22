@@ -327,10 +327,10 @@ function local_push (inherit_dvars)
 function local_pop ()
 {
   var local = lvtbl.prev;
-  if (lvtbl.used)
-  {
-    warn_unused_var(lvtbl);
-  }
+  // if (lvtbl.used) TODO
+  // {
+  //   warn_unused_var(lvtbl);
+  // }
   lvtbl = local;
 }
 
