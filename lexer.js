@@ -2972,6 +2972,9 @@ var rb_reserved_word = lexer.rb_reserved_word =
 'yield': {id0: keyword_yield, state: EXPR_ARG}
 };
 
+for (var k in rb_reserved_word)
+  rb_reserved_word[k].name = k;
+
 lexer.cursorPosition = function ()
 {
   return (
