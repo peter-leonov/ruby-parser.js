@@ -1759,8 +1759,7 @@ this.yylex = function yylex ()
             lexer.lex_state = kw.state;
             if (state == EXPR_FNAME)
             {
-              // was: set_yylval_name(rb_intern(kw->name)); TODO: check
-              lexer.yylval = kw.name;
+              lexer.yylval = gen.rb_intern(kw.name);
               return kw.id0;
             }
             if (lexer.lex_state == EXPR_BEG)
@@ -1815,11 +1814,7 @@ this.yylex = function yylex ()
         }
     }
     {
-      // just take a plain string for now,
-      // do not convert to a symbol, leave it to JS engine
       var ident = gen.rb_intern(tok());
-
-      // was: set_yylval_name(ident); TODO: check
       lexer.yylval = ident;
       if (!IS_lex_state_for(lexer.last_state, EXPR_DOT | EXPR_FNAME) &&
           gen.is_local_id(ident) && gen.lvar_defined(ident))
