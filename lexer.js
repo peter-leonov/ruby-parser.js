@@ -2047,7 +2047,7 @@ function parse_string (quote)
     }
     if (!(func & STR_FUNC_REGEXP))
       return tSTRING_END;
-    // set_yylval_num(regx_options()); TODO
+    lexer.yylval = regx_options();
     return tREGEXP_END;
   }
   if (space)
@@ -2197,6 +2197,19 @@ function tokadd_string (func, term, paren, str_term)
     tokadd(c);
   }
   return c;
+}
+
+function regx_options ()
+{
+  var options = '';
+
+  var c = '';
+  while (c = nextc(), ISALPHA(c))
+  {
+    options += c;
+  }
+  pushback(c);
+  return options;
 }
 
 function simple_re_meta (c)

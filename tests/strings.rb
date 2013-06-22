@@ -35,3 +35,4 @@ code = "#@@indent"
 code = "\n#@indent#{@scope.to_vars}\n#@indent#{code}"
 code = "\n#$nnn#{@scope.to_vars}\n#$fgfg#{code}"
 
+/SELECT\b(\/\*.*?\*\/ )?(.*)\bFROM\b/im
