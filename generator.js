@@ -88,13 +88,14 @@ var op_tbl = // TODO: rethink
 };
 
 
-var rb_id2name = {};
-var global_symbols_name2id = {};
+var rb_id2name = Object.create(null);
+var global_symbols_name2id = Object.create(null);
 for (var k in lexer.rb_reserved_word)
 {
   var kw = lexer.rb_reserved_word[k];
   rb_id2name[kw.id0] = k;
-  rb_id2name[kw.id1] = k;
+  if (kw.id1)
+    rb_id2name[kw.id1] = k;
 }
 
 var global_symbols_last_id = tLAST_OP_ID;
