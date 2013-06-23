@@ -45,9 +45,9 @@ function NEW_BLOCK (head)
 {
   var n = new N('BLOCK');
 
-  n.head = head; // set later
-  n.next = null;
-  n.end = null; // set later
+  n.head = head;
+  // n.next = null;
+  // n.end = null; // set later
   return n;
 }
 
