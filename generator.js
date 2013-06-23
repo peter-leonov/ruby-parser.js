@@ -290,9 +290,7 @@ function local_id (id)
 // some kind of export inside out :)
 lexer.setGenerator
 ({
-  is_local_id: is_local_id,
-  lvar_defined: lvar_defined,
-  rb_intern: rb_intern
+  lvar_defined: lvar_defined
 });
 
 
