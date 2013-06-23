@@ -470,7 +470,7 @@ var yyval, yystack, actionsTable;
     var actionClosure = actionsTable[yyn]
     debug_action_print(actionClosure);
     if (actionClosure)
-      actionClosure(yystack)
+      actionClosure()
 
     debug_symbol_print("-> $$ =", yyr1_[yyn], yyval);
 
