@@ -1701,6 +1701,7 @@ this.yylex = function yylex ()
   
   {
     var result = 0;
+    var is_local_id = true;
 
     lexer.last_state = lexer.lex_state;
     switch (tok()[0])
@@ -1708,6 +1709,7 @@ this.yylex = function yylex ()
       case '$':
         lexer.lex_state = EXPR_END;
         result = tGVAR;
+        is_local_id = false;
         break;
       case '@':
         lexer.lex_state = EXPR_END;
@@ -1715,6 +1717,7 @@ this.yylex = function yylex ()
           result = tCVAR;
         else
           result = tIVAR;
+        is_local_id = false;
         break;
 
       default:
@@ -1730,6 +1733,7 @@ this.yylex = function yylex ()
                 (!peek('=') || (peek_n('>', 1))))
             {
               result = tIDENTIFIER;
+              is_local_id = false; // def abc=
               tokadd(c);
               tokfix();
             }
@@ -1741,6 +1745,7 @@ this.yylex = function yylex ()
           if (result == 0 && ISUPPER(tok()[0]))
           {
             result = tCONSTANT;
+            is_local_id = false;
           }
           else
           {
@@ -1755,6 +1760,7 @@ this.yylex = function yylex ()
             lexer.lex_state = EXPR_BEG;
             nextc();
             // set_yylval_name(TOK_INTERN(!ENC_SINGLE(mb))); TODO
+            is_local_id = false;
             return tLABEL;
           }
         }
@@ -1770,7 +1776,8 @@ this.yylex = function yylex ()
             lexer.lex_state = kw.state;
             if (state == EXPR_FNAME)
             {
-              lexer.yylval = gen.rb_intern(tok()); // was: kw.name
+              // lexer.yylval = gen.rb_intern(tok()); // was: kw.name
+              lexer.yylval = tok(); // was: kw.name
               return kw.id0;
             }
             if (lexer.lex_state == EXPR_BEG)
@@ -1829,10 +1836,17 @@ this.yylex = function yylex ()
         }
     }
     {
-      var ident = gen.rb_intern(tok());
+      var ident = tok();
+      // var ident = gen.rb_intern(tok());
+      // if (gen.is_local_id(ident) !== is_local_id)
+      // {
+      //   print(tok(), gen.is_local_id(ident), is_local_id)
+      // }
       lexer.yylval = ident;
+      // `is_local_id` is in place of `gen.is_local_id(ident)`
+      // AKAICT, `gen.is_local_id` repeats the thing done by lexer
       if (!IS_lex_state_for(lexer.last_state, EXPR_DOT | EXPR_FNAME) &&
-          gen.is_local_id(ident) && gen.lvar_defined(ident))
+          is_local_id && gen.lvar_defined(ident))
       {
         lexer.lex_state = EXPR_END;
       }
