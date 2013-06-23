@@ -1,5 +1,6 @@
 // expose the constant to outer world (e.g. parser)
 
+// TODO: replace with defines
 // ignore newline, +/- is a sign.
 var EXPR_BEG    = 1 << 0;
 // newline significant, +/- is an operator.
