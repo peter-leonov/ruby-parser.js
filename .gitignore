@@ -1,4 +1,4 @@
-parse.js.src
+parse.js*
 .d8_history
 v8.log
 *.tmp

@@ -8,7 +8,7 @@ Prerequisites:
 
 Run:
 
-    v8 parse.js
+    make test.js
 
 lots of output with "states", "shifts" etc.
 
