@@ -14,14 +14,21 @@ N.prototype.inspect = function ()
   var pairs = [];
   for (var k in this)
   {
-    if (k == 'type' || k == 'inspect')
+    if (k == 'type' || k == 'inspect' || k == 'line')
       continue;
-    pairs.push(k + ': ' + JSON.stringify(this[k]));
+    var v = this[k];
+    v = (v && v.inspect) ? v.inspect() : JSON.stringify(v);
+    pairs.push(k + ': ' + v);
   }
   
-  return this.type + ' { ' + pairs.join(', ') + ' }';
+  return this.type.toLowerCase() + '(' + pairs.join(', ') + ')';
 }
 
+function array (ary)
+{
+  ary.inspect = function () { return 'array['+this.length+']' } // TODO
+  return ary;
+}
 
 function NEW_SCOPE (tbl, body, args)
 {
