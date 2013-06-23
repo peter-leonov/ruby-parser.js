@@ -59,17 +59,17 @@ function NEW_BEGIN (body)
   return n;
 }
 
-function NEW_RESCUE (body, rescue, elsee) // elsee for else
+function NEW_RESCUE (body, rescue, els) // els for else
 {
   var n = new N('RESCUE');
 
   n.body = body;
   n.rescue = rescue;
-  n.elsee = elsee;
+  n.els = els;
   return n;
 }
 
-function NEW_RESBODY (exclude, body, rescue) // elsee for else
+function NEW_RESBODY (exclude, body, rescue) // els for else
 {
   var n = new N('RESBODY');
 
@@ -79,7 +79,7 @@ function NEW_RESBODY (exclude, body, rescue) // elsee for else
   return n;
 }
 
-function NEW_ENSURE (body, enshure) // elsee for else
+function NEW_ENSURE (body, enshure) // els for else
 {
   var n = new N('ENSURE');
 
@@ -121,13 +121,13 @@ function NEW_BACK_REF (name)
   return n;
 }
 
-function NEW_IF (cond, body, elsee)
+function NEW_IF (cond, body, els)
 {
   var n = new N('IF');
   
   n.cond = cond;
   n.body = body; // aka "then"
-  n.elsee = elsee;
+  n.els = els;
   return n;
 }
 
