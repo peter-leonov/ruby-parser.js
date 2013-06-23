@@ -7,7 +7,6 @@
 function N (type)
 {
   this.type = type;
-  // this.flags = 0;
   // this.line = 0;
 }
 N.prototype.inspect = function ()
