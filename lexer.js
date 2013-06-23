@@ -3002,6 +3002,7 @@ var rb_reserved_word = lexer.rb_reserved_word =
 'yield': {id0: keyword_yield, state: EXPR_ARG}
 };
 
+#if DEBUG
 lexer.cursorPosition = function ()
 {
   return (
@@ -3011,7 +3012,6 @@ lexer.cursorPosition = function ()
   );
 }
 
-#if DEBUG
 function debug ()
 {
   puts('\n\n')
