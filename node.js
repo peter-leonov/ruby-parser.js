@@ -272,14 +272,14 @@ function NEW_STR (lit) // literal
   return n;
 }
 
-function NEW_ZARRAY () // literal
+function NEW_ZARRAY ()
 {
   var n = new N('ZARRAY');
   
   return n;
 }
 
-function NEW_ARGSCAT () // literal
+function NEW_ARGSCAT ()
 {
   var n = new N('ARGSCAT');
   
