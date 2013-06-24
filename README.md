@@ -21,10 +21,10 @@ Then check the lexer.
 
 # Lexer
 
-To briefly test the lexer+parser tandem, run `make compare`. It will compare the parsing log of the original ruby and this parser. To do so you need to compile ruby 2.0.0p0 with Bison 2.7.
+To briefly test the lexer+parser tandem, run `make compare`. It will compare the parsing log of the original ruby and this parser. To do so you need to compile ruby 2.0.0-p195 with Bison 2.7.
 
 # Ruby
 
 To update the parser of the original ruby from Bison 2.3 (2006) to bison 2.7 (2012) install the new version of bison and delete file `parse.c` from its sources to force make calling bison.
 
-And one more thing. Make your very own ruby 2.0 executable visible by `ruby20` name.
+And one more thing. Make your very own ruby 2.0.0-p195 (patch level matters in corner cases) executable visible by `ruby20` name.
