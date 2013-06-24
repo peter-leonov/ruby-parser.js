@@ -8,7 +8,7 @@ Prerequisites:
 
 Run:
 
-    make test.js
+    make test
 
 lots of output with "states", "shifts" etc.
 
