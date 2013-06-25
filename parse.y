@@ -6,6 +6,7 @@
 "use strict";
 
 // returns own property or `undefined`
+// used at least in Lexer
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 function ownProperty (obj, prop)
 {
@@ -198,30 +199,31 @@ program:
 top_compstmt:
     top_stmts opt_terms
     {
-      void_stmts($1);
-      fixup_nodes(deferred_nodes);
-      $$ = $1;
+      // was: void_stmts($1);
+      // was: fixup_nodes(deferred_nodes);
+      $$ = builder.compstmt($1)
     };
 
 top_stmts:
   none
     {
-      $$ = NEW_BEGIN(null); // empty body
+      $$ = array([]); // statements accumulator
     }
 
   | top_stmt
     {
-      $$ = newline_node($1);
+      $$ = array([$1]);
     }
   
   | top_stmts terms top_stmt
     {
-      $$ = block_append($1, newline_node($3));
+      $1.push($3);
+      $$ = $1;
     }
   
   | error top_stmt
     {
-      $$ = remove_begin($2);
+      $$ = array([$2]);
     };
 
 top_stmt
@@ -229,12 +231,13 @@ top_stmt
     stmt
   |
     keyword_BEGIN
-    {}
+    {
+      // RIPPER
+      // TODO: delete
+    }
     '{' top_compstmt '}'
     {
-      ruby_eval_tree_begin = block_append(ruby_eval_tree_begin, $4);
-      $$ = NEW_BEGIN(null);
-      puts(123)
+      $$ = builder.preexe($4, $5);
     }
   ;
 
@@ -277,12 +280,12 @@ compstmt:
 stmts:
     none
     {
-      $$ = NEW_BEGIN(null);
+      $$ = array([]);
     }
 
   | stmt_or_begin
     {
-      $$ = newline_node($1);
+      $$ = array([$1]);
     }
 
   | stmts terms stmt_or_begin
