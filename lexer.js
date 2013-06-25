@@ -35,9 +35,9 @@ function YYLexer ($text)
 // the yylex() method and all public data sit here
 var lexer = this;
 
-// connection to the generator
-var gen = null;
-lexer.setGenerator = function (g) { gen = g; }
+// connection to the outer space
+var scope = null;
+lexer.setScope = function (s) { scope = s; }
 
 // the end of stream had been reached
 lexer.eofp = false;
@@ -1846,7 +1846,7 @@ this.yylex = function yylex ()
       // `is_local_id` is in place of `gen.is_local_id(ident)`
       // AKAICT, `gen.is_local_id` repeats the thing done by lexer
       if (!IS_lex_state_for(lexer.last_state, EXPR_DOT | EXPR_FNAME) &&
-          is_local_id && gen.lvar_defined(ident))
+          is_local_id && scope.is_declared(ident))
       {
         lexer.lex_state = EXPR_END;
       }

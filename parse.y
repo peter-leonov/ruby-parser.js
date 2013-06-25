@@ -39,7 +39,12 @@ function $$ (code) { return String.fromCharCode(code) }
 
 // here goes the code needed in rules only, when generating nodes,
 // we still know all the token numbers here too.
-#include "generator.js"
+#include "builder.js"
+
+var builder = new Builder(lexer);
+var scope = new Scope();
+
+lexer.setScope(scope);
 
 }
 
@@ -165,7 +170,7 @@ program:
     {
             lexer.lex_state = EXPR_BEG;
             // creates a new chain link of `lvtbl`es
-            local_push(compile_for_eval || rb_parse_in_main());
+            scope.push_static();
     }
     top_compstmt
     {
@@ -187,7 +192,7 @@ program:
             ruby_eval_tree = 
               NEW_SCOPE(null, block_append(ruby_eval_tree, $2), null);
             // creates the chain link off `lvtbl`es and restores it
-            local_pop();
+            scope.pop();
     };
 
 top_compstmt:
@@ -1174,14 +1179,14 @@ primary        : literal
             {
           if (lexer.in_def || lexer.in_single)
             lexer.yyerror("class definition in method body");
-                local_push(false);
+                scope.push_static();
             }
           bodystmt
           k_end
             {
               // touching this alters the parse.output
                 $<num>4;
-                local_pop();
+                scope.pop();
             }
         | k_class tLSHFT expr
             {
@@ -1192,12 +1197,12 @@ primary        : literal
             {
               $<num>$ = lexer.in_single;
               lexer.in_single = 0;
-              local_push(false);
+              scope.push_static();
             }
           bodystmt
           k_end
             {
-              local_pop();
+              scope.pop();
           lexer.in_def = $<num>4;
           lexer.in_single = $<num>6;
             }
@@ -1205,14 +1210,14 @@ primary        : literal
             {
           if (lexer.in_def || lexer.in_single)
             lexer.yyerror("module definition in method body");
-                local_push(false);
+                scope.push_static();
             }
           bodystmt
           k_end
             {
               // touching this alters the parse.output
                 $<num>3;
-                local_pop();
+                scope.pop();
             }
         | k_def fname
             {
@@ -1220,7 +1225,7 @@ primary        : literal
                 lexer.cur_mid = $2;
                 
               lexer.in_def++;
-              local_push(false);
+              scope.push_static();
             }
           f_arglist
           bodystmt
@@ -1228,7 +1233,7 @@ primary        : literal
             {
               // touching this alters the parse.output
                 $<num>1;
-                local_pop();
+                scope.pop();
                 lexer.in_def--;
                 lexer.cur_mid = $<id>3;
             }
@@ -1241,13 +1246,13 @@ primary        : literal
     {
       lexer.in_single++;
       lexer.lex_state = EXPR_ENDFN; /* force for args */
-      local_push(false);
+      scope.push_static();
     }
     f_arglist
     bodystmt
     k_end
     {
-      local_pop();
+      scope.pop();
       lexer.in_single--;
     }
         | keyword_break
