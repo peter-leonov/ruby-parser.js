@@ -15,6 +15,18 @@
 // TODO: compile_for_eval
 // and much more had been deleted in 037f36d283a52c580dd1eef6e9cd0576ce81e902
 
+
+// from parse.y
+// 
+// > in rules (and generator) we have access to those things:
+// >   * all the code from prologue (not much though);
+// >   * `lexer`: instance of our Lexer class from the lexer code block;
+// >   * `parser`: instance of our Parser class;
+// >   * $$ and $N through the `yyval` and `yystack` local variables
+// >   * all the code and variables from `rules` code block.
+
+
+
 // methods-in-constructor pattern used for performance, simplicity
 // and, of course, readability
 function Scope ()
