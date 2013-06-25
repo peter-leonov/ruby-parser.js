@@ -111,7 +111,7 @@ Node.prototype.inspect = function ()
 }
 function n (type, children)
 {
-  return new Node(typem children);
+  return new Node(type, children);
 }
 
 
