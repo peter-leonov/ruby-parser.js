@@ -19,15 +19,6 @@ function ownProperty (obj, prop)
 function $ (c) { return c.charCodeAt(0) }
 function $$ (code) { return String.fromCharCode(code) }
 
-
-// TODO:
-// var global_symbols = {}; // name => ID
-// var global_symbols_counter = 0;
-// function global_symbols_add (name)
-// {
-//   return global_symbols[name] = ++global_symbols_counter;
-// }
-
 %}
 
 %code lexer {
