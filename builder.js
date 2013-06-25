@@ -1,5 +1,20 @@
 // port of the Builder class from https://github.com/whitequark/parser
 
+// TODO: yyerror("Can't change the value of self");
+// TODO: parser_warning(node, "regex literal in condition");
+// TODO: "string literal in condition"
+// TODO: multiple assignment in conditional
+// TODO: multiple assignment in conditional
+// TODO: "possibly useless use of "+useless+" in void context"
+// TODO: unused literal ignored
+// TODO: statement not reached
+// TODO: void_expr void_stmts
+// TODO: check_cond assign_in_cond is_static_content
+// TODO: range_op
+// TODO: warn_unused_var
+// TODO: compile_for_eval
+// and much more had been deleted in 037f36d283a52c580dd1eef6e9cd0576ce81e902
+
 // methods-in-constructor pattern used for performance, simplicity
 // and, of course, readability
 function Scope ()
