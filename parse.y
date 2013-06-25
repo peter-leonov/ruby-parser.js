@@ -169,31 +169,13 @@ lexer.setScope(scope);
 %%
 program:
     {
-            lexer.lex_state = EXPR_BEG;
-            // creates a new chain link of `lvtbl`es
-            scope.push_static();
+      lexer.lex_state = EXPR_BEG;
+      // creates a new chain link of `lvtbl`es
+      scope.push_static();
     }
     top_compstmt
     {
-            if ($2 && !compile_for_eval)
-            {
-                /* last expression should not be void */
-                if ($2.type != 'BLOCK')
-                  void_expr($2);
-                else
-                {
-                  var node = $2;
-                  while (node.next)
-                  {
-                      node = node.next;
-                  }
-                  void_expr(node.head);
-                }
-            }
-            ruby_eval_tree = 
-              NEW_SCOPE(null, block_append(ruby_eval_tree, $2), null);
-            // creates the chain link off `lvtbl`es and restores it
-            scope.pop();
+      scope.pop();
     };
 
 top_compstmt:
