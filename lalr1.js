@@ -460,10 +460,15 @@ var yyval, yystack, actionsTable;
        This behavior is undocumented and Bison
        users should not rely upon it.  */
     // var yyval; moved up in scope chain to share with actions
+    // if (yylen > 0)
+    //   yyval = yystack.valueAt(yylen - 1);
+    // else
+    //   yyval = yystack.valueAt(0);
+    
     if (yylen > 0)
       yyval = yystack.valueAt(yylen - 1);
     else
-      yyval = yystack.valueAt(0);
+      yyval = null; // yes, setting garbage value
 
     debug_reduce_print(yyn);
 
