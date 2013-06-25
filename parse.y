@@ -176,6 +176,8 @@ program:
     top_compstmt
     {
       scope.pop();
+      
+      parser.resulting_ast = $2;
     };
 
 top_compstmt:
@@ -183,7 +185,7 @@ top_compstmt:
     {
       // was: void_stmts($1);
       // was: fixup_nodes(deferred_nodes);
-      $$ = builder.compstmt($1)
+      $$ = builder.compstmt($1);
     };
 
 top_stmts:
