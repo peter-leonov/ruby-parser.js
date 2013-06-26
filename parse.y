@@ -229,7 +229,7 @@ top_stmt
     }
     '{' top_compstmt '}'
     {
-      $$ = builder.preexe($4, $5);
+      $$ = builder.preexe($4);
     }
   ;
 
