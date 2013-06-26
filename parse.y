@@ -1,6 +1,10 @@
 // at first, read this: http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/
 
 %{
+#if DEBUG
+// #define DEV 1
+#define DEV 1
+#endif // DEBUG
 ;(function(){ // whole parser and lexer namespace start
 
 "use strict";
