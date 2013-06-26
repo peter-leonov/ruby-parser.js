@@ -15,6 +15,10 @@ Node.prototype.add = function (child)
 Node.prototype.inspect = function ()
 {
   var children = this.children;
+  if (children == null)
+  {
+    return this.type;
+  }
   
   var parts = [];
   for (var i = 0, il = children.length; i < il; i++)
@@ -28,19 +32,9 @@ function n (type, children)
   return new Node(type, children);
 }
 
-
-function NodeEmpty (type)
-{
-  this.type = type;
-}
-NodeEmpty.prototype.inspect = function ()
-{
-  return this.type;
-}
-
 function n0 (type)
 {
-  return new NodeEmpty(type);
+  return new Node(type, null);
 }
 
 
