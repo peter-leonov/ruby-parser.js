@@ -200,12 +200,12 @@ top_compstmt:
 top_stmts:
   none
     {
-      $$ = array([]); // statements accumulator
+      $$ = []; // statements accumulator
     }
 
   | top_stmt
     {
-      $$ = array([$1]);
+      $$ = [$1];
     }
   
   | top_stmts terms top_stmt
@@ -216,7 +216,7 @@ top_stmts:
   
   | error top_stmt
     {
-      $$ = array([$2]);
+      $$ = [$2];
     };
 
 top_stmt
@@ -261,12 +261,12 @@ compstmt:
 stmts:
     none
     {
-      $$ = array([]);
+      $$ = [];
     }
 
   | stmt_or_begin
     {
-      $$ = array([$1]);
+      $$ = [$1];
     }
 
   | stmts terms stmt_or_begin
@@ -1567,7 +1567,7 @@ opt_rescue:
         exc_list = builder.array(exc_list)
       }
 
-      var rescue_ary = array([builder.rescue_body(exc_list, $3, $5)]);
+      var rescue_ary = [builder.rescue_body(exc_list, $3, $5)];
       var opt_rescue = $6;
       if (opt_rescue)
       {
@@ -1578,14 +1578,14 @@ opt_rescue:
   |
     none
     {
-      $$ = array([]);
+      $$ = [];
     }
   ;
 
 exc_list:
     arg_value
     {
-      $$ = array([ $1 ]);
+      $$ = [ $1 ];
     }
   |
     mrhs

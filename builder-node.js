@@ -38,13 +38,8 @@ function n0 (type)
 }
 
 
-function array (ary)
-{
-  ary.inspect = array_inspect;
-  ary.pusha = array_pusha;
-  return ary;
-}
-function array_inspect ()
+#if DEV
+Array.prototype.inspect = function ()
 {
   var parts = [];
   for (var i = 0, il = this.length; i < il; i++)
@@ -52,7 +47,4 @@ function array_inspect ()
   
   return '[' + parts.join(', ') + ']';
 }
-function array_pusha (ary)
-{
-  Array_push.apply(this, ary);
-}
+#endif DEV
