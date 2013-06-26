@@ -465,13 +465,18 @@ function was_bol ()
 
 // token related stuff
 
-var $tokenbuf = '',
-    $tok_start = 0,
-    $tok_end = 0;
+var $tokenbuf = '';
+
+// our addition for source maps
+// packed as: (line << 10) + (col & 0x3ff)
+//  {line 20 bits}{column 10 bits} = {llllllllllllllllllll}{cccccccccc}
+var $tok_beg = 0; // line and column of first token char
+//   tok_end = 0; // line and column right after the last token char 
+
     
 function newtok ()
 {
-  $tok_start = $text_pos;
+  $tok_beg = (lexer.ruby_sourceline << 10) + ((lex_p - 1) & 0x3ff);
   $tokenbuf = '';
 }
 function tokadd (c)
@@ -481,12 +486,15 @@ function tokadd (c)
 }
 function tokcopy (n)
 {
+  // TODO: use lex_lastline
   $tokenbuf += $text.substring($text_pos - n, $text_pos);
 }
 
 function tokfix ()
 {
-  $tok_end = $text_pos;
+  var tok_end = (lexer.ruby_sourceline << 10) + (lex_p & 0x3ff);
+  lexer.tok_loc = new Location($tok_beg, tok_end);
+  
   /* was: tokenbuf[tokidx]='\0'*/
 }
 function tok () { return $tokenbuf; }
@@ -3094,3 +3102,15 @@ lexer.yyerror = function yyerror (msg)
 }
 
 } // function Lexer
+
+function Location (beg, end)
+{
+  this.beg = beg;
+  this.end = end;
+}
+Location.prototype.inspect = function ()
+{
+  var beg = (this.beg >> 10) + ':' + (this.beg & 0x3ff);
+  var end = (this.end >> 10) + ':' + (this.end & 0x3ff);
+  return '{' + beg + '-' + end + '}'
+}
