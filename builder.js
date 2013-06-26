@@ -50,7 +50,7 @@ Builder.prototype =
   
   ident: function (identifier)
   {
-    return n1('ident', identifier)
+    return n('ident', [ identifier ])
   },
   
   const_: function (identifier)
@@ -63,10 +63,10 @@ Builder.prototype =
     switch (node.type)
     {
       case 'ident':
-        var name = node.child;
+        var name = node.children[0];
         if (this.scope.is_declared(name))
         {
-          return n1('lvar', name);
+          return n('lvar', [ name ]);
         }
         else
         {
@@ -74,13 +74,14 @@ Builder.prototype =
         }
 
       case '__FILE__':
-        return n1('str', lexer.ruby_filename);
+        return n('str', [ lexer.ruby_filename ]);
 
       case '__LINE__':
-        return n1('int', lexer.ruby_sourceline); // TODO: use line from node
+        // TODO: use line from node value
+        return n('int', [ lexer.ruby_sourceline ]); 
 
       case '__ENCODING__':
-        return n1('const', 'UTF-16');
+        return n('const', [ 'UTF-16' ]);
 
       default:
         return node;
@@ -89,23 +90,23 @@ Builder.prototype =
 
   integer: function (number, negate)
   {
-    return n1('int', negate ? -number : number);
+    return n('int', [ negate ? -number : number ]);
   },
 
   assignable: function (node)
   {
-    var varname = node.child;
+    var children = node.children;
     switch (node.type)
     {
       case 'ident':
-        this.scope.declare(varname);
-        return n('lvasgn', [varname]);
+        this.scope.declare(children[0]); // var name
+        return n('lvasgn', children);
 
       case 'ivar':
-        return n('ivasgn', [varname]);
+        return n('ivasgn', children);
 
       case 'cvar':
-        return n('cvasgn', [varname]);
+        return n('cvasgn', children);
 
       case 'const':
         if (lexer.in_def)
@@ -114,11 +115,11 @@ Builder.prototype =
           // diagnostic :error, :dynamic_const, node.loc.expression
         }
 
-        return n('casgn', [varname]);
+        return n('casgn', children);
         return node;
 
       case 'gvar':
-        return n('gvasgn', [varname]);
+        return n('gvasgn', children);
 
       case 'nil': case 'self': case 'true': case 'false':
       case '__FILE__': case '__LINE__': case '__ENCODING__':

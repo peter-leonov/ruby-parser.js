@@ -29,22 +29,6 @@ function n (type, children)
 }
 
 
-function NodeSingle (type, child)
-{
-  this.type = type;
-  this.child = child;
-}
-NodeSingle.prototype.inspect = function ()
-{
-  return this.type + '(' + inspect(this.child) + ')';
-}
-
-function n1 (type, child)
-{
-  return new NodeSingle(type, child);
-}
-
-
 function NodeEmpty (type)
 {
   this.type = type;
