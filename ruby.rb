@@ -3,5 +3,4 @@
 
 # x = 0
 
-undef :a, :b, :c
-
+x if foo..bar

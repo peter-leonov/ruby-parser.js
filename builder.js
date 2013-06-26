@@ -26,6 +26,60 @@ function Builder (lexer)
 
 Builder.prototype =
 {
+  //
+  // VERIFICATION
+  //
+
+  // TODO: port the full version from parse.y check_cond()
+  check_condition: function (cond)
+  {
+    switch (cond.type)
+    {
+      case 'masgn':
+        // TODO
+        // diagnostic :error, ERRORS[:masgn_as_condition], cond.loc.expression
+        return null;
+
+      case 'begin':
+        var children = cond.children;
+        if (children.length == 1)
+        {
+          var last = children[0];
+          return n('begin', [this.check_condition(last)])
+        }
+        else
+        {
+          return cond;
+        }
+
+      case 'and': case 'or':
+        var children = cond.children;
+        children[0] = this.check_condition(children[0]); // lhs
+        children[1] = this.check_condition(children[1]); // rhs
+
+        return cond;
+
+      case 'irange': case 'erange':
+        var children = cond.children;
+        children[0] = this.check_condition(children[0]); // lhs
+        children[1] = this.check_condition(children[1]); // rhs
+
+        // irange => iflipflop
+        // erange => eflipflop
+        var type = cond.type == 'irange' ? 'iflipflop' : 'eflipflop'
+
+        return n(type, children);
+
+      case 'regexp':
+        return n('match_current_line', [ cond ], null)
+
+      default:
+        return cond;
+    }
+  },
+  
+  
+  
   // compound statement
   compstmt: function (statements)
   {
@@ -275,6 +329,23 @@ Builder.prototype =
   undef_method: function (names)
   {
     return n('undef', names.slice()); // TODO: check if slice() is needed
+  },
+  
+  condition_mod: function (if_true, if_false, cond)
+  {
+    return n('if', [ this.check_condition(cond), if_true, if_false ])
+  },
+  
+  // Ranges
+
+  range_inclusive: function (lhs, rhs)
+  {
+    return n('irange', [ lhs, rhs ]);
+  },
+  
+  range_exclusive: function (lhs, rhs)
+  {
+    return n('erange', [ lhs, rhs ]);
   }
   
   

@@ -330,8 +330,8 @@ stmt
   |
     stmt modifier_if expr_value
     {
-      // $$ = NEW_IF(check_cond($3), remove_begin($1), null);
-      // fixpos($$, $3);
+      // true branch, null, if body
+      $$ = builder.condition_mod($1, null, $3);
     }
   |
     stmt modifier_unless expr_value
@@ -859,7 +859,9 @@ arg:
     {}
   |
     arg tDOT2 arg
-    {}
+    {
+      $$ = builder.range_inclusive($1, $3);
+    }
   |
     arg tDOT3 arg
     {}
