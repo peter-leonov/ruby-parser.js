@@ -257,9 +257,9 @@ bodystmt:
 compstmt:
     stmts opt_terms
     {
-      void_stmts($1);
-      fixup_nodes(deferred_nodes);
-      $$ = $1;
+      // void_stmts($1);
+      // fixup_nodes(deferred_nodes);
+      // $$ = $1;
     };
 
 stmts:
@@ -275,12 +275,12 @@ stmts:
 
   | stmts terms stmt_or_begin
     {
-      $$ = block_append($1, newline_node($3));
+      // $$ = block_append($1, newline_node($3));
     }
 
   | error stmt
     {
-      $$ = remove_begin($2);
+      // $$ = remove_begin($2);
     };
 
 stmt_or_begin:
@@ -295,8 +295,8 @@ stmt_or_begin:
     }
     '{' top_compstmt '}'
     {
-      ruby_eval_tree_begin = block_append(ruby_eval_tree_begin, $4);
-      $$ = NEW_BEGIN(null);
+      // ruby_eval_tree_begin = block_append(ruby_eval_tree_begin, $4);
+      // $$ = NEW_BEGIN(null);
     };
 
 stmt
@@ -307,23 +307,23 @@ stmt
     }
     fitem
     {
-      $$ = NEW_ALIAS($2, $4);
+      // $$ = NEW_ALIAS($2, $4);
     }
   |
     keyword_alias tGVAR tGVAR
     {
-      $$ = NEW_VALIAS($2, $3);
+      // $$ = NEW_VALIAS($2, $3);
     }
   |
     keyword_alias tGVAR tBACK_REF
     {
-      $$ = NEW_VALIAS($2, NEW_BACK_REF($3));
+      // $$ = NEW_VALIAS($2, NEW_BACK_REF($3));
     }
   |
     keyword_alias tGVAR tNTH_REF
     {
       lexer.yyerror("can't make alias for the number variables");
-      $$ = NEW_BEGIN(null);
+      // $$ = NEW_BEGIN(null);
     }
   |
     keyword_undef undef_list
@@ -333,45 +333,45 @@ stmt
   |
     stmt modifier_if expr_value
     {
-      $$ = NEW_IF(check_cond($3), remove_begin($1), null);
-      fixpos($$, $3);
+      // $$ = NEW_IF(check_cond($3), remove_begin($1), null);
+      // fixpos($$, $3);
     }
   |
     stmt modifier_unless expr_value
     {
       // #define NEW_UNLESS(c,t,e) NEW_IF(c,e,t)
-      $$ = NEW_IF(check_cond($3), null, remove_begin($1));
-      fixpos($$, $3);
+      // $$ = NEW_IF(check_cond($3), null, remove_begin($1));
+      // fixpos($$, $3);
     }
   |
     stmt modifier_while expr_value
     {
-      if ($1 && $1.type == 'BEGIN')
-      {
-        $$ = NEW_WHILE(check_cond($3), $1.body, 0);
-      }
-      else
-      {
-        $$ = NEW_WHILE(check_cond($3), $1, 1);
-      }
+      // if ($1 && $1.type == 'BEGIN')
+      // {
+      //   $$ = NEW_WHILE(check_cond($3), $1.body, 0);
+      // }
+      // else
+      // {
+      //   $$ = NEW_WHILE(check_cond($3), $1, 1);
+      // }
     }
   |
     stmt modifier_until expr_value
     {
-      if ($1 && $1.type == 'BEGIN')
-      {
-        $$ = NEW_UNTIL(check_cond($3), $1.body, 0);
-      }
-      else
-      {
-        $$ = NEW_UNTIL(check_cond($3), $1, 1);
-      }
+      // if ($1 && $1.type == 'BEGIN')
+      // {
+      //   $$ = NEW_UNTIL(check_cond($3), $1.body, 0);
+      // }
+      // else
+      // {
+      //   $$ = NEW_UNTIL(check_cond($3), $1, 1);
+      // }
     }
   |
     stmt modifier_rescue stmt
     {
-      var resq = NEW_RESBODY(null, remove_begin($3), null);
-      $$ = NEW_RESCUE(remove_begin($1), resq, null);
+      // var resq = NEW_RESBODY(null, remove_begin($3), null);
+      // $$ = NEW_RESCUE(remove_begin($1), resq, null);
     }
   |
     keyword_END '{' compstmt '}'
@@ -380,45 +380,45 @@ stmt
       {
         lexer.warn("END in method; use at_exit");
       }
-      $$ = NEW_POSTEXE(NEW_SCOPE
-      (
-        null, // tbl
-        $3,   // body
-        null  // args
-      ));
+      // $$ = NEW_POSTEXE(NEW_SCOPE
+      // (
+      //   null, // tbl
+      //   $3,   // body
+      //   null  // args
+      // ));
     }
   |
     command_asgn
   |
     mlhs '=' command_call
     {
-      value_expr($3);
-      $1.value = $3;
-      $$ = $1;
+      // value_expr($3);
+      // $1.value = $3;
+      // $$ = $1;
     }
   |
     var_lhs tOP_ASGN command_call
     {
-      value_expr($3);
-      $$ = new_op_assign($1, $2, $3);
+      // value_expr($3);
+      // $$ = new_op_assign($1, $2, $3);
     }
   |
     primary_value '[' opt_call_args rbracket tOP_ASGN command_call
     {
-      value_expr($6);
-      if (!$3)
-        $3 = NEW_ZARRAY();
-      var args = arg_concat($3, $6);
-      if ($5 == tOROP)
-      {
-        $5 = 0;
-      }
-      else if ($5 == tANDOP)
-      {
-        $5 = 1;
-      }
-      $$ = NEW_OP_ASGN1($1, $5, args);
-      fixpos($$, $1);
+      // value_expr($6);
+      // if (!$3)
+      //   $3 = NEW_ZARRAY();
+      // var args = arg_concat($3, $6);
+      // if ($5 == tOROP)
+      // {
+      //   $5 = 0;
+      // }
+      // else if ($5 == tANDOP)
+      // {
+      //   $5 = 1;
+      // }
+      // $$ = NEW_OP_ASGN1($1, $5, args);
+      // fixpos($$, $1);
     }
   |
     primary_value '.' tIDENTIFIER tOP_ASGN command_call
