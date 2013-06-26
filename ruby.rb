@@ -3,5 +3,5 @@
 
 # x = 0
 
-alias $a $b
+undef :a, :b, :c
 

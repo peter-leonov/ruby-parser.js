@@ -325,7 +325,7 @@ stmt
   |
     keyword_undef undef_list
     {
-      $$ = $2;
+      $$ = builder.undef_method($2);
     }
   |
     stmt modifier_if expr_value
@@ -758,14 +758,20 @@ fitem
 undef_list
   :
     fitem
-    {}
+    {
+      $$ = [ $1 ];
+    }
   |
     undef_list ','
     {
       lexer.lex_state = EXPR_FNAME;
     }
     fitem
-    {}
+    {
+      var undef_list = $1;
+      undef_list.push($4);
+      $$ = undef_list;
+    }
   ;
 
 op

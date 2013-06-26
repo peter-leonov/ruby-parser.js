@@ -270,6 +270,11 @@ Builder.prototype =
   symbol: function (sym)
   {
     return n('sym', [ sym ]);
+  },
+  
+  undef_method: function (names)
+  {
+    return n('undef', names.slice()); // TODO: check if slice() is needed
   }
   
   
