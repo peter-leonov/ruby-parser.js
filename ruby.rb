@@ -3,4 +3,4 @@
 
 # x = 0
 
-x if foo..bar
+x unless foo..bar

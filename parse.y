@@ -330,15 +330,14 @@ stmt
   |
     stmt modifier_if expr_value
     {
-      // true branch, null, if body
+      // true branch, null, the body
       $$ = builder.condition_mod($1, null, $3);
     }
   |
     stmt modifier_unless expr_value
     {
-      // #define NEW_UNLESS(c,t,e) NEW_IF(c,e,t)
-      // $$ = NEW_IF(check_cond($3), null, remove_begin($1));
-      // fixpos($$, $3);
+      // null, false branch, the body
+      $$ = builder.condition_mod(null, $1, $3);
     }
   |
     stmt modifier_while expr_value
