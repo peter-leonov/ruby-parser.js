@@ -56,8 +56,8 @@ m4_define([b4_lhs_value], [yyval])
 # b4_rhs_value(RULE-LENGTH, NUM)
 # $N
 # TODO: optimize access to the N-th stack element
-m4_define([b4_rhs_value], [(yystack.valueAt($1-($2)))])
-# m4_define([b4_rhs_value], [[yystack.valueStack[yystack.valueStack.length-1-(($1-($2)))]]])
+# m4_define([b4_rhs_value], [(yystack.valueAt($1-($2)))])
+m4_define([b4_rhs_value], [[yystack.valueStack[yystack.valueStack.length-1-(($1-($2)))]]])
 
 
 b4_defines_if([b4_fatal([%s: %%defines does not make sense in JavaScript], [b4_skeleton])])
