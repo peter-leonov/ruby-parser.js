@@ -677,7 +677,7 @@ lhs:
   |
     primary_value '.' tIDENTIFIER
     {
-      $$ = builder.attr_asgn($1, $3);
+      $$ = builder.attr_asgn($1, $2, $3);
     }
   |
     primary_value tCOLON2 tIDENTIFIER

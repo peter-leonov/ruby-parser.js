@@ -158,12 +158,15 @@ Builder.prototype =
     return n0('self');
   },
   
-  attr_asgn: function (receiver, selector_t)
+  attr_asgn: function (receiver, op_t, selector_t)
   {
     var method_name = selector_t + '=';
 
     // Incomplete method call.
-    return n('send', [ receiver, method_name ]);
+    var node = n('send', [ receiver, method_name ]);
+    // to distinguish `a.b` from `a::b`
+    node.op = op_t;
+    return node;
   },
   
   
