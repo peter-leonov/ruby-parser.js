@@ -93,6 +93,9 @@ lexer.nerr = 0;
 // the token value to be stored in the values stack
 lexer.yylval = null;
 
+// the token location to be stored in the locations stack
+lexer.yyloc = null;
+
 // the shortcut for checking `lexer.lex_state` over and over again
 function IS_lex_state (ls)
 {
@@ -493,7 +496,7 @@ function tokcopy (n)
 function tokfix ()
 {
   var tok_end = (lexer.ruby_sourceline << 10) + (lex_p & 0x3ff);
-  lexer.tok_loc = new Location($tok_beg, tok_end);
+  lexer.yyloc = new Location($tok_beg, tok_end);
   
   /* was: tokenbuf[tokidx]='\0'*/
 }
@@ -561,6 +564,7 @@ function arg_ambiguous ()
 this.yylex = function yylex ()
 {
   lexer.yylval = null;
+  lexer.yyloc = null;
   
   var c = '';
   lexer.space_seen = false;

@@ -1300,10 +1300,6 @@ k_def        : keyword_def
 
 k_end:
     keyword_end
-    {
-      // store location
-      $$ = lexer.tok_loc;
-    }
   ;
 
 then        : term
