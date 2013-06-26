@@ -669,7 +669,7 @@ YYParser.prototype =
       var yylno = this.yyrline_[yyrule];
       var yynrhs = this.yyr2_[yyrule];
       // Print the symbols being reduced, and their result.
-      this.debug_print("Reducing stack by rule " + (yyrule - 1) + " (line " + yylno + "):\n");
+      this.print("Reducing stack by rule " + (yyrule - 1) + " (line " + yylno + "):\n");
 
       // The symbols being reduced.
       for (var yyi = 0; yyi < yynrhs; yyi++)
@@ -709,7 +709,6 @@ YYParser.prototype =
           var value = ]b4_rhs_value(yynrhs, yyi + 1)[;
           this.print("$" + (yyi + 1) + " " + name + " = "+ this.inspect(value) + "\n");
         }
-        this.print("\n");
       }
     }
     // debug <= 0
@@ -717,18 +716,31 @@ YYParser.prototype =
 
   debug_symbol_print: function debug_symbol_print (message, yytype, yyvaluep)
   {
-    if (this.yydebug < 2)
-      return;
-
-    this.debug_print
-    (
-      message
-      + (yytype < this.yyntokens_ ? " token " : " nterm ")
-      + this.yytname_[yytype]
-      + " ("
-      + (this.yydebug_yylval ? this.inspect(yyvaluep) : '')
-      + ")\n"
-    );
+    if (this.yydebug >= 2)
+    {
+      this.print
+      (
+        message
+        + (yytype < this.yyntokens_ ? " token " : " nterm ")
+        + this.yytname_[yytype]
+        + " ("
+        + (this.yydebug_yylval ? this.inspect(yyvaluep) : '')
+        + ")\n"
+      );
+    }
+    else if (this.yydebug >= 1)
+    {
+      this.print
+      (
+        "$$ "
+        + this.yytname_[yytype]
+        + " = "
+        + (this.yydebug_yylval ? this.inspect(yyvaluep) : '')
+        + "\n"
+      );
+      this.print("\n");
+    }
+    // yydebug <= 0
   },
 
   debug_stack_print: function debug_stack_print ()
