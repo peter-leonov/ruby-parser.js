@@ -63,6 +63,7 @@ function n0 (type)
 function array (ary)
 {
   ary.inspect = array_inspect;
+  ary.pusha = array_pusha;
   return ary;
 }
 function array_inspect ()
@@ -72,4 +73,8 @@ function array_inspect ()
     parts[i] = inspect(this[i]);
   
   return '[' + parts.join(', ') + ']';
+}
+function array_pusha (ary)
+{
+  Array_push.apply(this, ary);
 }

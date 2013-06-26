@@ -16,6 +16,9 @@ function ownProperty (obj, prop)
   return undefined;
 }
 
+// useful when adding an array elements to the end of array
+var Array_push = Array.prototype.push;
+
 // char to code shortcut
 function $ (c) { return c.charCodeAt(0) }
 function $$ (code) { return String.fromCharCode(code) }
@@ -219,7 +222,6 @@ top_stmt
     keyword_BEGIN
     {
       // RIPPER
-      // TODO: delete
     }
     '{' top_compstmt '}'
     {
@@ -230,29 +232,18 @@ top_stmt
 bodystmt:
     compstmt opt_rescue opt_else opt_ensure
     {
-      $$ = $1;
-      if ($2)
+      var rescue_bodies   = $2;
+      var else_           = $3;
+      var ensure          = $4;
+
+      if (else_ != null && rescue_bodies.length == 0)
       {
-        $$ = NEW_RESCUE($1, $2, $3);
+        // TODO
+        // diagnostic :warning, :useless_else, else_t
+        this.lexer.warn("else without rescue is useless");
       }
-      else if ($3)
-      {
-        lexer.warn("else without rescue is useless");
-        $$ = block_append($$, $3);
-      }
-      
-      if ($4)
-      {
-        if ($$)
-        {
-          $$ = NEW_ENSURE($$, $4);
-        }
-        else
-        {
-          $$ = block_append($4, NEW_NIL());
-        }
-      }
-      fixpos($$, $1);
+
+      $$ = builder.begin_body($1, rescue_bodies, else_, ensure);
     };
 
 compstmt:
@@ -964,13 +955,10 @@ arg:
     {}
   |
     primary
-    {}
   ;
 
-arg_value
-  :
+arg_value:
     arg
-    {}
   ;
 
 aref_args    : none
@@ -1052,7 +1040,7 @@ mrhs        : args ',' arg_value
             {}
         ;
 
-primary        : literal
+primary:  literal
         | strings
         | xstring
         | regexp
@@ -1065,17 +1053,20 @@ primary        : literal
         | tFID
             {}
         | k_begin
-            {
-              $<val>1 = lexer.cmdarg_stack;
-              lexer.cmdarg_stack = 0;
-            }
+          {
+            $<val>1 = lexer.cmdarg_stack;
+            lexer.cmdarg_stack = 0;
+          }
           bodystmt
           k_end
-            {
-              lexer.cmdarg_stack = $<val>1;
-              // touching this alters the parse.output
-          $<num>2;
-            }
+          {
+            lexer.cmdarg_stack = $<val>1;
+            
+            // touching this alters the parse.output
+            $<num>2;
+            
+            $$ = builder.begin_keyword($3);
+          }
         | tLPAREN_ARG
         {
           lexer.lex_state = EXPR_ENDARG;
@@ -1264,9 +1255,12 @@ primary_value    : primary
             {}
         ;
 
-k_begin        : keyword_begin
-            {}
-        ;
+k_begin:
+    keyword_begin
+    {
+      // TODO: store line/col to $$
+    }
+  ;
 
 k_if        : keyword_if
             {}
@@ -1304,9 +1298,13 @@ k_def        : keyword_def
             {}
         ;
 
-k_end        : keyword_end
-            {}
-        ;
+k_end:
+    keyword_end
+    {
+      // store location
+      $$ = lexer.tok_loc;
+    }
+  ;
 
 then        : term
         | keyword_then
@@ -1562,24 +1560,52 @@ cases        : opt_else
         | case_body
         ;
 
-opt_rescue    : keyword_rescue exc_list exc_var then
-          compstmt
-          opt_rescue
-            {}
-        | none
-        ;
+opt_rescue:
+    keyword_rescue exc_list exc_var then compstmt opt_rescue
+    {
+      var exc_list = $2;
+      if (exc_list)
+      {
+        exc_list = builder.array(exc_list)
+      }
 
-exc_list    : arg_value
-            {}
-        | mrhs
-            {}
-        | none
-        ;
+      var rescue_ary = array([builder.rescue_body(exc_list, $3, $5)]);
+      var opt_rescue = $6;
+      if (opt_rescue)
+      {
+        Array_push.apply(rescue_ary, opt_rescue);
+      }
+      $$ = rescue_ary;
+    }
+  |
+    none
+    {
+      $$ = array([]);
+    }
+  ;
 
-exc_var        : tASSOC lhs
-            {}
-        | none
-        ;
+exc_list:
+    arg_value
+    {
+      $$ = array([ $1 ]);
+    }
+  |
+    mrhs
+    {
+      
+    }
+  |
+    none
+  ;
+
+exc_var:
+    tASSOC lhs
+    {
+      $$ = $2;
+    }
+  |
+    none
+  ;
 
 opt_ensure    : keyword_ensure compstmt
             {}
@@ -1767,16 +1793,23 @@ numeric     : tINTEGER
             }
         ;
 
-user_variable
-  : tIDENTIFIER
+user_variable:
+    tIDENTIFIER
     {
       $$ = builder.ident($1);
     }
-        | tIVAR
-        | tGVAR
-        | tCONSTANT
-        | tCVAR
-        ;
+  |
+    tIVAR
+  |
+    tGVAR
+  |
+    tCONSTANT
+    {
+      $$ = builder.const_($1);
+    }
+  |
+    tCVAR
+  ;
 
 keyword_variable:
     keyword_nil

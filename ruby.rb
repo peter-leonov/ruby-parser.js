@@ -3,4 +3,11 @@
 
 # x = 0
 
-self.x = 5;
+begin
+  
+rescue A
+  
+# rescue B
+#   
+end
+

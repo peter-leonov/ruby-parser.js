@@ -36,7 +36,9 @@ Builder.prototype =
       case 1:
         return statements[0];
       default:
-        return n('begin', statements);
+        var begin = n('begin', statements);
+        begin.synthesized_from_compstmt = true;
+        return begin;
     }
   },
   
@@ -51,6 +53,11 @@ Builder.prototype =
     return n1('ident', identifier)
   },
   
+  const_: function (identifier)
+  {
+    return n('const', [ null, identifier ]);
+  },
+  
   accessible: function (node)
   {
     switch (node.type)
@@ -59,7 +66,7 @@ Builder.prototype =
         var name = node.child;
         if (this.scope.is_declared(name))
         {
-          return n1('lvar', child);
+          return n1('lvar', name);
         }
         else
         {
@@ -168,6 +175,53 @@ Builder.prototype =
     node.op = op_t;
     return node;
   },
+  
+  begin_body: function (compound_stmt, rescue_bodies /*=[]*/, else_, ensure)
+  {
+    if (rescue_bodies.length)
+    {
+      var body = [compound_stmt];
+      Array_push.apply(body, rescue_bodies);
+      body.push(else_);
+      
+      compound_stmt = n('rescue', body);
+    }
+
+    if (ensure)
+    {
+      compound_stmt = n('ensure', [ compound_stmt, ensure ]);
+    }
+
+    return compound_stmt;
+  },
+  
+  rescue_body: function (exc_list, exc_var, compound_stmt)
+  {
+    return n('resbody', [ exc_list, exc_var, compound_stmt ]);
+  },
+  
+  array: function (elements)
+  {
+    return n('array', elements);
+  },
+  
+  begin_keyword: function (body)
+  {
+    if (!body)
+    {
+      // A nil expression: `begin end`.
+      return n0('kwbegin');
+    }
+    
+    if (body.type == 'begin' && body.synthesized_from_compstmt)
+    {
+      // Synthesized (begin) from compstmt "a; b".
+      return n('kwbegin', body.children);
+    }
+    
+    return n('kwbegin', [ body ])
+  }
+  
   
   
 }
