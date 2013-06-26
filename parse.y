@@ -814,9 +814,7 @@ reswords
 arg:
     lhs '=' arg
     {
-      var lhs = $1;
-      lhs.add($3);
-      $$ = lhs;
+      $$ = builder.assign($1, $3);
     }
   |
     lhs '=' arg modifier_rescue arg

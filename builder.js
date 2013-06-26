@@ -221,8 +221,13 @@ Builder.prototype =
     }
     
     return n('kwbegin', [ body ])
-  }
+  },
   
+  assign: function (lhs, rhs)
+  {
+    lhs.add(rhs);
+    return lhs;
+  },
   
   _LINE_: function (ruby_sourceline)
   {
