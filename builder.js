@@ -232,6 +232,17 @@ Builder.prototype =
   _LINE_: function (ruby_sourceline)
   {
     return n('__LINE__', [ ruby_sourceline ]);
+  },
+  
+  alias: function (to, from)
+  {
+    return n('alias', [ to, from ]);
+  },
+  
+  symbol: function (sym)
+  {
+    return n('sym', [ sym ]);
   }
+  
   
 }

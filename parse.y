@@ -303,7 +303,7 @@ stmt
     }
     fitem
     {
-      // $$ = NEW_ALIAS($2, $4);
+      $$ = builder.alias($2, $4);
     }
   |
     keyword_alias tGVAR tGVAR
@@ -1755,11 +1755,13 @@ string_dvar    : tGVAR
         | backref
         ;
 
-symbol        : tSYMBEG sym
-            {
-            lexer.lex_state = EXPR_END;
-            }
-        ;
+symbol:
+    tSYMBEG sym
+    {
+      lexer.lex_state = EXPR_END;
+      $$ = builder.symbol($2);
+    }
+  ;
 
 sym        : fname
         | tIVAR
