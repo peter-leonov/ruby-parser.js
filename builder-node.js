@@ -8,6 +8,10 @@ function Node (type, children)
   this.type = type;
   this.children = children;
 }
+Node.prototype.add = function (child)
+{
+  this.children.push(child);
+}
 Node.prototype.inspect = function ()
 {
   var children = this.children;
@@ -22,6 +26,22 @@ Node.prototype.inspect = function ()
 function n (type, children)
 {
   return new Node(type, children);
+}
+
+
+function NodeSingle (type, child)
+{
+  this.type = type;
+  this.child = child;
+}
+NodeSingle.prototype.inspect = function ()
+{
+  return this.type + '(' + inspect(this.child) + ')';
+}
+
+function n1 (type, child)
+{
+  return new NodeSingle(type, child);
 }
 
 

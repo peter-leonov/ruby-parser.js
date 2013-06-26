@@ -44,6 +44,88 @@ Builder.prototype =
   preexe: function (compstmt)
   {
     return n('preexe', [ compstmt ])
-  }
+  },
   
+  ident: function (identifier)
+  {
+    return n1('ident', identifier)
+  },
+  
+  accessible: function (node)
+  {
+    switch (node.type)
+    {
+      case 'ident':
+        var name = node.child;
+        if (this.scope.is_declared(name))
+        {
+          node.type = 'lvar';
+          return node;
+        }
+        else
+        {
+          return n('send', [ null, name ]);
+        }
+
+      case '__FILE__':
+        return n1('str', lexer.ruby_filename);
+
+      case '__LINE__':
+        return n1('int', lexer.ruby_sourceline); // TODO: use line from node
+
+      case '__ENCODING__':
+        return n1('const', 'UTF-16');
+
+      default:
+        return node;
+    }
+  },
+
+  integer: function (number, negate)
+  {
+    return n1('int', negate ? -number : number);
+  },
+
+  assignable: function (node)
+  {
+    var varname = node.child;
+    switch (node.type)
+    {
+      case 'ident':
+        this.scope.declare(varname);
+        return n('lvasgn', [varname]);
+
+      case 'ivar':
+        return n('ivasgn', [varname]);
+
+      case 'cvar':
+        return n('cvasgn', [varname]);
+
+      case 'const':
+        if (lexer.in_def)
+        {
+          // TODO
+          // diagnostic :error, :dynamic_const, node.loc.expression
+        }
+
+        return n('casgn', [varname]);
+        return node;
+
+      case 'gvar':
+        return n('gvasgn', [varname]);
+
+      case 'nil': case 'self': case 'true': case 'false':
+      case '__FILE__': case '__LINE__': case '__ENCODING__':
+        // TODO
+        // diagnostic :error, :invalid_assignment, node.loc.expression
+      break;
+
+      case 'back_ref': case 'nth_ref':
+        // TODO
+        // diagnostic :error, :backref_assignment, node.loc.expression
+      break;
+    }
+    
+    return null;
+  }
 }

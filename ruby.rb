@@ -1,15 +1,6 @@
 #!ruby
 # encoding: utf-8
 
-x = 0
-if "abc"
-x += 123
-end
+# x = 0
 
-def indent(&block)
-end
-
-def indent(*tmps)
-end
-
-# objectA.methodA += methodB()
+BEGIN { x = 5; x }

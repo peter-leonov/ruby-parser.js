@@ -42,8 +42,9 @@ function $$ (code) { return String.fromCharCode(code) }
 // we still know all the token numbers here too.
 #include "builder.js"
 
-var builder = new Builder(lexer);
 var scope = new Scope();
+var builder = new Builder(lexer);
+builder.scope = scope;
 
 lexer.setScope(scope);
 
@@ -665,7 +666,9 @@ mlhs_node
 lhs
   :
     user_variable
-    {}
+    {
+      $$ = builder.assignable($1);
+    }
   |
     keyword_variable
     {}
@@ -815,10 +818,13 @@ reswords
   | keyword_while | keyword_until
   ;
 
-arg
-  :
+arg:
     lhs '=' arg
-    {}
+    {
+      var lhs = $1;
+      lhs.add($3);
+      $$ = lhs;
+    }
   |
     lhs '=' arg modifier_rescue arg
     {}
@@ -1743,7 +1749,7 @@ dsym        : tSYMBEG xstring_contents tSTRING_END
 
 numeric     : tINTEGER
             {
-              // TODO: convert tINTEGER to NEW_LIT()
+              $$ = builder.integer($1, /*negate=*/false);
             }
         | tFLOAT
             {
@@ -1759,7 +1765,11 @@ numeric     : tINTEGER
             }
         ;
 
-user_variable    : tIDENTIFIER
+user_variable
+  : tIDENTIFIER
+    {
+      $$ = builder.ident($1);
+    }
         | tIVAR
         | tGVAR
         | tCONSTANT
@@ -1775,9 +1785,11 @@ keyword_variable: keyword_nil {}
         | keyword__ENCODING__ {$$ = keyword__ENCODING__;}
         ;
 
-var_ref        : user_variable
-            {
-            }
+var_ref:
+    user_variable
+    {
+      $$ = builder.accessible($1);
+    }
         | keyword_variable
             {}
         ;
