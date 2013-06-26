@@ -271,28 +271,29 @@ stmts:
 
   | stmts terms stmt_or_begin
     {
-      // $$ = block_append($1, newline_node($3));
+      var stmts = $1;
+      stmts.push($3);
+      $$ = stmts;
     }
 
   | error stmt
     {
-      // $$ = remove_begin($2);
+      $$ = [ $2 ];
     };
 
 stmt_or_begin:
     stmt
+  |
+    keyword_BEGIN
     {
-      $$ = $1;
-    }
-
-  | keyword_BEGIN
-    {
-      lexer.yyerror("BEGIN is permitted only at toplevel");
+      if (lexer.in_def)
+      {
+        lexer.yyerror("BEGIN is permitted only at toplevel");
+      }
     }
     '{' top_compstmt '}'
     {
-      // ruby_eval_tree_begin = block_append(ruby_eval_tree_begin, $4);
-      // $$ = NEW_BEGIN(null);
+      $$ = builder.preexe($4);
     };
 
 stmt
