@@ -152,7 +152,7 @@ lexer.setScope(scope);
 %right tPOW
 %right '!' '~' tUPLUS
 
-%token <id> '{' '}'
+%token <id> '?' '>' '<' '|' '^' '&' '+' '-' '*' '/' '%' '{' '}' '[' '.' ',' '~' '`' '(' ')' ']' ';' '\n'
 
 
 // must be last indeed
