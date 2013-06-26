@@ -115,13 +115,13 @@ var yyval, yystack, actionsTable;
   var debug_reduce_print = this.debug_reduce_print.bind(this);
   var debug_symbol_print = this.debug_symbol_print.bind(this);
   var debug_stack_print  = this.debug_stack_print.bind(this);
-  var debug_action_print = this.debug_action_print.bind(this);
+  var debug_action       = this.debug_action.bind(this);
   var debug_print        = this.debug_print.bind(this);
 #else // YYDEBUG
 #define debug_reduce_print(yyn)
 #define debug_symbol_print(message, yytype, yyvaluep)
 #define debug_stack_print(yystack)
-#define debug_action_print(yystack)
+#define debug_action(yystack)
 #define debug_print(message)
 #endif // YYDEBUG
   
@@ -473,7 +473,7 @@ var yyval, yystack, actionsTable;
     debug_reduce_print(yyn);
 
     var actionClosure = actionsTable[yyn]
-    debug_action_print(actionClosure);
+    debug_action(actionClosure);
     if (actionClosure)
       actionClosure()
 
@@ -751,14 +751,23 @@ YYParser.prototype =
     puts("Stack now " + this.yystack.stateStack.join(' '));
   },
 
-  debug_action_print: function debug_action_print (action)
+  debug_action: function debug_action (action)
   {
-    if (this.yydebug < 2)
-      return;
     if (!this.yydebug_action)
       return;
-
-    puts(action);
+    
+    if (this.yydebug >= 2)
+    {
+      puts(action);
+    }
+    else if (this.yydebug >= 1)
+    {
+      if (/^function\s*\([^)]*\)\s*{\s*}$/.test(actionClosure))
+      {
+        throw 'empty action';
+      }
+    }
+    // yydebug <= 0
   },
 
   debug_print: function debug_print (message)
