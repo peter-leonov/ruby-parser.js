@@ -234,8 +234,36 @@ Builder.prototype =
     return n('__LINE__', [ ruby_sourceline ]);
   },
   
+  gvar: function (name)
+  {
+    return n('gvar', [ name ]);
+  },
+  
+  back_ref: function (name)
+  {
+    return n('back_ref', [ name ]);
+  },
+  
   alias: function (to, from)
   {
+    return n('alias', [ to, from ]);
+  },
+  
+  alias_gvar_gvar: function (gvar1, gvar2)
+  {
+    var to   = this.gvar(gvar1);
+    var from = this.gvar(gvar2);
+    
+    // the same as in `this.alias()`
+    return n('alias', [ to, from ]);
+  },
+  
+  alias_gvar_backref: function (gvar, backref)
+  {
+    var to   = this.gvar(gvar1);
+    var from = this.back_ref(gvar2);
+    
+    // the same as in `this.alias()`
     return n('alias', [ to, from ]);
   },
   

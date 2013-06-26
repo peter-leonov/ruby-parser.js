@@ -309,12 +309,12 @@ stmt
   |
     keyword_alias tGVAR tGVAR
     {
-      // $$ = NEW_VALIAS($2, $3);
+      $$ = builder.alias_gvar_gvar($2, $3);
     }
   |
     keyword_alias tGVAR tBACK_REF
     {
-      // $$ = NEW_VALIAS($2, NEW_BACK_REF($3));
+      $$ = builder.alias_gvar_backref($2, $3);
     }
   |
     keyword_alias tGVAR tNTH_REF
