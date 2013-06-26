@@ -45,6 +45,21 @@ function n1 (type, child)
 }
 
 
+function NodeEmpty (type)
+{
+  this.type = type;
+}
+NodeEmpty.prototype.inspect = function ()
+{
+  return this.type;
+}
+
+function n0 (type)
+{
+  return new NodeEmpty(type);
+}
+
+
 function array (ary)
 {
   ary.inspect = array_inspect;

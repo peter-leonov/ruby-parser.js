@@ -59,8 +59,7 @@ Builder.prototype =
         var name = node.child;
         if (this.scope.is_declared(name))
         {
-          node.type = 'lvar';
-          return node;
+          return n1('lvar', child);
         }
         else
         {
@@ -127,5 +126,45 @@ Builder.prototype =
     }
     
     return null;
-  }
+  },
+  
+  // 
+  // Literals
+  // 
+
+  // Singletons
+
+  nil: function ()
+  {
+    return n0('nil');
+  },
+
+  true_: function ()
+  {
+    return n0('true');
+  },
+
+  false_: function ()
+  {
+    return n0('false');
+  },
+  
+  //
+  // Access
+  //
+  
+  self: function ()
+  {
+    return n0('self');
+  },
+  
+  attr_asgn: function (receiver, selector_t)
+  {
+    var method_name = selector_t + '=';
+
+    // Incomplete method call.
+    return n('send', [ receiver, method_name ]);
+  },
+  
+  
 }

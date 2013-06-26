@@ -3,4 +3,4 @@
 
 # x = 0
 
-BEGIN { x = 5; x }
+self.x = 5;

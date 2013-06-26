@@ -663,8 +663,7 @@ mlhs_node
     {}
   ;
 
-lhs
-  :
+lhs:
     user_variable
     {
       $$ = builder.assignable($1);
@@ -677,7 +676,9 @@ lhs
     {}
   |
     primary_value '.' tIDENTIFIER
-    {}
+    {
+      $$ = builder.attr_asgn($1, $3);
+    }
   |
     primary_value tCOLON2 tIDENTIFIER
     {}
@@ -1776,8 +1777,16 @@ user_variable
         | tCVAR
         ;
 
-keyword_variable: keyword_nil {}
-        | keyword_self {$$ = keyword_self;}
+keyword_variable:
+    keyword_nil
+    {
+      $$ = builder.nil();
+    }
+  |
+    keyword_self
+    {
+      $$ = builder.self();
+    }
         | keyword_true {$$ = keyword_true;}
         | keyword_false {$$ = keyword_false;}
         | keyword__FILE__ {$$ = keyword__FILE__;}
@@ -1790,9 +1799,12 @@ var_ref:
     {
       $$ = builder.accessible($1);
     }
-        | keyword_variable
-            {}
-        ;
+  |
+    keyword_variable
+    {
+      $$ = builder.accessible($1);
+    }
+  ;
 
 var_lhs        : user_variable
             {}
