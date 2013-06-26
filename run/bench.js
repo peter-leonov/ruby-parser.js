@@ -11,7 +11,15 @@ var parser = new YYParser(lexer);
 print('create: ' + (new Date() - begin))
 
 var begin = new Date()
-parser.parse(text)
+try
+{
+  parser.parse(text)
+}
+catch (e)
+{
+  print(e.stack);
+}
+
 print('parse: ' + (new Date() - begin))
 
 print('lines: ' + lexer.ruby_sourceline)
