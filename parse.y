@@ -1819,8 +1819,12 @@ keyword_variable:
     }
         | keyword_true {$$ = keyword_true;}
         | keyword_false {$$ = keyword_false;}
-        | keyword__FILE__ {$$ = keyword__FILE__;}
-        | keyword__LINE__ {$$ = keyword__LINE__;}
+        | keyword__FILE__ { $$ = lexer.filename; }
+  |
+    keyword__LINE__
+    {
+      $$ = builder._LINE_(lexer.ruby_sourceline)
+    }
         | keyword__ENCODING__ {$$ = keyword__ENCODING__;}
         ;
 

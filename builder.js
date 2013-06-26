@@ -224,5 +224,9 @@ Builder.prototype =
   }
   
   
+  _LINE_: function (ruby_sourceline)
+  {
+    return n('__LINE__', [ ruby_sourceline ]);
+  }
   
 }
