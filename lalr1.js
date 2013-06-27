@@ -359,7 +359,10 @@ var yyval, yystack, actionsTable;
               return false;
           }
           else
+          {
+            // debug_symbol_print("Error: discarding", yystos_[yystate], yylval);
             yychar = yyempty_;
+          }
         }
 
         // Else will try to reuse lookahead token
@@ -411,6 +414,7 @@ var yyval, yystack, actionsTable;
             continue goto_loop;
           }
 
+          debug_symbol_print("Error: popping", yystos_[yystate], yylval);
           yystack.pop(1);
           yystate = yystack.stateAt(0);
           debug_stack_print(yystack);
