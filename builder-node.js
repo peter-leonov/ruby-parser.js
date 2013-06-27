@@ -8,9 +8,13 @@ function Node (type, children)
   this.type = type;
   this.children = children;
 }
-Node.prototype.add = function (child)
+Node.prototype.push = function (child)
 {
   this.children.push(child);
+}
+Node.prototype.slice = function ()
+{
+  this.children.slice();
 }
 Node.prototype.inspect = function ()
 {

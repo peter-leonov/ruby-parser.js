@@ -279,7 +279,7 @@ Builder.prototype =
   
   assign: function (lhs, rhs)
   {
-    lhs.add(rhs);
+    lhs.push(rhs);
     return lhs;
   },
   
