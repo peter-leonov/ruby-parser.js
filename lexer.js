@@ -3066,7 +3066,7 @@ lexer.debug = debug;
 #define debug(msg)
 #endif
 
-function warn (msg, lineno, filename)
+function scream (msg, lineno, filename)
 {
   puts
   (
@@ -3077,13 +3077,18 @@ function warn (msg, lineno, filename)
     msg
   );
 }
+
+function warn (msg, lineno, filename)
+{
+  scream('warning: ' + msg, lineno, filename);
+}
 this.warn = warn;
 
 function compile_error (msg)
 {
   lexer.nerr++;
 
-  warn(msg);
+  scream(msg);
 }
 lexer.compile_error = compile_error
 
