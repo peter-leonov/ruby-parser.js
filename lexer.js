@@ -672,7 +672,7 @@ this.yylex = function yylex ()
   
     case '*':
     {
-      var token = 0
+      var token = 0;
       if ((c = nextc()) == '*')
       {
         if ((c = nextc()) == '=')
