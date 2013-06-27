@@ -346,20 +346,14 @@ stmt:
   |
     stmt modifier_until expr_value
     {
-      // if ($1 && $1.type == 'BEGIN')
-      // {
-      //   $$ = NEW_UNTIL(check_cond($3), $1.body, 0);
-      // }
-      // else
-      // {
-      //   $$ = NEW_UNTIL(check_cond($3), $1, 1);
-      // }
+      $$ = builder.loop_mod('until', $1, $3);
     }
   |
     stmt modifier_rescue stmt
     {
-      // var resq = NEW_RESBODY(null, remove_begin($3), null);
-      // $$ = NEW_RESCUE(remove_begin($1), resq, null);
+      // exc_list, exc_var, compound_stmt
+      var rescue_body = builder.rescue_body(null, null, $3);
+      $$ = builder.begin_body($1, [ rescue_body ]);
     }
   |
     keyword_END '{' compstmt '}'
@@ -368,21 +362,15 @@ stmt:
       {
         lexer.warn("END in method; use at_exit");
       }
-      // $$ = NEW_POSTEXE(NEW_SCOPE
-      // (
-      //   null, // tbl
-      //   $3,   // body
-      //   null  // args
-      // ));
+      
+      $$ = builder.postexe($3);
     }
   |
     command_asgn
   |
     mlhs '=' command_call
     {
-      // value_expr($3);
-      // $1.value = $3;
-      // $$ = $1;
+      $$ = builder.multi_assign($1, $3);
     }
   |
     var_lhs tOP_ASGN command_call
@@ -544,6 +532,9 @@ command
 mlhs
   :
     mlhs_basic
+    {
+      $$ = builder.multi_lhs($1);
+    }
   |
     tLPAREN mlhs_inner rparen
     {}
@@ -559,33 +550,66 @@ mlhs_inner
 
 mlhs_basic:
     mlhs_head
-    {}
   |
     mlhs_head mlhs_item
-    {}
+    {
+      var mlhs_head = $1;
+      mlhs_head.push($2);
+      $$ = mlhs_head;
+    }
   |
     mlhs_head tSTAR mlhs_node
-    {}
+    {
+      var mlhs_head = $1;
+      mlhs_head.push(builder.splat($3));
+      $$ = mlhs_head;
+    }
   |
     mlhs_head tSTAR mlhs_node ',' mlhs_post
-    {}
+    {
+      var mlhs_head = $1;
+      mlhs_head.push(builder.splat($3));
+      Array_push.apply(mlhs_head, $5);
+      $$ = mlhs_head;
+    }
   |
     mlhs_head tSTAR
-    {}
+    {
+      var mlhs_head = $1;
+      mlhs_head.push(builder.splat_empty());
+      $$ = mlhs_head;
+    }
   |
     mlhs_head tSTAR ',' mlhs_post
-    {}
+    {
+      var mlhs_head = $1;
+      mlhs_head.push(builder.splat_empty());
+      Array_push.apply(mlhs_head, $4);
+      $$ = mlhs_head;
+    }
   |
     tSTAR mlhs_node
-    {}
+    {
+      $$ = [ builder.splat($2) ];
+    }
   |
     tSTAR mlhs_node ',' mlhs_post
-    {}
+    {
+      var ary = [ builder.splat($2) ];
+      Array_push.apply(mlhs_head, $4);
+      $$ = ary;
+    }
   |
     tSTAR
-    {}
+    {
+      $$ = [ builder.splat_empty() ];
+    }
   | tSTAR ',' mlhs_post
-    {}
+    {
+      var ary = [ builder.splat_empty() ];
+      Array_push.apply(mlhs_head, $3);
+      $$ = ary;
+    }
   ;
 
 mlhs_item

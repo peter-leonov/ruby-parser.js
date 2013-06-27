@@ -357,6 +357,31 @@ Builder.prototype =
     }
 
     return n(type, [ this.check_condition(cond), body ]);
+  },
+  
+  postexe: function (compstmt)
+  {
+    return n('postexe', [ compstmt ]);
+  },
+  
+  multi_assign: function (lhs, rhs)
+  {
+    return n('masgn', [ lhs, rhs ]);
+  },
+  
+  multi_lhs: function (items)
+  {
+    return n('mlhs', items.slice()); // TODO: check if `slice()` is nessry
+  },
+  
+  splat: function (arg)
+  {
+    return n('splat', [ arg ]);
+  },
+  
+  splat_empty: function ()
+  {
+    return n0('splat');
   }
   
   
