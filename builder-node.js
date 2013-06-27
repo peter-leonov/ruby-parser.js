@@ -1,6 +1,6 @@
-function inspect (v)
+function yyinspect (v)
 {
-  return (v && v.inspect) ? v.inspect() : JSON.stringify(v);
+  return (v && v.yyinspect) ? v.yyinspect() : JSON.stringify(v);
 }
 
 function n (type, children)
@@ -20,7 +20,7 @@ function n0 (type)
 
 
 #if DEV
-function inspect_node (node)
+function yyinspect_node (node)
 {
   if (!node.length)
   {
@@ -29,20 +29,20 @@ function inspect_node (node)
   
   var parts = [];
   for (var i = 0, il = node.length; i < il; i++)
-    parts[i] = inspect(node[i]);
+    parts[i] = yyinspect(node[i]);
   
   return node.type + '(' + parts.join(', ') + ')';
 }
 
-Array.prototype.inspect = function ()
+Array.prototype.yyinspect = function ()
 {
   // are we a node?
   if (this.type)
-    return inspect_node(this);
+    return yyinspect_node(this);
   
   var parts = [];
   for (var i = 0, il = this.length; i < il; i++)
-    parts[i] = inspect(this[i]);
+    parts[i] = yyinspect(this[i]);
   
   return '[' + parts.join(', ') + ']';
 }
