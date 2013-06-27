@@ -3,48 +3,43 @@ function inspect (v)
   return (v && v.inspect) ? v.inspect() : JSON.stringify(v);
 }
 
-function Node (type, children)
-{
-  this.type = type;
-  this.children = children;
-}
-Node.prototype.push = function (child)
-{
-  this.children.push(child);
-}
-Node.prototype.slice = function ()
-{
-  this.children.slice();
-}
-Node.prototype.inspect = function ()
-{
-  var children = this.children;
-  if (children == null)
-  {
-    return this.type;
-  }
-  
-  var parts = [];
-  for (var i = 0, il = children.length; i < il; i++)
-    parts[i] = inspect(children[i]);
-  
-  return this.type + '(' + parts.join(', ') + ')';
-}
-
 function n (type, children)
 {
-  return new Node(type, children);
+  children.type = type;
+  children.children = children;
+  return children;
 }
 
 function n0 (type)
 {
-  return new Node(type, null);
+  var children = [];
+  children.children = children;
+  children.type = type;
+  return children;
 }
 
 
 #if DEV
+function inspect_node (node)
+{
+  if (!node.length)
+  {
+    return node.type;
+  }
+  
+  var parts = [];
+  for (var i = 0, il = node.length; i < il; i++)
+    parts[i] = inspect(node[i]);
+  
+  return node.type + '(' + parts.join(', ') + ')';
+}
+
 Array.prototype.inspect = function ()
 {
+  // are we a node?
+  if (this.type)
+    return inspect_node(this);
+  
   var parts = [];
   for (var i = 0, il = this.length; i < il; i++)
     parts[i] = inspect(this[i]);
