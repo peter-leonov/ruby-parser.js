@@ -346,7 +346,19 @@ Builder.prototype =
   range_exclusive: function (lhs, rhs)
   {
     return n('erange', [ lhs, rhs ]);
+  },
+  
+  loop_mod: function (type, body, cond)
+  {
+    // begin … end while …
+    if (body.type == 'kwbegin')
+    {
+      type += "_post"
+    }
+
+    return n(type, [ this.check_condition(cond), body ]);
   }
+  
   
   
 }

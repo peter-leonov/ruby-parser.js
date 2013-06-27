@@ -3,4 +3,4 @@
 
 # x = 0
 
-x unless foo..bar
+begin meth end while foo

@@ -342,14 +342,7 @@ stmt
   |
     stmt modifier_while expr_value
     {
-      // if ($1 && $1.type == 'BEGIN')
-      // {
-      //   $$ = NEW_WHILE(check_cond($3), $1.body, 0);
-      // }
-      // else
-      // {
-      //   $$ = NEW_WHILE(check_cond($3), $1, 1);
-      // }
+      $$ = builder.loop_mod('while', $1, $3);
     }
   |
     stmt modifier_until expr_value
