@@ -641,7 +641,9 @@ mlhs_post
 mlhs_node
   :
     user_variable
-    {}
+    {
+      $$ = builder.assignable($1);
+    }
   |
     keyword_variable
     {}
@@ -1460,7 +1462,9 @@ bv_decls    : bvar
         ;
 
 bvar        : tIDENTIFIER
-            {}
+            {
+              $$ = builder.shadowarg($1);
+            }
         | f_bad_arg
             {}
         ;
