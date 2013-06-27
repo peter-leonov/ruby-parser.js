@@ -296,8 +296,7 @@ stmt_or_begin:
       $$ = builder.preexe($4);
     };
 
-stmt
-  :
+stmt:
     keyword_alias fitem
     {
       lexer.lex_state = EXPR_FNAME;
@@ -558,8 +557,7 @@ mlhs_inner
     {}
   ;
 
-mlhs_basic
-  :
+mlhs_basic:
     mlhs_head
     {}
   |
