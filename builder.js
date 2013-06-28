@@ -407,7 +407,14 @@ Builder.prototype =
         // diagnostic :error, :backref_assignment, lhs.loc.expression
         return null;
     }
+  },
+  
+  index: function (receiver, indexes)
+  {
+    // TODO: refactor all `concat()`s to avoid garbage arrays
+    return n('send', [ receiver, "[]" ].concat(indexes));
   }
+  
   
   
   
