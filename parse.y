@@ -375,8 +375,7 @@ stmt:
   |
     var_lhs tOP_ASGN command_call
     {
-      // value_expr($3);
-      // $$ = new_op_assign($1, $2, $3);
+      $$ = builder.op_assign($1, $2, $3);
     }
   |
     primary_value '[' opt_call_args rbracket tOP_ASGN command_call
@@ -848,7 +847,9 @@ arg:
     {}
   |
     var_lhs tOP_ASGN arg
-    {}
+    {
+      $$ = builder.op_assign($1, $2, $3);
+    }
   |
     var_lhs tOP_ASGN arg modifier_rescue arg
     {}
@@ -1871,11 +1872,17 @@ var_ref:
     }
   ;
 
-var_lhs        : user_variable
-            {}
-        | keyword_variable
-            {}
-        ;
+var_lhs:
+    user_variable
+    {
+      $$ = builder.assignable($1);
+    }
+  |
+    keyword_variable
+    {
+      $$ = builder.assignable($1);
+    }
+  ;
 
 backref:
     tNTH_REF

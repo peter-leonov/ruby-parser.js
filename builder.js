@@ -382,6 +382,31 @@ Builder.prototype =
   splat_empty: function ()
   {
     return n0('splat');
+  },
+  
+  op_assign: function (lhs, operator, rhs)
+  {
+    switch (lhs.type)
+    {
+      case 'send':
+      case 'lvasgn': case 'ivasgn': case 'gvasgn':
+      case 'cvasgn': case 'casgn':
+
+        switch (operator)
+        {
+          case "&&":
+            return n('and_asgn', [ lhs, rhs ]);
+          case "||":
+            return n('or_asgn', [ lhs, rhs ]);
+        }
+
+        return n('op_asgn', [ lhs, operator, rhs ]);
+
+      case 'back_ref': case 'nth_ref':
+        // TODO
+        // diagnostic :error, :backref_assignment, lhs.loc.expression
+        return null;
+    }
   }
   
   
