@@ -288,9 +288,19 @@ Builder.prototype =
     return n('__LINE__', [ ruby_sourceline ]);
   },
   
+  ivar: function (name)
+  {
+    return n('ivar', [ name ]);
+  },
+  
   gvar: function (name)
   {
     return n('gvar', [ name ]);
+  },
+  
+  cvar: function (name)
+  {
+    return n('cvar', [ name ]);
   },
   
   back_ref: function (name)
@@ -413,7 +423,26 @@ Builder.prototype =
   {
     // TODO: refactor all `concat()`s to avoid garbage arrays
     return n('send', [ receiver, "[]" ].concat(indexes));
+  },
+  
+  call_method: function (receiver, dot_t, selector_t, args /*=[]*/)
+  {
+    // empty `selector_t` indicates this call form: `a.()`,
+    // transform it to `a.call()`
+    var ary = [ receiver, selector_t || "call" ];
+    var node = n('send', args ? ary.concat(args) : ary);
+    
+    // to distinguish `a.b` from `a::b`
+    node.op = dot_t;
+    
+    return node;
+  },
+  
+  associate: function (pairs)
+  {
+    return n('hash', pairs.slice()); // TODO: check all `slices()` are nessry
   }
+  
   
   
   

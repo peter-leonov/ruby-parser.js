@@ -385,12 +385,13 @@ stmt:
   |
     primary_value '.' tIDENTIFIER tOP_ASGN command_call
     {
-      value_expr($5);
-      $$ = new_attr_op_assign($1, '.', $3, $4, $5);
+      $$ = builder.op_assign(builder.call_method($1, $2, $3), $4, $5);
     }
   |
     primary_value '.' tCONSTANT tOP_ASGN command_call
-    {}
+    {
+      
+    }
   |
     primary_value tCOLON2 tCONSTANT tOP_ASGN command_call
     {}
@@ -987,23 +988,41 @@ aref_args    : none
             {}
         ;
 
-paren_args    : '(' opt_call_args rparen
-            {}
-        ;
+paren_args:
+    '(' opt_call_args rparen
+    {
+      $$ = $2;
+    }
+  ;
 
-opt_paren_args    : none
-        | paren_args
-        ;
+opt_paren_args:
+    none
+    {
+      $$ = []; // args collector
+    }
+  |
+    paren_args
+  ;
 
-opt_call_args    : none
-        | call_args
-        | args ','
-            {}
-        | args ',' assocs ','
-            {}
-        | assocs ','
-            {}
-        ;
+opt_call_args:
+    none
+    {
+      $$ = []; // args collector
+    }
+  | call_args
+  | args ','
+    {}
+  | args ',' assocs ','
+    {
+      var args = $1;
+      args.push(builder.associate($3));
+      $$ = args;
+    }
+  | assocs ','
+    {
+      $$ = [ builder.associate($1) ];
+    }
+  ;
 
 call_args    : command
             {}
@@ -1526,11 +1545,17 @@ method_call    : fcall paren_args
         | primary_value tCOLON2 operation3
             {}
         | primary_value '.'
-            {}
+            {
+              // TODO: find out what was here
+            }
           paren_args
             {
-          // touching this alters the parse.output
-          nd_set_line($$, $<num>3);
+              // null for empty method name
+              // as in `primary_value.(paren_args)`
+              $$ = builder.call_method($1, '.', null, $4);
+              
+              // touching this alters the parse.output
+              $<num>3;
             }
         | primary_value tCOLON2
             {}
@@ -1763,14 +1788,24 @@ string_content    : tSTRING_CONTENT
             }
         ;
 
-string_dvar    : tGVAR
-            {}
-        | tIVAR
-            {}
-        | tCVAR
-            {}
-        | backref
-        ;
+string_dvar:
+    tGVAR
+    {
+      $$ = builder.gvar($1);
+    }
+  |
+    tIVAR
+    {
+      $$ = builder.ivar($1);
+    }
+  |
+    tCVAR
+    {
+      $$ = builder.cvar($1);
+    }
+  |
+    backref
+  ;
 
 symbol:
     tSYMBEG sym
@@ -1817,8 +1852,14 @@ user_variable:
     }
   |
     tIVAR
+    {
+      $$ = builder.ivar($1);
+    }
   |
     tGVAR
+    {
+      $$ = builder.gvar($1);
+    }
   |
     tCONSTANT
     {
