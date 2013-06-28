@@ -16,6 +16,7 @@
 // TODO: range_op
 // TODO: warn_unused_var
 // TODO: compile_for_eval
+// check all the ruby_sourceline pushing and poping, and nd_set_line
 // and much more had been deleted in 037f36d283a52c580dd1eef6e9cd0576ce81e902
 
 
