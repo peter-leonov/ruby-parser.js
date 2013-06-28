@@ -390,14 +390,18 @@ stmt:
   |
     primary_value '.' tCONSTANT tOP_ASGN command_call
     {
-      
+      $$ = builder.op_assign(builder.call_method($1, $2, $3), $4, $5);
     }
   |
     primary_value tCOLON2 tCONSTANT tOP_ASGN command_call
-    {}
+    {
+      $$ = builder.op_assign(builder.call_method($1, $2, $3), $4, $5);
+    }
   |
     primary_value tCOLON2 tIDENTIFIER tOP_ASGN command_call
-    {}
+    {
+      $$ = builder.op_assign(builder.call_method($1, $2, $3), $4, $5);
+    }
   |
     backref tOP_ASGN command_call
     {}
