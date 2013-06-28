@@ -90,11 +90,12 @@ lexer.setScope(scope);
 %type <id>   fsym keyword_variable user_variable sym symbol operation operation2 operation3
 %type <id>   cname fname op f_rest_arg f_block_arg opt_f_block_arg f_norm_arg f_bad_arg
 %type <id>   f_kwrest
-%type <loc>  k_end
+%type <id>   k_end
 /*%%%*/
 /*%
 %type <val> program reswords then do dot_or_colon
 %*/
+%type  <id> dot_or_colon
 %token <id> END_OF_INPUT 0    "end-of-input"
 %token <id> tUPLUS            "unary+"
 %token <id> tUMINUS           "unary-"
