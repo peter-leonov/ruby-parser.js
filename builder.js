@@ -165,8 +165,7 @@ Builder.prototype =
       case 'const':
         if (lexer.in_def)
         {
-          // TODO
-          // diagnostic :error, :dynamic_const, node.loc.expression
+          this.lexer.compile_error('TODO: dynamic_const');
         }
 
         return n('casgn', children);
@@ -177,13 +176,11 @@ Builder.prototype =
 
       case 'nil': case 'self': case 'true': case 'false':
       case '__FILE__': case '__LINE__': case '__ENCODING__':
-        // TODO
-        // diagnostic :error, :invalid_assignment, node.loc.expression
+        this.lexer.compile_error('TODO: invalid_assignment');
       break;
 
       case 'back_ref': case 'nth_ref':
-        // TODO
-        // diagnostic :error, :backref_assignment, node.loc.expression
+        this.lexer.compile_error('TODO: backref_assignment');
       break;
     }
     
@@ -413,8 +410,7 @@ Builder.prototype =
         return n('op_asgn', [ lhs, operator, rhs ]);
 
       case 'back_ref': case 'nth_ref':
-        // TODO
-        // diagnostic :error, :backref_assignment, lhs.loc.expression
+        this.lexer.compile_error('TODO: backref_assignment');
         return null;
     }
   },
