@@ -489,14 +489,19 @@ block_command
     }
   ;
 
-cmd_brace_block
-  :
+cmd_brace_block:
     tLBRACE_ARG
-    {}
+    {
+      scope.push_dynamic();
+      // $<num>$ = lexer.ruby_sourceline;
+    }
     opt_block_param compstmt '}'
     {
+      $$ = [ $3, $4 ];
+      
       // touching this alters the parse.output
-      $<num>2;
+      $<num>2; // nd_set_line($$, $<num>2);
+      scope.pop();
     }
   ;
 
@@ -512,7 +517,15 @@ command
     {}
   |
     fcall command_args cmd_brace_block
-    {}
+    {
+      var method_call = builder.call_method(null, null, $1, $2);
+
+      var block = $3;
+      var args = block[0];
+      var body = block[1];
+      
+      $$ = builder.block(method_call, args, body);
+    }
   |
     primary_value '.' operation2 command_args  %prec tLOWEST
     {}
@@ -1195,7 +1208,13 @@ primary:  literal
             {}
         | method_call
         | method_call brace_block
-            {}
+          {
+            var block = $2;
+            var args = block[0];
+            var body = block[1];
+            
+            $$ = builder.block($1, args, body);
+          }
         | tLAMBDA lambda
             {}
         | k_if expr_value then
@@ -1456,11 +1475,16 @@ block_args_tail    : f_block_kwarg ',' f_kwrest opt_f_block_arg
             {}
         ;
 
-opt_block_args_tail : ',' block_args_tail
-            {}
-        | /* none */
-            {}
-        ;
+opt_block_args_tail:
+    ',' block_args_tail
+    {
+      $$ = $2;
+    }
+  | /* none */
+    {
+      $$ = [];
+    }
+  ;
 
 block_param    : f_arg ',' f_block_optarg ',' f_rest_arg opt_block_args_tail
             {}
@@ -1477,7 +1501,9 @@ block_param    : f_arg ',' f_block_optarg ',' f_rest_arg opt_block_args_tail
         | f_arg ',' f_rest_arg ',' f_arg opt_block_args_tail
             {}
         | f_arg opt_block_args_tail
-            {}
+          {
+            $$ = $1.concat($2);
+          }
         | f_block_optarg ',' f_rest_arg opt_block_args_tail
             {}
         | f_block_optarg ',' f_rest_arg ',' f_arg opt_block_args_tail
@@ -1494,39 +1520,71 @@ block_param    : f_arg ',' f_block_optarg ',' f_rest_arg opt_block_args_tail
             {}
         ;
 
-opt_block_param    : none
-        | block_param_def
-            {
-            lexer.command_start = true;
-            }
-        ;
+opt_block_param:
+    none
+    {
+      $$ = builder.args([]);
+    }
+  |
+    block_param_def
+    {
+      lexer.command_start = true;
+    }
+  ;
 
-block_param_def    : '|' opt_bv_decl '|'
-            {}
-        | tOROP
-            {}
-        | '|' block_param opt_bv_decl '|'
-            {}
-        ;
+block_param_def:
+    '|' opt_bv_decl '|'
+    {
+      $$ = builder.args($2);
+    }
+  |
+    tOROP
+    {
+      $$ = builder.args([]);
+    }
+  | '|' block_param opt_bv_decl '|'
+    {
+      $$ = builder.args($2.concat($3));
+    }
+  ;
 
 
-opt_bv_decl    : opt_nl
-            {}
-        | opt_nl ';' bv_decls opt_nl
-            {}
-        ;
+opt_bv_decl:
+    opt_nl
+    {
+      $$ = [];
+    }
+  | opt_nl ';' bv_decls opt_nl
+    {
+      $$ = $3;
+    }
+  ;
 
-bv_decls    : bvar
-        | bv_decls ',' bvar
-        ;
+bv_decls:
+    bvar
+    {
+      $$ = [ $1 ];
+    }
+  |
+    bv_decls ',' bvar
+    {
+      var bv_decls = $1;
+      bv_decls.push($3);
+      $$ = bv_decls;
+    }
+  ;
 
-bvar        : tIDENTIFIER
-            {
-              $$ = builder.shadowarg($1);
-            }
-        | f_bad_arg
-            {}
-        ;
+bvar:
+    tIDENTIFIER
+    {
+      $$ = builder.shadowarg($1);
+    }
+  |
+    f_bad_arg
+    {
+      $$ = null;
+    }
+  ;
 
 lambda        :   {}
             {
@@ -1637,23 +1695,35 @@ method_call:
     }
   ;
 
-brace_block    : '{'
-            {}
-          opt_block_param
-          compstmt '}'
-            {
-              // touching this alters the parse.output
-          $<num>2;
-            }
-        | keyword_do
-            {}
-          opt_block_param
-          compstmt keyword_end
-            {
-          // touching this alters the parse.output
-          $<num>2;
-            }
-        ;
+brace_block:
+    '{'
+    {
+      scope.push_dynamic();
+    }
+    opt_block_param compstmt '}'
+    {
+      $$ = [ $3, $4 ];
+      
+      // touching this alters the parse.output
+      $<num>2;
+      
+      scope.pop();
+    }
+  |
+    keyword_do
+    {
+      scope.push_dynamic();
+    }
+    opt_block_param compstmt keyword_end
+    {
+      $$ = [ $3, $4 ];
+      
+      // touching this alters the parse.output
+      $<num>2;
+      
+      scope.pop();
+    }
+  ;
 
 case_body    : keyword_when args then
           compstmt
@@ -2084,21 +2154,43 @@ f_bad_arg    : tCONSTANT
             }
         ;
 
-f_norm_arg    : f_bad_arg
-        | tIDENTIFIER
-            {}
-        ;
+f_norm_arg:
+    f_bad_arg
+  |
+    tIDENTIFIER
+    {
+      // formal_argument(get_id($1)) // TODO
+      $$ = $1;
+    }
+  ;
 
-f_arg_item    : f_norm_arg
-            {}
-        | tLPAREN f_margs rparen
-            {}
-        ;
+f_arg_item:
+    f_norm_arg
+    {
+      var f_norm_arg = $1;
+      scope.declare(f_norm_arg[0]);
+      
+      $$ = builder.arg(f_norm_arg);
+    }
+  | tLPAREN f_margs rparen
+    {
+      $$ = builder.multi_lhs($2);
+    }
+  ;
 
-f_arg        : f_arg_item
-        | f_arg ',' f_arg_item
-            {}
-        ;
+f_arg:
+    f_arg_item
+    {
+      $$ = [ $1 ];
+    }
+  |
+    f_arg ',' f_arg_item
+    {
+      var f_arg = $1;
+      f_arg.push($3);
+      $$ = f_arg;
+    }
+  ;
 
 f_kw        : tLABEL arg_value
             {}

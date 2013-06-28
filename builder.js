@@ -467,11 +467,78 @@ Builder.prototype =
     {
       return n('send', [ receiver, '!' ]);
     }
+  },
+  
+  block: function (method_call, args, body) // body is an array
+  {
+    // method_call = _receiver, _selector, *call_args
+    // check if there are arguments at all
+    if (method_call.length >= 3)
+    {
+      var last_arg = method_call[method_call.length-1];
+      if (last_arg && last_arg.type == 'block_pass')
+      {
+        lexer.compile_error('TODO: block_and_blockarg');
+      }
+    }
+    
+    return n('block', [ method_call, args, body ]);
+  },
+  
+  args: function (args)
+  {
+    this.check_duplicate_args(args);
+    return n('args', args.slice()); // expect not null `args`
+  },
+  
+  arg: function (name_t)
+  {
+    return n('arg', [ name_t ]);
+  },
+  
+  check_duplicate_args: function (args, map /*={}*/)
+  {
+    if (!map)
+      map = {};
+    
+    for (var i = 0, il = args.length; i < il; i++)
+    {
+      var this_arg = args[i];
+      
+      switch (this_arg.type)
+      {
+        case 'arg':   case 'optarg':   case 'restarg':   case 'blockarg':
+        case 'kwarg': case 'kwoptarg': case 'kwrestarg': case 'shadowarg':
+
+          var this_name = this_arg[0];
+
+          var that_arg = map[this_name];
+          if (!that_arg)
+          {
+            map[this_name] = this_arg;
+            continue;
+          }
+          
+          var that_name  = that_arg[0];
+          if (this.arg_name_collides(this_name, that_name))
+          {
+            
+            lexer.compile_error('TODO: duplicate_argument');
+            // diagnostic :error, ERRORS[:duplicate_argument],
+                       // this_arg.loc.name, [ that_arg.loc.name ]
+          }
+          break;
+
+        case 'mlhs':
+          this.check_duplicate_args(this_arg.children, map);
+      }
+    }
+  },
+  
+  shadowarg: function (ident)
+  {
+    return n('shadowarg', [ ident ]);
   }
-  
-  
-  
-  
   
   
   

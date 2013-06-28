@@ -1,5 +1,4 @@
 #!ruby
 # encoding: utf-8
 
-!()
-not ();
+$a.puts(1, 2) { |xxx| $x }
