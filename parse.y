@@ -1062,15 +1062,29 @@ opt_block_arg    : ',' block_arg
             {}
         ;
 
-args        : arg_value
-            {}
-        | tSTAR arg_value
-            {}
-        | args ',' arg_value
-            {}
-        | args ',' tSTAR arg_value
-            {}
-        ;
+args:
+    arg_value
+    {
+      $$ = [ $1 ];
+    }
+  |
+    tSTAR arg_value
+    {
+      $$ = [ builder.splat($2) ];
+    }
+  | args ',' arg_value
+    {
+      var args = $1;
+      args.push($3);
+      $$ = args;
+    }
+  | args ',' tSTAR arg_value
+    {
+      var args = $1;
+      args.push(builder.splat($4));
+      $$ = args;
+    }
+  ;
 
 mrhs        : args ',' arg_value
             {}
