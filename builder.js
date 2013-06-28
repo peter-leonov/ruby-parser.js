@@ -169,7 +169,6 @@ Builder.prototype =
         }
 
         return n('casgn', children);
-        return node;
 
       case 'gvar':
         return n('gvasgn', children);
