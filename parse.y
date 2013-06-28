@@ -405,27 +405,40 @@ stmt:
     }
   |
     backref tOP_ASGN command_call
-    {}
+    {
+      // expected to return `null` as Ruby doesn't allow backref assignment
+      $$ = builder.op_assign($1, $2, $3);
+    }
   |
     lhs '=' mrhs
-    {}
+    {
+      // mrhs is an array
+      $$ = builder.assign($1, builder.array($3));
+    }
   |
     mlhs '=' arg_value
-    {}
+    {
+      $$ = builder.multi_assign($1, $3);
+    }
   |
     mlhs '=' mrhs
-    {}
+    {
+      $$ = builder.multi_assign($1, builder.array($3));
+    }
   |
     expr
   ;
 
-command_asgn
-  :
+command_asgn:
     lhs '=' command_call
-    {}
+    {
+      $$ = builder.assign($1, $3);
+    }
   |
     lhs '=' command_asgn
-    {}
+    {
+      $$ = builder.assign($1, $3);
+    }
   ;
 
 
@@ -434,23 +447,29 @@ expr
     command_call
   |
     expr keyword_and expr
-    {}
+    {
+      $$ = builder.logical_op('and', $1, $3);
+    }
   | expr keyword_or expr
-    {}
+    {
+      $$ = builder.logical_op('or', $1, $3);
+    }
   |
     keyword_not opt_nl expr
-    {}
+    {
+      $$ = builder.not_op($3);
+    }
   |
     '!' command_call
-    {}
+    {
+      $$ = builder.not_op($2);
+    }
   |
     arg
   ;
 
-expr_value
-  :
+expr_value:
     expr
-    {}
   ;
 
 command_call
@@ -465,7 +484,9 @@ block_command
     block_call
   |
     block_call dot_or_colon operation2 command_args
-    {}
+    {
+      $$ = builder.call_method($1, $2, $3, $4);
+    }
   ;
 
 cmd_brace_block
@@ -868,7 +889,10 @@ arg:
     {}
   |
     backref tOP_ASGN arg
-    {}
+    {
+      // expected to return `null` as Ruby doesn't allow backref assignment
+      $$ = builder.op_assign($1, $2, $3);
+    }
   |
     arg tDOT2 arg
     {
@@ -952,7 +976,9 @@ arg:
     {}
   |
     '!' arg
-    {}
+    {
+      $$ = builder.not_op($2);
+    }
   |
     '~' arg
     {}
@@ -1157,9 +1183,14 @@ primary:  literal
               lexer.in_defined = false;
             }
         | keyword_not '(' expr rparen
-            {}
+          {
+            $$ = builder.not_op($3);
+          }
         | keyword_not '(' rparen
-            {}
+          {
+            // not ()
+            $$ = builder.not_op(null);
+          }
         | fcall brace_block
             {}
         | method_call
@@ -1545,51 +1576,66 @@ block_call    : command do_block
             {}
         ;
 
-method_call    : fcall paren_args
-            {}
-        | primary_value '.' operation2
-            {}
-          opt_paren_args
-            {
-              // touching this alters the parse.output
-                $<num>4;
-            }
-        | primary_value tCOLON2 operation2
-            {}
-          paren_args
-            {
-              // touching this alters the parse.output
-                $<num>4
-            }
-        | primary_value tCOLON2 operation3
-            {}
-        | primary_value '.'
-            {
-              // TODO: find out what was here
-            }
-          paren_args
-            {
-              // null for empty method name
-              // as in `primary_value.(paren_args)`
-              $$ = builder.call_method($1, '.', null, $4);
-              
-              // touching this alters the parse.output
-              $<num>3;
-            }
-        | primary_value tCOLON2
-            {}
-          paren_args
-            {
-          // touching this alters the parse.output
-          $<num>3;
-            }
-        | keyword_super paren_args
-            {}
-        | keyword_super
-            {}
-        | primary_value '[' opt_call_args rbracket
-            {}
-        ;
+method_call:
+    fcall paren_args
+    {
+      $$ = builder.call_method(null, null, $1, $2);
+    }
+  |
+    primary_value '.' operation2 {/*TODO*/} opt_paren_args
+    {
+      $$ = builder.call_method($1, $2, $3, $5);
+      
+      // touching this alters the parse.output
+        $<num>4;
+    }
+  |
+    primary_value tCOLON2 operation2 {/*TODO*/} paren_args
+    {
+      $$ = builder.call_method($1, $2, $3, $5);
+      
+      // touching this alters the parse.output
+        $<num>4
+    }
+  |
+    primary_value tCOLON2 operation3
+    {
+      $$ = builder.call_method($1, $2, $3); // empty args
+    }
+  |
+    primary_value '.' {/*TODO*/} paren_args
+    {
+      // null for empty method name
+      // as in `primary_value.(paren_args)`
+      $$ = builder.call_method($1, '.', null, $4);
+      
+      // touching this alters the parse.output
+      $<num>3;
+    }
+  |
+    primary_value tCOLON2 {/*TODO*/} paren_args
+    {
+      $$ = builder.call_method($1, $2, null, $4);
+
+      // TODO: touching this alters the parse.output
+      $<num>3;
+    }
+  |
+    keyword_super paren_args
+    {
+      $$ = builder.keyword_cmd('super', $2);
+    }
+  |
+    keyword_super
+    {
+      $$ = builder.keyword_cmd('zsuper');
+    }
+  |
+    primary_value '[' opt_call_args rbracket
+    {
+      $$ = builder.index($1, $3);
+    }
+  ;
 
 brace_block    : '{'
             {}
@@ -1935,10 +1981,15 @@ var_lhs:
 
 backref:
     tNTH_REF
-    | tBACK_REF
     {
-      $$ = NEW_BACK_REF($1);
-    };
+      $$ = builder.nth_ref($1);
+    }
+  |
+    tBACK_REF
+    {
+      $$ = builder.back_ref($1);
+    }
+  ;
 
 superclass    : term
             {}

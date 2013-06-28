@@ -304,6 +304,11 @@ Builder.prototype =
     return n('back_ref', [ name ]);
   },
   
+  nth_ref: function (name)
+  {
+    return n('nth_ref', [ name ]);
+  },
+  
   alias: function (to, from)
   {
     return n('alias', [ to, from ]);
@@ -436,7 +441,36 @@ Builder.prototype =
   associate: function (pairs)
   {
     return n('hash', pairs.slice()); // TODO: check all `slices()` are nessry
+  },
+  
+  keyword_cmd: function (type, args /*=[]*/)
+  {
+    return n(type, args || []);
+  },
+  
+  logical_op: function (type, lhs, rhs)
+  {
+    return n(type, [ lhs, rhs ]);
+  },
+  
+  not_op: function (receiver)
+  {
+    // for `!()`
+    if (receiver == null)
+    {
+      var nil_node = n0('begin');
+
+      return n('send', [ nil_node, '!' ]);
+    }
+    else
+    {
+      return n('send', [ receiver, '!' ]);
+    }
   }
+  
+  
+  
+  
   
   
   
