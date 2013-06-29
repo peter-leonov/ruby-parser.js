@@ -694,6 +694,7 @@ this.yylex = function yylex ()
         else
         {
           warn_balanced("**", "argument prefix", c);
+          lexer.yylval = "**";
           token = tPOW;
         }
       }
@@ -718,6 +719,7 @@ this.yylex = function yylex ()
         else
         {
           warn_balanced("*", "argument prefix", c);
+          lexer.yylval = "*";
           token = $('*');
         }
       }
@@ -742,10 +744,12 @@ this.yylex = function yylex ()
       }
       if (c == '=')
       {
+        lexer.yylval = "!=";
         return tNEQ;
       }
       if (c == '~')
       {
+        lexer.yylval = "!~";
         return tNMATCH;
       }
       pushback(c);
@@ -785,9 +789,11 @@ this.yylex = function yylex ()
       {
         if ((c = nextc()) == '=')
         {
+          lexer.yylval = "===";
           return tEQQ;
         }
         pushback(c);
+        lexer.yylval = "==";
         return tEQ;
       }
       if (c == '~')
@@ -828,9 +834,11 @@ this.yylex = function yylex ()
       {
         if ((c = nextc()) == '>')
         {
+          lexer.yylval = "<=>";
           return tCMP;
         }
         pushback(c);
+        lexer.yylval = "<=";
         return tLEQ;
       }
       if (c == '<')
@@ -843,9 +851,11 @@ this.yylex = function yylex ()
         }
         pushback(c);
         warn_balanced("<<", "here document", c);
+        lexer.yylval = "<<";
         return tLSHFT;
       }
       pushback(c);
+      lexer.yylval = "<";
       return $('<');
     }
     
@@ -854,6 +864,7 @@ this.yylex = function yylex ()
       lexer.lex_state = IS_AFTER_OPERATOR()? EXPR_ARG : EXPR_BEG;
       if ((c = nextc()) == '=')
       {
+        lexer.yylval = ">=";
         return tGEQ;
       }
       if (c == '>')
@@ -865,9 +876,11 @@ this.yylex = function yylex ()
           return tOP_ASGN;
         }
         pushback(c);
+        lexer.yylval = ">>";
         return tRSHFT;
       }
       pushback(c);
+      lexer.yylval = ">";
       return $('>');
     }
     
@@ -1027,6 +1040,7 @@ this.yylex = function yylex ()
       else
       {
         warn_balanced("&", "argument prefix", c);
+        lexer.yylval = "&";
         t = $('&');
       }
       lexer.lex_state = IS_AFTER_OPERATOR()? EXPR_ARG : EXPR_BEG;
@@ -1055,6 +1069,7 @@ this.yylex = function yylex ()
       }
       lexer.lex_state = IS_AFTER_OPERATOR()? EXPR_ARG : EXPR_BEG;
       pushback(c);
+      lexer.yylval = "|";
       return $('|');
     }
     
@@ -1069,6 +1084,7 @@ this.yylex = function yylex ()
           return tUPLUS;
         }
         pushback(c);
+        lexer.yylval = "+";
         return $('+');
       }
       if (c == '=')
@@ -1092,6 +1108,7 @@ this.yylex = function yylex ()
       lexer.lex_state = EXPR_BEG;
       pushback(c);
       warn_balanced("+", "unary operator", c);
+      lexer.yylval = "+";
       return $('+');
     }
     
@@ -1132,6 +1149,7 @@ this.yylex = function yylex ()
       lexer.lex_state = EXPR_BEG;
       pushback(c);
       warn_balanced("-", "unary operator", c);
+      lexer.yylval = "-";
       return $('-');
     }
     
@@ -1248,6 +1266,7 @@ this.yylex = function yylex ()
       }
       lexer.lex_state = IS_AFTER_OPERATOR()? EXPR_ARG : EXPR_BEG;
       warn_balanced("/", "regexp literal", c);
+      lexer.yylval = "/";
       return $('/');
     }
     
@@ -1261,6 +1280,7 @@ this.yylex = function yylex ()
       }
       lexer.lex_state = IS_AFTER_OPERATOR()? EXPR_ARG : EXPR_BEG;
       pushback(c);
+      lexer.yylval = "^";
       return $('^');
     }
     
@@ -1515,6 +1535,7 @@ this.yylex = function yylex ()
       lexer.lex_state = IS_AFTER_OPERATOR()? EXPR_ARG : EXPR_BEG;
       pushback(c);
       warn_balanced("%%", "string literal", c);
+      lexer.yylval = "%";
       return $('%');
     }
     

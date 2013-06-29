@@ -1027,25 +1027,39 @@ arg:
     }
   |
     arg tDOT3 arg
-    {}
+    {
+      $$ = builder.range_exclusive($1, $3);
+    }
   |
     arg '+' arg
-    {}
+    {
+      $$ = builder.binary_op($1, $2, $3);
+    }
   |
     arg '-' arg
-    {}
+    {
+      $$ = builder.binary_op($1, $2, $3);
+    }
   |
     arg '*' arg
-    {}
+    {
+      $$ = builder.binary_op($1, $2, $3);
+    }
   |
     arg '/' arg
-    {}
+    {
+      $$ = builder.binary_op($1, $2, $3);
+    }
   |
     arg '%' arg
-    {}
+    {
+      $$ = builder.binary_op($1, $2, $3);
+    }
   |
     arg tPOW arg
-    {}
+    {
+      $$ = builder.binary_op($1, $2, $3);
+    }
   |
     tUMINUS_NUM tINTEGER tPOW arg
     {
@@ -1064,43 +1078,67 @@ arg:
     {}
   |
     arg '|' arg
-    {}
+    {
+      $$ = builder.binary_op($1, $2, $3);
+    }
   |
     arg '^' arg
-    {}
+    {
+      $$ = builder.binary_op($1, $2, $3);
+    }
   |
     arg '&' arg
-    {}
+    {
+      $$ = builder.binary_op($1, $2, $3);
+    }
   |
     arg tCMP arg
-    {}
+    {
+      $$ = builder.binary_op($1, $2, $3);
+    }
   |
     arg '>' arg
-    {}
+    {
+      $$ = builder.binary_op($1, $2, $3);
+    }
   |
     arg tGEQ arg
-    {}
+    {
+      $$ = builder.binary_op($1, $2, $3);
+    }
   |
     arg '<' arg
-    {}
+    {
+      $$ = builder.binary_op($1, $2, $3);
+    }
   |
     arg tLEQ arg
-    {}
+    {
+      $$ = builder.binary_op($1, $2, $3);
+    }
   |
     arg tEQ arg
-    {}
+    {
+      $$ = builder.binary_op($1, $2, $3);
+    }
   |
     arg tEQQ arg
-    {}
+    {
+      $$ = builder.binary_op($1, $2, $3);
+    }
   |
     arg tNEQ arg
-    {}
+    {
+      $$ = builder.binary_op($1, $2, $3);
+    }
   |
     arg tMATCH arg
     {}
   |
     arg tNMATCH arg
-    {}
+    {
+      $$ = builder.binary_op($1, $2, $3);
+    }
   |
     '!' arg
     {
@@ -1111,10 +1149,14 @@ arg:
     {}
   |
     arg tLSHFT arg
-    {}
+    {
+      $$ = builder.binary_op($1, $2, $3);
+    }
   |
     arg tRSHFT arg
-    {}
+    {
+      $$ = builder.binary_op($1, $2, $3);
+    }
   |
     arg tANDOP arg
     {}

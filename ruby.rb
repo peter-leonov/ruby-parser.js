@@ -1,5 +1,5 @@
 #!ruby
 # encoding: utf-8
 
-return 4
+1 >> 2
 
