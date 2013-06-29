@@ -1360,318 +1360,317 @@ mrhs:
     }
   ;
 
-primary:  literal
-        | strings
-        | xstring
-        | regexp
-        | words
-        | qwords
-        | symbols
-        | qsymbols
-        | var_ref
-        | backref
-        | tFID
-            {
-              $$ = builder.call_method(null, null, $1);
-            }
-        | k_begin
-          {
-            $<val>1 = lexer.cmdarg_stack;
-            lexer.cmdarg_stack = 0;
-          }
-          bodystmt
-          k_end
-          {
-            lexer.cmdarg_stack = $<val>1;
-            
-            // touching this alters the parse.output
-            $<num>2;
-            
-            $$ = builder.begin_keyword($3);
-          }
-
-        // Here our grammars differ, ruby 2.1 may be the cause.
-        // The next two rules (A and B) are placed in opposite order
-        // in the whitequark parser ruby20.y.
-        // In addition, the `opt_nl` nodes had been added.
-
-        | // the rule A
-          tLPAREN_ARG
-          {
-            lexer.lex_state = EXPR_ENDARG;
-          }
-          /*opt_nl in whitequark parser, TODO*/ rparen
-          {
-            $$ = builder.begin(null);
-          }
-        
-        | // the rule B
-          tLPAREN_ARG expr
-          {
-            lexer.lex_state = EXPR_ENDARG;
-          }
-          /*opt_nl in whitequark parser, TODO*/ rparen
-          {
-            $$ = builder.begin($2);
-          }
-        |
-          tLPAREN compstmt ')'
-          {
-            $$ = builder.begin($2);
-          }
-        | primary_value tCOLON2 tCONSTANT
-          {
-            $$ = builder.const_fetch($1, $2, $3);
-          }
-        | tCOLON3 tCONSTANT
-          {
-            $$ = builder.const_global($2);
-          }
-        | tLBRACK aref_args ']'
-          {
-            $$ = builder.array($2);
-          }
-        |
-          tLBRACE assoc_list '}'
-          {
-            $$ = builder.associate($2);
-          }
-        | keyword_return
-          {
-            $$ = builder.keyword_cmd('return');
-          }
-        | keyword_yield '(' call_args rparen
-          {
-            $$ = builder.keyword_cmd('yield', $3);
-          }
-        | keyword_yield '(' rparen
-          {
-            $$ = builder.keyword_cmd('yield');
-          }
-        | keyword_yield
-          {
-            $$ = builder.keyword_cmd('yield');
-          }
-        | keyword_defined opt_nl '('
-          {
-            lexer.in_defined = true;
-          }
-          expr rparen
-          {
-            lexer.in_defined = false;
-            
-            $$ = builder.keyword_cmd('defined?', [ $5 ]);
-          }
-        | keyword_not '(' expr rparen
-          {
-            $$ = builder.not_op($3);
-          }
-        | keyword_not '(' rparen
-          {
-            // not ()
-            $$ = builder.not_op(null);
-          }
-        | fcall brace_block
-          {
-            var method_call = builder.call_method(null, null, $1);
-
-            var block = $2;
-            $$ = builder.block(method_call, block.args, block.body);
-          }
-        | method_call
-        | method_call brace_block
-          {
-            var block = $2;
-            $$ = builder.block($1, block.args, block.body);
-          }
-        | tLAMBDA lambda
-          {
-            var lambda_call = builder.call_lambda($1);
-
-            var lambda = $2;
-            $$ = builder.block($1, lambda.args, lambda.body);
-          }
-        |
-          k_if expr_value then
-          compstmt
-          if_tail
-          k_end
-          {
-            $$ = builder.condition($2, $4, $5);
-          }
-        |
-          k_unless expr_value then
-          compstmt
-          opt_else
-          k_end
-          {
-            $$ = builder.condition($2, $5, $4);
-          }
-        | k_while
-          {
-            lexer.COND_PUSH(1);
-          }
-          expr_value do
-          {
-            lexer.COND_POP();
-          }
-          compstmt
-          k_end
-          {
-            $$ = builder.loop('while', $3, $6);
-          }
-        |
-          k_until
-          {
-            lexer.COND_PUSH(1);
-          }
-          expr_value do
-          {
-            lexer.COND_POP();
-          }
-          compstmt
-          k_end
-          {
-            $$ = builder.loop('until', $3, $6);
-          }
-        |
-          k_case expr_value opt_terms
-          case_body
-          k_end
-          {
-            var when_bodies = $4;
-            var else_body = when_bodies.pop();
-
-            $$ = builder.case_($2, when_bodies, else_body);
-          }
-        | k_case            opt_terms
-          case_body
-          k_end
-          {
-            var when_bodies = $3;
-            var else_body = when_bodies.pop();
-
-            $$ = builder.case_(null, when_bodies, else_body);
-          }
-        | k_for for_var keyword_in
-          {
-            lexer.COND_PUSH(1);
-          }
-          expr_value do
-          {
-            lexer.COND_POP();
-          }
-          compstmt
-          k_end
-          {
-            $$ = builder.for_($2, $5, $8);
-          }
-        | k_class cpath superclass
-          {
-            if (lexer.in_def || lexer.in_single)
-            {
-              lexer.yyerror("class definition in method body");
-            }
-            
-            scope.push_static();
-          }
-          bodystmt
-          k_end
-          {
-            $$ = builder.def_class($2, $3, $5);
-            
-            // TODO: delete all these touching stuff:
-            // touching this alters the parse.output
-            $<num>4;
-            
-            scope.pop();
-          }
-        | k_class tLSHFT expr
-          {
-            $<num>$ = lexer.in_def;
-            lexer.in_def = 0;
-          }
-          term
-          {
-            $<num>$ = lexer.in_single;
-            lexer.in_single = 0;
-            scope.push_static();
-          }
-          bodystmt
-          k_end
-          {
-            $$ = builder.def_sclass($3, $7);
-            
-            scope.pop();
-            lexer.in_def = $<num>4;
-            lexer.in_single = $<num>6;
-          }
-        | k_module cpath
-          {
-            if (lexer.in_def || lexer.in_single)
-            {
-              lexer.yyerror("module definition in method body");
-            }
-            scope.push_static();
-          }
-          bodystmt
-          k_end
-          {
-            $$ = builder.def_module($2, $4);
-
-            // touching this alters the parse.output
-            $<num>3;
-            
-            scope.pop();
-          }
-        | k_def fname
-            {
-              lexer.in_def++;
-              scope.push_static();
-            }
-          f_arglist
-          bodystmt
-          k_end
-            {
-              $$ = builder.def_method($2, $4, $5);
-              
-              // touching this alters the parse.output
-              $<num>1; $<id>3;
-              
-              scope.pop();
-              lexer.in_def--;
-            }
-  |
-    k_def singleton dot_or_colon
+primary:
+    literal
+  | strings
+  | xstring
+  | regexp
+  | words
+  | qwords
+  | symbols
+  | qsymbols
+  | var_ref
+  | backref
+  | tFID
+      {
+        $$ = builder.call_method(null, null, $1);
+      }
+  | k_begin
     {
-      lexer.lex_state = EXPR_FNAME;
+      $<val>1 = lexer.cmdarg_stack;
+      lexer.cmdarg_stack = 0;
     }
-    fname
-    {
-      lexer.in_single++;
-      lexer.lex_state = EXPR_ENDFN; /* force for args */
-      scope.push_static();
-    }
-    f_arglist
     bodystmt
     k_end
     {
-      scope.pop();
-      lexer.in_single--;
+      lexer.cmdarg_stack = $<val>1;
+      
+      // touching this alters the parse.output
+      $<num>2;
+      
+      $$ = builder.begin_keyword($3);
     }
-        | keyword_break
-            {}
-        | keyword_next
-            {}
-        | keyword_redo
-            {}
-        | keyword_retry
-            {}
-        ;
 
-primary_value    : primary
-            {}
-        ;
+  // Here our grammars differ, ruby 2.1 may be the cause.
+  // The next two rules (A and B) are placed in opposite order
+  // in the whitequark parser ruby20.y.
+  // In addition, the `opt_nl` nodes had been added.
+
+    // the rule A
+  | tLPAREN_ARG
+      {
+        lexer.lex_state = EXPR_ENDARG;
+      }
+    /*opt_nl in whitequark parser, TODO*/ rparen
+      {
+        $$ = builder.begin(null);
+      }
+  
+    // the rule B
+  | tLPAREN_ARG expr
+      {
+        lexer.lex_state = EXPR_ENDARG;
+      }
+    /*opt_nl in whitequark parser, TODO*/ rparen
+      {
+        $$ = builder.begin($2);
+      }
+  | tLPAREN compstmt ')'
+      {
+        $$ = builder.begin($2);
+      }
+  | primary_value tCOLON2 tCONSTANT
+      {
+        $$ = builder.const_fetch($1, $2, $3);
+      }
+  | tCOLON3 tCONSTANT
+      {
+        $$ = builder.const_global($2);
+      }
+  | tLBRACK aref_args ']'
+      {
+        $$ = builder.array($2);
+      }
+  | tLBRACE assoc_list '}'
+      {
+        $$ = builder.associate($2);
+      }
+  | keyword_return
+      {
+        $$ = builder.keyword_cmd('return');
+      }
+  | keyword_yield '(' call_args rparen
+      {
+        $$ = builder.keyword_cmd('yield', $3);
+      }
+  | keyword_yield '(' rparen
+      {
+        $$ = builder.keyword_cmd('yield');
+      }
+  | keyword_yield
+      {
+        $$ = builder.keyword_cmd('yield');
+      }
+  | keyword_defined opt_nl '('
+      {
+        lexer.in_defined = true;
+      }
+    expr rparen
+      {
+        lexer.in_defined = false;
+      
+        $$ = builder.keyword_cmd('defined?', [ $5 ]);
+      }
+  | keyword_not '(' expr rparen
+      {
+        $$ = builder.not_op($3);
+      }
+  | keyword_not '(' rparen
+      {
+        // not ()
+        $$ = builder.not_op(null);
+      }
+  | fcall brace_block
+      {
+        var method_call = builder.call_method(null, null, $1);
+
+        var block = $2;
+        $$ = builder.block(method_call, block.args, block.body);
+      }
+  | method_call
+  | method_call brace_block
+      {
+        var block = $2;
+        $$ = builder.block($1, block.args, block.body);
+      }
+  | tLAMBDA lambda
+      {
+        var lambda_call = builder.call_lambda($1);
+
+        var lambda = $2;
+        $$ = builder.block($1, lambda.args, lambda.body);
+      }
+  | k_if expr_value then
+    compstmt
+    if_tail
+    k_end
+      {
+        $$ = builder.condition($2, $4, $5);
+      }
+  |
+    k_unless expr_value then
+    compstmt
+    opt_else
+    k_end
+      {
+        $$ = builder.condition($2, $5, $4);
+      }
+  | k_while
+      {
+        lexer.COND_PUSH(1);
+      }
+    expr_value do
+      {
+        lexer.COND_POP();
+      }
+    compstmt
+    k_end
+      {
+        $$ = builder.loop('while', $3, $6);
+      }
+  |
+    k_until
+      {
+        lexer.COND_PUSH(1);
+      }
+    expr_value do
+      {
+        lexer.COND_POP();
+      }
+    compstmt
+    k_end
+      {
+        $$ = builder.loop('until', $3, $6);
+      }
+  |
+    k_case expr_value opt_terms
+    case_body
+    k_end
+      {
+        var when_bodies = $4;
+        var else_body = when_bodies.pop();
+
+        $$ = builder.case_($2, when_bodies, else_body);
+      }
+  | k_case            opt_terms
+    case_body
+    k_end
+      {
+        var when_bodies = $3;
+        var else_body = when_bodies.pop();
+
+        $$ = builder.case_(null, when_bodies, else_body);
+      }
+  | k_for for_var keyword_in
+      {
+        lexer.COND_PUSH(1);
+      }
+    expr_value do
+      {
+        lexer.COND_POP();
+      }
+    compstmt
+    k_end
+      {
+        $$ = builder.for_($2, $5, $8);
+      }
+  | k_class cpath superclass
+      {
+        if (lexer.in_def || lexer.in_single)
+        {
+          lexer.yyerror("class definition in method body");
+        }
+      
+        scope.push_static();
+      }
+    bodystmt
+    k_end
+      {
+        $$ = builder.def_class($2, $3, $5);
+      
+        // TODO: delete all these touching stuff:
+        // touching this alters the parse.output
+        $<num>4;
+      
+        scope.pop();
+      }
+  | k_class tLSHFT expr
+      {
+        $<num>$ = lexer.in_def;
+        lexer.in_def = 0;
+      }
+    term
+      {
+        $<num>$ = lexer.in_single;
+        lexer.in_single = 0;
+        scope.push_static();
+      }
+    bodystmt
+    k_end
+      {
+        $$ = builder.def_sclass($3, $7);
+      
+        scope.pop();
+        lexer.in_def = $<num>4;
+        lexer.in_single = $<num>6;
+      }
+  | k_module cpath
+      {
+        if (lexer.in_def || lexer.in_single)
+        {
+          lexer.yyerror("module definition in method body");
+        }
+        scope.push_static();
+      }
+    bodystmt
+    k_end
+      {
+        $$ = builder.def_module($2, $4);
+
+        // touching this alters the parse.output
+        $<num>3;
+      
+        scope.pop();
+      }
+  | k_def fname
+      {
+        lexer.in_def++;
+        scope.push_static();
+      }
+    f_arglist
+    bodystmt
+    k_end
+      {
+        $$ = builder.def_method($2, $4, $5);
+        
+        // touching this alters the parse.output
+        $<num>1; $<id>3;
+        
+        scope.pop();
+        lexer.in_def--;
+      }
+  |
+    k_def singleton dot_or_colon
+      {
+        lexer.lex_state = EXPR_FNAME;
+      }
+    fname
+      {
+        lexer.in_single++;
+        lexer.lex_state = EXPR_ENDFN; /* force for args */
+        scope.push_static();
+      }
+    f_arglist
+    bodystmt
+    k_end
+      {
+        scope.pop();
+        lexer.in_single--;
+      }
+  | keyword_break
+      {}
+  | keyword_next
+      {}
+  | keyword_redo
+      {}
+  | keyword_retry
+      {}
+  ;
+
+primary_value:
+    primary
+      {}
+  ;
 
 k_begin:
     keyword_begin
