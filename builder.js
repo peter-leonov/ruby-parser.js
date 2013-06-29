@@ -92,7 +92,7 @@ Builder.prototype =
         return statements[0];
       default:
         var begin = n('begin', statements);
-        begin.synthesized_from_compstmt = true;
+        begin.begin_from_compstmt = true;
         return begin;
     }
   },
@@ -265,7 +265,7 @@ Builder.prototype =
       return n0('kwbegin');
     }
     
-    if (body.type == 'begin' && body.synthesized_from_compstmt)
+    if (body.begin_from_compstmt)
     {
       // Synthesized (begin) from compstmt "a; b".
       return n('kwbegin', body.children);
