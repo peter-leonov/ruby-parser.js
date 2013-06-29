@@ -632,6 +632,16 @@ Builder.prototype =
   blockarg: function (name_t)
   {
     return n('blockarg', [ name_t ]);
+  },
+  
+  call_lambda: function ()
+  {
+    return n('send', [ null, 'lambda' ]);
+  },
+  
+  condition: function (cond, if_true, if_false)
+  {
+    return n('if', [ this.check_condition(cond), if_true, if_false ]);
   }
   
   

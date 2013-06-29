@@ -1391,43 +1391,79 @@ primary:  literal
             
             $$ = builder.begin_keyword($3);
           }
-        | tLPAREN_ARG
-        {
-          lexer.lex_state = EXPR_ENDARG;
-        }
-        rparen
-            {}
-        | tLPAREN_ARG expr
-        {
-          lexer.lex_state = EXPR_ENDARG;
-        }
-        rparen
-            {}
-        | tLPAREN compstmt ')'
-            {}
+
+        // Here our grammars differ, ruby 2.1 may be the cause.
+        // The next two rules (A and B) are placed in opposite order
+        // in the whitequark parser ruby20.y.
+        // In addition, the `opt_nl` nodes had been added.
+
+        | // the rule A
+          tLPAREN_ARG
+          {
+            lexer.lex_state = EXPR_ENDARG;
+          }
+          /*opt_nl in whitequark parser, TODO*/ rparen
+          {
+            $$ = builder.begin(null);
+          }
+        
+        | // the rule B
+          tLPAREN_ARG expr
+          {
+            lexer.lex_state = EXPR_ENDARG;
+          }
+          /*opt_nl in whitequark parser, TODO*/ rparen
+          {
+            $$ = builder.begin($2);
+          }
+        |
+          tLPAREN compstmt ')'
+          {
+            $$ = builder.begin($2);
+          }
         | primary_value tCOLON2 tCONSTANT
-            {}
+          {
+            $$ = builder.const_fetch($1, $2, $3);
+          }
         | tCOLON3 tCONSTANT
-            {}
+          {
+            $$ = builder.const_global($2);
+          }
         | tLBRACK aref_args ']'
-            {}
+          {
+            $$ = builder.array($2);
+          }
         |
           tLBRACE assoc_list '}'
           {
             $$ = builder.associate($2);
           }
         | keyword_return
-            {}
+          {
+            $$ = builder.keyword_cmd('return');
+          }
         | keyword_yield '(' call_args rparen
-            {}
+          {
+            $$ = builder.keyword_cmd('yield', $3);
+          }
         | keyword_yield '(' rparen
-            {}
+          {
+            $$ = builder.keyword_cmd('yield');
+          }
         | keyword_yield
-            {}
-        | keyword_defined opt_nl '(' { lexer.in_defined = true;} expr rparen
-            {
-              lexer.in_defined = false;
-            }
+          {
+            $$ = builder.keyword_cmd('yield');
+          }
+        | keyword_defined opt_nl '('
+          {
+            lexer.in_defined = true;
+          }
+          expr rparen
+          {
+            lexer.in_defined = false;
+            
+            $$ = builder.keyword_cmd('defined?', [ $5 ]);
+          }
         | keyword_not '(' expr rparen
           {
             $$ = builder.not_op($3);
