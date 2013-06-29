@@ -676,6 +676,16 @@ Builder.prototype =
   for_: function (iterator, iteratee, body)
   {
     return n('for', [ iterator, iteratee, body ]);
+  },
+  
+  def_class: function (name, superclass, body)
+  {
+    return n('class', [ name, superclass, body ]);
+  },
+  
+  def_sclass: function (expr, body)
+  {
+    return n('sclass', [ expr, body ]);
   }
   
   

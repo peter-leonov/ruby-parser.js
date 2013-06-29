@@ -1567,36 +1567,45 @@ primary:  literal
             $$ = builder.for_($2, $5, $8);
           }
         | k_class cpath superclass
+          {
+            if (lexer.in_def || lexer.in_single)
             {
-          if (lexer.in_def || lexer.in_single)
-            lexer.yyerror("class definition in method body");
-                scope.push_static();
+              lexer.yyerror("class definition in method body");
             }
+            
+            scope.push_static();
+          }
           bodystmt
           k_end
-            {
-              // touching this alters the parse.output
-                $<num>4;
-                scope.pop();
-            }
+          {
+            $$ = builder.def_class($2, $3, $5);
+            
+            // TODO: delete all these touching stuff:
+            // touching this alters the parse.output
+            $<num>4;
+            
+            scope.pop();
+          }
         | k_class tLSHFT expr
-            {
-          $<num>$ = lexer.in_def;
-          lexer.in_def = 0;
-            }
+          {
+            $<num>$ = lexer.in_def;
+            lexer.in_def = 0;
+          }
           term
-            {
-              $<num>$ = lexer.in_single;
-              lexer.in_single = 0;
-              scope.push_static();
-            }
+          {
+            $<num>$ = lexer.in_single;
+            lexer.in_single = 0;
+            scope.push_static();
+          }
           bodystmt
           k_end
-            {
-              scope.pop();
-          lexer.in_def = $<num>4;
-          lexer.in_single = $<num>6;
-            }
+          {
+            $$ = builder.def_sclass($3, $7);
+            
+            scope.pop();
+            lexer.in_def = $<num>4;
+            lexer.in_single = $<num>6;
+          }
         | k_module cpath
             {
           if (lexer.in_def || lexer.in_single)
@@ -2403,20 +2412,26 @@ backref:
     }
   ;
 
-superclass    : term
-            {}
-        | '<'
-            {
-            lexer.lex_state = EXPR_BEG;
-            lexer.command_start = true;
-            }
-          expr_value term
-            {}
-        | error term
-            {
-              parser.yyerrok();
-            }
-        ;
+superclass:
+    term
+    {
+      $$ = null;
+    }
+  | '<'
+    {
+      lexer.lex_state = EXPR_BEG;
+      lexer.command_start = true;
+    }
+    expr_value term
+    {
+      $$ = $3;
+    }
+  | error term
+    {
+      parser.yyerrok();
+      $$ = null;
+    }
+  ;
 
 f_arglist    : '(' f_args rparen
             {
