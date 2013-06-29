@@ -1,5 +1,5 @@
 #!ruby
 # encoding: utf-8
 
-!5
+defined? 5
 

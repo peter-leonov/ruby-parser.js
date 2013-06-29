@@ -1178,9 +1178,15 @@ arg:
       $$ = builder.logical_op('or', $1, $3);
     }
   |
-    keyword_defined opt_nl { lexer.in_defined = true;} arg
+    keyword_defined opt_nl
+    {
+      lexer.in_defined = true;
+    }
+    arg
     {
       lexer.in_defined = false;
+      
+      $$ = builder.keyword_cmd('defined?', [ $<ary>4 ]);
     }
   |
     arg '?' arg opt_nl ':' arg
