@@ -1201,14 +1201,23 @@ arg_value:
     arg
   ;
 
-aref_args    : none
-        | args trailer
-            {}
-        | args ',' assocs trailer
-            {}
-        | assocs trailer
-            {}
-        ;
+aref_args:
+    none
+  |
+    args trailer
+  |
+    args ',' assocs trailer
+    {
+      var args = $1;
+      args.push(builder.associate($3));
+      $$ = args;
+    }
+  |
+    assocs trailer
+    {
+      $$ = [ builder.associate($1) ];
+    }
+  ;
 
 paren_args:
     '(' opt_call_args rparen
@@ -1233,7 +1242,6 @@ opt_call_args:
     }
   | call_args
   | args ','
-    {}
   | args ',' assocs ','
     {
       var args = $1;
@@ -1246,16 +1254,35 @@ opt_call_args:
     }
   ;
 
-call_args    : command
-            {}
-        | args opt_block_arg
-            {}
-        | assocs opt_block_arg
-            {}
-        | args ',' assocs opt_block_arg
-            {}
-        | block_arg
-        ;
+call_args:
+    command
+    {
+      $$ = [ $1 ];
+    }
+  |
+    args opt_block_arg
+    {
+      $$ = $1.concat($2);
+    }
+  |
+    assocs opt_block_arg
+    {
+      $$ = [ builder.associate($1) ].concat($2);
+    }
+  |
+    args ',' assocs opt_block_arg
+    {
+      var assocs = builder.associate($3);
+      var args = $1;
+      args.push(assocs);
+      $$ = args.concat($4);
+    }
+  |
+    block_arg
+    {
+      $$ =  [ $1 ];
+    }
+  ;
 
 command_args
   :
@@ -1267,18 +1294,29 @@ command_args
     {
       // CMDARG_POP()
       lexer.cmdarg_stack = $<val>1;
+      
+      $$ = $2;
     }
   ;
 
-block_arg    : tAMPER arg_value
-            {}
-        ;
+block_arg:
+    tAMPER arg_value
+    {
+      $$ = builder.block_pass($1, $2);
+    }
+  ;
 
-opt_block_arg    : ',' block_arg
-            {}
-        | none
-            {}
-        ;
+opt_block_arg:
+    ',' block_arg
+    {
+      $$ = [ $2 ];
+    }
+  |
+    none
+    {
+      $$ = [];
+    }
+  ;
 
 args:
     arg_value
@@ -1304,13 +1342,25 @@ args:
     }
   ;
 
-mrhs        : args ',' arg_value
-            {}
-        | args ',' tSTAR arg_value
-            {}
-        | tSTAR arg_value
-            {}
-        ;
+mrhs:
+    args ',' arg_value
+    {
+      
+      var args = $1;
+      args.push($3);
+      $$ = args;
+    }
+  | args ',' tSTAR arg_value
+    {
+      var args = $1;
+      args.push(builder.splat($4));
+      $$ = args;
+    }
+  | tSTAR arg_value
+    {
+      $$ = [ builder.splat($2) ];
+    }
+  ;
 
 primary:  literal
         | strings
@@ -1323,7 +1373,9 @@ primary:  literal
         | var_ref
         | backref
         | tFID
-            {}
+            {
+              $$ = builder.call_method(null, null, $1);
+            }
         | k_begin
           {
             $<val>1 = lexer.cmdarg_stack;
@@ -2432,8 +2484,8 @@ restarg_mark    : '*'
 
 f_rest_arg    : restarg_mark tIDENTIFIER
             {
-          if (!is_local_id($2)) // TODO
-            lexer.yyerror("rest argument must be local variable");
+          // if (!is_local_id($2)) // TODO
+          //   lexer.yyerror("rest argument must be local variable");
                 
             }
         | restarg_mark
@@ -2444,15 +2496,22 @@ blkarg_mark    : '&'
         | tAMPER
         ;
 
-f_block_arg    : blkarg_mark tIDENTIFIER
-            {
-              if (!is_local_id($2))
-            lexer.yyerror("block argument must be local variable");
-                else if (!dyna_in_block() && local_id($2))
-            lexer.yyerror("duplicated block argument name");
-                
-            }
-        ;
+f_block_arg:
+    blkarg_mark tIDENTIFIER
+    {
+      // TODO
+      //   if (!is_local_id($2))
+      // lexer.yyerror("block argument must be local variable");
+      //     else if (!dyna_in_block() && local_id($2))
+      // lexer.yyerror("duplicated block argument name");
+      
+      var ident = $2;
+      scope.declare(ident[0]);
+
+      $$ = builder.blockarg(ident);
+      
+    }
+  ;
 
 opt_f_block_arg    : ',' f_block_arg
             {}

@@ -627,6 +627,11 @@ Builder.prototype =
     var node = n('if', [ this.check_condition(cond), if_true, if_false ]);
     node.ternary = true;
     return node;
+  },
+  
+  blockarg: function (name_t)
+  {
+    return n('blockarg', [ name_t ]);
   }
   
   
