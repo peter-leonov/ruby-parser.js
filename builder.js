@@ -691,12 +691,12 @@ Builder.prototype =
   def_module: function (name, body)
   {
     return n('module', [ name, body ]);
+  },
+  
+  def_method: function (name_t, args, body)
+  {
+    return n('def', [ name_t, args, body ]);
   }
-  
-  
-  
-  
-  
   
   
 }

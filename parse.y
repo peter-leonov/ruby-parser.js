@@ -1626,9 +1626,6 @@ primary:  literal
           }
         | k_def fname
             {
-              $<id>$ = lexer.cur_mid; // TODO
-                lexer.cur_mid = $2;
-                
               lexer.in_def++;
               scope.push_static();
             }
@@ -1636,11 +1633,13 @@ primary:  literal
           bodystmt
           k_end
             {
+              $$ = builder.def_method($2, $4, $5);
+              
               // touching this alters the parse.output
-                $<num>1;
-                scope.pop();
-                lexer.in_def--;
-                lexer.cur_mid = $<id>3;
+              $<num>1; $<id>3;
+              
+              scope.pop();
+              lexer.in_def--;
             }
   |
     k_def singleton dot_or_colon
@@ -2438,92 +2437,140 @@ superclass:
     }
   ;
 
-f_arglist    : '(' f_args rparen
-            {
-            lexer.lex_state = EXPR_BEG;
-            lexer.command_start = true;
-            }
-        | f_args term
-            {
-            lexer.lex_state = EXPR_BEG;
-            lexer.command_start = true;
-            }
-        ;
+f_arglist:
+    '(' f_args rparen
+    {
+      $$ = builder.args($2);
+      
+      lexer.lex_state = EXPR_BEG;
+      lexer.command_start = true;
+    }
+  | f_args term
+    {
+      $$ = builder.args($1);
+      
+      lexer.lex_state = EXPR_BEG;
+      lexer.command_start = true;
+    }
+  ;
 
-args_tail    : f_kwarg ',' f_kwrest opt_f_block_arg
-            {}
-        | f_kwarg opt_f_block_arg
-            {}
-        | f_kwrest opt_f_block_arg
-            {}
-        | f_block_arg
-            {}
-        ;
+args_tail:
+    f_kwarg ',' f_kwrest opt_f_block_arg
+    {
+      $$ = $1.concat($3).concat($4);
+    }
+  | f_kwarg opt_f_block_arg
+    {
+      $$ = $1.concat($2);
+    }
+  | f_kwrest opt_f_block_arg
+    {
+      $$ = $1.concat($2);
+    }
+  | f_block_arg
+    {
+      $$ = [ $1 ];
+    }
+  ;
 
-opt_args_tail    : ',' args_tail
-            {}
-        | /* none */
-            {}
-        ;
+opt_args_tail:
+    ',' args_tail
+    {
+      $$ = $2;
+    }
+  | /* none */
+    {
+      $$ = [];
+    }
+  ;
 
-f_args        : f_arg ',' f_optarg ',' f_rest_arg opt_args_tail
-            {}
-        | f_arg ',' f_optarg ',' f_rest_arg ',' f_arg opt_args_tail
-            {}
-        | f_arg ',' f_optarg opt_args_tail
-            {}
-        | f_arg ',' f_optarg ',' f_arg opt_args_tail
-            {}
-        | f_arg ',' f_rest_arg opt_args_tail
-            {}
-        | f_arg ',' f_rest_arg ',' f_arg opt_args_tail
-            {}
-        | f_arg opt_args_tail
-            {}
-        | f_optarg ',' f_rest_arg opt_args_tail
-            {}
-        | f_optarg ',' f_rest_arg ',' f_arg opt_args_tail
-            {}
-        | f_optarg opt_args_tail
-            {}
-        | f_optarg ',' f_arg opt_args_tail
-            {}
-        | f_rest_arg opt_args_tail
-            {}
-        | f_rest_arg ',' f_arg opt_args_tail
-            {}
-        | args_tail
-            {}
-        | /* none */
-            {}
-        ;
+f_args:
+  f_arg ',' f_optarg ',' f_rest_arg opt_args_tail
+    {
+      $$ = $1.concat($3).concat($5).concat($6);
+    }
+  | f_arg ',' f_optarg ',' f_rest_arg ',' f_arg opt_args_tail
+    {
+      $$ = $1.concat($3).concat($5).concat($7).concat($8);
+    }
+  | f_arg ',' f_optarg opt_args_tail
+    {
+      $$ = $1.concat($3).concat($4);
+    }
+  | f_arg ',' f_optarg ',' f_arg opt_args_tail
+    {
+      $$ = $1.concat($3).concat($5).concat($6);
+    }
+  | f_arg ',' f_rest_arg opt_args_tail
+    {
+      $$ = $1.concat($3).concat($4);
+    }
+  | f_arg ',' f_rest_arg ',' f_arg opt_args_tail
+    {
+      $$ = $1.concat($3).concat($5).concat($6);
+    }
+  | f_arg opt_args_tail
+    {
+      $$ = $1.concat($2);
+    }
+  | f_optarg ',' f_rest_arg opt_args_tail
+    {
+      $$ = $1.concat($3).concat($4);
+    }
+  | f_optarg ',' f_rest_arg ',' f_arg opt_args_tail
+    {
+      $$ = $1.concat($3).concat($5).concat($6);
+    }
+  | f_optarg opt_args_tail
+    {
+      $$ = $1.concat($2);
+    }
+  | f_optarg ',' f_arg opt_args_tail
+    {
+      $$ = $1.concat($3).concat($4);
+    }
+  | f_rest_arg opt_args_tail
+    {
+      $$ = $1.concat($2);
+    }
+  | f_rest_arg ',' f_arg opt_args_tail
+    {
+      $$ = $1.concat($3).concat($4);
+    }
+  | args_tail
+  | /* none */
+    {
+      $$ = [];
+    }
+  ;
 
-f_bad_arg    : tCONSTANT
-            {
-              lexer.yyerror("formal argument cannot be a constant");
-            }
-        | tIVAR
-            {
-              lexer.yyerror("formal argument cannot be an instance variable");
-            }
-        | tGVAR
-            {
-              lexer.yyerror("formal argument cannot be a global variable");
-            }
-        | tCVAR
-            {
-              lexer.yyerror("formal argument cannot be a class variable");
-            }
-        ;
+f_bad_arg:
+    tCONSTANT
+    {
+      lexer.yyerror("formal argument cannot be a constant");
+    }
+  | tIVAR
+    {
+      lexer.yyerror("formal argument cannot be an instance variable");
+    }
+  | tGVAR
+    {
+      lexer.yyerror("formal argument cannot be a global variable");
+    }
+  | tCVAR
+    {
+      lexer.yyerror("formal argument cannot be a class variable");
+    }
+  ;
 
 f_norm_arg:
     f_bad_arg
   |
     tIDENTIFIER
-    {
-      // formal_argument(get_id($1)) // TODO
-      $$ = $1;
-    }
+    // TODO: check, if it is necessary in the new builder
+    // {
+    //   formal_argument(get_id($1))
+    // }
   ;
 
 f_arg_item:

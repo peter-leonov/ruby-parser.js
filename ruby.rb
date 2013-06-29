@@ -1,6 +1,6 @@
 #!ruby
 # encoding: utf-8
 
-module A
+def x
   1
 end
