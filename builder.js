@@ -108,9 +108,9 @@ Builder.prototype =
     return n('ident', [ identifier ])
   },
   
-  const_: function (identifier)
+  const_: function (name_t)
   {
-    return n('const', [ null, identifier ]);
+    return n('const', [ null, name_t ]);
   },
   
   accessible: function (node)
