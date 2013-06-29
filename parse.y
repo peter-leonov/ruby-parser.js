@@ -1563,7 +1563,9 @@ primary:  literal
           }
           compstmt
           k_end
-            {}
+          {
+            $$ = builder.for_($2, $5, $8);
+          }
         | k_class cpath superclass
             {
           if (lexer.in_def || lexer.in_single)

@@ -1,9 +1,6 @@
 #!ruby
 # encoding: utf-8
 
-case $x
-when 100,200
+for x in $y do
   1
-when 300,400
-  2
 end

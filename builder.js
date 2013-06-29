@@ -671,9 +671,12 @@ Builder.prototype =
     var children = patterns;
     children.push(body);
     return n('when', children);
+  },
+  
+  for_: function (iterator, iteratee, body)
+  {
+    return n('for', [ iterator, iteratee, body ]);
   }
-  
-  
   
   
   
