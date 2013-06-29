@@ -290,6 +290,16 @@ Builder.prototype =
     return n('__LINE__', [ ruby_sourceline ]);
   },
   
+  _FILE_: function (filename)
+  {
+    return n('__FILE__', [ filename ]);
+  },
+  
+  __ENCODING__: function ()
+  {
+    return n0('__ENCODING__');
+  },
+  
   ivar: function (name)
   {
     return n('ivar', [ name ]);
@@ -643,6 +653,7 @@ Builder.prototype =
   {
     return n('if', [ this.check_condition(cond), if_true, if_false ]);
   }
+  
   
   
   

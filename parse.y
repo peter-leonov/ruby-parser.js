@@ -1487,13 +1487,19 @@ primary:  literal
             $$ = builder.block($1, block.args, block.body);
           }
         | tLAMBDA lambda
-            {}
-        | k_if expr_value then
-          compstmt
-          if_tail
-          k_end
-            {}
-        | k_unless expr_value then
+          {
+            var lambda_call = builder.call_lambda($1);
+
+            var lambda = $2;
+            $$ = builder.block($1, lambda.args, lambda.body);
+          }
+        |
+          k_if expr_value then compstmt if_tail k_end
+          {
+            $$ = builder.condition($2, $4, $5);
+          }
+        |
+          k_unless expr_value then
           compstmt
           opt_else
           k_end
@@ -1687,17 +1693,22 @@ do        : term
         | keyword_do_cond
         ;
 
-if_tail        : opt_else
-        | keyword_elsif expr_value then
-          compstmt
-          if_tail
-            {}
-        ;
+if_tail:
+    opt_else
+  |
+    keyword_elsif expr_value then compstmt if_tail
+    {
+      $$ = builder.condition($2, $4, $5);
+    }
+  ;
 
-opt_else    : none
-        | keyword_else compstmt
-            {}
-        ;
+opt_else:
+    none
+  | keyword_else compstmt
+    {
+      $$ = $2;
+    }
+  ;
 
 for_var        : lhs
         | mlhs
@@ -1857,19 +1868,24 @@ bvar:
     }
   ;
 
-lambda        :   {}
-            {
-              $<num>$ = lexer.lpar_beg;
-              lexer.lpar_beg = ++lexer.paren_nest;
-            }
-          f_larglist
-          lambda_body
-            {
-          lexer.lpar_beg = $<num>2;
-          // touching this alters the parse.output
-          $<vars>1;
-            }
-        ;
+lambda:
+    {
+      // TODO
+    }
+    {
+      $<num>$ = lexer.lpar_beg;
+      lexer.lpar_beg = ++lexer.paren_nest;
+    }
+    f_larglist
+    lambda_body
+    {
+      lexer.lpar_beg = $<num>2;
+      // touching this alters the parse.output
+      $<vars>1;
+      
+      $$ = { args: $3, body: $4 };
+    }
+  ;
 
 f_larglist    : '(' f_args opt_bv_decl ')'
             {}
@@ -1877,11 +1893,17 @@ f_larglist    : '(' f_args opt_bv_decl ')'
             {}
         ;
 
-lambda_body    : tLAMBEG compstmt '}'
-            {}
-        | keyword_do_LAMBDA compstmt keyword_end
-            {}
-        ;
+lambda_body:
+    tLAMBEG compstmt '}'
+    {
+      $$ = $2;
+    }
+  |
+    keyword_do_LAMBDA compstmt keyword_end
+    {
+      $$ = $2;
+    }
+  ;
 
 do_block    : keyword_do_block
             {}
@@ -2285,16 +2307,32 @@ keyword_variable:
     {
       $$ = builder.self();
     }
-        | keyword_true {$$ = keyword_true;}
-        | keyword_false {$$ = keyword_false;}
-        | keyword__FILE__ { $$ = lexer.filename; }
+  |
+    keyword_true
+    {
+      $$ = builder.true_();
+    }
+  |
+    keyword_false
+    {
+      $$ = builder.false_();
+    }
+  |
+    keyword__FILE__
+    {
+      $$ = builder._FILE_(lexer.filename);
+    }
   |
     keyword__LINE__
     {
-      $$ = builder._LINE_(lexer.ruby_sourceline)
+      $$ = builder._LINE_(lexer.ruby_sourceline);
     }
-        | keyword__ENCODING__ {$$ = keyword__ENCODING__;}
-        ;
+  |
+    keyword__ENCODING__
+    {
+      $$ = builder._ENCODING_();
+    }
+  ;
 
 var_ref:
     user_variable
