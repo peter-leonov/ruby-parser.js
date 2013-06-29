@@ -439,7 +439,7 @@ Builder.prototype =
     return node;
   },
   
-  keyword_cmd: function (type, args /*=[]*/)
+  keyword_cmd: function (type, args)
   {
     return n(type, args || []);
   },

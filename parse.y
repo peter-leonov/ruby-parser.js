@@ -553,19 +553,29 @@ command:
     }
   |
     keyword_super command_args
-    {}
+    {
+      $$ = builder.keyword_cmd('super', $2);
+    }
   |
     keyword_yield command_args
-    {}
+    {
+      $$ = builder.keyword_cmd('yield', $2);
+    }
   |
     keyword_return call_args
-    {}
+    {
+      $$ = builder.keyword_cmd('return', $2);
+    }
   |
     keyword_break call_args
-    {}
+    {
+      $$ = builder.keyword_cmd('break', $2);
+    }
   |
     keyword_next call_args
-    {}
+    {
+      $$ = builder.keyword_cmd('next', $2);
+    }
   ;
 
 mlhs
