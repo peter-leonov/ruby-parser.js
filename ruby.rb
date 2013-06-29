@@ -1,9 +1,6 @@
 #!ruby
 # encoding: utf-8
 
-if true
+until true do
   1
-else
-  2
 end
-

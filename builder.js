@@ -375,6 +375,11 @@ Builder.prototype =
     return n('erange', [ lhs, rhs ]);
   },
   
+  loop: function (type, cond, body)
+  {
+    return n(type, [ this.check_condition(cond), body ]);
+  },
+  
   loop_mod: function (type, body, cond)
   {
     // begin … end while …

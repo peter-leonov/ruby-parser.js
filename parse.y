@@ -1494,7 +1494,10 @@ primary:  literal
             $$ = builder.block($1, lambda.args, lambda.body);
           }
         |
-          k_if expr_value then compstmt if_tail k_end
+          k_if expr_value then
+          compstmt
+          if_tail
+          k_end
           {
             $$ = builder.condition($2, $4, $5);
           }
@@ -1503,7 +1506,9 @@ primary:  literal
           compstmt
           opt_else
           k_end
-            {}
+          {
+            $$ = builder.condition($2, $5, $4);
+          }
         | k_while
           {
             lexer.COND_PUSH(1);
@@ -1514,19 +1519,25 @@ primary:  literal
           }
           compstmt
           k_end
-            {}
-        | k_until
-        {
-          lexer.COND_PUSH(1);
-        }
-        expr_value do
-        {
-          lexer.COND_POP();
-        }
+          {
+            $$ = builder.loop('while', $3, $6);
+          }
+        |
+          k_until
+          {
+            lexer.COND_PUSH(1);
+          }
+          expr_value do
+          {
+            lexer.COND_POP();
+          }
           compstmt
           k_end
-            {}
-        | k_case expr_value opt_terms
+          {
+            $$ = builder.loop('until', $3, $6);
+          }
+        |
+          k_case expr_value opt_terms
           case_body
           k_end
             {}
