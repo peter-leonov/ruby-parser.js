@@ -24,7 +24,7 @@ function yyinspect_node (node)
 {
   if (!node.length)
   {
-    return node.type;
+    return node.type + '()';
   }
   
   var parts = [];
