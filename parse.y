@@ -1654,6 +1654,8 @@ primary:
     bodystmt
     k_end
       {
+        $$ = builder.def_singleton($2, $5, $7, $8);
+
         scope.pop();
         lexer.in_single--;
       }
@@ -2697,35 +2699,17 @@ opt_f_block_arg    : ',' f_block_arg
             {}
         ;
 
-singleton    : var_ref
-            {}
-        | '('
-        {
-          lexer.lex_state = EXPR_BEG;
-        }
-        expr rparen
-            {
-          if ($3 == null) {
-            lexer.yyerror("can't define singleton method for ().");
-          }
-          else {
-            switch ($3.type) { // TODO
-              case 'STR':
-              case 'DSTR':
-              case 'XSTR':
-              case 'DXSTR':
-              case 'DREGX':
-              case 'LIT':
-              case 'ARRAY':
-              case 'ZARRAY':
-                lexer.yyerror("can't define singleton method for literals");
-              default:
-                value_expr($3); // TODO
-                break;
-            }
-          }
-            }
-        ;
+singleton:
+    var_ref
+  | '('
+      {
+        lexer.lex_state = EXPR_BEG;
+      }
+    expr rparen
+      {
+        $$ = $3;
+      }
+  ;
 
 assoc_list:
     none

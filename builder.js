@@ -522,6 +522,7 @@ Builder.prototype =
       
       switch (this_arg.type)
       {
+        // TODO: place `case `mlhs` here, and these mess in default. Test!
         case 'arg':   case 'optarg':   case 'restarg':   case 'blockarg':
         case 'kwarg': case 'kwoptarg': case 'kwrestarg': case 'shadowarg':
 
@@ -705,6 +706,21 @@ Builder.prototype =
   {
     return n('def', [ name_t, args, body ]);
   },
+  
+  def_singleton: function (definee, name_t, args, body)
+  {
+    switch (definee.type)
+    {
+      case 'int':    case 'str':   case 'dstr': case 'sym': case 'dsym':
+      case 'regexp': case 'array': case 'hash':
+
+        lexer.compile_error('TODO: singleton_literal');
+        // fall through
+    }
+    
+    return n('defs', [ definee, name_t, args, body ]);
+  },
+  
   
   restarg: function (name_t)
   {
