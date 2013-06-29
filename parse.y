@@ -161,7 +161,7 @@ lexer.setScope(scope);
 %right tPOW
 %right '!' '~' tUPLUS
 
-%token <id> '?' '>' '<' '|' '^' '&' '+' '-' '*' '/' '%' '{' '}' '[' '.' ',' '~' '`' '(' ')' ']' ';' '\n'
+%token <id> '?' '>' '<' '|' '^' '&' '+' '-' '*' '/' '%' '{' '}' '[' '.' ',' '~' '`' '(' ')' ']' ';' '\n' '!'
 
 
 // must be last indeed
@@ -1063,16 +1063,22 @@ arg:
   |
     tUMINUS_NUM tINTEGER tPOW arg
     {
-      // TODO: convert tINTEGER to NEW_LIT()
+      var number = builder.integer($2);
+      var binary  = builder.binary_op(number, $3, $4);
+      $$ = builder.unary_op($<id>1, binary);
     }
   |
     tUMINUS_NUM tFLOAT tPOW arg
     {
-      // TODO: convert tFLOAT to NEW_LIT()
+      var number = builder.integer($2);
+      var binary  = builder.binary_op(number, $3, $4);
+      $$ = builder.unary_op($<id>1, binary);
     }
   |
     tUPLUS arg
-    {}
+    {
+      $$ = builder.unary_op($1, $2);
+    }
   |
     tUMINUS arg
     {}

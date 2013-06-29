@@ -148,6 +148,11 @@ Builder.prototype =
     return n('int', [ negate ? -number : number ]);
   },
 
+  float_: function (number, negate)
+  {
+    return n('float', [ negate ? -number : number ]);
+  },
+
   assignable: function (node)
   {
     var children = node.children;
@@ -597,6 +602,24 @@ Builder.prototype =
   binary_op: function (receiver, operator_t, arg)
   {
     return n('send', [ receiver, operator_t, arg ]);
+  },
+  
+  unary_op: function (op_t, receiver)
+  {
+    if (op_t == '+')
+    {
+      var method = '+@';
+    }
+    else if (op_t == '-')
+    {
+      method = '-@';
+    }
+    else
+    {
+      method = op_t;
+    }
+    
+    return n('send', [ receiver, method ]);
   }
   
   
