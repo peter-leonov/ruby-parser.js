@@ -657,7 +657,22 @@ Builder.prototype =
   condition: function (cond, if_true, if_false)
   {
     return n('if', [ this.check_condition(cond), if_true, if_false ]);
+  },
+  
+  case_: function (expr, when_bodies, else_body)
+  {
+    var children = [ expr ].concat(when_bodies);
+    children.push(else_body);
+    return n('case', children);
+  },
+  
+  when: function (patterns, body)
+  {
+    var children = patterns;
+    children.push(body);
+    return n('when', children);
   }
+  
   
   
   

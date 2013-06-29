@@ -254,9 +254,7 @@ bodystmt:
 compstmt:
     stmts opt_terms
     {
-      // void_stmts($1);
-      // fixup_nodes(deferred_nodes);
-      // $$ = $1;
+      $$ = builder.compstmt($1);
     };
 
 stmts:
@@ -1540,9 +1538,21 @@ primary:  literal
           k_case expr_value opt_terms
           case_body
           k_end
-            {}
-        | k_case opt_terms case_body k_end
-            {}
+          {
+            var when_bodies = $4;
+            var else_body = when_bodies.pop();
+
+            $$ = builder.case_($2, when_bodies, else_body);
+          }
+        | k_case            opt_terms
+          case_body
+          k_end
+          {
+            var when_bodies = $3;
+            var else_body = when_bodies.pop();
+
+            $$ = builder.case_(null, when_bodies, else_body);
+          }
         | k_for for_var keyword_in
           {
             lexer.COND_PUSH(1);
@@ -2029,15 +2039,25 @@ brace_block:
     }
   ;
 
-case_body    : keyword_when args then
-          compstmt
-          cases
-            {}
-        ;
+case_body:
+    keyword_when args then
+    compstmt
+    cases
+    {
+      var cases = $5;
+      cases.unshift(builder.when($2, $4)); // TODO: push() + reverse()
+      $$ = cases;
+    }
+  ;
 
-cases        : opt_else
-        | case_body
-        ;
+cases:
+    opt_else
+    {
+      $$ = [ $1 ];
+    }
+  |
+    case_body
+  ;
 
 opt_rescue:
     keyword_rescue exc_list exc_var then compstmt opt_rescue
