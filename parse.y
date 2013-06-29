@@ -1812,15 +1812,25 @@ f_margs:
   ;
 
 
-block_args_tail    : f_block_kwarg ',' f_kwrest opt_f_block_arg
-            {}
-        | f_block_kwarg opt_f_block_arg
-            {}
-        | f_kwrest opt_f_block_arg
-            {}
-        | f_block_arg
-            {}
-        ;
+block_args_tail:
+    f_block_kwarg ',' f_kwrest opt_f_block_arg
+      {
+        // TODO: try unshift()
+        $$ = $1.concat($3).concat($4);
+      }
+  | f_block_kwarg opt_f_block_arg
+      {
+        $$ = $1.concat($2);
+      }
+  | f_kwrest opt_f_block_arg
+      {
+        $$ = $1.concat($2);
+      }
+  | f_block_arg
+      {
+        $$ = [ $1 ];
+      }
+  ;
 
 opt_block_args_tail:
     ',' block_args_tail
@@ -1833,39 +1843,62 @@ opt_block_args_tail:
     }
   ;
 
-block_param    : f_arg ',' f_block_optarg ',' f_rest_arg opt_block_args_tail
-            {}
-        | f_arg ',' f_block_optarg ',' f_rest_arg ',' f_arg opt_block_args_tail
-            {}
-        | f_arg ',' f_block_optarg opt_block_args_tail
-            {}
-        | f_arg ',' f_block_optarg ',' f_arg opt_block_args_tail
-            {}
-                | f_arg ',' f_rest_arg opt_block_args_tail
-            {}
-        | f_arg ','
-            {}
-        | f_arg ',' f_rest_arg ',' f_arg opt_block_args_tail
-            {}
-        | f_arg opt_block_args_tail
-          {
-            $$ = $1.concat($2);
-          }
-        | f_block_optarg ',' f_rest_arg opt_block_args_tail
-            {}
-        | f_block_optarg ',' f_rest_arg ',' f_arg opt_block_args_tail
-            {}
-        | f_block_optarg opt_block_args_tail
-            {}
-        | f_block_optarg ',' f_arg opt_block_args_tail
-            {}
-        | f_rest_arg opt_block_args_tail
-            {}
-        | f_rest_arg ',' f_arg opt_block_args_tail
-            {}
-        | block_args_tail
-            {}
-        ;
+block_param:
+    f_arg ',' f_block_optarg ',' f_rest_arg opt_block_args_tail
+      {
+        $$ = $1.concat($3).concat($5).concat($6);
+      }
+  | f_arg ',' f_block_optarg ',' f_rest_arg ',' f_arg opt_block_args_tail
+      {
+        $$ = $1.concat($3).concat($5).concat($7).concat($8);
+      }
+  | f_arg ',' f_block_optarg opt_block_args_tail
+      {
+        $$ = $1.concat($3).concat($4);
+      }
+  | f_arg ',' f_block_optarg ',' f_arg opt_block_args_tail
+      {
+        $$ = $1.concat($3).concat($5).concat($6);
+      }
+  | f_arg ',' f_rest_arg opt_block_args_tail
+      {
+        $$ = $1.concat($3).concat($4);
+      }
+  | f_arg ','
+  | f_arg ',' f_rest_arg ',' f_arg opt_block_args_tail
+      {
+        $$ = $1.concat($3).concat($5).concat($6);
+      }
+  | f_arg opt_block_args_tail
+    {
+      $$ = $1.concat($2);
+    }
+  | f_block_optarg ',' f_rest_arg opt_block_args_tail
+      {
+        $$ = $1.concat($3).concat($4);
+      }
+  | f_block_optarg ',' f_rest_arg ',' f_arg opt_block_args_tail
+      {
+        $$ = $1.concat($3).concat($5).concat($6);
+      }
+  | f_block_optarg opt_block_args_tail
+      {
+        $$ = $1.concat($2);
+      }
+  | f_block_optarg ',' f_arg opt_block_args_tail
+      {
+        $$ = $1.concat($3).concat($4);
+      }
+  | f_rest_arg opt_block_args_tail
+      {
+        $$ = $1.concat($2);
+      }
+  | f_rest_arg ',' f_arg opt_block_args_tail
+      {
+        $$ = $1.concat($3).concat($4);
+      }
+  | block_args_tail
+  ;
 
 opt_block_param:
     none
@@ -1929,6 +1962,7 @@ bvar:
   |
     f_bad_arg
     {
+      // our addition
       $$ = null;
     }
   ;
@@ -1952,45 +1986,73 @@ lambda:
     }
   ;
 
-f_larglist    : '(' f_args opt_bv_decl ')'
-            {}
-        | f_args
-            {}
-        ;
+f_larglist:
+    '(' f_args opt_bv_decl ')'
+      {
+        $$ = builder.args($2.concat($3));
+      }
+  | f_args
+      {
+        $$ = builder.args($1);
+      }
+  ;
 
 lambda_body:
     tLAMBEG compstmt '}'
     {
-      $$ = $2;
+      $$ = $2; // no wrapping in an array
     }
   |
     keyword_do_LAMBDA compstmt keyword_end
     {
-      $$ = $2;
+      $$ = $2; // no wrapping in an array
     }
   ;
 
-do_block    : keyword_do_block
-            {}
-          opt_block_param
-          compstmt
-          keyword_end
-            {
-          // touching this alters the parse.output
-        $<num>2;
-              $<vars>1;
-            }
-        ;
+do_block:
+    keyword_do_block
+      {
+        scope.push_dynamic();
+      }
+    opt_block_param
+    compstmt
+    keyword_end
+      {
+        $$ = { args: $3, body: $4 };
 
-block_call    : command do_block
-            {}
-        | block_call dot_or_colon operation2 opt_paren_args
-            {}
-        | block_call dot_or_colon operation2 opt_paren_args brace_block
-            {}
-        | block_call dot_or_colon operation2 command_args do_block
-            {}
-        ;
+        scope.pop();
+
+        // touching this alters the parse.output
+        $<num>2;
+        $<vars>1;
+      }
+  ;
+
+block_call:
+    command do_block
+      {
+        var block = $2;
+        $$ = builder.block($1, block.args, block.body);
+      }
+  | block_call dot_or_colon operation2 opt_paren_args
+      {
+        $$ = builder.call_method($1, $2, $3, $4);
+      }
+  | block_call dot_or_colon operation2 opt_paren_args brace_block
+      {
+        var method_call = builder.call_method($1, $2, $3, $4);
+
+        var block = $5;
+        $$ = builder.block(method_call, block.args, block.body);
+      }
+  | block_call dot_or_colon operation2 command_args do_block
+      {
+        var method_call = builder.call_method($1, $2, $3, $4);
+
+        var block = $5;
+        $$ = builder.block(method_call, block.args, block.body);
+      }
+  ;
 
 method_call:
     fcall paren_args
@@ -1998,13 +2060,17 @@ method_call:
       $$ = builder.call_method(null, null, $1, $2);
     }
   |
-    primary_value '.' operation2 {/*TODO*/} opt_paren_args
-    {
-      $$ = builder.call_method($1, $2, $3, $5);
+    primary_value '.' operation2
+      {
+        // TODO
+      }
+    opt_paren_args
+      {
+        $$ = builder.call_method($1, $2, $3, $5);
       
-      // touching this alters the parse.output
-        $<num>4;
-    }
+        // touching this alters the parse.output
+          $<num>4;
+      }
   |
     primary_value tCOLON2 operation2 {/*TODO*/} paren_args
     {
