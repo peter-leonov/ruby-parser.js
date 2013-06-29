@@ -554,6 +554,49 @@ Builder.prototype =
   associate: function (pairs)
   {
     return n('hash', pairs.slice()); // TODO: check all `slices()` are nessry
+  },
+  
+  begin: function (body)
+  {
+    if (body == null)
+    {
+      // A nil expression: ()
+      return n0('begin');
+    }
+    
+    if (body.type == 'mlhs' || body.begin_from_compstmt)
+    {
+      // Synthesized (begin) from compstmt "a; b" or (mlhs)
+      // from multi_lhs "(a, b) = *foo".
+      return n(body.type, body.children);
+    }
+    
+    return n('begin', [ body ]);
+  },
+  
+  index_asgn: function (receiver, indexes)
+  {
+    // Incomplete method call.
+    return n('send', [ receiver, '[]=' ].concat(indexes));
+  },
+  
+  const_global: function (name_t)
+  {
+    var cbase = n0('cbase');
+    return n('const', [ cbase, name_t ]);
+  },
+  
+  const_fetch: function (scope, op_t, name_t)
+  {
+    var node = n('const', [ scope, name_t ]);
+    // to distinguish `a.b` from `a::b`
+    node.op = op_t;
+    return node;
+  },
+  
+  binary_op: function (receiver, operator_t, arg)
+  {
+    return n('send', [ receiver, operator_t, arg ]);
   }
   
   

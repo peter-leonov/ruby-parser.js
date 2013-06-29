@@ -586,15 +586,21 @@ mlhs
     }
   |
     tLPAREN mlhs_inner rparen
-    {}
+    {
+      $$ = builder.begin($2);
+    }
   ;
 
-mlhs_inner
-  :
+mlhs_inner:
     mlhs_basic
+    {
+      $$ = builder.multi_lhs($1);
+    }
   |
     tLPAREN mlhs_inner rparen
-    {}
+    {
+      $$ = builder.multi_lhs($2);
+    }
   ;
 
 mlhs_basic:
@@ -666,25 +672,39 @@ mlhs_item
     mlhs_node
   |
     tLPAREN mlhs_inner rparen
-    {}
+    {
+      $$ = builder.begin($2);
+    }
   ;
 
 mlhs_head
   :
     mlhs_item ','
-    {}
+    {
+      $$ = [ $1 ];
+    }
   |
     mlhs_head mlhs_item ','
-    {}
+    {
+      var mlhs_head = $1;
+      mlhs_head.push($2);
+      $$ = mlhs_head;
+    }
   ;
 
 mlhs_post
   :
     mlhs_item
-    {}
+    {
+      $$ = [ $1 ];
+    }
   |
     mlhs_post ',' mlhs_item
-    {}
+    {
+      var mlhs_post = $1;
+      mlhs_post.push($3);
+      $$ = mlhs_post;
+    }
   ;
 
 mlhs_node
@@ -695,34 +715,50 @@ mlhs_node
     }
   |
     keyword_variable
-    {}
+    {
+      $$ = builder.assignable($1);
+    }
   |
     primary_value '[' opt_call_args rbracket
-    {}
+    {
+      $$ = builder.index_asgn($1, $3);
+    }
   |
     primary_value '.' tIDENTIFIER
-    {}
+    {
+      $$ = builder.attr_asgn($1, $2, $3);
+    }
   |
     primary_value tCOLON2 tIDENTIFIER
-    {}
+    {
+      $$ = builder.attr_asgn($1, $2, $3);
+    }
   |
     primary_value '.' tCONSTANT
-    {}
+    {
+      $$ = builder.attr_asgn($1, $2, $3);
+    }
   |
     primary_value tCOLON2 tCONSTANT
     {
       if (lexer.in_def || lexer.in_single)
         lexer.yyerror("dynamic constant assignment");
+      
+      $$ = builder.assignable(builder.const_fetch(val[0], val[1], val[2]))
     }
   |
     tCOLON3 tCONSTANT
     {
       if (lexer.in_def || lexer.in_single)
         lexer.yyerror("dynamic constant assignment");
+      
+      $$ = builder.assignable(builder.const_global($2));
     }
   |
     backref
-    {}
+    {
+      $$ = builder.assignable($1);
+    }
   ;
 
 lhs:
@@ -732,10 +768,14 @@ lhs:
     }
   |
     keyword_variable
-    {}
+    {
+      $$ = builder.assignable($1);
+    }
   |
     primary_value '[' opt_call_args rbracket
-    {}
+    {
+      $$ = builder.index_asgn($1, $3);
+    }
   |
     primary_value '.' tIDENTIFIER
     {
@@ -743,25 +783,35 @@ lhs:
     }
   |
     primary_value tCOLON2 tIDENTIFIER
-    {}
+    {
+      $$ = builder.attr_asgn($1, $2, $3);
+    }
   |
     primary_value '.' tCONSTANT
-    {}
+    {
+      $$ = builder.attr_asgn($1, $2, $3);
+    }
   |
     primary_value tCOLON2 tCONSTANT
     {
       if (lexer.in_def || lexer.in_single)
         lexer.yyerror("dynamic constant assignment");
+      
+      $$ = builder.assignable(builder.const_fetch($1, $2, $3));
     }
   |
     tCOLON3 tCONSTANT
     {
       if (lexer.in_def || lexer.in_single)
         lexer.yyerror("dynamic constant assignment");
+      
+      $$ = builder.assignable(builder.const_global($2));
     }
   |
     backref
-    {}
+    {
+      $$ = builder.assignable($1);
+    }
   ;
 
 cname
@@ -777,13 +827,19 @@ cname
 cpath
   :
     tCOLON3 cname
-    {}
+    {
+      $$ = builder.const_global($2);
+    }
   |
     cname
-    {}
+    {
+      $$ = builder.const_($1);
+    }
   |
     primary_value tCOLON2 cname
-    {}
+    {
+      $$ = builder.const_fetch($1, $2, $3);
+    }
   ;
 
 fname:
@@ -841,36 +897,36 @@ undef_list
   ;
 
 op
-  : '|'       {}
-  | '^'       {}
-  | '&'       {}
-  | tCMP      {}
-  | tEQ       {}
-  | tEQQ      {}
-  | tMATCH    {}
-  | tNMATCH   {}
-  | '>'       {}
-  | tGEQ      {}
-  | '<'       {}
-  | tLEQ      {}
-  | tNEQ      {}
-  | tLSHFT    {}
-  | tRSHFT    {}
-  | '+'       {}
-  | '-'       {}
-  | '*'       {}
-  | tSTAR     {}
-  | '/'       {}
-  | '%'       {}
-  | tPOW      {}
-  | tDSTAR    {}
-  | '!'       {}
-  | '~'       {}
-  | tUPLUS    {}
-  | tUMINUS   {}
-  | tAREF     {}
-  | tASET     {}
-  | '`'       {}
+  : '|'
+  | '^'
+  | '&'
+  | tCMP
+  | tEQ
+  | tEQQ
+  | tMATCH
+  | tNMATCH
+  | '>'
+  | tGEQ
+  | '<'
+  | tLEQ
+  | tNEQ
+  | tLSHFT
+  | tRSHFT
+  | '+'
+  | '-'
+  | '*'
+  | tSTAR
+  | '/'
+  | '%'
+  | tPOW
+  | tDSTAR
+  | '!'
+  | '~'
+  | tUPLUS
+  | tUMINUS
+  | tAREF
+  | tASET
+  | '`'
   ;
 
 reswords
@@ -895,7 +951,11 @@ arg:
     }
   |
     lhs '=' arg modifier_rescue arg
-    {}
+    {
+      var rescue_body = builder.rescue_body(null, null, $5);
+      var rescue = builder.begin_body($3, [ rescue_body ]);
+      $$ = builder.assign($1, rescue);
+    }
   |
     var_lhs tOP_ASGN arg
     {
@@ -903,27 +963,57 @@ arg:
     }
   |
     var_lhs tOP_ASGN arg modifier_rescue arg
-    {}
+    {
+      var rescue_body = builder.rescue_body(null, null, $5);
+      var rescue = builder.begin_body($3, [ rescue_body ]);
+      $$ = builder.op_assign($1, $2, rescue);
+    }
   |
     primary_value '[' opt_call_args rbracket tOP_ASGN arg
     {
-      $$ = builder.op_assign(builder.index($1, $3), $5, $6);
+      var index = builder.index($1, $3);
+      $$ = builder.op_assign(index, $5, $6);
     }
   |
     primary_value '.' tIDENTIFIER tOP_ASGN arg
-    {}
+    {
+      var call_method = builder.call_method($1, $2, $3);
+      $$ = builder.op_assign(call_method, $4, $5);
+    }
   |
     primary_value '.' tCONSTANT tOP_ASGN arg
-    {}
+    {
+      var call_method = builder.call_method($1, $2, $3);
+      $$ = builder.op_assign(call_method, $4, $5);
+    }
   |
     primary_value tCOLON2 tIDENTIFIER tOP_ASGN arg
-    {}
+    {
+      var call_method = builder.call_method($1, $2, $3);
+      $$ = builder.op_assign(call_method, $4, $5);
+    }
   |
     primary_value tCOLON2 tCONSTANT tOP_ASGN arg
-    {}
+    {
+      // TODO
+      // if in_def?
+      //   diagnostic(:error, :dynamic_const, val[2], [ val[3] ])
+      // end
+      
+      var const_ = builder.assignable(builder.const_fetch($1, $2, $3));
+      $$ = builder.op_assign(const_, $4, $5);
+    }
   |
     tCOLON3 tCONSTANT tOP_ASGN arg
-    {}
+    {
+      // TODO
+      // if in_def?
+      //   diagnostic(:error, :dynamic_const, val[1], [ val[2] ])
+      // end
+      
+      var const_  = builder.assignable(builder.const_global($2));
+      $$ = builder.op_assign(const_, $3, $4);
+    }
   |
     backref tOP_ASGN arg
     {
