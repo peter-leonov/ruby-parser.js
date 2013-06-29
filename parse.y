@@ -505,16 +505,18 @@ cmd_brace_block:
     }
   ;
 
-fcall
-  :
+fcall:
     operation
-    {}
+    {
+      // nd_set_line($$, tokline); TODO
+    }
   ;
 
-command
-  :
+command:
     fcall command_args  %prec tLOWEST
-    {}
+    {
+      $$ = builder.call_method(null, null, $1, $2);
+    }
   |
     fcall command_args cmd_brace_block
     {
@@ -525,7 +527,9 @@ command
     }
   |
     primary_value '.' operation2 command_args  %prec tLOWEST
-    {}
+    {
+      $$ = builder.call_method($1, $2, $3, $4);
+    }
   |
     primary_value '.' operation2 command_args cmd_brace_block
     {
@@ -536,7 +540,9 @@ command
     }
   |
     primary_value tCOLON2 operation2 command_args    %prec tLOWEST
-    {}
+    {
+      $$ = builder.call_method($1, $2, $3, $4);
+    }
   |
     primary_value tCOLON2 operation2 command_args cmd_brace_block
     {
