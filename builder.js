@@ -686,7 +686,15 @@ Builder.prototype =
   def_sclass: function (expr, body)
   {
     return n('sclass', [ expr, body ]);
+  },
+  
+  def_module: function (name, body)
+  {
+    return n('module', [ name, body ]);
   }
+  
+  
+  
   
   
   

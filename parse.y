@@ -1607,18 +1607,23 @@ primary:  literal
             lexer.in_single = $<num>6;
           }
         | k_module cpath
+          {
+            if (lexer.in_def || lexer.in_single)
             {
-          if (lexer.in_def || lexer.in_single)
-            lexer.yyerror("module definition in method body");
-                scope.push_static();
+              lexer.yyerror("module definition in method body");
             }
+            scope.push_static();
+          }
           bodystmt
           k_end
-            {
-              // touching this alters the parse.output
-                $<num>3;
-                scope.pop();
-            }
+          {
+            $$ = builder.def_module($2, $4);
+
+            // touching this alters the parse.output
+            $<num>3;
+            
+            scope.pop();
+          }
         | k_def fname
             {
               $<id>$ = lexer.cur_mid; // TODO

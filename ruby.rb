@@ -1,10 +1,6 @@
 #!ruby
 # encoding: utf-8
 
-class A < B::C
+module A
   1
-end
-
-class << $x
-  2
 end
