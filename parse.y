@@ -2059,8 +2059,7 @@ method_call:
     {
       $$ = builder.call_method(null, null, $1, $2);
     }
-  |
-    primary_value '.' operation2
+  | primary_value '.' operation2
       {
         // TODO
       }
@@ -2071,149 +2070,139 @@ method_call:
         // touching this alters the parse.output
           $<num>4;
       }
-  |
-    primary_value tCOLON2 operation2 {/*TODO*/} paren_args
-    {
-      $$ = builder.call_method($1, $2, $3, $5);
+  | primary_value tCOLON2 operation2
+      {
+        // TODO
+      }
+    paren_args
+      {
+        $$ = builder.call_method($1, $2, $3, $5);
       
-      // touching this alters the parse.output
-        $<num>4
-    }
-  |
-    primary_value tCOLON2 operation3
+        // touching this alters the parse.output
+          $<num>4
+      }
+  | primary_value tCOLON2 operation3
     {
       $$ = builder.call_method($1, $2, $3); // empty args
     }
-  |
-    primary_value '.' {/*TODO*/} paren_args
-    {
-      // null for empty method name
-      // as in `primary_value.(paren_args)`
-      $$ = builder.call_method($1, '.', null, $4);
+  | primary_value '.'
+      {
+        // TODO
+      }
+    paren_args
+      {
+        // null for empty method name
+        // as in `primary_value.(paren_args)`
+        $$ = builder.call_method($1, '.', null, $4);
       
-      // touching this alters the parse.output
-      $<num>3;
-    }
-  |
-    primary_value tCOLON2 {/*TODO*/} paren_args
-    {
-      $$ = builder.call_method($1, $2, null, $4);
+        // touching this alters the parse.output
+        $<num>3;
+      }
+  | primary_value tCOLON2
+      {
+        // TODO
+      }
+    paren_args
+      {
+        $$ = builder.call_method($1, $2, null, $4);
 
-      // TODO: touching this alters the parse.output
-      $<num>3;
-    }
-  |
-    keyword_super paren_args
-    {
-      $$ = builder.keyword_cmd('super', $2);
-    }
-  |
-    keyword_super
-    {
-      $$ = builder.keyword_cmd('zsuper');
-    }
-  |
-    primary_value '[' opt_call_args rbracket
-    {
-      $$ = builder.index($1, $3);
-    }
+        // TODO: touching this alters the parse.output
+        $<num>3;
+      }
+  | keyword_super paren_args
+      {
+        $$ = builder.keyword_cmd('super', $2);
+      }
+  | keyword_super
+      {
+        $$ = builder.keyword_cmd('zsuper');
+      }
+  | primary_value '[' opt_call_args rbracket
+      {
+        $$ = builder.index($1, $3);
+      }
   ;
 
 brace_block:
     '{'
-    {
-      scope.push_dynamic();
-    }
+      {
+        scope.push_dynamic();
+      }
     opt_block_param compstmt '}'
-    {
-      $$ = { args: $3, body: $4 };
+      {
+        $$ = { args: $3, body: $4 };
       
-      // touching this alters the parse.output
-      $<num>2;
+        // touching this alters the parse.output
+        $<num>2;
       
-      scope.pop();
-    }
-  |
-    keyword_do
-    {
-      scope.push_dynamic();
-    }
+        scope.pop();
+      }
+  | keyword_do
+      {
+        scope.push_dynamic();
+      }
     opt_block_param compstmt keyword_end
-    {
-      $$ = { args: $3, body: $4 };
+      {
+        $$ = { args: $3, body: $4 };
       
-      // touching this alters the parse.output
-      $<num>2;
+        // touching this alters the parse.output
+        $<num>2;
       
-      scope.pop();
-    }
+        scope.pop();
+      }
   ;
 
 case_body:
     keyword_when args then
     compstmt
     cases
-    {
-      var cases = $5;
-      cases.unshift(builder.when($2, $4)); // TODO: push() + reverse()
-      $$ = cases;
-    }
+      {
+        var cases = $5;
+        cases.unshift(builder.when($2, $4)); // TODO: push() + reverse()
+        $$ = cases;
+      }
   ;
 
 cases:
     opt_else
-    {
-      $$ = [ $1 ];
-    }
-  |
-    case_body
+      {
+        $$ = [ $1 ];
+      }
+  | case_body
   ;
 
 opt_rescue:
     keyword_rescue exc_list exc_var then compstmt opt_rescue
-    {
-      var exc_list = $2;
-      if (exc_list)
       {
-        exc_list = builder.array(exc_list)
-      }
+        var exc_list = $2;
+        if (exc_list) // may be `null`
+        {
+          exc_list = builder.array(exc_list)
+        }
 
-      var rescue_ary = [builder.rescue_body(exc_list, $3, $5)];
-      var opt_rescue = $6;
-      if (opt_rescue)
-      {
-        Array_push.apply(rescue_ary, opt_rescue);
+        $$ = [ builder.rescue_body(exc_list, $3, $5) ].concat($6);
       }
-      $$ = rescue_ary;
-    }
-  |
-    none
-    {
-      $$ = [];
-    }
+  | none
+      {
+        $$ = [];
+      }
   ;
 
 exc_list:
     arg_value
-    {
-      $$ = [ $1 ];
-    }
-  |
-    mrhs
-    {
-      
-    }
-  |
-    none
+      {
+        $$ = [ $1 ];
+      }
+  | mrhs
+  | none
   ;
 
 exc_var:
     tASSOC lhs
-    {
-      $$ = $2;
-    }
-  |
-    none
+      {
+        $$ = $2;
+      }
+  | none
   ;
 
 opt_ensure    : keyword_ensure compstmt
@@ -2851,11 +2840,12 @@ operation:
     tFID
   ;
 
-operation2    : tIDENTIFIER
-        | tCONSTANT
-        | tFID
-        | op
-        ;
+operation2:
+    tIDENTIFIER
+  | tCONSTANT
+  | tFID
+  | op
+  ;
 
 operation3    : tIDENTIFIER
         | tFID
