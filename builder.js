@@ -534,7 +534,7 @@ Builder.prototype =
             continue;
           }
           
-          var that_name  = that_arg[0];
+          var that_name = that_arg[0];
           if (this.arg_name_collides(this_name, that_name))
           {
             
@@ -549,6 +549,14 @@ Builder.prototype =
       }
     }
   },
+  
+  arg_name_collides: function (this_name, that_name)
+  {
+    // ruby 2.0 rule
+    // Ignore everything beginning with underscore.
+    return this_name[0] != '_' && this_name == that_name;
+  },
+  
   
   shadowarg: function (ident)
   {
