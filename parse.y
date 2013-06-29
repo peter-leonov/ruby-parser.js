@@ -1681,61 +1681,30 @@ primary_value:
     primary
   ;
 
-k_begin:
-    keyword_begin
-    {
-      // TODO: store line/col to $$
-    }
+// cut out in whitequark parser
+// try to cut it out too
+k_begin: keyword_begin;
+k_if: keyword_if;
+k_unless: keyword_unless;
+k_while: keyword_while;
+k_until: keyword_until;
+k_case: keyword_case;
+k_for: keyword_for;
+k_class: keyword_class;
+k_module: keyword_module;
+k_def: keyword_def;
+k_end: keyword_end;
+
+then:
+    term
+  | keyword_then
+  | term keyword_then
   ;
 
-k_if        : keyword_if
-            {}
-        ;
-
-k_unless    : keyword_unless
-            {}
-        ;
-
-k_while        : keyword_while
-            {}
-        ;
-
-k_until        : keyword_until
-            {}
-        ;
-
-k_case        : keyword_case
-            {}
-        ;
-
-k_for        : keyword_for
-            {}
-        ;
-
-k_class        : keyword_class
-            {}
-        ;
-
-k_module    : keyword_module
-            {}
-        ;
-
-k_def        : keyword_def
-            {}
-        ;
-
-k_end:
-    keyword_end
+do:
+    term
+  | keyword_do_cond
   ;
-
-then        : term
-        | keyword_then
-        | term keyword_then
-        ;
-
-do        : term
-        | keyword_do_cond
-        ;
 
 if_tail:
     opt_else
@@ -1754,41 +1723,93 @@ opt_else:
     }
   ;
 
-for_var        : lhs
-        | mlhs
-        ;
+for_var:
+    lhs
+  | mlhs
+  ;
 
-f_marg        : f_norm_arg
-            {}
-        | tLPAREN f_margs rparen
-            {}
-        ;
+f_marg:
+    f_norm_arg
+      {
+        var arg = $1;
+        scope.declare(arg[0]);
+        
+        $$ = builder.arg(arg);
+      }
+  | tLPAREN f_margs rparen
+      {
+        $$ = builder.multi_lhs($2);
+      }
+  ;
 
-f_marg_list    : f_marg
-            {}
-        | f_marg_list ',' f_marg
-            {}
-        ;
+f_marg_list:
+    f_marg
+      {
+        $$ = [ $1 ];
+      }
+  | f_marg_list ',' f_marg
+      {
+        var f_marg_list = $1;
+        f_marg_list.push($3);
+        $$ = f_marg_list;
+      }
+  ;
 
-f_margs        : f_marg_list
-            {}
-        | f_marg_list ',' tSTAR f_norm_arg
-            {}
-        | f_marg_list ',' tSTAR f_norm_arg ',' f_marg_list
-            {}
-        | f_marg_list ',' tSTAR
-            {}
-        | f_marg_list ',' tSTAR ',' f_marg_list
-            {}
-        | tSTAR f_norm_arg
-            {}
-        | tSTAR f_norm_arg ',' f_marg_list
-            {}
-        | tSTAR
-            {}
-        | tSTAR ',' f_marg_list
-            {}
-        ;
+f_margs:
+    f_marg_list
+  | f_marg_list ',' tSTAR f_norm_arg
+      {
+        var f_norm_arg = $4;
+        scope.declare(f_norm_arg[0]);
+        
+        var f_marg_list = $1;
+        f_marg_list.push(builder.restarg(f_norm_arg));
+        $$ = f_marg_list;
+      }
+  | f_marg_list ',' tSTAR f_norm_arg ',' f_marg_list
+      {
+        var f_norm_arg = $4;
+        scope.declare(f_norm_arg[0]);
+        
+        var f_marg_list = $1;
+        f_marg_list.push(builder.restarg(f_norm_arg));
+        $$ = f_marg_list.concat($6);
+      }
+  | f_marg_list ',' tSTAR
+      {
+        var f_marg_list = $1;
+        f_marg_list.push(builder.restarg());
+        $$ = f_marg_list;
+      }
+  | f_marg_list ',' tSTAR ',' f_marg_list
+      {
+        var f_marg_list = $1;
+        f_marg_list.push(builder.restarg());
+        $$ = f_marg_list.concat($5);
+      }
+  | tSTAR f_norm_arg
+      {
+        var f_norm_arg = $2;
+        scope.declare(f_norm_arg[0]);
+        
+        $$ = [ builder.restarg(f_norm_arg) ];
+      }
+  | tSTAR f_norm_arg ',' f_marg_list
+      {
+        var f_norm_arg = $2;
+        scope.declare(f_norm_arg[0]);
+        
+        $$ = [ builder.restarg(f_norm_arg) ].concat($4);
+      }
+  | tSTAR
+      {
+        $$ = [ builder.restarg() ];
+      }
+  | tSTAR ',' f_marg_list
+      {
+        $$ = [ builder.restarg() ].concat($3);
+      }
+  ;
 
 
 block_args_tail    : f_block_kwarg ',' f_kwrest opt_f_block_arg
