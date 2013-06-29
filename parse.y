@@ -776,8 +776,7 @@ cpath
     {}
   ;
 
-fname
-  :
+fname:
     tIDENTIFIER
   |
     tCONSTANT
@@ -795,9 +794,11 @@ fname
     }
   ;
 
-fsym
-  :
+fsym:
     fname
+    {
+      $$ = builder.symbol($1);
+    }
   |
     symbol
   ;
@@ -1194,8 +1195,11 @@ primary:  literal
             {}
         | tLBRACK aref_args ']'
             {}
-        | tLBRACE assoc_list '}'
-            {}
+        |
+          tLBRACE assoc_list '}'
+          {
+            $$ = builder.associate($2);
+          }
         | keyword_return
             {}
         | keyword_yield '(' call_args rparen
@@ -1218,7 +1222,12 @@ primary:  literal
             $$ = builder.not_op(null);
           }
         | fcall brace_block
-            {}
+          {
+            var method_call = builder.call_method(null, null, $1);
+
+            var block = $2;
+            $$ = builder.block(method_call, block.args, block.body);
+          }
         | method_call
         | method_call brace_block
           {
@@ -2317,30 +2326,51 @@ singleton    : var_ref
             }
         ;
 
-assoc_list    : none
-        | assocs trailer
-            {}
-        ;
+assoc_list:
+    none
+    {
+      $$ = [];
+    }
+  |
+    assocs trailer
+  ;
 
-assocs        : assoc
-        | assocs ',' assoc
-            {}
-        ;
+assocs:
+    assoc
+    {
+      $$ = [$1];
+    }
+  |
+    assocs ',' assoc
+    {
+      var assocs = $1;
+      assocs.push($3);
+      $$ = assocs;
+    }
+  ;
 
-assoc        : arg_value tASSOC arg_value
-            {}
-        | tLABEL arg_value
-            {}
-        | tDSTAR arg_value
-            {}
-        ;
+assoc:
+    arg_value tASSOC arg_value
+    {
+      $$ = builder.pair($1, $2);
+    }
+  | tLABEL arg_value
+    {
+      $$ = builder.pair_keyword($1, $2);
+    }
+  | tDSTAR arg_value
+    {
+      $$ = builder.kwsplat($2);
+    }
+  ;
 
-        ;
-
-operation    : tIDENTIFIER
-        | tCONSTANT
-        | tFID
-        ;
+operation:
+    tIDENTIFIER
+  |
+    tCONSTANT
+  |
+    tFID
+  ;
 
 operation2    : tIDENTIFIER
         | tCONSTANT

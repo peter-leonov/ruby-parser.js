@@ -1771,7 +1771,7 @@ this.yylex = function yylex ()
           {
             lexer.lex_state = EXPR_BEG;
             nextc();
-            // set_yylval_name(TOK_INTERN(!ENC_SINGLE(mb))); TODO
+            lexer.yylval = tok();
             is_local_id = false;
             return tLABEL;
           }

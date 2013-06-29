@@ -426,7 +426,7 @@ Builder.prototype =
     return n('send', [ receiver, "[]" ].concat(indexes));
   },
   
-  call_method: function (receiver, dot_t, selector_t, args /*=[]*/)
+  call_method: function (receiver, dot_t, selector_t, args)
   {
     // empty `selector_t` indicates this call form: `a.()`,
     // transform it to `a.call()`
@@ -437,11 +437,6 @@ Builder.prototype =
     node.op = dot_t;
     
     return node;
-  },
-  
-  associate: function (pairs)
-  {
-    return n('hash', pairs.slice()); // TODO: check all `slices()` are nessry
   },
   
   keyword_cmd: function (type, args /*=[]*/)
@@ -538,6 +533,27 @@ Builder.prototype =
   shadowarg: function (ident)
   {
     return n('shadowarg', [ ident ]);
+  },
+  
+  pair_keyword: function (key_t, value)
+  {
+    var key = n('sym', [ key_t ]);
+    return n('pair', [ key, value ]);
+  },
+  
+  kwsplat: function (arg)
+  {
+    return n('kwsplat', [ arg ]);
+  },
+  
+  pair: function (key, value)
+  {
+    return n('pair', [ key, value ]);
+  },
+  
+  associate: function (pairs)
+  {
+    return n('hash', pairs.slice()); // TODO: check all `slices()` are nessry
   }
   
   
