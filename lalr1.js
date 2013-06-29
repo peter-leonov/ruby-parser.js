@@ -188,7 +188,7 @@ var yyval, yystack, actionsTable;
     var yynerrs_ = 0;
 
     // Semantic value of the lookahead.
-    var yylval = null;
+    var yylval = undefined;
 
     debug_print("Starting parse\n");
     yyerrstatus_ = 0;
@@ -472,7 +472,7 @@ var yyval, yystack, actionsTable;
     if (yylen > 0)
       yyval = yystack.valueAt(yylen - 1);
     else
-      yyval = null; // yes, setting garbage value
+      yyval = undefined; // yes, setting garbage value
 
     debug_reduce_print(yyn);
 
