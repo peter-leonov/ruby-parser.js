@@ -497,7 +497,7 @@ cmd_brace_block:
     }
     opt_block_param compstmt '}'
     {
-      $$ = [ $3, $4 ];
+      $$ = { args: $3, body: $4 };
       
       // touching this alters the parse.output
       $<num>2; // nd_set_line($$, $<num>2);
@@ -521,23 +521,30 @@ command
       var method_call = builder.call_method(null, null, $1, $2);
 
       var block = $3;
-      var args = block[0];
-      var body = block[1];
-      
-      $$ = builder.block(method_call, args, body);
+      $$ = builder.block(method_call, block.args, block.body);
     }
   |
     primary_value '.' operation2 command_args  %prec tLOWEST
     {}
   |
     primary_value '.' operation2 command_args cmd_brace_block
-    {}
+    {
+      var method_call = builder.call_method($1, $2, $3, $4);
+
+      var block = $5;
+      $$ = builder.block(method_call, block.args, block.body);
+    }
   |
     primary_value tCOLON2 operation2 command_args    %prec tLOWEST
     {}
   |
     primary_value tCOLON2 operation2 command_args cmd_brace_block
-    {}
+    {
+      var method_call = builder.call_method($1, $2, $3, $4);
+
+      var block = $5;
+      $$ = builder.block(method_call, block.args, block.body);
+    }
   |
     keyword_super command_args
     {}
@@ -1210,10 +1217,7 @@ primary:  literal
         | method_call brace_block
           {
             var block = $2;
-            var args = block[0];
-            var body = block[1];
-            
-            $$ = builder.block($1, args, body);
+            $$ = builder.block($1, block.args, block.body);
           }
         | tLAMBDA lambda
             {}
@@ -1702,7 +1706,7 @@ brace_block:
     }
     opt_block_param compstmt '}'
     {
-      $$ = [ $3, $4 ];
+      $$ = { args: $3, body: $4 };
       
       // touching this alters the parse.output
       $<num>2;
@@ -1716,7 +1720,7 @@ brace_block:
     }
     opt_block_param compstmt keyword_end
     {
-      $$ = [ $3, $4 ];
+      $$ = { args: $3, body: $4 };
       
       // touching this alters the parse.output
       $<num>2;
