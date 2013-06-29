@@ -1081,7 +1081,9 @@ arg:
     }
   |
     tUMINUS arg
-    {}
+    {
+      $$ = builder.unary_op($1, $2);
+    }
   |
     arg '|' arg
     {
@@ -1152,7 +1154,9 @@ arg:
     }
   |
     '~' arg
-    {}
+    {
+       $$ = builder.unary_op($1, $2);
+    }
   |
     arg tLSHFT arg
     {
@@ -1165,10 +1169,14 @@ arg:
     }
   |
     arg tANDOP arg
-    {}
+    {
+      $$ = builder.logical_op('and', $1, $3);
+    }
   |
     arg tOROP arg
-    {}
+    {
+      $$ = builder.logical_op('or', $1, $3);
+    }
   |
     keyword_defined opt_nl { lexer.in_defined = true;} arg
     {

@@ -1081,6 +1081,7 @@ this.yylex = function yylex ()
         lexer.lex_state = EXPR_ARG;
         if (c == '@')
         {
+          lexer.yylval = "+";
           return tUPLUS;
         }
         pushback(c);
@@ -1103,6 +1104,7 @@ this.yylex = function yylex ()
           return start_num(c); // was: goto start_num;
         }
         
+        lexer.yylval = "+";
         return tUPLUS;
       }
       lexer.lex_state = EXPR_BEG;
@@ -1120,6 +1122,7 @@ this.yylex = function yylex ()
         lexer.lex_state = EXPR_ARG;
         if (c == '@')
         {
+          lexer.yylval = "-";
           return tUMINUS;
         }
         pushback(c);
@@ -1142,8 +1145,10 @@ this.yylex = function yylex ()
         pushback(c);
         if (c != '' && ISDIGIT(c))
         {
+          lexer.yylval = "-";
           return tUMINUS_NUM;
         }
+        lexer.yylval = "-";
         return tUMINUS;
       }
       lexer.lex_state = EXPR_BEG;
@@ -1311,6 +1316,7 @@ this.yylex = function yylex ()
       {
         lexer.lex_state = EXPR_BEG;
       }
+      lexer.yylval = "~";
       return $('~');
     }
     
