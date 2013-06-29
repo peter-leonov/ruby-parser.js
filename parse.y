@@ -1660,18 +1660,25 @@ primary:
         lexer.in_single--;
       }
   | keyword_break
-      {}
+      {
+        $$ = builder.keyword_cmd('break');
+      }
   | keyword_next
-      {}
+      {
+        $$ = builder.keyword_cmd('next');
+      }
   | keyword_redo
-      {}
+      {
+        $$ = builder.keyword_cmd('redo');
+      }
   | keyword_retry
-      {}
+      {
+        $$ = builder.keyword_cmd('retry');
+      }
   ;
 
 primary_value:
     primary
-      {}
   ;
 
 k_begin:
