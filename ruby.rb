@@ -1,6 +1,6 @@
 #!ruby
 # encoding: utf-8
 
-def x
+def x (a, b, c, *d)
   1
 end

@@ -2656,15 +2656,20 @@ restarg_mark    : '*'
         | tSTAR
         ;
 
-f_rest_arg    : restarg_mark tIDENTIFIER
-            {
-          // if (!is_local_id($2)) // TODO
-          //   lexer.yyerror("rest argument must be local variable");
-                
-            }
-        | restarg_mark
-            {}
-        ;
+f_rest_arg:
+    restarg_mark tIDENTIFIER
+    {
+      scope.declare($2[0]);
+      // if (!is_local_id($2)) // TODO
+      //   lexer.yyerror("rest argument must be local variable");
+      
+      $$ = [ builder.restarg($2) ];
+    }
+  | restarg_mark
+    {
+      $$ = [ builder.restarg() ];
+    }
+  ;
 
 blkarg_mark    : '&'
         | tAMPER

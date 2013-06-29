@@ -696,6 +696,14 @@ Builder.prototype =
   def_method: function (name_t, args, body)
   {
     return n('def', [ name_t, args, body ]);
+  },
+  
+  restarg: function (name_t)
+  {
+    if (name_t == null)
+      return n0('restarg');
+    
+    return n('restarg', [ name_t ]);
   }
   
   
