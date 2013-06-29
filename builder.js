@@ -620,10 +620,14 @@ Builder.prototype =
     }
     
     return n('send', [ receiver, method ]);
+  },
+  
+  ternary: function (cond, if_true, if_false)
+  {
+    var node = n('if', [ this.check_condition(cond), if_true, if_false ]);
+    node.ternary = true;
+    return node;
   }
-  
-  
-  
   
   
   

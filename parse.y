@@ -1190,7 +1190,9 @@ arg:
     }
   |
     arg '?' arg opt_nl ':' arg
-    {}
+    {
+      $$ = builder.ternary($1, $3, $6);
+    }
   |
     primary
   ;

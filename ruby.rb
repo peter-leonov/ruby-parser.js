@@ -1,5 +1,5 @@
 #!ruby
 # encoding: utf-8
 
-defined? 5
+$a ? 2 : 3
 
