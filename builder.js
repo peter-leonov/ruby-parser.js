@@ -728,6 +728,31 @@ Builder.prototype =
       return n0('restarg');
     
     return n('restarg', [ name_t ]);
+  },
+  
+  // Strings
+  
+  string: function (string_t)
+  {
+    return n('str', [ string_t ]);
+  },
+  
+  
+  string_compose: function (parts)
+  {
+    if (this.collapse_string_parts(parts))
+    {
+      return parts[0]; // single string or uncollapsable dstring
+    }
+    
+    // uncollapsable dstring
+    return n('dstr', parts.slice());
+  },
+  
+  collapse_string_parts: function (parts)
+  {
+    var type = parts[0].type;
+    return parts.length == 1 && (type == 'str' || type == 'dstr');
   }
   
   

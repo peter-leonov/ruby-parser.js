@@ -1,4 +1,5 @@
 #!ruby
 # encoding: utf-8
 
-each {}.each {}
+# "1#{$x}"
+?a

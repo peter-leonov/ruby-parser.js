@@ -2205,34 +2205,64 @@ exc_var:
   | none
   ;
 
-opt_ensure    : keyword_ensure compstmt
-            {}
-        | none
-        ;
+opt_ensure:
+    keyword_ensure compstmt
+      {
+        $$ = $2;
+      }
+  | none
+  ;
 
-literal        : numeric
-        | symbol
-            {}
-        | dsym
-        ;
+literal:
+    numeric
+  | symbol
+  | dsym
+  ;
 
-strings        : string
-            {}
-        ;
+strings:
+    string
+      {
+        $$ = builder.string_compose($1);
+      }
+  ;
 
-string        : tCHAR
-        | string1
-        | string string1
-            {}
-        ;
+string:
+    // in whitequark parser moved to `string1` as `tSTRING`
+    tCHAR
+     {
+       $$ = [ builder.string($1) ];
+     }
+  | string1
+      {
+        $$ = [ $1 ];
+      }
+  | string string1
+      {
+        var string = $1;
+        string.push($2);
+        $$ = string;
+      }
+  ;
 
-string1        : tSTRING_BEG string_contents tSTRING_END
-            {}
-        ;
+string1:
+    tSTRING_BEG string_contents tSTRING_END
+      {
+        $$ = builder.string_compose($2);
+      }
+  // // here the whitequark parser differs a little
+  // // it's a new name for tCHAR, may be from ruby 2.1
+  // | tSTRING 
+  // {
+  //   $$ = builder.string($1);
+  // }
+  ;
 
-xstring        : tXSTRING_BEG xstring_contents tSTRING_END
-            {}
-        ;
+xstring:
+    tXSTRING_BEG xstring_contents tSTRING_END
+      {
+        
+      }
+  ;
 
 regexp        : tREGEXP_BEG regexp_contents tREGEXP_END
             {}
