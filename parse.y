@@ -1324,7 +1324,7 @@ command_args
 block_arg:
     tAMPER arg_value
     {
-      $$ = builder.block_pass($1, $2);
+      $$ = builder.block_pass($2);
     }
   ;
 

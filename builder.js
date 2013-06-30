@@ -500,6 +500,11 @@ Builder.prototype =
     return n('block', [ method_call, args, body ]);
   },
   
+  block_pass: function (arg)
+  {
+    return n('block_pass', [ arg ]);
+  },
+  
   args: function (args)
   {
     this.check_duplicate_args(args);
