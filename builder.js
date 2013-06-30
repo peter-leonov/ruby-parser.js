@@ -769,8 +769,11 @@ Builder.prototype =
   
   collapse_string_parts: function (parts)
   {
+    if (parts.length != 1)
+      return false;
+    
     var type = parts[0].type;
-    return parts.length == 1 && (type == 'str' || type == 'dstr');
+    return type == 'str' || type == 'dstr';
   },
   
   words_compose: function (parts)
@@ -809,6 +812,25 @@ Builder.prototype =
     }
     
     return n('array', symbols);
+  },
+  
+  symbol_compose: function (parts)
+  {
+    if (this.collapse_string_parts(parts))
+    {
+      var str = parts[0];
+      n('sym', [ str.children[0] ]);
+    }
+    else
+    {
+      return n('dsym', parts.slice());
+    }
+  },
+  
+  
+  kwoptarg: function (name_t, value)
+  {
+    return n('kwoptarg', [ name_t, value ]);
   }
   
   
