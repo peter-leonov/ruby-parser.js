@@ -2550,26 +2550,25 @@ numeric:
 
 user_variable:
     tIDENTIFIER
-    {
-      $$ = builder.ident($1);
-    }
-  |
-    tIVAR
-    {
-      $$ = builder.ivar($1);
-    }
-  |
-    tGVAR
-    {
-      $$ = builder.gvar($1);
-    }
-  |
-    tCONSTANT
-    {
-      $$ = builder.const_($1);
-    }
-  |
-    tCVAR
+      {
+        $$ = builder.ident($1);
+      }
+  | tIVAR
+      {
+        $$ = builder.ivar($1);
+      }
+  | tGVAR
+      {
+        $$ = builder.gvar($1);
+      }
+  | tCONSTANT
+      {
+        $$ = builder.const_($1);
+      }
+  | tCVAR
+      {
+        $$ = builder.cvar($1);
+      }
   ;
 
 keyword_variable:
