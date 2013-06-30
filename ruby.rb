@@ -1,5 +1,4 @@
 #!ruby
 # encoding: utf-8
 
-# "1#{$x}"
-?a
+"1#{$x}"

@@ -2324,11 +2324,18 @@ qsym_list    : /* none */
             {}
         ;
 
-string_contents : /* none */
-            {}
-        | string_contents string_content
-            {}
-        ;
+string_contents:
+    /* none */
+      {
+        $$ = []; // string parts collector
+      }
+  | string_contents string_content
+      {
+        var string_contents = $1;
+        string_contents.push($2);
+        $$ = string_contents;
+      }
+  ;
 
 xstring_contents: /* none */
             {}
@@ -2342,42 +2349,49 @@ regexp_contents: /* none */
             {}
         ;
 
-string_content    : tSTRING_CONTENT
-        | tSTRING_DVAR
-            {
-            $<node>$ = lexer.lex_strterm;
-            lexer.lex_strterm = null;
-            lexer.lex_state = EXPR_BEG;
-            }
-          string_dvar
-            {
-            /*%%%*/
-            lexer.lex_strterm = $<node>2;
-            }
-        | tSTRING_DBEG
-            {
-          $<val>1 = lexer.cond_stack;
-          $<val>$ = lexer.cmdarg_stack;
-          lexer.cond_stack = 0;
-          lexer.cmdarg_stack = 0;
-            }
-            {
-            $<node>$ = lexer.lex_strterm;
-            lexer.lex_strterm = null;
-            lexer.lex_state = EXPR_BEG;
-            }
-            {
-            $<num>$ = lexer.brace_nest;
-            lexer.brace_nest = 0;
-            }
-          compstmt tSTRING_DEND
-            {
-          lexer.cond_stack = $<val>1;
-          lexer.cmdarg_stack = $<val>2;
-          lexer.lex_strterm = $<node>3;
-          lexer.brace_nest = $<num>4;
-            }
-        ;
+string_content:
+    tSTRING_CONTENT
+      {
+        $$ = builder.string($1);
+      }
+  | tSTRING_DVAR
+      {
+        $<node>$ = lexer.lex_strterm;
+        lexer.lex_strterm = null;
+        lexer.lex_state = EXPR_BEG;
+      }
+    string_dvar
+      {
+        $$ = $3;
+        lexer.lex_strterm = $<node>2;
+      }
+  | tSTRING_DBEG
+      // TODO: try to relax this row of actions
+      {
+        $<val>1 = lexer.cond_stack;
+        $<val>$ = lexer.cmdarg_stack;
+        lexer.cond_stack = 0;
+        lexer.cmdarg_stack = 0;
+      }
+      {
+        $<node>$ = lexer.lex_strterm;
+        lexer.lex_strterm = null;
+        lexer.lex_state = EXPR_BEG;
+      }
+      {
+        $<num>$ = lexer.brace_nest;
+        lexer.brace_nest = 0;
+      }
+    compstmt tSTRING_DEND
+      {
+        lexer.cond_stack = $<val>1;
+        lexer.cmdarg_stack = $<val>2;
+        lexer.lex_strterm = $<node>3;
+        lexer.brace_nest = $<num>4;
+        
+        $$ = builder.begin($5); // the compstmt
+      }
+  ;
 
 string_dvar:
     tGVAR
