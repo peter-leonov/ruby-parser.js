@@ -2365,16 +2365,21 @@ qwords:
       }
   ;
 
-qsymbols    : tQSYMBOLS_BEG ' ' tSTRING_END
-            {}
-        | tQSYMBOLS_BEG qsym_list tSTRING_END
-            {}
-        ;
+qsymbols:
+    tQSYMBOLS_BEG ' ' tSTRING_END
+      {
+        $$ = builder.symbols_compose([]);
+      }
+  | tQSYMBOLS_BEG qsym_list tSTRING_END
+      {
+        $$ = builder.symbols_compose($2);
+      }
+  ;
 
 qword_list:
     /* none */
       {
-        $$ = [];
+        $$ = []; // accumulator
       }
   | qword_list tSTRING_CONTENT ' '
       {
@@ -2384,11 +2389,18 @@ qword_list:
       }
   ;
 
-qsym_list    : /* none */
-            {}
-        | qsym_list tSTRING_CONTENT ' '
-            {}
-        ;
+qsym_list:
+    /* none */
+      {
+        $$ = []; // accumulator
+      }
+  | qsym_list tSTRING_CONTENT ' '
+      {
+        var qsym_list = $1;
+        qsym_list.push(builder.symbol($2));
+        $$ = qsym_list;
+      }
+  ;
 
 string_contents:
     /* none */
