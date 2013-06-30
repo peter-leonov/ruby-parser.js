@@ -1,4 +1,4 @@
 #!ruby
 # encoding: utf-8
 
-/abc/em
+/a#{$x}bc/em
