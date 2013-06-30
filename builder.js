@@ -737,7 +737,6 @@ Builder.prototype =
     return n('str', [ string_t ]);
   },
   
-  
   string_compose: function (parts)
   {
     if (this.collapse_string_parts(parts))
@@ -749,11 +748,33 @@ Builder.prototype =
     return n('dstr', parts.slice());
   },
   
+  xstring_compose: function (parts)
+  {
+    return n('xstr', parts.slice());
+  },
+  
+  regexp_options: function (regopt_t) // tREGEXP_END actually
+  {
+    var options = regopt_t.split('');
+    options.sort(); // .uniq()
+
+    return n('regopt', options);
+  },
+  
+  regexp_compose: function (parts, options)
+  {
+    parts.push(options);
+    return n('regexp', parts);
+  },
+  
   collapse_string_parts: function (parts)
   {
     var type = parts[0].type;
     return parts.length == 1 && (type == 'str' || type == 'dstr');
   }
+  
+  
+  
   
   
 }

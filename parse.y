@@ -2263,13 +2263,17 @@ string1:
 xstring:
     tXSTRING_BEG xstring_contents tSTRING_END
       {
-        
+        $$ = builder.xstring_compose($2);
       }
   ;
 
-regexp        : tREGEXP_BEG regexp_contents tREGEXP_END
-            {}
-        ;
+regexp:
+    tREGEXP_BEG regexp_contents tREGEXP_END /* tREGEXP_OPT in WP */
+      {
+        var opts = builder.regexp_options($3); // tREGEXP_OPT in WP
+        $$ = builder.regexp_compose($2, opts);
+      }
+  ;
 
 words        : tWORDS_BEG ' ' tSTRING_END
             {}
@@ -2343,11 +2347,18 @@ xstring_contents: /* none */
             {}
         ;
 
-regexp_contents: /* none */
-            {}
-        | regexp_contents string_content
-            {}
-        ;
+regexp_contents:
+    /* none */
+      {
+        $$ = []; // accumulator
+      }
+  | regexp_contents string_content
+      {
+        var regexp_contents = $1;
+        regexp_contents.push($2);
+        $$ = regexp_contents;
+      }
+  ;
 
 string_content:
     tSTRING_CONTENT
