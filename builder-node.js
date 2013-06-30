@@ -1,8 +1,3 @@
-function yyinspect (v)
-{
-  return (v && v.yyinspect) ? v.yyinspect() : JSON.stringify(v);
-}
-
 function n (type, children)
 {
   children.type = type;
@@ -20,6 +15,11 @@ function n0 (type)
 
 
 #if DEV
+function yyinspect (v)
+{
+  return (v && v.yyinspect) ? v.yyinspect() : JSON.stringify(v);
+}
+
 function yyinspect_node (node)
 {
   if (!node.length)
