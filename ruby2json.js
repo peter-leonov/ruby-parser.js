@@ -16,11 +16,13 @@ global.write = function ()
 
 var Parser = require('./parse.js');
 
+var rbfile = process.argv[2];
 
-function parse (text)
+
+function parse (text, filename)
 {
   var lexer = new Parser.YYLexer(text);
-  lexer.filename = 'ruby.rb';
+  lexer.filename = filename;
   
   var parser = new Parser.YYParser(lexer);
   parser.yydebug = 1; // render all the states transitions
@@ -30,8 +32,8 @@ function parse (text)
   return {ok: ok, ast: parser.resulting_ast};
 }
 
-var text = fs.readFileSync('ruby.rb', {encoding: 'utf8'});
-var result = parse(text);
+var text = fs.readFileSync(rbfile, {encoding: 'utf8'});
+var result = parse(text, rbfile);
 
 function to_plain (n)
 {
