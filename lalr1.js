@@ -40,8 +40,9 @@ m4_define([b4_token_enums],
 
 
 # b4-case(ID, CODE)
-m4_define([b4_case], [  $1: function ()
-    $2,
+m4_define([b4_case], [  $1: function ()$2,
+
+
 ])
 
 
@@ -57,7 +58,8 @@ m4_define([b4_lhs_value], [yyval])
 # $N
 # TODO: optimize access to the N-th stack element
 # m4_define([b4_rhs_value], [(yystack.valueAt($1-($2)))])
-m4_define([b4_rhs_value], [[yystack.valueStack[yystack.valueStack.length-1-(($1-($2)))]]])
+m4_define([b4_rhs_value], [[yyvs[yyvs.length-1-(($1-($2)))]]])
+m4_define([b4_rhs_value_debug], [[yystack.valueStack[yystack.valueStack.length-1-(($1-($2)))]]])
 
 
 b4_defines_if([b4_fatal([%s: %%defines does not make sense in JavaScript], [b4_skeleton])])
@@ -98,7 +100,7 @@ var parser = this;
 // The three variables shared by Parser's guts and actions world
 // defined after the Parser very own namespace.
 // (`lexer` and `parser` are shared too),
-var yyval, yystack, actionsTable;
+var yyval, yystack, yyvs, actionsTable;
 
 ;(function(){ // start of the Parser very own namespase
 
@@ -183,6 +185,7 @@ var yyval, yystack, actionsTable;
 
     // the only place yystack value is changed
     yystack = this.yystack = new YYParser.Stack();
+    yyvs = yystack.valueStack;
 
     /* Error handling.  */
     var yynerrs_ = 0;
@@ -479,7 +482,7 @@ var yyval, yystack, actionsTable;
     var actionClosure = actionsTable[yyn]
     debug_action(actionClosure);
     if (actionClosure)
-      actionClosure()
+      actionClosure();
 
     debug_symbol_print("-> $$ =", yyr1_[yyn], yyval);
 
@@ -681,7 +684,7 @@ YYParser.prototype =
         this.debug_symbol_print(
           "   $" + (yyi + 1) + " =",
           this.yyrhs_[this.yyprhs_[yyrule] + yyi],
-          ]b4_rhs_value(yynrhs, yyi + 1)[
+          ]b4_rhs_value_debug(yynrhs, yyi + 1)[
         );
       }
     }
@@ -710,7 +713,7 @@ YYParser.prototype =
         for (var yyi = 0; yyi < yynrhs; yyi++)
         {
           var name = this.yytname_[[this.yyrhs_[this.yyprhs_[yyrule] + yyi]]];
-          var value = ]b4_rhs_value(yynrhs, yyi + 1)[;
+          var value = ]b4_rhs_value_debug(yynrhs, yyi + 1)[;
           this.print("$" + (yyi + 1) + " " + name + " = "+ this.yyinspect(value) + "\n");
         }
       }
