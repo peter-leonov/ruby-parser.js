@@ -1082,14 +1082,14 @@ arg:
   |
     tUMINUS_NUM tINTEGER tPOW arg
     {
-      var number = builder.integer($2);
+      var number = builder.integer($2, /*negate=*/false);
       var binary  = builder.binary_op(number, $3, $4);
       $$ = builder.unary_op($<id>1, binary);
     }
   |
     tUMINUS_NUM tFLOAT tPOW arg
     {
-      var number = builder.integer($2);
+      var number = builder.integer($2, /*negate=*/false);
       var binary  = builder.binary_op(number, $3, $4);
       $$ = builder.unary_op($<id>1, binary);
     }
@@ -2517,23 +2517,24 @@ dsym        : tSYMBEG xstring_contents tSTRING_END
             }
         ;
 
-numeric     : tINTEGER
-            {
-              $$ = builder.integer($1, /*negate=*/false);
-            }
-        | tFLOAT
-            {
-              // TODO: convert tFLOAT to NEW_LIT()
-            }
-        | tUMINUS_NUM tINTEGER           %prec tLOWEST
-            {
-              // TODO: convert tINTEGER to NEW_LIT()
-            }
-        | tUMINUS_NUM tFLOAT           %prec tLOWEST
-            {
-              // TODO: convert tFLOAT to NEW_LIT()
-            }
-        ;
+numeric:
+    tINTEGER
+      {
+        $$ = builder.integer($1, /*negate=*/false);
+      }
+  | tFLOAT
+      {
+        $$ = builder.float_($1, /*negate=*/false);
+      }
+  | tUMINUS_NUM tINTEGER           %prec tLOWEST
+      {
+        $$ = builder.integer($2, /*negate=*/true);
+      }
+  | tUMINUS_NUM tFLOAT           %prec tLOWEST
+      {
+        $$ = builder.float_($2, /*negate=*/true);
+      }
+  ;
 
 user_variable:
     tIDENTIFIER
