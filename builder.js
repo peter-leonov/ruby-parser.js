@@ -786,6 +786,29 @@ Builder.prototype =
     }
     
     return n('dstr', parts.slice());
+  },
+  
+  symbols_compose: function (parts)
+  {
+    var symbols = [];
+    for (var i = 0, il = parts.length; i < il; i++)
+    {
+      var part = parts[i];
+      switch (part.type)
+      {
+        case 'str':
+          var value = part[0];
+          symbols.push(n('sym', [ value ]));
+          break;
+        case 'dstr':
+          symbols.push(n('dsym', part.children));
+          break;
+        default:
+          symbols.push(part);
+      }
+    }
+    
+    return n('array', symbols);
   }
   
   

@@ -2330,17 +2330,29 @@ word:
       }
   ;
 
-symbols            : tSYMBOLS_BEG ' ' tSTRING_END
-            {}
-        | tSYMBOLS_BEG symbol_list tSTRING_END
-            {}
-        ;
+symbols:
+    tSYMBOLS_BEG ' ' tSTRING_END
+      {
+        $$ = builder.symbols_compose([]);
+      }
+  | tSYMBOLS_BEG symbol_list tSTRING_END
+      {
+        $$ = builder.symbols_compose($2);
+      }
+  ;
 
-symbol_list    : /* none */
-            {}
-        | symbol_list word ' '
-            {}
-        ;
+symbol_list:
+    /* none */
+      {
+        $$ = [];
+      }
+  | symbol_list word ' '
+      {
+        var symbol_list = $1;
+        symbol_list.push(builder.word($2));
+        $$ = symbol_list;
+      }
+  ;
 
 qwords:
     tQWORDS_BEG ' ' tSTRING_END
