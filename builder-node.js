@@ -1,7 +1,7 @@
 function n (type, children)
 {
   children.type = type;
-  children.children = children;
+  // children.children = children;
   return children;
 }
 
@@ -9,10 +9,9 @@ function n0 (type)
 {
   var children = [];
   children.type = type;
-  children.children = children;
+  // children.children = children;
   return children;
 }
-
 
 #if DEV
 function yyinspect (v)

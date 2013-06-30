@@ -42,7 +42,7 @@ Builder.prototype =
         return null;
 
       case 'begin':
-        var children = cond.children;
+        var children = cond/*.children*/;
         if (children.length == 1)
         {
           var last = children[0];
@@ -54,14 +54,14 @@ Builder.prototype =
         }
 
       case 'and': case 'or':
-        var children = cond.children;
+        var children = cond/*.children*/;
         children[0] = this.check_condition(children[0]); // lhs
         children[1] = this.check_condition(children[1]); // rhs
 
         return cond;
 
       case 'irange': case 'erange':
-        var children = cond.children;
+        var children = cond/*.children*/;
         children[0] = this.check_condition(children[0]); // lhs
         children[1] = this.check_condition(children[1]); // rhs
 
@@ -118,7 +118,7 @@ Builder.prototype =
     switch (node.type)
     {
       case 'ident':
-        var name = node.children[0];
+        var name = node/*.children*/[0];
         if (this.scope.is_declared(name))
         {
           return n('lvar', [ name ]);
@@ -155,7 +155,7 @@ Builder.prototype =
 
   assignable: function (node)
   {
-    var children = node.children;
+    var children = node/*.children*/;
     switch (node.type)
     {
       case 'ident':
@@ -273,7 +273,7 @@ Builder.prototype =
     if (body.begin_from_compstmt)
     {
       // Synthesized (begin) from compstmt "a; b".
-      return n('kwbegin', body.children);
+      return n('kwbegin', body/*.children*/);
     }
     
     return n('kwbegin', [ body ])
@@ -551,7 +551,7 @@ Builder.prototype =
           break;
 
         case 'mlhs':
-          this.check_duplicate_args(this_arg.children, map);
+          this.check_duplicate_args(this_arg/*.children*/, map);
       }
     }
   },
@@ -602,7 +602,7 @@ Builder.prototype =
     {
       // Synthesized (begin) from compstmt "a; b" or (mlhs)
       // from multi_lhs "(a, b) = *foo".
-      return n(body.type, body.children);
+      return n(body.type, body/*.children*/);
     }
     
     return n('begin', [ body ]);
@@ -809,7 +809,7 @@ Builder.prototype =
           symbols.push(n('sym', [ value ]));
           break;
         case 'dstr':
-          symbols.push(n('dsym', part.children));
+          symbols.push(n('dsym', part/*.children*/));
           break;
         default:
           symbols.push(part);
@@ -824,7 +824,7 @@ Builder.prototype =
     if (this.collapse_string_parts(parts))
     {
       var str = parts[0];
-      n('sym', [ str.children[0] ]);
+      n('sym', [ str/*.children*/[0] ]);
     }
     else
     {
