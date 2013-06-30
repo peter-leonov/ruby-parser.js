@@ -8,8 +8,8 @@ function n (type, children)
 function n0 (type)
 {
   var children = [];
-  children.children = children;
   children.type = type;
+  children.children = children;
   return children;
 }
 
