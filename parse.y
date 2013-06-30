@@ -87,7 +87,10 @@ lexer.setScope(scope);
 %type <node> lambda f_larglist lambda_body
 %type <node> brace_block cmd_brace_block do_block lhs none fitem
 %type <node> mlhs mlhs_head mlhs_basic mlhs_item mlhs_node mlhs_post mlhs_inner
-%type <id>   fsym keyword_variable user_variable sym symbol operation operation2 operation3
+%type <node>   fsym
+%type <id>   keyword_variable user_variable sym
+%type <node> symbol
+%type <id>   operation operation2 operation3
 %type <id>   cname fname op f_rest_arg f_block_arg opt_f_block_arg f_norm_arg f_bad_arg
 %type <id>   f_kwrest
 %type <id>   k_end
