@@ -2415,11 +2415,18 @@ string_contents:
       }
   ;
 
-xstring_contents: /* none */
-            {}
-        | xstring_contents string_content
-            {}
-        ;
+xstring_contents:
+    /* none */
+      {
+        $$ = []; // accumulator
+      }
+  | xstring_contents string_content
+      {
+        var xstring_contents = $1;
+        xstring_contents.push($2);
+        $$ = xstring_contents;
+      }
+  ;
 
 regexp_contents:
     /* none */
