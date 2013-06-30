@@ -2935,11 +2935,18 @@ f_block_optarg:
       }
   ;
 
-f_optarg    : f_opt
-            {}
-        | f_optarg ',' f_opt
-            {}
-        ;
+f_optarg:
+    f_opt
+      {
+        $$ = [ $1 ];
+      }
+  | f_optarg ',' f_opt
+      {
+        var f_optarg = $1;
+        f_optarg.push($3);
+        $$ = f_optarg;
+      }
+  ;
 
 restarg_mark    : '*'
         | tSTAR
