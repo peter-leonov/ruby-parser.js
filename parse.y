@@ -2342,11 +2342,16 @@ symbol_list    : /* none */
             {}
         ;
 
-qwords        : tQWORDS_BEG ' ' tSTRING_END
-            {}
-        | tQWORDS_BEG qword_list tSTRING_END
-            {}
-        ;
+qwords:
+    tQWORDS_BEG ' ' tSTRING_END
+      {
+        $$ = builder.words_compose([]);
+      }
+  | tQWORDS_BEG qword_list tSTRING_END
+      {
+        $$ = builder.words_compose($2);
+      }
+  ;
 
 qsymbols    : tQSYMBOLS_BEG ' ' tSTRING_END
             {}
@@ -2354,11 +2359,18 @@ qsymbols    : tQSYMBOLS_BEG ' ' tSTRING_END
             {}
         ;
 
-qword_list    : /* none */
-            {}
-        | qword_list tSTRING_CONTENT ' '
-            {}
-        ;
+qword_list:
+    /* none */
+      {
+        $$ = [];
+      }
+  | qword_list tSTRING_CONTENT ' '
+      {
+        var qword_list = $1;
+        qword_list.push(builder.string($2));
+        $$ = qword_list;
+      }
+  ;
 
 qsym_list    : /* none */
             {}
