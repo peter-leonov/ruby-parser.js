@@ -1,4 +1,4 @@
 #!ruby
 # encoding: utf-8
 
-/a#{$x}bc/em
+%W{a #{$m} b c}

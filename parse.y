@@ -2293,22 +2293,42 @@ regexp:
       }
   ;
 
-words        : tWORDS_BEG ' ' tSTRING_END
-            {}
-        | tWORDS_BEG word_list tSTRING_END
-            {}
-        ;
+words:
+    tWORDS_BEG ' ' tSTRING_END // remover in WP
+      {
+        $$ = builder.words_compose([]);
+      }
+  | tWORDS_BEG word_list tSTRING_END
+      {
+        $$ = builder.words_compose($2);
+      }
+  ;
 
-word_list    : /* none */
-            {}
-        | word_list word ' '
-            {}
-        ;
+word_list:
+    /* none */
+      {
+        $$ = []; // words collector
+      }
+  | word_list word ' '
+      {
+        var word_list = $1;
+        word_list.push(builder.word($2));
+        $$ = word_list;
+      }
+  ;
 
-word        : string_content
-        | word string_content
-            {}
-        ;
+word:
+    string_content
+      {
+        $$ = [ $1 ];
+      }
+  | word string_content
+      {
+        var word = $1;
+        word.push($2);
+        $$ = word;
+      }
+  ;
 
 symbols            : tSYMBOLS_BEG ' ' tSTRING_END
             {}

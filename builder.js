@@ -771,6 +771,21 @@ Builder.prototype =
   {
     var type = parts[0].type;
     return parts.length == 1 && (type == 'str' || type == 'dstr');
+  },
+  
+  words_compose: function (parts)
+  {
+    return n('array', parts.slice()); // TODO: almost sure slice() is usls.
+  },
+  
+  word: function (parts)
+  {
+    if (this.collapse_string_parts(parts))
+    {
+      return parts[0];
+    }
+    
+    return n('dstr', parts.slice());
   }
   
   
