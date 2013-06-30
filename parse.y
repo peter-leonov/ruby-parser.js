@@ -1,5 +1,7 @@
 // at first, read this: http://whitequark.org/blog/2013/04/01/ruby-hacking-guide-ch-11-finite-state-lexer/
 
+// Help on nodes generation is around line 185 ;)
+
 %{
 #if DEBUG
 // #define DEV 1
@@ -178,6 +180,22 @@ lexer.setScope(scope);
 //   * all the code and variables from `rules` code block.
 // 
 // Repeated in generator.js
+
+
+// The main pattern here is to user plain arrays for all nodes lists
+// like `args_tail`, `stmts`, `word_list`, fill them with nodes
+// one node by one reduction like `top_stmts.push(top_stmt)`
+// and then, in a topmost rule of this list kind, create a node
+// with children of this plain array of list items.
+
+// Another pattern here is nesting nodes, obviosly.
+// It is done everywhere through the code like this:
+// find a block call like this `x.each {…}`
+// and create a method call node within a block node like this:
+// block(call("x", "each"), block(…)). Slightly complicated, but works.
+// Think of it as of an old fasioned HTML tree. If you need red italic
+// you nest <i> into <font> to get <font color=red><i>tIDENTIFIER</i></font>
+
 
 %%
 program:
