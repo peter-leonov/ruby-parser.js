@@ -72,7 +72,7 @@ Builder.prototype =
         return n(type, children);
 
       case 'regexp':
-        return n('match_current_line', [ cond ], null)
+        return n('match_current_line', [ cond ])
 
       default:
         return cond;
