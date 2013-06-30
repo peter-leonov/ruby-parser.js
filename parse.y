@@ -2832,50 +2832,108 @@ f_arg:
     }
   ;
 
-f_kw        : tLABEL arg_value
-            {}
-        ;
+f_kw:
+    tLABEL arg_value
+      {
+        var label = $1;
+        lexer.check_kwarg_name(label);
 
-f_block_kw    : tLABEL primary_value
-            {}
-        ;
+        scope.declare(label[0]);
 
-f_block_kwarg    : f_block_kw
-            {}
-        | f_block_kwarg ',' f_block_kw
-            {}
-        ;
+        $$ = builder.kwoptarg(label, $2);
+      }
+  ;
+
+f_block_kw:
+    tLABEL primary_value
+      {
+        var label = $1;
+        lexer.check_kwarg_name(label);
+
+        scope.declare(label[0]);
+
+        $$ = builder.kwoptarg(label, $2);
+      }
+  ;
+
+f_block_kwarg:
+    f_block_kw
+      {
+        $$ = [ $1 ];
+      }
+  | f_block_kwarg ',' f_block_kw
+      {
+        var f_block_kwarg = $1;
+        f_block_kwarg.push($3);
+        $$ = f_block_kwarg;
+      }
+  ;
 
 
-f_kwarg        : f_kw
-            {}
-        | f_kwarg ',' f_kw
-            {}
-        ;
+f_kwarg:
+    f_kw
+      {
+        $$ = [ $1 ];
+      }
+  | f_kwarg ',' f_kw
+      {
+        var f_kwarg = $1;
+        f_kwarg.push($3);
+        $$ = f_kwarg;
+      }
+  ;
 
-kwrest_mark    : tPOW
-        | tDSTAR
-        ;
+kwrest_mark:
+    tPOW
+  | tDSTAR
+  ;
 
-f_kwrest    : kwrest_mark tIDENTIFIER
-            {}
-        | kwrest_mark
-            {}
-        ;
+f_kwrest:
+    kwrest_mark tIDENTIFIER
+      {
+        var ident = $2;
+        scope.declare(ident[0]);
+        
+        $$ = [ builder.kwrestarg(ident) ];
+      }
+  | kwrest_mark
+      {
+        $$ = [ builder.kwrestarg() ];
+      }
+  ;
 
-f_opt        : tIDENTIFIER '=' arg_value
-            {}
-        ;
+f_opt:
+    tIDENTIFIER '=' arg_value
+      {
+        var ident = $1;
+        scope.declare(ident[0]);
+        
+        $$ = builder.optarg(ident, $3);
+      }
+  ;
 
-f_block_opt    : tIDENTIFIER '=' primary_value
-            {}
-        ;
+f_block_opt:
+    tIDENTIFIER '=' primary_value
+      {
+        var ident = $1;
+        scope.declare(ident[0]);
+        
+        $$ = builder.optarg(ident, $3);
+      }
+  ;
 
-f_block_optarg    : f_block_opt
-            {}
-        | f_block_optarg ',' f_block_opt
-            {}
-        ;
+f_block_optarg:
+    f_block_opt
+      {
+        $$ = [ $1 ];
+      }
+  | f_block_optarg ',' f_block_opt
+      {
+        var f_block_optarg = $1;
+        f_block_optarg.push($3);
+        $$ = f_block_optarg;
+      }
+  ;
 
 f_optarg    : f_opt
             {}
@@ -2890,11 +2948,12 @@ restarg_mark    : '*'
 f_rest_arg:
     restarg_mark tIDENTIFIER
     {
-      scope.declare($2[0]);
+      var ident = $2;
+      scope.declare(ident[0]);
       // if (!is_local_id($2)) // TODO
       //   lexer.yyerror("rest argument must be local variable");
       
-      $$ = [ builder.restarg($2) ];
+      $$ = [ builder.restarg(ident) ];
     }
   | restarg_mark
     {
@@ -2923,11 +2982,16 @@ f_block_arg:
     }
   ;
 
-opt_f_block_arg    : ',' f_block_arg
-            {}
-        | none
-            {}
-        ;
+opt_f_block_arg
+    : ',' f_block_arg
+      {
+        $$ = [ $2 ];
+      }
+  | none
+      {
+        $$ = []; // empty
+      }
+  ;
 
 singleton:
     var_ref
@@ -2943,31 +3007,29 @@ singleton:
 
 assoc_list:
     none
-    {
-      $$ = [];
-    }
-  |
-    assocs trailer
+      {
+        $$ = [];
+      }
+  | assocs trailer
   ;
 
 assocs:
     assoc
-    {
-      $$ = [$1];
-    }
-  |
-    assocs ',' assoc
-    {
-      var assocs = $1;
-      assocs.push($3);
-      $$ = assocs;
-    }
+      {
+        $$ = [ $1 ];
+      }
+  | assocs ',' assoc
+      {
+        var assocs = $1;
+        assocs.push($3);
+        $$ = assocs;
+      }
   ;
 
 assoc:
     arg_value tASSOC arg_value
     {
-      $$ = builder.pair($1, $2);
+      $$ = builder.pair($1, $3);
     }
   | tLABEL arg_value
     {
@@ -2994,48 +3056,65 @@ operation2:
   | op
   ;
 
-operation3    : tIDENTIFIER
-        | tFID
-        | op
-        ;
+operation3:
+    tIDENTIFIER
+  | tFID
+  | op
+  ;
 
-dot_or_colon    : '.'
-        | tCOLON2
-        ;
+dot_or_colon:
+    '.'
+  | tCOLON2
+  ;
 
-opt_terms    : /* none */
-        | terms
-        ;
+opt_terms:
+    /* none */
+  | terms
+  ;
 
-opt_nl        : /* none */
-        | '\n'
-        ;
+opt_nl:
+    /* none */
+  | '\n'
+  ;
 
-rparen        : opt_nl ')'
-        ;
+rparen:
+    opt_nl ')'
+    // // WP stores paren token here for loc purposes
+    // {
+    //   $$ = $2;
+    // }
+  ;
 
-rbracket    : opt_nl ']'
-        ;
+rbracket:
+    opt_nl ']'
+    // // WP stores paren token here for loc purposes
+    // {
+    //   $$ = $2;
+    // }
+  ;
 
-trailer        : /* none */
-        | '\n'
-        | ','
-        ;
+trailer:
+    /* none */
+  | '\n'
+  | ','
+  ;
 
-term
-  :
+term:
     ';'
-    { parser.yyerrok(); }
+      {
+        parser.yyerrok();
+      }
   |
     '\n'
   ;
 
-terms
-  :
+terms:
     term
   |
     terms ';'
-    { parser.yyerrok(); }
+      {
+        parser.yyerrok();
+      }
   ;
 
 none: /* none */

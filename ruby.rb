@@ -1,4 +1,6 @@
 #!ruby
 # encoding: utf-8
 
-"a b c #{d}"
+def a (x, *y, z: 5)
+  
+end

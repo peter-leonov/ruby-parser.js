@@ -273,6 +273,14 @@ function ISSPACE_NOT_N (c)
   )
 }
 
+lexer.check_kwarg_name = function check_kwarg_name (name_t)
+{
+  if (/^[A-Z]/.test(name_t))
+  {
+    this.compile_error('TODO: :argument_const');
+  }
+}
+
 
 var lex_pbeg = 0, // lex_pbeg never changes
     lex_p = 0,

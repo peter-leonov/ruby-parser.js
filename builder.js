@@ -836,10 +836,20 @@ Builder.prototype =
   kwoptarg: function (name_t, value)
   {
     return n('kwoptarg', [ name_t, value ]);
+  },
+  
+  kwrestarg: function (name_t)
+  {
+    if (name_t == null)
+    {
+      return n0('kwrestarg');
+    }
+    
+    return n('kwrestarg', [ name_t ]);
+  },
+  
+  optarg: function (name_t, value)
+  {
+    n('optarg', [ name_t, value ]);
   }
-  
-  
-  
-  
-  
 }
