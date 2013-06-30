@@ -2505,24 +2505,29 @@ string_dvar:
   ;
 
 symbol:
-    tSYMBEG sym
+    tSYMBEG sym // replaced with tSYMBOL in WP
     {
       lexer.lex_state = EXPR_END;
       $$ = builder.symbol($2);
     }
   ;
 
-sym        : fname
-        | tIVAR
-        | tGVAR
-        | tCVAR
-        ;
+// deleted in WP
+sym:
+    fname
+  | tIVAR
+  | tGVAR
+  | tCVAR
+  ;
 
-dsym        : tSYMBEG xstring_contents tSTRING_END
-            {
-            lexer.lex_state = EXPR_END;
-            }
-        ;
+dsym:
+    tSYMBEG xstring_contents tSTRING_END
+      {
+        lexer.lex_state = EXPR_END;
+        
+        $$ = builder.symbol_compose($2);
+      }
+  ;
 
 numeric:
     tINTEGER
