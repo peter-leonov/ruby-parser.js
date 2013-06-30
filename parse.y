@@ -3137,7 +3137,19 @@ none: /* none */
 // Here we have to expose our YY* classes to outer world somehow.
 // And yes, all the two YYParser and YYLexer are visible here
 
-global.YYLexer = YYLexer;
-global.YYParser = YYParser;
+if (typeof module != 'undefined' && module.exports)
+{
+  module.exports.YYLexer = YYLexer;
+  module.exports.YYParser = YYParser;
+}
+else if (typeof global != 'undefined')
+{
+  global.YYLexer = YYLexer;
+  global.YYParser = YYParser;
+}
+else
+{
+  throw "don't know how to eport YYLexer and YYParser"
+}
 
 })(); // whole parser and lexer namespace start
