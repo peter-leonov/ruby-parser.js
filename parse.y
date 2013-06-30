@@ -1222,6 +1222,9 @@ arg_value:
 
 aref_args:
     none
+      {
+        $$ = [];
+      }
   |
     args trailer
   |
