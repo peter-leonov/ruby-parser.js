@@ -850,6 +850,6 @@ Builder.prototype =
   
   optarg: function (name_t, value)
   {
-    n('optarg', [ name_t, value ]);
+    return n('optarg', [ name_t, value ]);
   }
 }
