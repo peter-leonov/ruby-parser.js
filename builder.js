@@ -516,7 +516,7 @@ Builder.prototype =
     return n('arg', [ name_t ]);
   },
   
-  check_duplicate_args: function (args, map /*={}*/)
+  check_duplicate_args: function (args, map)
   {
     if (!map)
       map = {};
