@@ -295,7 +295,7 @@ Builder.prototype =
     return n('__FILE__', [ filename ]);
   },
   
-  __ENCODING__: function ()
+  _ENCODING_: function ()
   {
     return n0('__ENCODING__');
   },
