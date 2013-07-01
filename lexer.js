@@ -30,10 +30,14 @@ var EXPR_END_ANY = EXPR_END | EXPR_ENDARG | EXPR_ENDFN;
 
 
 // $text: plain old JS string with ruby source code,
-function YYLexer ($text)
+function YYLexer ()
 {
 // the yylex() method and all public data sit here
 var lexer = this;
+
+// give a chance to set text afterwards
+var $text = '';
+lexer.setText = function (t) { $text = t; }
 
 // connection to the outer space
 var scope = null;

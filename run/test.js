@@ -1,12 +1,13 @@
 function parse (text)
 {
-  var lexer = new YYLexer(text);
-  lexer.filename = 'ruby.rb';
-  
+  var lexer = new YYLexer();
   var parser = new YYParser(lexer);
   parser.yydebug = 1; // render all the states transitions
   parser.yydebug_yylval = true; // don't print token values
   // parser.yydebug_action = true; // print actions applied
+  
+  lexer.filename = 'ruby.rb';
+  lexer.setText(text);
   var ok = parser.parse();
   return {ok: ok, ast: parser.resulting_ast};
 }
