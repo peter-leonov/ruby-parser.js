@@ -62,6 +62,10 @@ class ParserJS
   def declare var
     @declare.call(var)
   end
+  
+  def filename= fn
+    @js.eval(%{(function (fn) { lexer.filename = fn; })}).call(fn)
+  end
 end
 
 # puts ParserJS.new.to_json("1+2")
