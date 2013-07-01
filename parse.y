@@ -2233,7 +2233,7 @@ exc_var:
 opt_ensure:
     keyword_ensure compstmt
       {
-        $$ = $2;
+        $$ = [ $2 ];
       }
   | none
   ;

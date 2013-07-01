@@ -1,8 +1,5 @@
 #!ruby
 # encoding: utf-8
 
-class A
-  
-end
+begin ensure $x; end
 
-%W"#{1}"

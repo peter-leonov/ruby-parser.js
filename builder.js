@@ -244,9 +244,12 @@ Builder.prototype =
       compound_stmt = n('rescue', body);
     }
 
-    if (ensure)
+    // may be undefined if called from modifier statement
+    // or empty ary if begin has no ensure black at all
+    // or ary of one element with the body of the present ensure block
+    if (ensure && ensure.length)
     {
-      compound_stmt = n('ensure', [ compound_stmt, ensure ]);
+      compound_stmt = n('ensure', [ compound_stmt, ensure[0] ]);
     }
 
     return compound_stmt;
