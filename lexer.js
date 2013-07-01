@@ -2942,7 +2942,7 @@ function start_num (c)
   tokfix();
   if (is_float)
   {
-    var d = parseInt(tok(), 10);
+    var d = parseFloat(tok());
     // if (errno == ERANGE)
     // {
     //   rb_warningS("Float %s out of range", tok()); TODO
