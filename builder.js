@@ -136,7 +136,7 @@ Builder.prototype =
         return n('int', [ lexer.ruby_sourceline ]); 
 
       case '__ENCODING__':
-        return n('const', [ 'UTF-16' ]);
+        return n('const', [ n('const', [ null, 'Encoding'], null), 'UTF_8' ])
 
       default:
         return node;
