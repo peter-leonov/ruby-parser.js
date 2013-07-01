@@ -56,6 +56,7 @@ var builder = new Builder(lexer);
 builder.scope = scope;
 
 lexer.setScope(scope);
+parser.scope = scope;
 
 }
 
