@@ -827,7 +827,7 @@ Builder.prototype =
     if (this.collapse_string_parts(parts))
     {
       var str = parts[0];
-      n('sym', [ str/*.children*/[0] ]);
+      return n('sym', [ str/*.children*/[0] ]);
     }
     else
     {
