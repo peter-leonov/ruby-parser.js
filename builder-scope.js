@@ -59,4 +59,7 @@ function Scope ()
   self.pop          = pop;
   self.declare      = declare;
   self.is_declared  = is_declared;
+  
+  // debug TODO: hide
+  self.variables  = function () { return variables; };
 }
