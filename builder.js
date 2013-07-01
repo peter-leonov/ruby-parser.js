@@ -854,5 +854,34 @@ Builder.prototype =
   optarg: function (name_t, value)
   {
     return n('optarg', [ name_t, value ]);
+  },
+  
+  match_op: function (receiver, arg)
+  {
+    if
+    (
+         receiver.type == 'regexp'
+      && receiver/*.children*/.length == 2
+      && receiver/*.children*/[0].type == 'str'
+    )
+    {
+
+      var regexp_str = receiver[0];
+      var regexp_body = regexp_str[0];
+
+      var scope = this.scope;
+      // TODO: write a full featured rexexp parser here ;)
+      regexp_body.replace(/\(\?\<(\w+)\>/g, function (_m, name)
+      {
+        scope.declare(name);
+      })
+
+      return n('match_with_lvasgn', [ receiver, arg ]);
+    }
+    else
+    {
+      return n('send', [ receiver, '=~', arg ]);
+    }
   }
+  
 }

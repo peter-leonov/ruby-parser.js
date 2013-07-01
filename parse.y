@@ -1161,7 +1161,9 @@ arg:
     }
   |
     arg tMATCH arg
-    {}
+    {
+      $$ = builder.match_op($1, $3);
+    }
   |
     arg tNMATCH arg
     {
