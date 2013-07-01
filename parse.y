@@ -203,7 +203,7 @@ program:
     {
       lexer.lex_state = EXPR_BEG;
       // creates a new chain link of `lvtbl`es
-      scope.push_static();
+      scope.push_dynamic();
     }
     top_compstmt
     {
