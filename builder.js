@@ -344,8 +344,8 @@ Builder.prototype =
   
   alias_gvar_backref: function (gvar, backref)
   {
-    var to   = this.gvar(gvar1);
-    var from = this.back_ref(gvar2);
+    var to   = this.gvar(gvar);
+    var from = this.back_ref(backref);
     
     // the same as in `this.alias()`
     return n('alias', [ to, from ]);
