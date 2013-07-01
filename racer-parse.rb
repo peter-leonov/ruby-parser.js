@@ -27,13 +27,13 @@ class ParserJS
       {
         if (!(n && n.type))
           return n;
-    
+
         var ary = n.slice();
         ary.unshift(n.type);
-  
+
         for (var i = 0, il = ary.length; i < il; i++)
           ary[i] = to_plain(ary[i]);
-  
+
         return ary;
       }
 
