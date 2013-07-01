@@ -671,7 +671,7 @@ mlhs_basic:
     tSTAR mlhs_node ',' mlhs_post
     {
       var ary = [ builder.splat($2) ];
-      Array_push.apply(mlhs_head, $4);
+      Array_push.apply(ary, $4);
       $$ = ary;
     }
   |
@@ -682,7 +682,7 @@ mlhs_basic:
   | tSTAR ',' mlhs_post
     {
       var ary = [ builder.splat_empty() ];
-      Array_push.apply(mlhs_head, $3);
+      Array_push.apply(ary, $3);
       $$ = ary;
     }
   ;
