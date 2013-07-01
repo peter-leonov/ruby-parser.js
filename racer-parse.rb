@@ -18,46 +18,49 @@ class ParserJS
 
     @js.eval <<-JS
 
-    function parse (text)
-    {
-      var lexer = new YYLexer(text);
+      var lexer = new YYLexer();
       lexer.filename = '(source)';
   
       var parser = new YYParser(lexer);
-      parser.yydebug = 1;
-      parser.yydebug_yylval = true;
-      var ok = parser.parse();
-      return {ok: ok, ast: parser.resulting_ast};
-    }
 
-    function to_plain (n)
-    {
-      if (!(n && n.type))
-        return n;
+      function to_plain (n)
+      {
+        if (!(n && n.type))
+          return n;
     
-      var ary = n.slice();
-      ary.unshift(n.type);
+        var ary = n.slice();
+        ary.unshift(n.type);
   
-      for (var i = 0, il = ary.length; i < il; i++)
-        ary[i] = to_plain(ary[i]);
+        for (var i = 0, il = ary.length; i < il; i++)
+          ary[i] = to_plain(ary[i]);
   
-      return ary;
-    }
+        return ary;
+      }
 
-    function give_me_json (ruby)
-    {
-      var res = parse(ruby);
-      return JSON.stringify(to_plain(res.ast));
-    }
+      function declare (v)
+      {
+        parser.scope.declare(v);
+      }
+      
+      function give_me_json (ruby)
+      {
+        lexer.setText(ruby);
+        var ok = parser.parse(ruby);
+        return JSON.stringify(to_plain(parser.resulting_ast));
+      }
 
     JS
 
     @give_me_json = @js.eval("give_me_json")
-    @parse        = @js.eval("parse")
+    @declare      = @js.eval("declare")
   end
   
-  def to_json source
+  def parse source
     @give_me_json.call(source)
+  end
+  
+  def declare var
+    @declare.call(var)
   end
 end
 
