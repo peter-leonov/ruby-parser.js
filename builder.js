@@ -129,7 +129,7 @@ Builder.prototype =
         }
 
       case '__FILE__':
-        return n('str', [ lexer.ruby_filename ]);
+        return n('str', [ node[0] ]);
 
       case '__LINE__':
         // TODO: use line from node value
