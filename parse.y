@@ -764,7 +764,7 @@ mlhs_node
       if (lexer.in_def || lexer.in_single)
         lexer.yyerror("dynamic constant assignment");
       
-      $$ = builder.assignable(builder.const_fetch(val[0], val[1], val[2]))
+      $$ = builder.assignable(builder.const_fetch($1, $2, $3));
     }
   |
     tCOLON3 tCONSTANT
