@@ -1,6 +1,6 @@
 #!ruby
 # encoding: utf-8
 
-:'foo'
+t=1;(a)?t:T
 
 
