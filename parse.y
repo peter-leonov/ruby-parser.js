@@ -1513,7 +1513,7 @@ primary:
         var lambda_call = builder.call_lambda($1);
 
         var lambda = $2;
-        $$ = builder.block($1, lambda.args, lambda.body);
+        $$ = builder.block(lambda_call, lambda.args, lambda.body);
       }
   | k_if expr_value then
     compstmt
