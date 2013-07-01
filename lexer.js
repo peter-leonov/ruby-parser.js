@@ -1624,7 +1624,7 @@ this.yylex = function yylex ()
             return tGVAR;
           }
           // was: set_yylval_node(NEW_BACK_REF(c)); TODO: check after time
-          lexer.yylval = c; // we create new NODE_BACK_REF in parser
+          lexer.yylval = '$'+c; // we create new NODE_BACK_REF in parser
           return tBACK_REF;
 
         case '1':
