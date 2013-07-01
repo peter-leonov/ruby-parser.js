@@ -5,15 +5,16 @@ print('load: ' + (new Date() - begin))
 var text = read('tests/giant.rb');
 
 var begin = new Date();
-var lexer = new YYLexer(text);
-lexer.filename = 'ruby.rb';
+var lexer = new YYLexer();
 var parser = new YYParser(lexer);
 print('create: ' + (new Date() - begin))
 
 var begin = new Date()
 try
 {
-  parser.parse(text)
+  lexer.filename = 'ruby.rb';
+  lexer.setText(text);
+  parser.parse();
 }
 catch (e)
 {
