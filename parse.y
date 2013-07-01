@@ -1090,7 +1090,7 @@ arg:
   |
     tUMINUS_NUM tFLOAT tPOW arg
     {
-      var number = builder.integer($2, /*negate=*/false);
+      var number = builder.float_($2, /*negate=*/false);
       var binary  = builder.binary_op(number, $3, $4);
       $$ = builder.unary_op($<id>1, binary);
     }

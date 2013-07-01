@@ -1,6 +1,6 @@
 #!ruby
 # encoding: utf-8
 
-/(?<match>bar)/ =~ 'bar'; match
+-2.0 ** 10
 
 
