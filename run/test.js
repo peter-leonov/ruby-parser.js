@@ -19,7 +19,16 @@ function to_plain (n)
 {
   if (!(n && n.type))
     return n;
-    
+
+  // if (n.type == 'float')
+  // {
+  //   var v = n[0];
+  //   if (v % 1 == 0) // 2.0, 0.0, etc
+  //     v = v+'.0'
+  //   
+  //   return ['float', v];
+  // }
+
   var ary = n.slice();
   ary.unshift(n.type);
   
