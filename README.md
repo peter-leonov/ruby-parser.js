@@ -1,3 +1,183 @@
+# Simple examples first
+
+
+### binary plus
+
+```ruby
+1 + 3.14
+```
+
+```js
+["send"
+  ["int", 1],
+  "+",
+  ["float", 3.14]
+]
+```
+
+### simple value assignment
+
+```ruby
+a = 42
+```
+
+```js
+["lvasgn",  "a",  ["int", 42]]
+```
+
+### attr access
+
+```ruby
+$object.attribute = 123
+```
+
+```js
+["send",
+  ["gvar", "$object"],
+  "attribute=",
+  ["int", 123]
+]
+```
+
+As expected, just calling a method.
+
+### variable, not a method
+
+```ruby
+a = 1
+b = a
+```
+
+```js
+["begin",
+  ["lvasgn",  "a",  ["int", 1]],
+  ["lvasgn",  "b",  ["lvar", "a"]]
+]
+```
+
+The second entry of `a` is treated as a local variable `["lvar","a"]`, not a method.
+`begin` here is a mythical wrapper for more than one statement.
+
+### method, not a variable
+
+```ruby
+b = a
+```
+
+```js
+["lvasgn",  "b",  ["send", null, "a"]]
+```
+
+Calling a method on `nil` means call the method on the `self` of the current scope. Or anything your AST processor needs it to mean :)
+
+### array
+
+```ruby
+[42, 2.7, 'hello', %{world}]
+```
+
+```js
+["array",
+  ["int",    42],
+  ["float",  2.7],
+  ["str",    "hello"],
+  ["str",    "world"]
+]
+```
+
+### hash
+
+```ruby
+{a: 1, :b => 2, c => 3}
+```
+
+```js
+["hash",
+  ["pair",  ["sym","a"],       ["int",1]],
+  ["pair",  ["sym","b"],       ["int",2]],
+  ["pair",  ["send",null,"c"], ["int",3]]
+]
+```
+
+# Complex examples
+
+### heredocs, of course
+
+```ruby
+puts(<<AAA, <<BBB, <<CCC)
+content of AAA
+AAA
+content of BBB
+BBB
+CCC
+```
+
+```js
+["send",
+  null, "puts",
+  // arguments
+  ["str","content of AAA\n"],
+  ["str","content of BBB\n"],
+  ["dstr"] // empty string (#1)
+]
+```
+
+Cascade of heredocs.
+
+### nested heredocs next
+
+```ruby
+<<"AAA"
+aaa
+#{
+<<BBB
+bbb
+#{<<CCC
+ccc
+CCC
+}
+BBB
+}
+AAA
+```
+
+```js
+["dstr",
+  ["str", "aaa\n"],
+  ["begin",
+    ["dstr",
+      ["str", "bbb\n"],
+      ["begin",
+        ["str", "ccc\n"]
+      ],
+      ["str", "\n"]
+    ]
+  ],
+  ["str", "\n"]
+]
+```
+
+Lots of dynamic strings.
+
+### send with a block
+
+```ruby
+$a.map { |e| e ** 2 }
+```
+
+```js
+["block",
+  // method call
+  ["send",  ["gvar","$a"],  "map"],
+  // block arguments
+  ["args",["arg","e"]],
+  // block body
+  ["send",["lvar","e"],"**",["int",2]]
+]
+```
+
+The `send` node wrapped by the `block` node. AST is so abstract :)
+
 
 # The thing
 
