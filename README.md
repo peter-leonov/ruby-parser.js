@@ -15,7 +15,7 @@ The original ruby lexer/parser/ast-generator from `parse.y` has all these three 
 
 **Parser** is a precise copy of the original bison rules from bison part of `parse.y`. At this phase the parser relies on a port of bison state machine to JavaScript. It's a separated project called [bison-lalr1.js](https://github.com/kung-fu-tzu/bison-lalr1.js); AFAICT, the JS port does exactly the same state transitions and produce identical error messages as the original `yacc.c` bison skeleton does (compared with `ruby -yc`).
 
-**Builder** is a simplified port of [the ruby parser](https://github.com/whitequark/parser) AST generation part. It has a brilliant API, so the JS port tries to copy it word to word. As a pleasant outcome the JS port got the [sexy sexp](http://whitequark.org/blog/2012/10/02/parsing-ruby/) AST format too.
+**Builder** is a simplified port of [the ruby parser](https://github.com/whitequark/parser) AST generation part. It has a brilliant API, so the JS port tries to copy it word to word. As a pleasant outcome the JS port got the [sexy sexp](http://whitequark.org/blog/2012/10/02/parsing-ruby/) AST format too. And [the AST documentation](https://github.com/whitequark/parser/blob/master/doc/AST_FORMAT.md) too.
 
 # Progress so far
 
