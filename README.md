@@ -7,13 +7,13 @@ This yet another ruby parser consists of three parts:
     * Parser
     * Builder
 
-The original ruby lexer/parser/ast-generator from `parse.y` has all these three parts in one file, but, unfortunately, tangled tightly without any abstraction of namespace isolation. All the ruby parsers out there have introduced strong isolation of the parts. So did we.
+The original ruby lexer/parser/ast-generator from `parse.y` has all these three parts in one file, but, unfortunately, tangled tightly without any abstraction or a namespace isolation. All the ruby parsers out there have introduced strong isolation of the parts. So did we.
 
 # The main parts
 
 **Lexer** here is a line to line, bit to bit (I hope so) port of original `parse.y` lexer from C to JavaScript. With all the `goto`s emulated somehow. There are only a few regexps introduced for trivial things like checking alphabetical chars with `/^[a-zA-Z]/`. It tries to mimic each and every warning and error it can reach.
 
-**Parser** is a precise copy of the original bison rules from bison part of `parse.y`. At this phase the parser relies on a port of bison state machine to JavaScript. It's a separated project called [bison-lalr1.js](https://github.com/kung-fu-tzu/bison-lalr1.js); AFAIKT, the JS port does exactly the same state transitions and produce identical error messages as the original `yacc.c` bison skeleton does (compared with `ruby -yc`).
+**Parser** is a precise copy of the original bison rules from bison part of `parse.y`. At this phase the parser relies on a port of bison state machine to JavaScript. It's a separated project called [bison-lalr1.js](https://github.com/kung-fu-tzu/bison-lalr1.js); AFAICT, the JS port does exactly the same state transitions and produce identical error messages as the original `yacc.c` bison skeleton does (compared with `ruby -yc`).
 
 **Builder** is a simplified port of [the ruby parser](https://github.com/whitequark/parser) AST generation part. It has a brilliant API, so the JS port tries to copy it word to word. As a pleasant outcome the JS port got the [sexy sexp](http://whitequark.org/blog/2012/10/02/parsing-ruby/) AST format too.
 
