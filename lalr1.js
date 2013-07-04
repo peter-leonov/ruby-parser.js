@@ -86,7 +86,7 @@ var
  * A Bison parser, automatically generated from <tt>]m4_bpatsubst(b4_file_name, [^"\(.*\)"$], [\1])[</tt>.
  *
  * @@author LALR (1) parser skeleton written by Paolo Bonzini.
- * @@author Java skeleton ported by Peter Leonov.
+ * @@author JavaScript skeleton ported by Peter Leonov.
  */
 
 
