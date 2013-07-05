@@ -19,11 +19,6 @@ class ParserJS
 
     @@js.load('/www/parser/parse.js')
     
-  end
-
-  def initialize
-    load_parser
-    
     @@js.eval <<-JS
 
       var lexer = new YYLexer();
@@ -52,15 +47,20 @@ class ParserJS
       
       function give_me_json (ruby)
       {
+        lexer.reset();
         lexer.setText(ruby);
         var ok = parser.parse(ruby);
         return JSON.stringify(to_plain(parser.resulting_ast));
       }
 
     JS
+  end
 
-    @give_me_json = @@js.eval("give_me_json")
-    @declare      = @@js.eval("declare")
+  def initialize
+    load_parser
+    
+    @give_me_json = @@js["give_me_json"]
+    @declare      = @@js["declare"]
   end
   
   def parse source
@@ -73,6 +73,10 @@ class ParserJS
   
   def filename= fn
     @@js.eval(%{(function (fn) { lexer.filename = fn; })}).call(fn)
+  end
+  
+  def reset_lexer
+    @@js.eval(%{lexer.reset()})
   end
 end
 
