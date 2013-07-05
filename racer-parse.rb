@@ -45,34 +45,39 @@ class ParserJS
         parser.declareVar(v);
       }
       
+      function set_filename (fn)
+      {
+        lexer.filename = fn;
+      }
+      
       function give_me_json (ruby)
       {
-        lexer.reset();
         lexer.setText(ruby);
         var ok = parser.parse(ruby);
         return JSON.stringify(to_plain(parser.resulting_ast));
       }
 
     JS
+    
+    @@give_me_json = @@js["give_me_json"]
+    @@declare      = @@js["declare"]
+    @@set_filename = @@js["set_filename"]
   end
 
   def initialize
     load_parser
-    
-    @give_me_json = @@js["give_me_json"]
-    @declare      = @@js["declare"]
   end
   
   def parse source
-    @give_me_json.call(source)
+    @@give_me_json.call(source)
   end
   
   def declare var
-    @declare.call(var)
+    @@declare.call(var)
   end
   
-  def filename= fn
-    @@js.eval(%{(function (fn) { lexer.filename = fn; })}).call(fn)
+  def filename= name
+    @@set_filename.call(name)
   end
   
   def reset_lexer
