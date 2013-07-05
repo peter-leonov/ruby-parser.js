@@ -74,7 +74,7 @@ function reset ()
   
   
   $text = '';
-  $scope = null;
+  // $scope = null; // share $scope between calls
   
   // the end of stream had been reached
   lexer.eofp = false;
