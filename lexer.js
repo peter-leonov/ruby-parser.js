@@ -35,17 +35,17 @@ function YYLexer ()
 // the yylex() method and all public data sit here
 var lexer = this;
 
-var scope = null;
+var $scope = null;
 
-var lex_pbeg = 0, // lex_pbeg never changes
-    lex_p = 0,
-    lex_pend = 0;
+var $lex_pbeg = 0, // $lex_pbeg never changes
+    $lex_p = 0,
+    $lex_pend = 0;
 
 var $text_pos = 0;
 var $text = '';
 
-var lex_nextline = '',
-    lex_lastline = '';
+var $lex_nextline = '',
+    $lex_lastline = '';
 
 
 var $tokenbuf = '';
@@ -59,22 +59,22 @@ var $tok_beg = 0; // line and column of first token char
 // Anything changing must be set in `reset`
 function reset ()
 {
-  lex_pbeg = 0;
-  lex_p = 0;
-  lex_pend = 0;
+  $lex_pbeg = 0;
+  $lex_p = 0;
+  $lex_pend = 0;
 
   $text_pos = 0;
   $text = '';
 
-  lex_nextline = '';
-  lex_lastline = '';
+  $lex_nextline = '';
+  $lex_lastline = '';
 
   $tokenbuf = '';
   $tok_beg = 0;
   
   
   $text = '';
-  scope = null;
+  $scope = null;
   
   // the end of stream had been reached
   lexer.eofp = false;
@@ -138,10 +138,10 @@ reset();
 // exports
 // 
 lexer.reset = reset;
-// give a chance to set text afterwards
+// give a chance to set `$text` afterwards
 lexer.setText = function (t) { $text = t; }
 // connection to the outer space
-lexer.setScope = function (s) { scope = s; }
+lexer.setScope = function (s) { $scope = s; }
 
 
 // the shortcut for checking `lexer.lex_state` over and over again
@@ -354,15 +354,15 @@ function lex_getline ()
 }
 
 
-// lex_lastline reader for error reporting
-lexer.get_lex_lastline = function () { return lex_lastline; }
+// $lex_lastline reader for error reporting
+lexer.get_lex_lastline = function () { return $lex_lastline; }
 
 function nextc ()
 {
-  if (lex_p == lex_pend)
+  if ($lex_p == $lex_pend)
   {
-    var v = lex_nextline;
-    lex_nextline = '';
+    var v = $lex_nextline;
+    $lex_nextline = '';
     if (!v)
     {
       if (lexer.eofp)
@@ -387,59 +387,59 @@ function nextc ()
         print(lexer.ruby_sourceline)
 #endif // DEBUG
       lexer.line_count++;
-      lex_pbeg = lex_p = 0;
-      lex_pend = v.length;
-      lex_lastline = v;
+      $lex_pbeg = $lex_p = 0;
+      $lex_pend = v.length;
+      $lex_lastline = v;
     }
   }
   
-  return lex_lastline[lex_p++];
+  return $lex_lastline[$lex_p++];
 }
 // jump right to the end of current buffered line,
 // here: "abc\n|" or here "abc|"
 function lex_goto_eol ()
 {
-  lex_p = lex_pend;
+  $lex_p = $lex_pend;
 }
 function lex_eol_p ()
 {
-  return lex_p >= lex_pend;
+  return $lex_p >= $lex_pend;
 }
 
-// just an emulation of lex_p[i] from C
+// just an emulation of $lex_p[i] from C
 function nthchar (i)
 {
-  return lex_lastline[lex_p+i];
+  return $lex_lastline[$lex_p+i];
 }
 // just an emulation of *lex_p from C
 function lex_pv ()
 {
-  return lex_lastline[lex_p];
+  return $lex_lastline[$lex_p];
 }
 // just an emulation of *p from C
 function p_pv (p)
 {
-  return lex_lastline[p];
+  return $lex_lastline[p];
 }
 // emulation of `strncmp(lex_p, "begin", 5)`,
 // but you better use a precompiled regexp if `str` is a constant
 function strncmp_lex_p (str)
 {
-  return $test.substring(lex_p, lex_p + str.length) == str;
+  return $test.substring($lex_p, $lex_p + str.length) == str;
 }
 
 // forecast, if the nextc() will return character `c`
 function peek (c)
 {
-  return lex_p < lex_pend && c === lex_lastline[lex_p];
+  return $lex_p < $lex_pend && c === $lex_lastline[$lex_p];
 }
 
 // forecast, if the nextc() will return character `c`
 // after n calls
 function peek_n (c, n)
 {
-  var pos = lex_p + n;
-  return pos < lex_pend && c === lex_lastline[pos];
+  var pos = $lex_p + n;
+  return pos < $lex_pend && c === $lex_lastline[pos];
 }
 
 // expects rex in this form: `/blablabla|/g`
@@ -459,9 +459,9 @@ function match_grex (rex)
     throw 'DEBUG';
   }
 #endif
-  rex.lastIndex = lex_p;
+  rex.lastIndex = $lex_p;
   // there is always a match or an empty string in [0]
-  return rex.exec(lex_lastline);
+  return rex.exec($lex_lastline);
 }
 // the same as `match_grex()` but does'n return the match,
 // treats the empty match as a `false`
@@ -480,11 +480,11 @@ function test_grex (rex)
     throw 'DEBUG';
   }
 #endif
-  rex.lastIndex = lex_p;
+  rex.lastIndex = $lex_p;
   // there is always a match for an empty string
-  rex.test(lex_lastline);
+  rex.test($lex_lastline);
   // and on the actual match there coud be a change in `lastIndex`
-  return rex.lastIndex != lex_p;
+  return rex.lastIndex != $lex_p;
 }
 // step back for one character and check
 // if the current character is equal to `c`
@@ -493,15 +493,15 @@ function pushback (c)
   if (c == '')
   {
 #if DEBUG
-    if (lex_p != lex_pend)
+    if ($lex_p != $lex_pend)
       throw 'lexer error: pushing back wrong EOF char';
 #endif
     return;
   }
   
-  lex_p--;
+  $lex_p--;
 #if DEBUG
-  if (lex_lastline[lex_p] != c)
+  if ($lex_lastline[$lex_p] != c)
     throw 'lexer error: pushing back wrong "'+c+'" char';
 #endif
 }
@@ -510,7 +510,7 @@ function pushback (c)
 // that true if we're here "a|bc" of here "abc\na|bc"
 function was_bol ()
 {
-  return lex_p === /*lex_pbeg +*/ 1; // lex_pbeg never changes
+  return $lex_p === /*$lex_pbeg +*/ 1; // $lex_pbeg never changes
 }
 
 
@@ -520,7 +520,7 @@ function was_bol ()
     
 function newtok ()
 {
-  $tok_beg = (lexer.ruby_sourceline << 10) + ((lex_p - 1) & 0x3ff);
+  $tok_beg = (lexer.ruby_sourceline << 10) + (($lex_p - 1) & 0x3ff);
   $tokenbuf = '';
 }
 function tokadd (c)
@@ -530,13 +530,13 @@ function tokadd (c)
 }
 function tokcopy (n)
 {
-  // TODO: use lex_lastline
+  // TODO: use $lex_lastline
   $tokenbuf += $text.substring($text_pos - n, $text_pos);
 }
 
 function tokfix ()
 {
-  var tok_end = (lexer.ruby_sourceline << 10) + (lex_p & 0x3ff);
+  var tok_end = (lexer.ruby_sourceline << 10) + ($lex_p & 0x3ff);
   lexer.yyloc = new Location($tok_beg, tok_end);
   
   /* was: tokenbuf[tokidx]='\0'*/
@@ -581,8 +581,8 @@ function NEW_HEREDOCTERM (func, term)
   return {
     type: 'heredoc',
     func: func,
-    lex_lastline: lex_lastline,
-    lex_p: lex_p,
+    lex_lastline: $lex_lastline,
+    lex_p: $lex_p,
     ruby_sourceline: lexer.ruby_sourceline,
     nested: 0,
     term: term,
@@ -697,7 +697,7 @@ this.yylex = function yylex ()
           }
           default:
             --lexer.ruby_sourceline;
-            lex_nextline = lex_lastline;
+            $lex_nextline = $lex_lastline;
             
           // EOF no decrement
           case '':
@@ -1011,7 +1011,7 @@ this.yylex = function yylex ()
         if (tokadd(c) == '')
           return 0;
       }
-      else if (is_identchar(c) && lex_p < lex_pend && is_identchar(lex_pv()))
+      else if (is_identchar(c) && $lex_p < $lex_pend && is_identchar(lex_pv()))
       {
         pushback(c);
         lexer.lex_state = EXPR_VALUE;
@@ -1459,7 +1459,7 @@ this.yylex = function yylex ()
       var goto_quotation = false;
       goto_quotation: for (;;) // a label
       {
-        // this label enulating loop expects the lex_state
+        // this label enulating loop expects the $lex_state
         // to be constant within its boudaries
         if (goto_quotation || IS_lex_state(EXPR_BEG_ANY))
         {
@@ -1926,7 +1926,7 @@ this.yylex = function yylex ()
       // `is_local_id` is in place of `gen.is_local_id(ident)`
       // AKAICT, `gen.is_local_id` repeats the thing done by lexer
       if (!IS_lex_state_for(lexer.last_state, EXPR_DOT | EXPR_FNAME) &&
-          is_local_id && scope.is_declared(ident))
+          is_local_id && $scope.is_declared(ident))
       {
         lexer.lex_state = EXPR_END;
       }
@@ -2054,7 +2054,7 @@ function here_document (here)
     // mark a start of the string token
     do
     {
-      str += lex_lastline;
+      str += $lex_lastline;
       
       // EOF reached in the middle of the heredoc
       lex_goto_eol();
@@ -2208,7 +2208,7 @@ function tokadd_string (func, term, paren, str_term)
       }
       --str_term.nested;
     }
-    else if ((func & STR_FUNC_EXPAND) && c == '#' && lex_p < lex_pend)
+    else if ((func & STR_FUNC_EXPAND) && c == '#' && $lex_p < $lex_pend)
     {
       var c2 = lex_pv();
       if (c2 == '$' || c2 == '@' || c2 == '{')
@@ -2302,7 +2302,7 @@ function tokadd_string (func, term, paren, str_term)
 function regx_options ()
 {
   var options = match_grex(/[a-zA-Z]+|/g)[0];
-  lex_p += options.length;
+  $lex_p += options.length;
   return options;
 }
 
@@ -2357,7 +2357,7 @@ function tokadd_escape ()
         tokadd_escape_eof();
         return false;
       }
-      lex_p += oct.length;
+      $lex_p += oct.length;
       tokadd('\\' + c + oct);
     }
     return true;
@@ -2374,7 +2374,7 @@ function tokadd_escape ()
           yyerror("invalid hex escape");
           return false;
         }
-        lex_p += hex.length;
+        $lex_p += hex.length;
         tokadd('\\x' + hex);
       }
       return true;
@@ -2411,7 +2411,7 @@ function whole_match_p (eos, indent)
 {
   if (!indent)
   {
-    return lex_lastline == eos + '\n' || lex_lastline == eos;
+    return $lex_lastline == eos + '\n' || $lex_lastline == eos;
   }
   
   // here there are all with indentation enabled!
@@ -2423,17 +2423,17 @@ function whole_match_p (eos, indent)
     whole_match_p_rexcache[eos] = rex;
   }
   
-  return rex.test(lex_lastline);
+  return rex.test($lex_lastline);
 }
 
 function heredoc_restore (here)
 {
   // restores the line from where the heredoc occured to begin
-  lex_lastline = here.lex_lastline;
-  lex_pbeg = 0;
-  lex_pend = lex_lastline.length;
+  $lex_lastline = here.lex_lastline;
+  $lex_pbeg = 0;
+  $lex_pend = $lex_lastline.length;
   // restores the position in the line, right after heredoc token
-  lex_p = here.lex_p;
+  $lex_p = here.lex_p;
   // have no ideas yet :)
   lexer.heredoc_end = lexer.ruby_sourceline;
   lexer.ruby_sourceline = here.ruby_sourceline;
@@ -2488,7 +2488,7 @@ function read_escape (flags)
       // was: c = scan_oct(lex_p, 3, &numlen);
       var oct = match_grex(/[0-7]{1,3}|/g)[0];
       c = $$(parseInt(oct, 8));
-      lex_p += oct.length;
+      $lex_p += oct.length;
       return c;
 
     case 'x':                  /* hex constant */
@@ -2499,7 +2499,7 @@ function read_escape (flags)
         lexer.yyerror("invalid hex escape");
         return '';
       }
-      lex_p += hex.length;
+      $lex_p += hex.length;
       c = $$(parseInt(hex, 16));
       return c;
 
@@ -2620,7 +2620,7 @@ function parser_tokadd_utf8 (string_literal, symbol_literal, regexp_literal)
         return '';
       }
       
-      lex_p += hex.length;
+      $lex_p += hex.length;
       if (regexp_literal)
       {
         tokadd(hex);
@@ -2663,7 +2663,7 @@ function parser_tokadd_utf8 (string_literal, symbol_literal, regexp_literal)
     }
     var codepoint = parseInt(hex, 16);
     var the_char = $$(codepoint);
-    lex_p += 4;
+    $lex_p += 4;
     if (regexp_literal)
     {
       tokadd(hex);
@@ -3009,9 +3009,9 @@ function is_global_name_punct (c)
 
 function parser_peek_variable_name ()
 {
-  var p = lex_p;
+  var p = $lex_p;
 
-  if (p + 1 >= lex_pend)
+  if (p + 1 >= $lex_pend)
     return 0;
   var c = p_pv(p++);
   switch (c)
@@ -3019,7 +3019,7 @@ function parser_peek_variable_name ()
     case '$':
       if ((c = p_pv(p)) == '-')
       {
-        if (++p >= lex_pend)
+        if (++p >= $lex_pend)
           return 0;
         c = p_pv(p);
       }
@@ -3031,13 +3031,13 @@ function parser_peek_variable_name ()
     case '@':
       if ((c = p_pv(p)) == '@')
       {
-        if (++p >= lex_pend)
+        if (++p >= $lex_pend)
           return 0;
         c = p_pv(p);
       }
       break;
     case '{':
-      lex_p = p;
+      $lex_p = p;
       lexer.command_start = true;
       return tSTRING_DBEG;
     default:
@@ -3101,9 +3101,9 @@ var rb_reserved_word = lexer.rb_reserved_word =
 lexer.cursorPosition = function ()
 {
   return (
-    lex_lastline.substring(0, lex_p) +
+    $lex_lastline.substring(0, $lex_p) +
     '>>here<<' +
-    lex_lastline.substring(lex_p)
+    $lex_lastline.substring($lex_p)
   );
 }
 
@@ -3166,10 +3166,10 @@ lexer.yyerror = function yyerror (msg)
 
   // to clean up \n \t and others
   var line = lexer.get_lex_lastline();
-  var begin = line.substring(0, lex_p)
+  var begin = line.substring(0, $lex_p)
                   .replace(/[\n\r]+/g, '')
                   .replace(/\s+/g, ' ');
-  var end =   line.substring(lex_p)
+  var end =   line.substring($lex_p)
                   .replace(/[\n\r]+/g, '')
                   .replace(/\s+/g, ' ');
   var arrow = [];
