@@ -35,68 +35,114 @@ function YYLexer ()
 // the yylex() method and all public data sit here
 var lexer = this;
 
-// give a chance to set text afterwards
-var $text = '';
-lexer.setText = function (t) { $text = t; }
-
-// connection to the outer space
 var scope = null;
+
+var lex_pbeg = 0, // lex_pbeg never changes
+    lex_p = 0,
+    lex_pend = 0;
+
+var $text_pos = 0;
+var $text = '';
+
+var lex_nextline = '',
+    lex_lastline = '';
+
+
+var $tokenbuf = '';
+
+// our addition for source maps
+// packed as: (line << 10) + (col & 0x3ff)
+//  {line 20 bits}{column 10 bits} = {llllllllllllllllllll}{cccccccccc}
+var $tok_beg = 0; // line and column of first token char
+//   tok_end = 0; // line and column right after the last token char 
+
+// Anything changing must be set in `reset`
+function reset ()
+{
+  lex_pbeg = 0;
+  lex_p = 0;
+  lex_pend = 0;
+
+  $text_pos = 0;
+  $text = '';
+
+  lex_nextline = '';
+  lex_lastline = '';
+
+  $tokenbuf = '';
+  $tok_beg = 0;
+  
+  
+  $text = '';
+  scope = null;
+  
+  // the end of stream had been reached
+  lexer.eofp = false;
+  // the string to be parsed in the nex lex() call
+  lexer.lex_strterm = null;
+  // the main point of interaction with the parser out there
+  lexer.lex_state = 0;
+  // to store the main state
+  lexer.last_state = 0;
+  // have the lexer seen a space somewhere before the current char
+  lexer.space_seen = false;
+  // parser and lexer set this for lexer,
+  // becomes `true` after `\n`, `;` or `(` is met
+  lexer.command_start = false;
+  // temp var for command_start during single run of `yylex`
+  lexer.cmd_state = false;
+  // used in `COND_*` macro-methods,
+  // another spot of interlacing parser and lexer
+  lexer.cond_stack = 0;
+  // used in `CMDARG_*` macro-methods,
+  // another spot of interlacing parser and lexer
+  lexer.cmdarg_stack = 0;
+  // controls level of nesting in `()` or `[]`
+  lexer.paren_nest = 0;
+  lexer.lpar_beg = 0;
+  // controls level of nesting in `{}`
+  lexer.brace_nest = 0;
+  // controls the nesting of states of condition-ness and cmdarg-ness
+  lexer.cond_stack = 0;
+  lexer.cmdarg_stack = 0;
+  // how deep in in singleton definition are we?
+  lexer.in_single = 0;
+  // are we in def …
+  lexer.in_def = 0;
+  // defined? … has its own roles of lexing
+  lexer.in_defined = false;
+  // have we seen `__END__` already in lexer?
+  lexer.ruby__end__seen = false;
+  // parser needs access to the line number,
+  // AFAICT, parser never changes it, only sets `nd_line` on nodes
+  lexer.ruby_sourceline = 0;
+  // file name for meningfull error reporting
+  lexer.filename = '(eval)';
+  // parser doesn't touch it, but what is it?
+  lexer.heredoc_end = 0;
+  lexer.line_count = 0;
+  // errors count
+  lexer.nerr = 0;
+  // TODO: check out list of stateful variables with the original
+
+  // the token value to be stored in the values stack
+  lexer.yylval = null;
+
+  // the token location to be stored in the locations stack
+  lexer.yyloc = null;
+}
+
+// call once on lexer creation
+reset();
+
+// exports
+// 
+lexer.reset = reset;
+// give a chance to set text afterwards
+lexer.setText = function (t) { $text = t; }
+// connection to the outer space
 lexer.setScope = function (s) { scope = s; }
 
-// the end of stream had been reached
-lexer.eofp = false;
-// the string to be parsed in the nex lex() call
-lexer.lex_strterm = null;
-// the main point of interaction with the parser out there
-lexer.lex_state = 0;
-// to store the main state
-lexer.last_state = 0;
-// have the lexer seen a space somewhere before the current char
-lexer.space_seen = false;
-// parser and lexer set this for lexer,
-// becomes `true` after `\n`, `;` or `(` is met
-lexer.command_start = false;
-// temp var for command_start during single run of `yylex`
-lexer.cmd_state = false;
-// used in `COND_*` macro-methods,
-// another spot of interlacing parser and lexer
-lexer.cond_stack = 0;
-// used in `CMDARG_*` macro-methods,
-// another spot of interlacing parser and lexer
-lexer.cmdarg_stack = 0;
-// controls level of nesting in `()` or `[]`
-lexer.paren_nest = 0;
-lexer.lpar_beg = 0;
-// controls level of nesting in `{}`
-lexer.brace_nest = 0;
-// controls the nesting of states of condition-ness and cmdarg-ness
-lexer.cond_stack = 0;
-lexer.cmdarg_stack = 0;
-// how deep in in singleton definition are we?
-lexer.in_single = 0;
-// are we in def …
-lexer.in_def = 0;
-// defined? … has its own roles of lexing
-lexer.in_defined = false;
-// have we seen `__END__` already in lexer?
-lexer.ruby__end__seen = false;
-// parser needs access to the line number,
-// AFAICT, parser never changes it, only sets `nd_line` on nodes
-lexer.ruby_sourceline = 0;
-// file name for meningfull error reporting
-lexer.filename = '(eval)';
-// parser doesn't touch it, but what is it?
-lexer.heredoc_end = 0;
-lexer.line_count = 0;
-// errors count
-lexer.nerr = 0;
-// TODO: check out list of stateful variables with the original
-
-// the token value to be stored in the values stack
-lexer.yylval = null;
-
-// the token location to be stored in the locations stack
-lexer.yyloc = null;
 
 // the shortcut for checking `lexer.lex_state` over and over again
 function IS_lex_state (ls)
@@ -286,11 +332,6 @@ lexer.check_kwarg_name = function check_kwarg_name (name_t)
 }
 
 
-var lex_pbeg = 0, // lex_pbeg never changes
-    lex_p = 0,
-    lex_pend = 0;
-
-var $text_pos = 0;
 // returns empty line as EOF
 function lex_getline ()
 {
@@ -312,9 +353,6 @@ function lex_getline ()
   return line;
 }
 
-
-var lex_nextline = '',
-    lex_lastline = '';
 
 // lex_lastline reader for error reporting
 lexer.get_lex_lastline = function () { return lex_lastline; }
@@ -478,13 +516,6 @@ function was_bol ()
 
 // token related stuff
 
-var $tokenbuf = '';
-
-// our addition for source maps
-// packed as: (line << 10) + (col & 0x3ff)
-//  {line 20 bits}{column 10 bits} = {llllllllllllllllllll}{cccccccccc}
-var $tok_beg = 0; // line and column of first token char
-//   tok_end = 0; // line and column right after the last token char 
 
     
 function newtok ()
