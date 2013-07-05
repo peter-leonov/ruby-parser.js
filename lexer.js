@@ -135,8 +135,8 @@ function reset ()
 // call once on lexer creation
 reset();
 
-// exports
-// 
+// public:
+// pretent brand new lexer
 lexer.reset = reset;
 // give a chance to set `$text` afterwards
 lexer.setText = function (t) { $text = t; }
