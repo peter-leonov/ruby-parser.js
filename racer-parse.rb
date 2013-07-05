@@ -18,71 +18,78 @@ class ParserJS
     @@js.eval("global = this;")
 
     @@js.load('/www/parser/parse.js')
-    
-    @@js.eval <<-JS
-
-      var lexer = new YYLexer();
-      lexer.filename = '(source)';
-  
-      var parser = new YYParser(lexer);
-
-      function to_plain (n)
-      {
-        if (!(n && n.type))
-          return n;
-
-        var ary = n.slice();
-        ary.unshift(n.type);
-
-        for (var i = 0, il = ary.length; i < il; i++)
-          ary[i] = to_plain(ary[i]);
-
-        return ary;
-      }
-
-      function declare (v)
-      {
-        parser.declareVar(v);
-      }
-      
-      function set_filename (fn)
-      {
-        lexer.filename = fn;
-      }
-      
-      function give_me_json (ruby)
-      {
-        lexer.setText(ruby);
-        var ok = parser.parse(ruby);
-        return JSON.stringify(to_plain(parser.resulting_ast));
-      }
-
-    JS
-    
-    @@give_me_json = @@js["give_me_json"]
-    @@declare      = @@js["declare"]
-    @@set_filename = @@js["set_filename"]
   end
 
   def initialize
     load_parser
+    
+    @parser = @@js.eval <<-JS
+      (function (){
+        var lexer = new YYLexer();
+        lexer.filename = '(source)';
+  
+        var parser = new YYParser(lexer);
+
+        function to_plain (n)
+        {
+          if (!(n && n.type))
+            return n;
+
+          var ary = n.slice();
+          ary.unshift(n.type);
+
+          for (var i = 0, il = ary.length; i < il; i++)
+            ary[i] = to_plain(ary[i]);
+
+          return ary;
+        }
+
+        function reset ()
+        {
+          lexer.reset();
+        }
+
+        function declare (v)
+        {
+          parser.declareVar(v);
+        }
+      
+        function set_filename (fn)
+        {
+          lexer.filename = fn;
+        }
+      
+        function give_me_json (ruby)
+        {
+          lexer.setText(ruby);
+          var ok = parser.parse(ruby);
+          return JSON.stringify(to_plain(parser.resulting_ast));
+        }
+        
+        return {
+          reset: reset,
+          set_filename: set_filename,
+          declare: declare,
+          give_me_json: give_me_json,
+          
+        }
+      })()
+    JS
   end
   
   def parse source
-    @@give_me_json.call(source)
+    @parser["give_me_json"].call(source)
   end
   
   def declare var
-    @@declare.call(var)
+    @parser["declare"].call(var)
   end
   
   def filename= name
-    @@set_filename.call(name)
+    @parser["set_filename"].call(name)
   end
   
   def reset_lexer
-    @@js.eval(%{lexer.reset()})
+    @parser["reset"].call
   end
 end
-
-# puts ParserJS.new.to_json("1+2")
