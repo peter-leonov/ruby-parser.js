@@ -2,21 +2,29 @@ require 'v8'
 # require 'oj'
 
 class ParserJS
-
-  def initialize
-    @js = V8::Context.new
+  @@js = nil
+  
+  def load_parser
+    return true if @@js
+    
+    @@js = V8::Context.new
 
     # for error logging and debugging
-    @js["print"] = lambda { |this, *msg| puts(msg.join(' ')) }
-    @js["write"] = lambda { |this, *msg| print(msg.join(' ')) }
+    @@js["print"] = lambda { |this, *msg| puts(msg.join(' ')) }
+    @@js["write"] = lambda { |this, *msg| print(msg.join(' ')) }
 
     # allow module to export itself
-    @js["write"] = lambda { |this, *msg| print(msg.join(' ')) }
-    @js.eval("global = this;")
+    @@js["write"] = lambda { |this, *msg| print(msg.join(' ')) }
+    @@js.eval("global = this;")
 
-    @js.load('/www/ruby/parser/parse.js')
+    @@js.load('/www/parser/parse.js')
+    
+  end
 
-    @js.eval <<-JS
+  def initialize
+    load_parser
+    
+    @@js.eval <<-JS
 
       var lexer = new YYLexer();
       lexer.filename = '(source)';
@@ -51,8 +59,8 @@ class ParserJS
 
     JS
 
-    @give_me_json = @js.eval("give_me_json")
-    @declare      = @js.eval("declare")
+    @give_me_json = @@js.eval("give_me_json")
+    @declare      = @@js.eval("declare")
   end
   
   def parse source
@@ -64,7 +72,7 @@ class ParserJS
   end
   
   def filename= fn
-    @js.eval(%{(function (fn) { lexer.filename = fn; })}).call(fn)
+    @@js.eval(%{(function (fn) { lexer.filename = fn; })}).call(fn)
   end
 end
 
