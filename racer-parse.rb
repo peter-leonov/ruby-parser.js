@@ -47,7 +47,7 @@ class ParserJS
 
       function declare (v)
       {
-        parser.scope.declare(v);
+        parser.declareVar(v);
       }
       
       function give_me_json (ruby)

@@ -56,7 +56,7 @@ var builder = new Builder(lexer);
 builder.scope = scope;
 
 lexer.setScope(scope);
-parser.scope = scope;
+parser.declareVar = function (name) { scope.declare(name); };
 
 }
 
