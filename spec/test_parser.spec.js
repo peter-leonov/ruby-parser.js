@@ -12,7 +12,7 @@ function assert_parses (ast, code)
 {
   var a = JSON.stringify(ast);
   var b = JSON.stringify(toPlain(parser.parse(code, '(assert_parses)')));
-  expect(a).toBe(b);
+  expect(b).toBe(a);
 }
 
 describe("A suite", function() {
