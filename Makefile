@@ -32,8 +32,8 @@ diff: build
 debug: build_debug
 	d8 --use_strict run/console.js parse.js run/debug.js
 
-test-lexer: build_debug
-	d8 --use_strict run/console.js parse.js run/test-lexer.js \
+debug-lexer: build_debug
+	d8 --use_strict run/console.js parse.js run/debug-lexer.js \
 		| grep 'Next token'
 
 
