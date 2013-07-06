@@ -28,6 +28,7 @@ function toPlain (node)
 }
 
 Builder.toPlain = toPlain;
+Builder.createNode = n;
 
 
 #if DEV
