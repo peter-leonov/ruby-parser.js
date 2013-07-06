@@ -3180,10 +3180,8 @@ function RubyParser ()
   actions.setScope(scope);
 
 
-  // Scope needs no one, but we export its main method
-  // allowing parser users to declare theid own local variables
-  // before the actual parsing process begins.
-  this.declareVar = function (name) { scope.declare(name); };
+  // Scope needs no one. Selfish scope.
+  // scope;
 
 
   // Builder needs Scope to declare variables,
@@ -3221,6 +3219,25 @@ RubyParser.prototype.parse = function parse (text, filename)
     return null;
   
   return this.builder.resulting_ast;
+}
+RubyParser.prototype.toJSON = function toJSON (text, filename)
+{
+  var ast = this.parse(text, filename);
+  if (ast === false)
+    return false;
+  
+  return JSON.stringify(Builder.toPlain(ast));
+}
+RubyParser.prototype.declareVar = function declareVar (varname)
+{
+  // We export Scope's main method
+  // allowing parser users to declare theid own local variables
+  // before the actual parsing process begins.
+  this.scope.declare(varname);
+}
+RubyParser.prototype.setFilename = function setFilename (filename)
+{
+  this.filename = ''+filename; // ASM.js!!!
 }
 
 // Export some classes.
