@@ -1,15 +1,7 @@
-function parse (text)
-{
-  var lexer = new YYLexer(text);
-  var parser = new YYParser(lexer);
-  
-  parser.yydebug = 2; // render all the states transitions
-  parser.yydebug_yylval = false; // don't print token values
-  
-  lexer.filename = 'ruby.rb';
-  lexer.setText(text);
-  return parser.parse();
-}
+var parser = new RubyParser();
+// tweak debug output
+parser.parser.yydebug = 2; // render all the states transitions
+parser.parser.yydebug_yylval = false; // don't print token values
 
 var text = read('ruby.rb');
-quit(parse(text) ? 0 : 1);
+quit(parser.parse(text, 'ruby.rb') ? 0 : 1);
