@@ -3216,7 +3216,7 @@ RubyParser.prototype.parse = function parse (text, filename)
   // The main parsing loop.
   var ok = this.parser.parse();
   if (!ok)
-    return null;
+    return false;
   
   return this.builder.resulting_ast;
 }
