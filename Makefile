@@ -23,8 +23,8 @@ diff: build
 
 # just run the parser, it knows how to test itself
 # add --use_strict to enshure the whole script is under protection :)
-test: build_debug
-	d8 --use_strict run/console.js parse.js run/test.js
+debug: build_debug
+	d8 --use_strict run/console.js parse.js run/debug.js
 
 test-lexer: build_debug
 	d8 --use_strict run/console.js parse.js run/test-lexer.js \
