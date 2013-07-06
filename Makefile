@@ -16,6 +16,9 @@ build_debug: bison
 
 
 
+test: build
+	jasmine-node spec/
+
 
 # check if the parser state machine been touched
 diff: build
