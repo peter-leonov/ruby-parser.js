@@ -115,7 +115,7 @@ function reset ()
   // AFAICT, parser never changes it, only sets `nd_line` on nodes
   lexer.ruby_sourceline = 0;
   // file name for meningfull error reporting
-  lexer.filename = '(eval)';
+  lexer.filename = '';
   // parser doesn't touch it, but what is it?
   lexer.heredoc_end = 0;
   lexer.line_count = 0;

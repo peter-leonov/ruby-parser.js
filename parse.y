@@ -3141,6 +3141,9 @@ none: /* none */
 
 function RubyParser ()
 {
+  // Default file name.
+  this.filename = '(eval)';
+  
   // all the classes support independant instantiation
   var lexer   = new YYLexer();
   var parser  = new YYParser();
@@ -3207,9 +3210,7 @@ RubyParser.prototype.parse = function parse (text, filename)
   // Prepare lexer for the new hard work.
   this.lexer.reset();
   this.lexer.setScope(this.scope);
-  
-  if (filename)
-    this.lexer.filename = filename;
+  this.lexer.filename = filename || this.filename;
   
   // Just set, do not interpret it anyhow.
   this.lexer.setText(text);
