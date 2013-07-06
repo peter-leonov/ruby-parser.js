@@ -1,5 +1,4 @@
 var RubyParser = require('../parse.js').RubyParser;
-var parser = new RubyParser();
 
 var slice = Array.prototype.slice;
 function s ()
@@ -15,7 +14,15 @@ function assert_parses (ast, code)
   expect(b).toBe(a);
 }
 
-describe("A suite", function() {
+var parser = new RubyParser();
+// declare helper variables
+['foo', 'bar', 'baz'].forEach(function (v) { parser.declareVar(v) })
+
+describe("Builder", function() {
+
+  //
+  // Literals
+  //
 
   it("test_empty_stmt", function() {
     assert_parses
