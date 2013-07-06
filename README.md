@@ -213,6 +213,20 @@ then:
     node ruby2json.js 'puts(1 + 2.0)'
 
 
+# Check it, please
+
+Prerequisites:
+
+    brew install node
+    npm install jasmine-node -g
+
+Run:
+
+    make check
+
+Standard Jasmine output follows. All the dots have to be green ;)
+
+
 # Bison rules!
 
 If you need to touch around bison rules, please, run `make diff` to see, what changed. There must be no diff to parse.js.output :)
