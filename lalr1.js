@@ -40,9 +40,12 @@ m4_define([b4_token_enums],
 
 
 # b4-case(ID, CODE)
-m4_define([b4_case], [  $1: function ()$2,
-
-
+m4_define([b4_case], [  $1: function (yyval, yyvs)
+{
+  $2;
+  
+  return yyval;
+},
 ])
 
 
@@ -59,7 +62,7 @@ m4_define([b4_lhs_value], [yyval])
 # TODO: optimize access to the N-th stack element
 # m4_define([b4_rhs_value], [(yystack.valueAt($1-($2)))])
 m4_define([b4_rhs_value], [[yyvs[yyvs.length-1-(($1-($2)))]]])
-m4_define([b4_rhs_value_debug], [[yystack.valueStack[yystack.valueStack.length-1-(($1-($2)))]]])
+m4_define([b4_rhs_value_debug], [[this.yystack.valueStack[this.yystack.valueStack.length-1-(($1-($2)))]]])
 
 
 b4_defines_if([b4_fatal([%s: %%defines does not make sense in JavaScript], [b4_skeleton])])
@@ -92,18 +95,17 @@ var
 
 // Instantiates the Bison-generated parser.
 // `lexer` is the scanner that will supply tokens to the parser.
-function YYParser (lexer)
+function YYParser ()
 {
-// self
-var parser = this;
-
-// The three variables shared by Parser's guts and actions world
-// defined after the Parser very own namespace.
-// (`lexer` and `parser` are shared too),
-var yyval, yystack, yyvs, actionsTable;
-
-;(function(){ // start of the Parser very own namespase
-
+  // self
+  var parser = this;
+  
+  var lexer = null;
+  parser.setLexer = function (l) { lexer = l; }
+  
+  var actionsTable;
+  parser.setActions = function (actions) { actionsTable = actions.table; }
+  
   // True if verbose error messages are enabled.
   this.errorVerbose = true;
 
@@ -164,6 +166,9 @@ var yyval, yystack, yyvs, actionsTable;
   {
     return yyerrstatus_ == 0;
   }
+
+  // Share with `action()`
+  var yystack, yyvs;
 
   /**
    * Parse input from the scanner that was specified at object construction
@@ -472,17 +477,17 @@ var yyval, yystack, yyvs, actionsTable;
     // else
     //   yyval = yystack.valueAt(0);
     
+    var yyval = undefined; // yes, setting garbage value;
+    
     if (yylen > 0)
       yyval = yystack.valueAt(yylen - 1);
-    else
-      yyval = undefined; // yes, setting garbage value
 
     debug_reduce_print(yyn);
 
     var actionClosure = actionsTable[yyn]
     debug_action(actionClosure);
     if (actionClosure)
-      actionClosure();
+      yyval = actionClosure(yyval, yyvs);
 
     debug_symbol_print("-> $$ =", yyr1_[yyn], yyval);
 
@@ -641,21 +646,6 @@ var yyval, yystack, yyvs, actionsTable;
 
   var yyuser_token_number_max_ = ]b4_user_token_number_max[;
   var yyundef_token_ = ]b4_undef_token_number[;
-
-}).call(this); // end of the Parser very own namespase
-
-;(function(){ // actions table namespace start
-
-]b4_percent_code_get([[actions]])[
-
-actionsTable =
-{
-  ]b4_list_of_actions[
-};
-
-})(); // actions table namespace end
-
-
 } // YYParser
 
 // rare used functions
@@ -963,6 +953,18 @@ YYParser.Stack = function Stack ()
   }
 }
 
+
+function YYActions ()
+{
+
+]b4_percent_code_get([[actions]])[
+
+this.table =
+{
+  ]b4_list_of_actions[
+};
+
+} // YYActions
 
 // here goes the epilogue
 ]b4_epilogue[

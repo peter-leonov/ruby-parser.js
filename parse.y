@@ -29,6 +29,8 @@ var Array_push = Array.prototype.push;
 function $ (c) { return c.charCodeAt(0) }
 function $$ (code) { return String.fromCharCode(code) }
 
+#include "builder.js"
+
 %}
 
 %code lexer {
@@ -49,14 +51,13 @@ function $$ (code) { return String.fromCharCode(code) }
 
 // here goes the code needed in rules only, when generating nodes,
 // we still know all the token numbers here too.
-#include "builder.js"
 
-var scope = new Scope();
-var builder = new Builder(lexer);
-builder.scope = scope;
-
-lexer.setScope(scope);
-parser.declareVar = function (name) { scope.declare(name); };
+var lexer, parser, builder, scope;
+// public:
+this.setLexer   = function (v) { lexer = v; }
+this.setParser  = function (v) { parser = v; }
+this.setBuilder = function (v) { builder = v; }
+this.setScope   = function (v) { scope = v; }
 
 }
 
@@ -209,7 +210,7 @@ program:
     {
       scope.pop();
       
-      parser.resulting_ast = $2;
+      builder.resulting_ast = $2;
     };
 
 top_compstmt:
@@ -267,7 +268,7 @@ bodystmt:
       {
         // TODO
         // diagnostic :warning, :useless_else, else_t
-        this.lexer.warn("else without rescue is useless");
+        lexer.warn("else without rescue is useless");
       }
 
       $$ = builder.begin_body($1, rescue_bodies, else_, ensure);
@@ -3137,22 +3138,105 @@ none: /* none */
 
 
 // Exports part.
-// Here we have to expose our YY* classes to outer world somehow.
-// And yes, all the two YYParser and YYLexer are visible here
+
+function RubyParser ()
+{
+  // all the classes support independant instantiation
+  var lexer   = new YYLexer();
+  var parser  = new YYParser();
+  var actions = new YYActions();
+  var scope   = new Builder.Scope();
+  var builder = new Builder();
+
+
+  // Lexer uses Scope to distinct method calls from local variables,
+  // the difference changes Lexer's behaviour drastically.
+  lexer.setScope(scope);
+
+
+  // Parser needs Lexer mainly for token stream,
+  // but also it expects token values and locations.
+  parser.setLexer(lexer);
+  // The main job of Parser is to call Actions code every time
+  // Parser understands a token sequence on the top of its stack.
+  parser.setActions(actions);
+
+
+  // The main value from Actions here is that parser
+  // continually helps lexer get the right state.
+  // Otherwise ruby code couldn't be parsed at all.
+  actions.setLexer(lexer);
+  // Actions also recovers Parser from error with `parser.yyerrok()`.
+  actions.setParser(parser);
+  // Actions code does the only valuable work: calls the Builder instance
+  // and stores its results to the Parser stack. This is the most interesting part.
+  // Also the most outer rule of Actions sets `resulting_ast` on the Builder instance.
+  actions.setBuilder(builder);
+  // Actions does push and pop new dynamic and static scopes to help
+  // Scope track when Parser enters new block, class, module etc.
+  actions.setScope(scope);
+
+
+  // Scope needs no one, but we export its main method
+  // allowing parser users to declare theid own local variables
+  // before the actual parsing process begins.
+  this.declareVar = function (name) { scope.declare(name); };
+
+
+  // Builder needs Scope to declare variables,
+  // to check if some identificator is a local variable,
+  // to find duplicated variables, arguments and so on.
+  builder.setScope(scope);
+  // Builder uses Lexer state to check its state, and reports error
+  // if some node isn't allowed in such a state.
+  // Alse, Builder uses lexer methods for located error reporting.
+  builder.setLexer(lexer);
+
+
+  // Save for use in prototype methods.
+  this.lexer    = lexer;
+  this.parser   = parser;
+  this.actions  = actions;
+  this.scope    = scope;
+  this.builder  = builder;
+}
+
+// Easy part.
+RubyParser.prototype.parse = function parse (text, filename)
+{
+  // Prepare lexer for the new hard work.
+  this.lexer.reset();
+  this.lexer.setScope(this.scope);
+  
+  if (filename)
+    this.lexer.filename = filename;
+  
+  // Just set, do not interpret it anyhow.
+  this.lexer.setText(text);
+  
+  // The main parsing loop.
+  var ok = this.parser.parse();
+  if (!ok)
+    return null;
+  
+  return this.builder.resulting_ast;
+}
+
+// Export some classes.
+RubyParser.Builder = Builder;
+
 
 if (typeof module != 'undefined' && module.exports)
 {
-  module.exports.YYLexer = YYLexer;
-  module.exports.YYParser = YYParser;
+  module.exports.RubyParser = RubyParser;
 }
 else if (typeof global != 'undefined')
 {
-  global.YYLexer = YYLexer;
-  global.YYParser = YYParser;
+  global.RubyParser = RubyParser;
 }
 else
 {
-  throw "don't know how to eport YYLexer and YYParser"
+  throw "don't know how to eport RubyParser"
 }
 
 })(); // whole parser and lexer namespace start

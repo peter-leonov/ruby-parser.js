@@ -13,6 +13,23 @@ function n0 (type)
   return children;
 }
 
+function toPlain (node)
+{
+  if (!node || !node.type)
+    return node;
+
+  var ary = node.slice();
+  ary.unshift(node.type);
+
+  for (var i = 0, il = ary.length; i < il; i++)
+    ary[i] = toPlain(ary[i]);
+
+  return ary;
+}
+
+Builder.toPlain = toPlain;
+
+
 #if DEV
 function yyinspect (v)
 {

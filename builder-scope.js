@@ -63,3 +63,5 @@ function Scope ()
   // debug TODO: hide
   self.variables  = function () { return variables; };
 }
+
+Builder.Scope = Scope;

@@ -1,6 +1,5 @@
-// expose the constant to outer world (e.g. parser)
+// expose the constants to outer world (e.g. parser)
 
-// TODO: replace with defines
 // ignore newline, +/- is a sign.
 var EXPR_BEG    = 1 << 0;
 // newline significant, +/- is an operator.
@@ -63,8 +62,8 @@ function reset ()
   $lex_p = 0;
   $lex_pend = 0;
 
-  $text_pos = 0;
   $text = '';
+  $text_pos = 0;
 
   $lex_nextline = '';
   $lex_lastline = '';
@@ -73,8 +72,7 @@ function reset ()
   $tok_beg = 0;
   
   
-  $text = '';
-  // $scope = null; // share $scope between calls
+  $scope = null;
   
   // the end of stream had been reached
   lexer.eofp = false;
@@ -139,9 +137,13 @@ reset();
 // pretent brand new lexer
 lexer.reset = reset;
 // give a chance to set `$text` afterwards
-lexer.setText = function (t) { $text = t; }
+lexer.setText = function (v)
+{
+  $text = v;
+  $text_pos = 0;
+}
 // connection to the outer space
-lexer.setScope = function (s) { $scope = s; }
+lexer.setScope = function (v) { $scope = v; }
 
 
 // the shortcut for checking `lexer.lex_state` over and over again

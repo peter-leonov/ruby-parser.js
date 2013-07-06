@@ -1,8 +1,5 @@
 // port of the Builder class from https://github.com/whitequark/parser
 
-#include "builder-scope.js"
-#include "builder-node.js"
-
 // TODO: yyerror("Can't change the value of self");
 // TODO: parser_warning(node, "regex literal in condition");
 // TODO: "string literal in condition"
@@ -20,13 +17,34 @@
 // and much more had been deleted in 037f36d283a52c580dd1eef6e9cd0576ce81e902
 
 
-function Builder (lexer)
+function Builder ()
 {
-  this.lexer = lexer;
+  this.reset();
 }
+
+;(function(){ // builder namespace
+
+#include "builder-scope.js"
+#include "builder-node.js"
 
 Builder.prototype =
 {
+  reset: function ()
+  {
+    this.lexer = null;
+    this.resulting_ast = null;
+  },
+  
+  setLexer: function (l)
+  {
+    this.lexer = l;
+  },
+  
+  setScope: function (s)
+  {
+    this.scope = s;
+  },
+  
   //
   // VERIFICATION
   //
@@ -133,7 +151,7 @@ Builder.prototype =
 
       case '__LINE__':
         // TODO: use line from node value
-        return n('int', [ lexer.ruby_sourceline ]); 
+        return n('int', [ this.lexer.ruby_sourceline ]); 
 
       case '__ENCODING__':
         return n('const', [ n('const', [ null, 'Encoding'], null), 'UTF_8' ])
@@ -169,7 +187,7 @@ Builder.prototype =
         return n('cvasgn', children);
 
       case 'const':
-        if (lexer.in_def)
+        if (this.lexer.in_def)
         {
           this.lexer.compile_error('TODO: dynamic_const');
         }
@@ -496,7 +514,7 @@ Builder.prototype =
       var last_arg = method_call[method_call.length-1];
       if (last_arg && last_arg.type == 'block_pass')
       {
-        lexer.compile_error('TODO: block_and_blockarg');
+        this.lexer.compile_error('TODO: block_and_blockarg');
       }
     }
     
@@ -546,8 +564,7 @@ Builder.prototype =
           var that_name = that_arg[0];
           if (this.arg_name_collides(this_name, that_name))
           {
-            
-            lexer.compile_error('TODO: duplicate_argument');
+            this.lexer.compile_error('TODO: duplicate_argument');
             // diagnostic :error, ERRORS[:duplicate_argument],
                        // this_arg.loc.name, [ that_arg.loc.name ]
           }
@@ -722,7 +739,7 @@ Builder.prototype =
       case 'int':    case 'str':   case 'dstr': case 'sym': case 'dsym':
       case 'regexp': case 'array': case 'hash':
 
-        lexer.compile_error('TODO: singleton_literal');
+        this.lexer.compile_error('TODO: singleton_literal');
         // fall through
     }
     
@@ -885,3 +902,5 @@ Builder.prototype =
   }
   
 }
+
+})(); // builder namespace
