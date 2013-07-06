@@ -18,10 +18,9 @@ var RubyParser = require('./parse.js').RubyParser;
 
 var parser = new RubyParser();
 
-var rbfile = process.argv[2];
-var text = fs.readFileSync(rbfile, {encoding: 'utf8'});
+var text = process.argv[2];
 
-var json = parser.toJSON(text, rbfile);
+var json = parser.toJSON(text);
 
 print(json);
 

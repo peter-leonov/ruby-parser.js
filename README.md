@@ -206,16 +206,11 @@ Further optimizations needed to reduce the garbage produced by the lexer and the
 
 # First run
 
-Prerequisites:
+    brew install node
 
-    brew install v8
-    brew install bison # 2.7.1 at the moment
+then:
 
-Run:
-
-    make test
-
-lots of output with "states", "shifts" etc.
+    node ruby2json.js 'puts(1 + 2.0)'
 
 
 # Bison rules!
