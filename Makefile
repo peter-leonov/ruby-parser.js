@@ -49,7 +49,7 @@ DIFF=git diff --no-index --color --
 CLEAN_BISON_LOG=sed -E 's/ +\(line [0-9]+\)| \(\)//g'
 
 compare: build_debug
-	ruby20 -W2 -yc ruby.rb 2>&1 | $(CLEAN_BISON_LOG) >tmp/a.tmp
+	ruby20 -W2 -yc debug.rb 2>&1 | $(CLEAN_BISON_LOG) >tmp/a.tmp
 	d8 --use_strict run/console.js parse.js run/compare.js \
 		| $(CLEAN_BISON_LOG) >tmp/b.tmp
 	$(DIFF) tmp/a.tmp tmp/b.tmp | cat

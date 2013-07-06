@@ -29,7 +29,7 @@ parser.diagnostics.consumer = lambda do |diag|
   puts diag.render
 end
 
-buffer = Parser::Source::Buffer.new('ruby.rb')
-buffer.source = File.read("ruby.rb")
+buffer = Parser::Source::Buffer.new('debug.rb')
+buffer.source = File.read("debug.rb")
 
 puts Oj.dump(parser.parse(buffer).to_plain)

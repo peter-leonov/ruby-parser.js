@@ -11,7 +11,7 @@ print('create: ' + (new Date() - begin) + ' ms')
 var begin = new Date()
 try
 {
-  var ast = parser.parse(text, 'ruby.rb');
+  var ast = parser.parse(text, 'debug.rb');
 }
 catch (e)
 {
