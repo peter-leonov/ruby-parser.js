@@ -62,7 +62,6 @@ m4_define([b4_lhs_value], [yyval])
 # TODO: optimize access to the N-th stack element
 # m4_define([b4_rhs_value], [(yystack.valueAt($1-($2)))])
 m4_define([b4_rhs_value], [[yyvs[yyvs.length-1-(($1-($2)))]]])
-m4_define([b4_rhs_value_debug], [[this.yystack.valueStack[this.yystack.valueStack.length-1-(($1-($2)))]]])
 
 
 b4_defines_if([b4_fatal([%s: %%defines does not make sense in JavaScript], [b4_skeleton])])
@@ -662,7 +661,8 @@ YYParser.prototype =
   {
     if (this.yydebug >= 2)
     {
-      var yystack = this.yystack;
+      // for rhs_value
+      var yyvs = this.yystack.valueStack;
       var yylno = this.yyrline_[yyrule];
       var yynrhs = this.yyr2_[yyrule];
       // Print the symbols being reduced, and their result.
@@ -674,13 +674,14 @@ YYParser.prototype =
         this.debug_symbol_print(
           "   $" + (yyi + 1) + " =",
           this.yyrhs_[this.yyprhs_[yyrule] + yyi],
-          ]b4_rhs_value_debug(yynrhs, yyi + 1)[
+          ]b4_rhs_value(yynrhs, yyi + 1)[
         );
       }
     }
     else if (this.yydebug >= 1)
     {
-      var yystack = this.yystack;
+      // for rhs_value
+      var yyvs = this.yystack.valueStack;
       var yylno = this.yyrline_[yyrule];
       var yynrhs = this.yyr2_[yyrule];
       // Print the symbols being reduced, and their result.
@@ -703,7 +704,7 @@ YYParser.prototype =
         for (var yyi = 0; yyi < yynrhs; yyi++)
         {
           var name = this.yytname_[[this.yyrhs_[this.yyprhs_[yyrule] + yyi]]];
-          var value = ]b4_rhs_value_debug(yynrhs, yyi + 1)[;
+          var value = ]b4_rhs_value(yynrhs, yyi + 1)[;
           this.print("$" + (yyi + 1) + " " + name + " = "+ this.yyinspect(value) + "\n");
         }
       }
