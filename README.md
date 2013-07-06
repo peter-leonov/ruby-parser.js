@@ -226,6 +226,30 @@ Run:
 
 Standard Jasmine output follows. All the dots have to be green ;)
 
+# Development
+
+    brew install v8 # for d8
+    brew install bison # 2.7.1 at the moment
+
+and for `make check` to work:
+
+    npm install jasmine-node -g
+
+then change sample code in `debug.rb` and run:
+
+    make compare
+
+which will compare the parsing processes. If got bug, run:
+
+    make debug
+
+this will log all steps of the parser with all intermediate values.
+
+In case you feel that the problem is in lexer, run:
+
+    make debug-lexer
+
+it will show all the token values lexer supplies.
 
 # Bison rules!
 
