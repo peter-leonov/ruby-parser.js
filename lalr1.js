@@ -746,7 +746,7 @@ YYParser.prototype =
     if (this.yydebug < 2)
       return;
 
-    puts("Stack now " + this.yystack.stateStack.join(' '));
+    print("Stack now " + this.yystack.stateStack.join(' '));
   },
 
   debug_action: function debug_action (action)
@@ -756,7 +756,7 @@ YYParser.prototype =
     
     if (this.yydebug >= 2)
     {
-      puts(action);
+      print(action);
     }
     else if (this.yydebug >= 1)
     {

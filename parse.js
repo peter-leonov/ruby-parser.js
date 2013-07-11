@@ -4262,10 +4262,9 @@ var rb_reserved_word = lexer.rb_reserved_word =
 'yield': {id0: keyword_yield, state: EXPR_ARG}
 };
 
-
 function scream (msg, lineno, filename)
 {
-  puts
+  print
   (
     (filename || lexer.filename) +
     ':' +
@@ -4303,8 +4302,8 @@ lexer.yyerror = function yyerror (msg)
                   .replace(/\s+/g, ' ');
   var arrow = [];
   arrow[begin.length] = '^';
-  puts(begin + end);
-  puts(arrow.join(' '));
+  print(begin + end);
+  print(arrow.join(' '));
 }
 
 } // function Lexer
