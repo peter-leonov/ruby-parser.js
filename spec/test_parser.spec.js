@@ -1783,6 +1783,12 @@ describe("Builder", function() {
     assert_parses(
       s('send', s('lvar', 'foo'), '-', s('int', 1)),
       'foo - 1')
+    assert_parses(
+      s('send', s('lvar', 'foo'), '-'),
+      'foo::-')
+    assert_parses(
+      s('send', s('lvar', 'foo'), '-'),
+      'foo.-')
 
     assert_parses(
       s('send', s('lvar', 'foo'), '*', s('int', 1)),

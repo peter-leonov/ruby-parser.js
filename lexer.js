@@ -1169,6 +1169,7 @@ this.yylex = function yylex ()
           return tUMINUS;
         }
         pushback(c);
+        lexer.yylval = "-";
         return $('-');
       }
       if (c == '=')
