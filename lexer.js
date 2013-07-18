@@ -1922,8 +1922,8 @@ this.yylex = function yylex ()
     {
       var ident = tok();
       lexer.yylval = ident;
-      // `is_local_id` is in place of `gen.is_local_id(ident)`
-      // AKAICT, `gen.is_local_id` repeats the thing done by lexer
+      // `is_local_id` is in place of `gen.is_local_id(ident)`,
+      // and AKAICT, `gen.is_local_id` repeats the thing done by lexer
       if (!IS_lex_state_for(lexer.last_state, EXPR_DOT | EXPR_FNAME) &&
           is_local_id && $scope.is_declared(ident))
       {
