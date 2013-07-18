@@ -1921,11 +1921,6 @@ this.yylex = function yylex ()
     }
     {
       var ident = tok();
-      // var ident = gen.rb_intern(tok());
-      // if (gen.is_local_id(ident) !== is_local_id)
-      // {
-      //   lexer.print(tok(), gen.is_local_id(ident), is_local_id)
-      // }
       lexer.yylval = ident;
       // `is_local_id` is in place of `gen.is_local_id(ident)`
       // AKAICT, `gen.is_local_id` repeats the thing done by lexer
@@ -1937,8 +1932,6 @@ this.yylex = function yylex ()
     }
     return result;
   }
-  
-  // return c == '' ? 0 : 9999 // EOF or $undefined
   
   } // retry for loop
 }
