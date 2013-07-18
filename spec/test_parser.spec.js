@@ -1777,95 +1777,21 @@ describe("Builder", function() {
   });
 
   it("test_send_binary_op", function() {
-    assert_parses(
-      s('send', s('lvar', 'foo'), '+', s('int', 1)),
-      'foo + 1')
+    var operators = '+ - * / % ** | ^ & < <= <=> >= > == != === =~ !~ << >>'.split(' ')
+    for (var i = 0; i < operators.length; i++)
+    {
+      var op = operators[i]
 
-    assert_parses(
-      s('send', s('lvar', 'foo'), '-', s('int', 1)),
-      'foo - 1')
-    assert_parses(
-      s('send', s('lvar', 'foo'), '-'),
-      'foo::-')
-    assert_parses(
-      s('send', s('lvar', 'foo'), '-'),
-      'foo.-')
-
-    assert_parses(
-      s('send', s('lvar', 'foo'), '*', s('int', 1)),
-      'foo * 1')
-
-    assert_parses(
-      s('send', s('lvar', 'foo'), '/', s('int', 1)),
-      'foo / 1')
-
-    assert_parses(
-      s('send', s('lvar', 'foo'), '%', s('int', 1)),
-      'foo % 1')
-
-    assert_parses(
-      s('send', s('lvar', 'foo'), '**', s('int', 1)),
-      'foo ** 1')
-
-    assert_parses(
-      s('send', s('lvar', 'foo'), '|', s('int', 1)),
-      'foo | 1')
-
-    assert_parses(
-      s('send', s('lvar', 'foo'), '^', s('int', 1)),
-      'foo ^ 1')
-
-    assert_parses(
-      s('send', s('lvar', 'foo'), '&', s('int', 1)),
-      'foo & 1')
-
-    assert_parses(
-      s('send', s('lvar', 'foo'), '<=>', s('int', 1)),
-      'foo <=> 1')
-
-    assert_parses(
-      s('send', s('lvar', 'foo'), '<', s('int', 1)),
-      'foo < 1')
-
-    assert_parses(
-      s('send', s('lvar', 'foo'), '<=', s('int', 1)),
-      'foo <= 1')
-
-    assert_parses(
-      s('send', s('lvar', 'foo'), '>', s('int', 1)),
-      'foo > 1')
-
-    assert_parses(
-      s('send', s('lvar', 'foo'), '>=', s('int', 1)),
-      'foo >= 1')
-
-    assert_parses(
-      s('send', s('lvar', 'foo'), '==', s('int', 1)),
-      'foo == 1')
-
-    assert_parses(
-      s('send', s('lvar', 'foo'), '!=', s('int', 1)),
-      'foo != 1')
-
-    assert_parses(
-      s('send', s('lvar', 'foo'), '===', s('int', 1)),
-      'foo === 1')
-
-    assert_parses(
-      s('send', s('lvar', 'foo'), '=~', s('int', 1)),
-      'foo =~ 1')
-
-    assert_parses(
-      s('send', s('lvar', 'foo'), '!~', s('int', 1)),
-      'foo !~ 1')
-
-    assert_parses(
-      s('send', s('lvar', 'foo'), '<<', s('int', 1)),
-      'foo << 1')
-
-    assert_parses(
-      s('send', s('lvar', 'foo'), '>>', s('int', 1)),
-      'foo >> 1')
+      assert_parses(
+        s('send', s('lvar', 'foo'), op, s('int', 1)),
+        'foo '+op+' 1')
+      assert_parses(
+        s('send', s('lvar', 'foo'), op),
+        'foo::' + op)
+      assert_parses(
+        s('send', s('lvar', 'foo'), op),
+        'foo.' + op)
+    }
   });
   
   it("test_send_unary_op", function() {
