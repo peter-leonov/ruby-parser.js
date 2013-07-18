@@ -841,6 +841,7 @@ this.yylex = function yylex ()
       }
       if (c == '~')
       {
+        lexer.yylval = "=~";
         return tMATCH;
       }
       else if (c == '>')
