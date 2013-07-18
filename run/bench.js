@@ -6,6 +6,7 @@ var text = read('tests/giant.rb');
 
 var begin = new Date();
 var parser = new RubyParser();
+parser.print = print; // let the parser speak
 print('create: ' + (new Date() - begin) + ' ms')
 
 var begin = new Date()

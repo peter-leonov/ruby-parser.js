@@ -386,7 +386,7 @@ function nextc ()
       lexer.ruby_sourceline++;
 #if DEBUG
       if (lexer.print_line_numbers)
-        print(lexer.ruby_sourceline)
+        lexer.print(lexer.ruby_sourceline + '\n')
 #endif // DEBUG
       lexer.line_count++;
       $lex_pbeg = $lex_p = 0;
@@ -1923,7 +1923,7 @@ this.yylex = function yylex ()
       // var ident = gen.rb_intern(tok());
       // if (gen.is_local_id(ident) !== is_local_id)
       // {
-      //   print(tok(), gen.is_local_id(ident), is_local_id)
+      //   lexer.print(tok(), gen.is_local_id(ident), is_local_id)
       // }
       lexer.yylval = ident;
       // `is_local_id` is in place of `gen.is_local_id(ident)`
@@ -3100,15 +3100,17 @@ var rb_reserved_word = lexer.rb_reserved_word =
 'yield': {id0: keyword_yield, state: EXPR_ARG}
 };
 
+lexer.print = null // to be defined in RubyParser constructor
+
 function scream (msg, lineno, filename)
 {
-  print
+  lexer.print
   (
     (filename || lexer.filename) +
     ':' +
     (lineno || lexer.ruby_sourceline) +
     ': ' +
-    msg
+    msg + '\n'
   );
 }
 
@@ -3116,7 +3118,7 @@ function warn (msg, lineno, filename)
 {
   scream('warning: ' + msg, lineno, filename);
 }
-this.warn = warn;
+lexer.warn = warn;
 
 function compile_error (msg)
 {
@@ -3140,8 +3142,8 @@ lexer.yyerror = function yyerror (msg)
                   .replace(/\s+/g, ' ');
   var arrow = [];
   arrow[begin.length] = '^';
-  print(begin + end);
-  print(arrow.join(' '));
+  lexer.print(begin + end + '\n');
+  lexer.print(arrow.join(' ') + '\n');
 }
 
 } // function Lexer

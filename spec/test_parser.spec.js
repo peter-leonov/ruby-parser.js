@@ -1,4 +1,5 @@
 var RubyParser = require('../parse.js').RubyParser;
+RubyParser.prototype.print = function (msg) { throw msg }
 
 var slice = Array.prototype.slice;
 function s ()

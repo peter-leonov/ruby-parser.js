@@ -688,15 +688,15 @@ YYParser.prototype =
       yylno = ''+yylno;
       
       var pad = '..................................';
-      write(yylno + ' ' + pad.substr(yylno.length) + ' : ');
+      this.print(yylno + ' ' + pad.substr(yylno.length) + ' : ');
       
       // The symbols being reduced.
       for (var yyi = 0; yyi < yynrhs; yyi++)
       {
         var name = this.yytname_[[this.yyrhs_[this.yyprhs_[yyrule] + yyi]]];
-        write(name + " ");
+        this.print(name + " ");
       }
-      write("\n");
+      this.print("\n");
       
       if (this.yydebug_yylval)
       {
@@ -746,7 +746,7 @@ YYParser.prototype =
     if (this.yydebug < 2)
       return;
 
-    print("Stack now " + this.yystack.stateStack.join(' '));
+    this.print("Stack now " + this.yystack.stateStack.join(' ') + '\n');
   },
 
   debug_action: function debug_action (action)
@@ -756,7 +756,7 @@ YYParser.prototype =
     
     if (this.yydebug >= 2)
     {
-      print(action);
+      this.print(action + '\n');
     }
     else if (this.yydebug >= 1)
     {
@@ -773,12 +773,9 @@ YYParser.prototype =
     if (this.yydebug < 2)
       return;
 
-    write(message);
+    this.print(message);
   },
-  print: function print (message)
-  {
-    write(message);
-  },
+  print: null, // to be defined in RubyParser constructor
 #endif // YYDEBUG
 
   // Generate an error message.

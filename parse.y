@@ -3193,6 +3193,11 @@ function RubyParser ()
   // Alse, Builder uses lexer methods for located error reporting.
   builder.setLexer(lexer);
 
+  // set up the common print function
+  var rubyParser = this;
+  function redirectToPrint () { rubyParser.print.apply(rubyParser, arguments) }
+  lexer.print = parser.print = redirectToPrint
+
 
   // Save for use in prototype methods.
   this.lexer    = lexer;
@@ -3238,6 +3243,10 @@ RubyParser.prototype.declareVar = function declareVar (varname)
 RubyParser.prototype.setFilename = function setFilename (filename)
 {
   this.filename = ''+filename; // ASM.js!!!
+}
+RubyParser.prototype.print = function print (msg)
+{
+  throw 'Please, define print callback on parser. The message was: ' + msg
 }
 
 // Export some classes.
