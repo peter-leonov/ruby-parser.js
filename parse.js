@@ -2004,6 +2004,7 @@ this.yylex = function yylex ()
       }
       if (c == '~')
       {
+        lexer.yylval = "=~";
         return tMATCH;
       }
       else if (c == '>')
@@ -2332,6 +2333,7 @@ this.yylex = function yylex ()
           return tUMINUS;
         }
         pushback(c);
+        lexer.yylval = "-";
         return $('-');
       }
       if (c == '=')
@@ -3082,14 +3084,9 @@ this.yylex = function yylex ()
     }
     {
       var ident = tok();
-      // var ident = gen.rb_intern(tok());
-      // if (gen.is_local_id(ident) !== is_local_id)
-      // {
-      //   print(tok(), gen.is_local_id(ident), is_local_id)
-      // }
       lexer.yylval = ident;
-      // `is_local_id` is in place of `gen.is_local_id(ident)`
-      // AKAICT, `gen.is_local_id` repeats the thing done by lexer
+      // `is_local_id` is in place of `gen.is_local_id(ident)`,
+      // and AKAICT, `gen.is_local_id` repeats the thing done by lexer
       if (!IS_lex_state_for(lexer.last_state, EXPR_DOT | EXPR_FNAME) &&
           is_local_id && $scope.is_declared(ident))
       {
@@ -3098,8 +3095,6 @@ this.yylex = function yylex ()
     }
     return result;
   }
-  
-  // return c == '' ? 0 : 9999 // EOF or $undefined
   
   } // retry for loop
 }
@@ -4262,15 +4257,17 @@ var rb_reserved_word = lexer.rb_reserved_word =
 'yield': {id0: keyword_yield, state: EXPR_ARG}
 };
 
+lexer.print = null // to be defined in RubyParser constructor
+
 function scream (msg, lineno, filename)
 {
-  print
+  lexer.print
   (
     (filename || lexer.filename) +
     ':' +
     (lineno || lexer.ruby_sourceline) +
     ': ' +
-    msg
+    msg + '\n'
   );
 }
 
@@ -4278,7 +4275,7 @@ function warn (msg, lineno, filename)
 {
   scream('warning: ' + msg, lineno, filename);
 }
-this.warn = warn;
+lexer.warn = warn;
 
 function compile_error (msg)
 {
@@ -4302,8 +4299,8 @@ lexer.yyerror = function yyerror (msg)
                   .replace(/\s+/g, ' ');
   var arrow = [];
   arrow[begin.length] = '^';
-  print(begin + end);
-  print(arrow.join(' '));
+  lexer.print(begin + end + '\n');
+  lexer.print(arrow.join(' ') + '\n');
 }
 
 } // function Lexer
@@ -12470,6 +12467,11 @@ function RubyParser ()
   // Alse, Builder uses lexer methods for located error reporting.
   builder.setLexer(lexer);
 
+  // set up the common print function
+  var rubyParser = this;
+  function redirectToPrint () { rubyParser.print.apply(rubyParser, arguments) }
+  lexer.print = parser.print = redirectToPrint
+
 
   // Save for use in prototype methods.
   this.lexer    = lexer;
@@ -12515,6 +12517,10 @@ RubyParser.prototype.declareVar = function declareVar (varname)
 RubyParser.prototype.setFilename = function setFilename (filename)
 {
   this.filename = ''+filename; // ASM.js!!!
+}
+RubyParser.prototype.print = function print (msg)
+{
+  throw 'Please, define print callback on parser. The message was: ' + msg
 }
 
 // Export some classes.
