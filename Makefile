@@ -16,11 +16,10 @@ build_debug: bison
 
 
 
-test: build
-	jasmine-node spec/
-
 check:
 	jasmine-node spec/
+
+test: build check
 
 
 # check if the parser state machine been touched
