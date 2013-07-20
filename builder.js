@@ -305,9 +305,9 @@ Builder.prototype =
     return lhs;
   },
   
-  _LINE_: function (ruby_sourceline)
+  _LINE_: function (line)
   {
-    return n('__LINE__', [ ruby_sourceline ]);
+    return n('__LINE__', [ line ]);
   },
   
   _FILE_: function (filename)
