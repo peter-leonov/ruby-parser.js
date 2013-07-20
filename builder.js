@@ -133,22 +133,17 @@ Builder.prototype =
   
   accessible: function (node)
   {
-    switch (node.type)
-    {
-      case 'ident':
-        var name = node/*.children*/[0];
-        if (this.scope.is_declared(name))
-        {
-          return n('lvar', [ name ]);
-        }
-        else
-        {
-          return n('send', [ null, name ]);
-        }
+    if (node.type != 'ident')
+      return node;
 
-      default:
-        return node;
-    }
+    var name = node/*.children*/[0];
+    // check, if the ident name is in scope of locals
+    if (this.scope.is_declared(name))
+      // it's just a local var
+      return n('lvar', [ name ]);
+
+    // it's a paren-less method call
+    return n('send', [ null, name ]);
   },
 
   integer: function (number, negate)
