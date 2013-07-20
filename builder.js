@@ -146,9 +146,6 @@ Builder.prototype =
           return n('send', [ null, name ]);
         }
 
-      case '__ENCODING__':
-        return n('const', [ n('const', [ null, 'Encoding'], null), 'UTF_8' ])
-
       default:
         return node;
     }

@@ -432,7 +432,7 @@ describe("Builder", function() {
 
   it("test___ENCODING__", function() {
     assert_parses(
-      s('const', s('const', null, 'Encoding'), 'UTF_8'),
+      s('__ENCODING__'),
       '__ENCODING__')
   });
 
