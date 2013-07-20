@@ -150,8 +150,7 @@ Builder.prototype =
         return n('str', [ node[0] ]);
 
       case '__LINE__':
-        // TODO: use line from node value
-        return n('int', [ this.lexer.ruby_sourceline ]); 
+        return n('int', [ node[0] ]); 
 
       case '__ENCODING__':
         return n('const', [ n('const', [ null, 'Encoding'], null), 'UTF_8' ])
