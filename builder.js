@@ -146,12 +146,6 @@ Builder.prototype =
           return n('send', [ null, name ]);
         }
 
-      case '__FILE__':
-        return n('str', [ node[0] ]);
-
-      case '__LINE__':
-        return n('int', [ node[0] ]); 
-
       case '__ENCODING__':
         return n('const', [ n('const', [ null, 'Encoding'], null), 'UTF_8' ])
 
