@@ -2091,7 +2091,7 @@ method_call:
     }
   | primary_value '.' operation2
       {
-        // TODO
+        // was: $<num>$ = ruby_sourceline;
       }
     opt_paren_args
       {
@@ -2102,7 +2102,7 @@ method_call:
       }
   | primary_value tCOLON2 operation2
       {
-        // TODO
+        // was: $<num>$ = ruby_sourceline;
       }
     paren_args
       {
@@ -2117,7 +2117,7 @@ method_call:
     }
   | primary_value '.'
       {
-        // TODO
+        // was: $<num>$ = ruby_sourceline;
       }
     paren_args
       {
@@ -2130,7 +2130,7 @@ method_call:
       }
   | primary_value tCOLON2
       {
-        // TODO
+        // was: $<num>$ = ruby_sourceline;
       }
     paren_args
       {
