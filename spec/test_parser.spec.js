@@ -1928,6 +1928,17 @@ describe("Builder", function() {
       '->(a; foo, bar) { }')
   });
 
+  it("test_lambda_args_scope", function() {
+    assert_parses(
+      s('begin',
+        s('block', s('send', null, 'lambda'),
+          s('args',
+            s('arg', 'a')),
+        null),
+        s('send', null, 'a')),
+      '->(a) { }; a')
+  });
+
   it("test_send_call", function() {
     assert_parses(
       s('send', s('lvar', 'foo'), 'call',

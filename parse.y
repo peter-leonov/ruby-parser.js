@@ -1997,7 +1997,7 @@ bvar:
 
 lambda:
     {
-      // TODO
+      scope.push_dynamic();
     }
     {
       $<num>$ = lexer.lpar_beg;
@@ -2011,6 +2011,8 @@ lambda:
       $<vars>1;
       
       $$ = { args: $3, body: $4 };
+
+      scope.pop();
     }
   ;
 
