@@ -52,10 +52,9 @@ function $$ (code) { return String.fromCharCode(code) }
 // here goes the code needed in rules only, when generating nodes,
 // we still know all the token numbers here too.
 
-var lexer, parser, builder, scope;
+// `lexer` and `parser` inherited from YYparser namespace
+var builder, scope;
 // public:
-this.setLexer   = function (v) { lexer = v; }
-this.setParser  = function (v) { parser = v; }
 this.setBuilder = function (v) { builder = v; }
 this.setScope   = function (v) { scope = v; }
 
@@ -3149,7 +3148,8 @@ function RubyParser ()
   // all the classes support independant instantiation
   var lexer   = new YYLexer();
   var parser  = new YYParser();
-  var actions = new YYActions();
+  // parser creates Actions instance itself to share local scoped vars
+  var actions = parser.actions;
   var scope   = new Builder.Scope();
   var builder = new Builder();
 
@@ -3161,25 +3161,19 @@ function RubyParser ()
 
   // Parser needs Lexer mainly for token stream,
   // but also it expects token values and locations.
-  parser.setLexer(lexer);
-  // The main job of Parser is to call Actions code every time
-  // Parser understands a token sequence on the top of its stack.
-  parser.setActions(actions);
-
-
-  // The main value from Actions here is that parser
+  // The main value for Lexer from Parser here is that parser
   // continually helps lexer get the right state.
   // Otherwise ruby code couldn't be parsed at all.
-  actions.setLexer(lexer);
-  // Actions also recovers Parser from error with `parser.yyerrok()`.
-  actions.setParser(parser);
+  parser.setLexer(lexer);
+
+
   // Actions code does the only valuable work: calls the Builder instance
   // and stores its results to the Parser stack. This is the most interesting part.
   // Also the most outer rule of Actions sets `resulting_ast` on the Builder instance.
-  actions.setBuilder(builder);
+  parser.actions.setBuilder(builder);
   // Actions does push and pop new dynamic and static scopes to help
   // Scope track when Parser enters new block, class, module etc.
-  actions.setScope(scope);
+  parser.actions.setScope(scope);
 
 
   // Scope needs no one. Selfish scope.
@@ -3204,7 +3198,6 @@ function RubyParser ()
   // Save for use in prototype methods.
   this.lexer    = lexer;
   this.parser   = parser;
-  this.actions  = actions;
   this.scope    = scope;
   this.builder  = builder;
 }

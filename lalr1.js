@@ -40,12 +40,8 @@ m4_define([b4_token_enums],
 
 
 # b4-case(ID, CODE)
-m4_define([b4_case], [  $1: function (yyval, yyvs)
-{
-  $2;
-  
-  return yyval;
-},
+m4_define([b4_case], [  $1: function ()
+  $2,
 ])
 
 
@@ -102,8 +98,22 @@ function YYParser ()
   var lexer = null;
   parser.setLexer = function (l) { lexer = l; }
   
+  // Share with actions
+  var yystack, yyval, yyvs, yyloc, yyls;
   var actionsTable;
-  parser.setActions = function (actions) { actionsTable = actions.table; }
+  
+  parser.actions = new function YYActions ()
+  {
+    ]b4_percent_code_get([[actions]])[
+
+    actionsTable =
+    {
+      ]b4_list_of_actions[
+    };
+  } // YYActions
+  
+  
+  ;(function(){ // YYParser guts
   
   // True if verbose error messages are enabled.
   parser.errorVerbose = true;
@@ -165,9 +175,6 @@ function YYParser ()
   {
     return yyerrstatus_ == 0;
   }
-
-  // Share with `action()`
-  var yystack, yyvs;
 
   /**
    * Parse input from the scanner that was specified at object construction
@@ -476,7 +483,7 @@ function YYParser ()
     // else
     //   yyval = yystack.valueAt(0);
     
-    var yyval = undefined; // yes, setting garbage value;
+    yyval = undefined; // yes, setting garbage value;
     
     if (yylen > 0)
       yyval = yystack.valueAt(yylen - 1);
@@ -486,7 +493,7 @@ function YYParser ()
     var actionClosure = actionsTable[yyn]
     debug_action(actionClosure);
     if (actionClosure)
-      yyval = actionClosure(yyval, yyvs);
+      actionClosure();
 
     debug_symbol_print("-> $$ =", yyr1_[yyn], yyval);
 
@@ -645,6 +652,8 @@ function YYParser ()
 
   var yyuser_token_number_max_ = ]b4_user_token_number_max[;
   var yyundef_token_ = ]b4_undef_token_number[;
+
+  })(); // YYParser guts
 } // YYParser
 
 // rare used functions
@@ -951,18 +960,6 @@ YYParser.Stack = function Stack ()
   }
 }
 
-
-function YYActions ()
-{
-
-]b4_percent_code_get([[actions]])[
-
-this.table =
-{
-  ]b4_list_of_actions[
-};
-
-} // YYActions
 
 // here goes the epilogue
 ]b4_epilogue[
