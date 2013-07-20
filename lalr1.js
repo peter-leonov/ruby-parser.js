@@ -106,7 +106,7 @@ function YYParser ()
   parser.setActions = function (actions) { actionsTable = actions.table; }
   
   // True if verbose error messages are enabled.
-  this.errorVerbose = true;
+  parser.errorVerbose = true;
 
 #if YYDEBUG
   // enable/disable all the debug messages
@@ -115,11 +115,11 @@ function YYParser ()
   parser.yydebug_yylval = true;
   // enable/disable printing the whole action functions applied
   parser.yydebug_action = false;
-  var debug_reduce_print = this.debug_reduce_print.bind(this);
-  var debug_symbol_print = this.debug_symbol_print.bind(this);
-  var debug_stack_print  = this.debug_stack_print.bind(this);
-  var debug_action       = this.debug_action.bind(this);
-  var debug_print        = this.debug_print.bind(this);
+  var debug_reduce_print = parser.debug_reduce_print.bind(parser);
+  var debug_symbol_print = parser.debug_symbol_print.bind(parser);
+  var debug_stack_print  = parser.debug_stack_print.bind(parser);
+  var debug_action       = parser.debug_action.bind(parser);
+  var debug_print        = parser.debug_print.bind(parser);
 #else // YYDEBUG
 #define debug_reduce_print(yyn)
 #define debug_symbol_print(message, yytype, yyvaluep)
@@ -153,7 +153,7 @@ function YYParser ()
   var YYERRLAB1 = 7;
   var YYRETURN = 8;
 
-  var yyntokens_ = this.yyntokens_ = ]b4_tokens_number[;
+  var yyntokens_ = parser.yyntokens_ = ]b4_tokens_number[;
   
   var yyerrstatus_ = 0;
   parser.yyerrok = function yyerrok () { yyerrstatus_ = 0; }
@@ -161,7 +161,7 @@ function YYParser ()
   // Return whether error recovery is being done.
   // In this state, the parser reads token until it reaches a known state,
   // and then restarts normal operation.
-  this.isRecovering = function isRecovering ()
+  parser.isRecovering = function isRecovering ()
   {
     return yyerrstatus_ == 0;
   }
@@ -176,7 +176,7 @@ function YYParser ()
    * @@return <tt>true</tt> if the parsing succeeds.  Note that this does not
    *          imply that there were no syntax errors.
    */
-  this.parse = function parse ()
+  parser.parse = function parse ()
   {
     // Lookahead and lookahead in internal form.
     var yychar = yyempty_;
@@ -188,7 +188,7 @@ function YYParser ()
     var yystate = 0;
 
     // the only place yystack value is changed
-    yystack = this.yystack = new YYParser.Stack();
+    yystack = parser.yystack = new YYParser.Stack();
     yyvs = yystack.valueStack;
 
     /* Error handling.  */
@@ -351,7 +351,7 @@ function YYParser ()
           ++yynerrs_;
           if (yychar == yyempty_)
             yytoken = yyempty_;
-          lexer.yyerror(this.yysyntax_error(yystate, yytoken));
+          lexer.yyerror(parser.yysyntax_error(yystate, yytoken));
         }
 
         if (yyerrstatus_ == 3)
@@ -507,8 +507,8 @@ function YYParser ()
   }
 
   // YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing STATE-NUM.
-  var yypact_ninf_ = this.yypact_ninf_ = ]b4_pact_ninf[;
-  var yypact_ = this.yypact_ =
+  var yypact_ninf_ = parser.yypact_ninf_ = ]b4_pact_ninf[;
+  var yypact_ = parser.yypact_ =
   [
     //]]
     b4_pact
@@ -545,8 +545,8 @@ function YYParser ()
   // If positive, shift that token.
   // If negative, reduce the rule which number is the opposite.
   // If yytable_NINF_, syntax error.
-  var yytable_ninf_ = this.yytable_ninf_ = ]b4_table_ninf[;
-  var yytable_ = this.yytable_ =
+  var yytable_ninf_ = parser.yytable_ninf_ = ]b4_table_ninf[;
+  var yytable_ = parser.yytable_ =
   [
     //]]
     b4_table
@@ -554,7 +554,7 @@ function YYParser ()
   ];
 
   // YYCHECK.
-  var yycheck_ = this.yycheck_ =
+  var yycheck_ = parser.yycheck_ =
   [
     //]]
     b4_check
@@ -588,7 +588,7 @@ function YYParser ()
   ];
 
   // YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.
-  var yyr2_ = this.yyr2_ =
+  var yyr2_ = parser.yyr2_ =
   [
     //]]
     b4_r2
@@ -597,7 +597,7 @@ function YYParser ()
 
   // YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
   // First, the terminals, then, starting at \a yyntokens_, nonterminals.
-  var yytname_ = this.yytname_ =
+  var yytname_ = parser.yytname_ =
   [
     //]]
     b4_tname
@@ -605,7 +605,7 @@ function YYParser ()
   ];
 
   // YYRHS -- A `-1'-separated list of the rules' RHS.
-  var yyrhs_ = this.yyrhs_ =
+  var yyrhs_ = parser.yyrhs_ =
   [
     //]]
     b4_rhs
@@ -613,7 +613,7 @@ function YYParser ()
   ];
 
   // YYPRHS[YYN] -- Index of the first RHS symbol of rule number YYN in YYRHS.
-  var yyprhs_= this.yyprhs_ =
+  var yyprhs_= parser.yyprhs_ =
   [
     //]]
     b4_prhs
@@ -621,7 +621,7 @@ function YYParser ()
   ];
 #if YYDEBUG
   // YYRLINE[YYN] -- Source line where rule number YYN was defined.
-  var yyrline_ = this.yyrline_ =
+  var yyrline_ = parser.yyrline_ =
   [
     //]]
     b4_rline
@@ -636,11 +636,11 @@ function YYParser ()
     //[[
   ];
 
-  var yylast_ = this.yylast_ = ]b4_last[;
+  var yylast_ = parser.yylast_ = ]b4_last[;
   var yynnts_ = ]b4_nterms_number[;
-  var yyempty_ = this.yyempty_ = -2;
+  var yyempty_ = parser.yyempty_ = -2;
   var yyfinal_ = ]b4_final_state_number[;
-  var yyterror_ = this.yyterror_ = 1;
+  var yyterror_ = parser.yyterror_ = 1;
   var yyerrcode_ = 256;
 
   var yyuser_token_number_max_ = ]b4_user_token_number_max[;
