@@ -6,7 +6,7 @@ RubyParser.prototype.print = util.print;
 
 var parser = new RubyParser();
 
-var text = process.argv[2];
+var text = process.argv[2] || fs.readFileSync('/dev/stdin').toString();
 
 var json = parser.toJSON(text);
 
