@@ -184,6 +184,11 @@ describe("Builder", function() {
     assert_parses(
       s('regexp', s('str', 'source'), s('regopt', 'i', 'm')),
       '/source/im')
+
+    // added in response to: https://github.com/opal/opal/issues/318
+    assert_parses(
+      s('regexp', s('str', 'source'), s('regopt', 'i', 'o')),
+      '%r{source}io')
   });
 
   it("test_regex_interp", function() {
