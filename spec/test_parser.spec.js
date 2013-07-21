@@ -455,6 +455,11 @@ describe("Builder", function() {
     assert_parses(
       s('defined?', s('ivar', '@foo')),
       'defined? @foo')
+
+    // added in response to: https://github.com/opal/opal/issues/319
+    assert_parses(
+      s("defined?",s("const",s("cbase"),"A")),
+      'defined?(::A)')
   });
 
 
