@@ -59,6 +59,14 @@ m4_define([b4_lhs_value], [yyval])
 # m4_define([b4_rhs_value], [(yystack.valueAt($1-($2)))])
 m4_define([b4_rhs_value], [[yyvs[yyvs.length-1-(($1-($2)))]]])
 
+# @$
+m4_define([b4_lhs_location], [yyloc])
+
+# b4_rhs_location(RULE-LENGTH, NUM)
+# @N
+# Expansion of NUM, where the current rule has RULE-LENGTH symbols on RHS.
+m4_define([b4_rhs_location], [[yyls[yyls.length-1-(($1-($2)))]]])
+
 
 b4_defines_if([b4_fatal([%s: %%defines does not make sense in JavaScript], [b4_skeleton])])
 m4_ifval(m4_defn([b4_symbol_destructors]), [b4_fatal([%s: %%destructor does not make sense in JavaScript], [b4_skeleton])], [])
@@ -197,9 +205,16 @@ function YYParser ()
     // the only place yystack value is changed
     yystack = parser.yystack = new YYParser.Stack();
     yyvs = yystack.valueStack;
+    yyls = yystack.locStack;
 
     /* Error handling.  */
     var yynerrs_ = 0;
+
+    // The location where the error started.
+    var yyerrloc = null;
+
+    // Location of the lookahead.
+    var yylloc = 0;
 
     // Semantic value of the lookahead.
     var yylval = undefined;
@@ -209,7 +224,7 @@ function YYParser ()
 
 
     // Initialize the stack.
-    yystack.push(yystate, yylval);
+    yystack.push(yystate, yylval, yylloc);
 
     // have tried: recursive closures, breaking blocks - switch is faster,
     // next step: asm.js for the whole `parse()` function
@@ -244,6 +259,8 @@ function YYParser ()
         {
           debug_print("Reading a token: ");
           yychar = lexer.yylex();
+
+          yylloc = lexer.yylloc;
           yylval = lexer.yylval;
         }
 
@@ -306,7 +323,7 @@ function YYParser ()
             --yyerrstatus_;
 
           yystate = yyn;
-          yystack.push(yystate, yylval);
+          yystack.push(yystate, yylval, yylloc);
 
           //goto
           label = YYNEWSTATE;
@@ -361,6 +378,7 @@ function YYParser ()
           lexer.yyerror(parser.yysyntax_error(yystate, yytoken));
         }
 
+        yyerrloc = yylloc;
         if (yyerrstatus_ == 3)
         {
           // If just tried and failed to reuse lookahead token
@@ -391,6 +409,7 @@ function YYParser ()
       //-------------------------------------------------/
       case YYERROR:
 
+        yyerrloc = yystack.locationAt(yylen - 1);
         // Do not reclaim the symbols of the rule
         // which action triggered this YYERROR.
         yystack.pop(yylen);
@@ -429,11 +448,14 @@ function YYParser ()
           }
 
           debug_symbol_print("Error: popping", yystos_[yystate], yylval);
+          yyerrloc = yystack.locationAt(0);
           yystack.pop(1);
           yystate = yystack.stateAt(0);
           debug_stack_print(yystack);
         }
 
+        // Muck with the stack to setup for yylloc.
+        yyloc = yylloc;
 
         // Shift the error token.
         debug_symbol_print("Shifting", yystos_[yyn], yylval);
@@ -471,6 +493,8 @@ function YYParser ()
 
   function yyaction (yyn, yylen)
   {
+    yyloc = yystack.locationAt(yylen-1);
+
     /* If YYLEN is nonzero, implement the default value of the action:
        `$$ = $1'.  Otherwise, use the top of the stack.
 
@@ -509,7 +533,7 @@ function YYParser ()
     else
       yystate = yydefgoto_[yyn - yyntokens_];
 
-    yystack.push(yystate, yyval);
+    yystack.push(yystate, yyval, yyloc);
     // was: usless: return YYNEWSTATE;
   }
 
@@ -927,11 +951,13 @@ YYParser.Stack = function Stack ()
 {
   var stateStack = this.stateStack = [];
   var valueStack = this.valueStack = [];
+  var locStack   = this.locStack   = [];
 
-  this.push = function push (state, value)
+  this.push = function push (state, value, location)
   {
     stateStack.push(state);
     valueStack.push(value);
+    locStack.push(location);
   }
 
   this.pop = function pop (num)
@@ -941,6 +967,7 @@ YYParser.Stack = function Stack ()
 
     valueStack.length -= num;
     stateStack.length -= num; // TODO: original code lacks this line
+    locStack.length   -= num;
   }
 
   this.stateAt = function stateAt (i)
@@ -951,6 +978,11 @@ YYParser.Stack = function Stack ()
   this.valueAt = function valueAt (i)
   {
     return valueStack[valueStack.length-1 - i];
+  }
+
+  this.locationAt = function locationAt (i)
+  {
+    return locStack[locStack.length-1 - i];
   }
 
   // used in debug mode or in an error recovery mode only
