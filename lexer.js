@@ -127,7 +127,7 @@ function reset ()
   lexer.yylval = null;
 
   // the token location to be stored in the locations stack
-  lexer.yyloc = null;
+  lexer.yylloc = 0;
 }
 
 // call once on lexer creation
@@ -519,10 +519,13 @@ function was_bol ()
 // token related stuff
 
 
-    
+function get_location ()
+{
+  // return (lexer.ruby_sourceline << 10) + ($lex_p & 0x3ff);
+  return lexer.ruby_sourceline * 1000 + ($lex_p <= 999 ? $lex_p : 999);
+}
 function newtok ()
 {
-  $tok_beg = (lexer.ruby_sourceline << 10) + (($lex_p - 1) & 0x3ff);
   $tokenbuf = '';
 }
 function tokadd (c)
@@ -538,9 +541,6 @@ function tokcopy (n)
 
 function tokfix ()
 {
-  var tok_end = (lexer.ruby_sourceline << 10) + ($lex_p & 0x3ff);
-  lexer.yyloc = new Location($tok_beg, tok_end);
-  
   /* was: tokenbuf[tokidx]='\0'*/
 }
 function tok () { return $tokenbuf; }
@@ -607,13 +607,14 @@ function arg_ambiguous ()
 this.yylex = function yylex ()
 {
   lexer.yylval = null;
-  lexer.yyloc = null;
   
   var c = '';
   lexer.space_seen = false;
   
   if (lexer.lex_strterm)
   {
+    lexer.yylloc = get_location();
+
     var token = 0;
     if (lexer.lex_strterm.type == 'heredoc')
     {
@@ -641,6 +642,7 @@ this.yylex = function yylex ()
   
   retry: for (;;)
   {
+  lexer.yylloc = get_location();
   lexer.last_state = lexer.lex_state;
   the_giant_switch:
   switch (c = nextc())
@@ -3141,15 +3143,3 @@ lexer.yyerror = function yyerror (msg)
 }
 
 } // function Lexer
-
-function Location (beg, end)
-{
-  this.beg = beg;
-  this.end = end;
-}
-Location.prototype.inspect = function ()
-{
-  var beg = (this.beg >> 10) + ':' + (this.beg & 0x3ff);
-  var end = (this.end >> 10) + ':' + (this.end & 0x3ff);
-  return '{' + beg + '-' + end + '}'
-}
