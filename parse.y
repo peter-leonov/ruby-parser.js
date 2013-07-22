@@ -3245,6 +3245,8 @@ RubyParser.prototype.print = function print (msg)
 }
 
 // Export some classes.
+RubyParser.Lexer = YYLexer;
+RubyParser.Parser = YYParser;
 RubyParser.Builder = Builder;
 
 
