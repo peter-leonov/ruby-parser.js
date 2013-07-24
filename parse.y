@@ -22,9 +22,6 @@ function ownProperty (obj, prop)
   return undefined;
 }
 
-// useful when adding an array elements to the end of array
-var Array_push = Array.prototype.push;
-
 // char to code shortcut
 function $ (c) { return c.charCodeAt(0) }
 function $$ (code) { return String.fromCharCode(code) }
@@ -57,6 +54,9 @@ var builder, scope;
 // public:
 this.setBuilder = function (v) { builder = v; }
 this.setScope   = function (v) { scope = v; }
+
+// useful when adding an array of nodes to the end of a node accumulator
+var Array_push = Array.prototype.push;
 
 }
 

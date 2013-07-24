@@ -250,8 +250,7 @@ Builder.prototype =
     var result = compound_stmt;
     if (rescue_bodies.length)
     {
-      var body = [result];
-      Array_push.apply(body, rescue_bodies);
+      var body = [result].concat(rescue_bodies);
       body.push(else_);
       
       result = n('rescue', body);
