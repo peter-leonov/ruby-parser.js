@@ -48,5 +48,12 @@ describe("locations", function() {
       ""
     )
   });
+  it("test_empty_stmt_spaces", function() {
+    assert_location
+    (
+      3,4,
+      "\n\n    "
+    )
+  });
 
 });
