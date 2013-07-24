@@ -377,22 +377,21 @@ function nextc ()
         return '';
       }
     }
+
+    if (lexer.heredoc_end > 0)
     {
-      if (lexer.heredoc_end > 0)
-      {
-        lexer.ruby_sourceline = lexer.heredoc_end;
-        lexer.heredoc_end = 0;
-      }
-      lexer.ruby_sourceline++;
-#if DEBUG
-      if (lexer.print_line_numbers)
-        lexer.print(lexer.ruby_sourceline + '\n')
-#endif // DEBUG
-      lexer.line_count++;
-      $lex_pbeg = $lex_p = 0;
-      $lex_pend = v.length;
-      $lex_lastline = v;
+      lexer.ruby_sourceline = lexer.heredoc_end;
+      lexer.heredoc_end = 0;
     }
+    lexer.ruby_sourceline++;
+#if DEBUG
+    if (lexer.print_line_numbers)
+      lexer.print(lexer.ruby_sourceline + '\n')
+#endif // DEBUG
+    lexer.line_count++;
+    $lex_pbeg = $lex_p = 0;
+    $lex_pend = v.length;
+    $lex_lastline = v;
   }
   
   return $lex_lastline[$lex_p++];
