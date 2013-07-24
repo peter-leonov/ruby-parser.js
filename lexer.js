@@ -3148,5 +3148,5 @@ lexer.yyerror = function yyerror (msg)
 YYLexer.unpack_location = function (loc)
 {
   var line = (loc / 1000) | 0;
-  return {line: line, col: loc - line};
+  return {line: line, col: loc - line * 1000};
 }
