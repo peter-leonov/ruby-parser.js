@@ -209,7 +209,7 @@ program:
     {
       scope.pop();
       
-      builder.resulting_ast = $2;
+      builder.resulting_ast = builder.program($2);
     };
 
 top_compstmt:
