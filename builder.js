@@ -247,13 +247,14 @@ Builder.prototype =
   
   begin_body: function (compound_stmt, rescue_bodies /*=[]*/, else_, ensure)
   {
+    var result = compound_stmt;
     if (rescue_bodies.length)
     {
-      var body = [compound_stmt];
+      var body = [result];
       Array_push.apply(body, rescue_bodies);
       body.push(else_);
       
-      compound_stmt = n('rescue', body);
+      result = n('rescue', body);
     }
 
     // may be undefined if called from modifier statement
@@ -261,10 +262,10 @@ Builder.prototype =
     // or ary of one element with the body of the present ensure block
     if (ensure && ensure.length)
     {
-      compound_stmt = n('ensure', [ compound_stmt, ensure[0] ]);
+      result = n('ensure', [ result, ensure[0] ]);
     }
 
-    return compound_stmt;
+    return result;
   },
   
   rescue_body: function (exc_list, exc_var, compound_stmt)
