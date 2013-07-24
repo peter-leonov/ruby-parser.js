@@ -3145,3 +3145,9 @@ lexer.yyerror = function yyerror (msg)
 }
 
 } // function YYLexer
+
+YYLexer.unpack_location = function (loc)
+{
+  var line = (loc / 1000) | 0;
+  return {line: line, col: loc - line};
+}
