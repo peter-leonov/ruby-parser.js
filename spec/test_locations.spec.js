@@ -38,7 +38,7 @@ function by_path (node, path)
 
 // the main workhorse
 
-function assert_location (path, line, col, code)
+function assert_location (path,  line,col,  type, code)
 {
   // do actual parsing
   var root = parser.parse(code, '(assert_parses)');
@@ -51,6 +51,8 @@ function assert_location (path, line, col, code)
   else
     node_loc = RubyParser.Lexer.unpack_location(node.loc);
 
+  // compare the type of nodes
+  expect(type).toBe(node.type);
   // copare their unpacked values (two hashes)
   expect(node_loc).toEqual({line: line, col: col});
 }
@@ -63,21 +65,21 @@ describe("locations", function() {
   it("test_empty_stmt", function() {
     assert_location
     (
-      '/', 0,0,
+      '/',  0,0,  'begin',
       ""
     )
   });
   it("test_empty_stmt_spaces", function() {
     assert_location
     (
-      '/', 1,4,
+      '/',  1,4,  'begin',
       "    "
     )
   });
   it("test_empty_stmt_spaces_and_newlines", function() {
     assert_location
     (
-      '/', 3,4,
+      '/',  3,4,  'begin',
       "\n\n    "
     )
   });
@@ -85,7 +87,7 @@ describe("locations", function() {
   it("test_BEGIN", function() {
     assert_location
     (
-      '/1', 1,4,
+      '/1',  1,4,  'preexe',
       "1;  BEGIN {}"
     )
   });
