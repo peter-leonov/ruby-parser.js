@@ -248,7 +248,7 @@ Builder.prototype =
     }
 
     // may be undefined if called from modifier statement
-    // or empty ary if begin has no ensure black at all
+    // or empty ary if begin has no ensure block at all
     // or ary of one element with the body of the present ensure block
     if (ensure && ensure.length)
     {
