@@ -236,8 +236,9 @@ top_stmts:
   
   | top_stmts terms top_stmt
     {
-      $1.push($3);
-      $$ = $1;
+      var top_stmts = $1;
+      top_stmts.push($3);
+      $$ = top_stmts;
     }
   
   | error top_stmt
