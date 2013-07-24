@@ -247,12 +247,17 @@ Builder.prototype =
   
   begin_body: function (compound_stmt, rescue_bodies, else_, ensure)
   {
+    // in most cases the result will remain compound_stmt value
     var result = compound_stmt;
+
+    // `begin` block has some `rescue` sections,
+    // so wrap the result node in a `rescue` node
     if (rescue_bodies.length)
     {
       var body = [result].concat(rescue_bodies);
       body.push(else_);
-      
+
+      // result is: rescue(begin, rescue+, else?)
       result = n('rescue', body);
     }
 
