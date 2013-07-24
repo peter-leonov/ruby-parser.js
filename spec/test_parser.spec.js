@@ -36,7 +36,7 @@ describe("Builder", function() {
   it("test_empty_stmt", function() {
     assert_parses
     (
-      null,
+      s('begin'),
       ""
     )
   });

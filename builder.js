@@ -99,6 +99,15 @@ Builder.prototype =
   
   
   
+  // topmost node
+  program: function (compstmt)
+  {
+    if (!compstmt)
+      return n0('begin');
+
+    return compstmt;
+  },
+
   // compound statement
   compstmt: function (statements)
   {
