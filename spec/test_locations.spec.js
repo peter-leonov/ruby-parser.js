@@ -51,11 +51,20 @@ function assert_location (loc, code)
   var expected = unpack_float_loc(loc);
 
   // copare their unpacked values (two hashes)
-  expect(node_loc).toBe(expected);
+  expect(node_loc).toEqual(expected);
 }
 
 
 
 describe("locations", function() {
+
+  // program:
+  it("test_empty_stmt", function() {
+    assert_location
+    (
+      0.0,
+      ""
+    )
+  });
 
 });

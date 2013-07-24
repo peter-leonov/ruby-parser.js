@@ -1,6 +1,6 @@
 function n (type, children)
 {
-  children.loc = 0;
+  children.loc = -1;
   children.type = type;
   // children.children = children;
   return children;
@@ -9,7 +9,7 @@ function n (type, children)
 function n0 (type)
 {
   var children = [];
-  children.loc = 0;
+  children.loc = -1;
   children.type = type;
   // children.children = children;
   return children;

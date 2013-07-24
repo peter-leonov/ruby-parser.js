@@ -210,6 +210,7 @@ program:
       scope.pop();
       
       builder.resulting_ast = builder.program($2);
+      builder.resulting_ast.loc = @2;
     };
 
 top_compstmt:
@@ -3133,6 +3134,7 @@ none: /* none */
     {
       // empty ensure or else block for example
       $$ = null;
+      @$ = lexer.yylloc;
     };
 
 %%
