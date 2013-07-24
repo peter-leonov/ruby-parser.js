@@ -374,7 +374,7 @@ stmt:
     {
       // exc_list, exc_var, compound_stmt
       var rescue_body = builder.rescue_body(null, null, $3);
-      $$ = builder.begin_body($1, [ rescue_body ]);
+      $$ = builder.begin_body($1, [ rescue_body ], null);
     }
   |
     keyword_END '{' compstmt '}'
@@ -973,7 +973,7 @@ arg:
     lhs '=' arg modifier_rescue arg
     {
       var rescue_body = builder.rescue_body(null, null, $5);
-      var rescue = builder.begin_body($3, [ rescue_body ]);
+      var rescue = builder.begin_body($3, [ rescue_body ], null);
       $$ = builder.assign($1, rescue);
     }
   |
@@ -985,7 +985,7 @@ arg:
     var_lhs tOP_ASGN arg modifier_rescue arg
     {
       var rescue_body = builder.rescue_body(null, null, $5);
-      var rescue = builder.begin_body($3, [ rescue_body ]);
+      var rescue = builder.begin_body($3, [ rescue_body ], null);
       $$ = builder.op_assign($1, $2, rescue);
     }
   |

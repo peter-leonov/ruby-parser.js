@@ -20,9 +20,9 @@ function s ()
 
 function assert_parses (ast, code)
 {
-  var a = JSON.stringify(ast);
-  var b = JSON.stringify(RubyParser.Builder.toPlain(parser.parse(code, '(assert_parses)')));
-  expect(b).toBe(a);
+  var a = ast;
+  var b = RubyParser.Builder.toPlain(parser.parse(code, '(assert_parses)'));
+  expect(b).toEqual(a);
 }
 
 
