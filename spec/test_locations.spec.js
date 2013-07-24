@@ -20,22 +20,7 @@ global.print = require('util').print;
 
 // the main workhorse
 
-function unpack_float_loc (n)
-{
-  var integer = n | 0;
-  var decimal = n - integer;
-
-  if (decimal <= 0.9)
-    decimal *= 10
-  else if (decimal <= 0.99)
-    decimal *= 100
-  else // if decimal > 0.99)
-    decimal = (decimal * 1000) | 0
-
-  return {line: integer, col: decimal};
-}
-
-function assert_location (loc, code)
+function assert_location (line, col, code)
 {
   // do actual parsing
   var node = parser.parse(code, '(assert_parses)');
@@ -47,11 +32,8 @@ function assert_location (loc, code)
   else
     node_loc = RubyParser.Lexer.unpack_location(node.loc);
 
-  // unpack cosy float-encoded location
-  var expected = unpack_float_loc(loc);
-
   // copare their unpacked values (two hashes)
-  expect(node_loc).toEqual(expected);
+  expect(node_loc).toEqual({line: line, col: col});
 }
 
 
@@ -62,7 +44,7 @@ describe("locations", function() {
   it("test_empty_stmt", function() {
     assert_location
     (
-      0.0,
+      0,0,
       ""
     )
   });
