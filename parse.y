@@ -221,6 +221,8 @@ top_compstmt:
       // was: void_stmts($1);
       // was: fixup_nodes(deferred_nodes);
       $$ = builder.compstmt($1);
+      // no need to set .loc on the `compstmt` node,
+      // it will be set by wrapping rules (program, BEGIN, etc)
     };
 
 top_stmts:
@@ -257,6 +259,7 @@ top_stmt
     '{' top_compstmt '}'
     {
       $$ = builder.preexe($4);
+      $$.loc = @1;
     }
   ;
 

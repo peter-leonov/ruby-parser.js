@@ -18,12 +18,25 @@ function s ()
 
 global.print = require('util').print;
 
+function by_path (node, path)
+{
+  if (path === undefined || path === '')
+    return node
+
+  path = path.split('/');
+  for (var i = 0, il = path.length; i < il; i++)
+    node = node[+path[i]];
+
+  return node
+}
+
 // the main workhorse
 
-function assert_location (line, col, code)
+function assert_location (line, col, code, path)
 {
   // do actual parsing
-  var node = parser.parse(code, '(assert_parses)');
+  var root = parser.parse(code, '(assert_parses)');
+  var node = by_path(root, path);
 
   // find out and unpack the root node location
   var node_loc;
@@ -53,6 +66,16 @@ describe("locations", function() {
     (
       3,4,
       "\n\n    "
+    )
+  });
+
+  it("test_BEGIN", function() {
+    assert_location
+    (
+      3,4,
+      "\n\n" +
+      "1;  BEGIN {}",
+      '1'
     )
   });
 
