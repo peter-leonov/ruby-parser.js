@@ -30,8 +30,31 @@ function by_path (node, path)
   if (path[path.length-1] == '')
     path.pop()
 
-  for (var i = 0, il = path.length; i < il; i++)
-    node = node[+path[i]];
+  path: for (var i = 0, il = path.length; i < il; i++)
+  {
+    var selector = path[i];
+    // digital selector
+    if (/^\d+$/.test(selector))
+    {
+      node = node[+selector];
+      continue;
+    }
+
+    // symbolic selector
+    // search throw all the node children for node with name `selector`
+    for (var j = 0, jl = node/*.children*/.length; j < jl; j++)
+    {
+      var child = node[j]
+
+      if (child.type != selector)
+        continue;
+
+      node = child;
+      continue path;
+    }
+
+    throw 'empty selector result for "'+selector+'"'
+  }
 
   return node
 }
