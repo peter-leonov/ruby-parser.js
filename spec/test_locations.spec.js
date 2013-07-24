@@ -64,6 +64,13 @@ describe("locations", function() {
   it("test_empty_stmt_spaces", function() {
     assert_location
     (
+      1,4,
+      "    "
+    )
+  });
+  it("test_empty_stmt_spaces_and_newlines", function() {
+    assert_location
+    (
       3,4,
       "\n\n    "
     )
