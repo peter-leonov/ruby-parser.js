@@ -20,10 +20,16 @@ global.print = require('util').print;
 
 function by_path (node, path)
 {
-  if (path === undefined || path === '')
-    return node
-
   path = path.split('/');
+
+  // remove the leading empty string
+  if (path[0] == '')
+    path.shift();
+
+  // remove the trailing empty string
+  if (path[path.length-1] == '')
+    path.pop()
+
   for (var i = 0, il = path.length; i < il; i++)
     node = node[+path[i]];
 
@@ -32,7 +38,7 @@ function by_path (node, path)
 
 // the main workhorse
 
-function assert_location (line, col, code, path)
+function assert_location (path, line, col, code)
 {
   // do actual parsing
   var root = parser.parse(code, '(assert_parses)');
@@ -57,21 +63,21 @@ describe("locations", function() {
   it("test_empty_stmt", function() {
     assert_location
     (
-      0,0,
+      '/', 0,0,
       ""
     )
   });
   it("test_empty_stmt_spaces", function() {
     assert_location
     (
-      1,4,
+      '/', 1,4,
       "    "
     )
   });
   it("test_empty_stmt_spaces_and_newlines", function() {
     assert_location
     (
-      3,4,
+      '/', 3,4,
       "\n\n    "
     )
   });
@@ -79,10 +85,8 @@ describe("locations", function() {
   it("test_BEGIN", function() {
     assert_location
     (
-      3,4,
-      "\n\n" +
-      "1;  BEGIN {}",
-      '1'
+      '/1', 1,4,
+      "1;  BEGIN {}"
     )
   });
 
