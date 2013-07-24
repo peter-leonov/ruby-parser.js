@@ -101,6 +101,7 @@ this.setScope   = function (v) { scope = v; }
 /*%
 %type <val> program reswords then do dot_or_colon
 %*/
+%type <val> program
 %type  <id> dot_or_colon
 %token <id> END_OF_INPUT 0    "end-of-input"
 %token <id> tUPLUS            "unary+"
@@ -209,8 +210,9 @@ program:
     {
       scope.pop();
       
-      builder.resulting_ast = builder.program($2);
-      builder.resulting_ast.loc = @2;
+      $$ = builder.program($2);
+      $$.loc = @2;
+      builder.resulting_ast = $$;
     };
 
 top_compstmt:
