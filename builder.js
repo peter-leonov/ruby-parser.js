@@ -245,7 +245,7 @@ Builder.prototype =
     return node;
   },
   
-  begin_body: function (compound_stmt, rescue_bodies /*=[]*/, else_, ensure)
+  begin_body: function (compound_stmt, rescue_bodies, else_, ensure)
   {
     var result = compound_stmt;
     if (rescue_bodies.length)
