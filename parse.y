@@ -3263,7 +3263,7 @@ else if (typeof global != 'undefined')
 }
 else
 {
-  throw "don't know how to eport RubyParser"
+  throw "don't know how to export RubyParser"
 }
 
 })(); // whole parser and lexer namespace start
