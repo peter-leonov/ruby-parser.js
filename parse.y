@@ -3261,6 +3261,10 @@ else if (typeof global != 'undefined')
 {
   global.RubyParser = RubyParser;
 }
+else if (typeof window != 'undefined')
+{
+  window.RubyParser = RubyParser;
+}
 else
 {
   throw "don't know how to export RubyParser"
