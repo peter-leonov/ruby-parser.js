@@ -1,5 +1,8 @@
 # Simple examples first
 
+### playground
+
+Better see it once than hear thousand times: [Ruby to JSON online](http://kung-fu-tzu.ru/ruby-parser.js/) :)
 
 ### binary plus
 
