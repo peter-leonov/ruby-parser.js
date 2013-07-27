@@ -614,6 +614,7 @@ this.yylex = function yylex ()
   
   if (lexer.lex_strterm)
   {
+    // right after the quote or << token
     lexer.yylloc = get_location();
 
     var token = 0;

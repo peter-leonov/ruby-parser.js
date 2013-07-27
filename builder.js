@@ -266,6 +266,8 @@ Builder.prototype =
     // or ary of one element with the body of the present ensure block
     if (ensure && ensure.length)
     {
+      // if the `begin` block has an `ensure` block
+      // wrap the `begin` node in an `ensure node
       result = n('ensure', [ result, ensure[0] ]);
     }
 

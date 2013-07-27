@@ -221,7 +221,7 @@ top_compstmt:
       // was: void_stmts($1);
       // was: fixup_nodes(deferred_nodes);
       $$ = builder.compstmt($1);
-      // no need to set .loc on the `compstmt` node,
+      // no need to set $$.loc on the `compstmt` node,
       // it will be set by wrapping rules (program, BEGIN, etc)
     };
 
@@ -277,6 +277,11 @@ bodystmt:
         lexer.warn("else without rescue is useless");
       }
 
+      // the result of builder.begin_body() varies:
+      //   ensure, if opt_rescue resent
+      //   rescue, if opt_rescue resent
+      //   begin or any other node from compstmt
+      //   null, if all of arguments are empty
       $$ = builder.begin_body($1, rescue_bodies, else_, ensure);
     };
 
