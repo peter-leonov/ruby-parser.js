@@ -67,7 +67,7 @@ function compile ()
   // convert typed nodes to plain arrays
   var plainArrays = RubyParser.Builder.toPlain(ast)
   // render the tree structure with good old JSON
-  jsonNode.setValue(JSON.stringify(plainArrays))
+  jsonNode.setValue(JSON.stringify(plainArrays, undefined, /*indent=*/2))
 }
 
 codeNode.on('change', compile)
