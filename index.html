@@ -1,23 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html id="playground">
 <head>
 <title>AST playground</title>
 <style>
-textarea { display: block; box-sizing: border-box; width: 100%; height: 150px; font-size: 20px; }
+#stderr:empty { display: none; }
+.code { margin: 10px; background-color: #f5f5f5; box-shadow: inset 0 0 11px rgba(0,0,0,0.3); border-radius: 8px; }
+#stderr { padding: 20px; font-size: 20px; color: #c00; }
+#playground .CodeMirror-lines { font-size: 20px; padding: 10px 0; }
 </style>
+<link rel="stylesheet" href="codemirror/codemirror.css">
+
 <body>
-<textarea id="code" autofocus># type ruby code here
-3 + 2</textarea>
-<textarea id="json"></textarea>
-<script src="parse.js" type="text/javascript"></script>
+<div id="code" class="code"></div>
+<pre id="stderr" class="code"></pre>
+<div id="json" class="code"></div>
+<script src="parse.js"></script>
+<script src="codemirror/codemirror.js"></script>
+<script src="codemirror/ruby.js"></script>
+<script src="codemirror/javascript.js"></script>
 <script>
-;(function(){
+window.onload = function(){
 
 function $ (id) { return document.getElementById(id) }
 
 var
-  codeNode = $('code'),
-  jsonNode = $('json')
+  codeNode = CodeMirror($('code'), {mode: 'ruby', tabMode: 'shift', tabSize: 2, lineNumbers: true, pollInterval: 1e10, autofocus: true}),
+  jsonNode = CodeMirror($('json'), {mode: 'javascript', lineNumbers: true, readOnly: true}),
+  stderrNode = $('stderr')
 
 var parser = new RubyParser()
 parser.setFilename('(textarea)')
@@ -33,7 +42,7 @@ var lastCode = ''
 function compile ()
 {
   // don't recompile the same code
-  var codeToCompile = codeNode.value
+  var codeToCompile = codeNode.getValue()
   if (codeToCompile == lastCode)
     return
   lastCode = codeToCompile
@@ -41,12 +50,12 @@ function compile ()
   // reset the stderr buffer preparing it for new errors stream
   stderr = ''
   // reset the stdout :)
-  jsonNode.value = ''
+  jsonNode.setValue('')
   
   // actually compile the ruby code
   var ast = parser.parse(codeToCompile)
   // render all the warnings and errors
-  jsonNode.value += stderr
+  stderrNode.innerHTML = stderr
   
   if (ast === false) // error
   {
@@ -58,19 +67,14 @@ function compile ()
   // convert typed nodes to plain arrays
   var plainArrays = RubyParser.Builder.toPlain(ast)
   // render the tree structure with good old JSON
-  jsonNode.value = JSON.stringify(plainArrays)
+  jsonNode.setValue(JSON.stringify(plainArrays))
 }
 
-function delayedCompile () { window.setTimeout(compile) }
-codeNode.addEventListener('keyup', delayedCompile, false)
-codeNode.addEventListener('keydown', delayedCompile, false)
-codeNode.addEventListener('keypress', delayedCompile, false)
+codeNode.on('change', compile)
 
-// compile the default code placed in textarea's HTML code
-compile()
+// compile the default example
+codeNode.setValue('# type ruby code here\n3 + 2')
+codeNode.focus()
 
-// select all the code in codeNode
-codeNode.select()
-
-})();
+}
 </script>
