@@ -68,6 +68,7 @@ function compile ()
   if (codeToCompile == lastCode)
     return
   lastCode = codeToCompile
+  localStorage.lastCode = codeToCompile
   
   // reset the stderr buffer preparing it for new errors stream
   stderr = ''
@@ -95,7 +96,7 @@ function compile ()
 codeNode.on('change', compile)
 
 // compile the default example
-codeNode.setValue('# type ruby code here\n3 + 2')
+codeNode.setValue(localStorage.lastCode || '# type ruby code here\n3 + 2')
 codeNode.focus()
 
 }
