@@ -126,29 +126,6 @@ describe("lexer", function() {
 
 describe("locations", function() {
 
-  // program:
-  it("test_empty_stmt", function() {
-    assert_location
-    (
-      '/',  0,0,  'begin',
-      ""
-    )
-  });
-  it("test_empty_stmt_spaces", function() {
-    assert_location
-    (
-      '/',  1,4,  'begin',
-      "    "
-    )
-  });
-  it("test_empty_stmt_spaces_and_newlines", function() {
-    assert_location
-    (
-      '/',  3,4,  'begin',
-      "\n\n    "
-    )
-  });
-
   it("test_BEGIN", function() {
     assert_location
     (
