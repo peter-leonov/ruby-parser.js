@@ -523,7 +523,13 @@ function get_location ()
   // TODO: use floats
   // remember to update `YYLexer.unpack_location`
   // return (lexer.ruby_sourceline << 10) + ($lex_p & 0x3ff);
-  return lexer.ruby_sourceline * 1000 + ($lex_p <= 999 ? $lex_p : 999);
+
+  var line = lexer.ruby_sourceline;
+  // As we call the get_location right after the first nexc() of a lexeme,
+  // we need to substract 1 from the current position.
+  var col = $lex_p-1;
+  // pack line and col in one integer number
+  return line * 1000 + (col < 999 ? col : 999);
 }
 function newtok ()
 {
