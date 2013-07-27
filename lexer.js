@@ -139,7 +139,7 @@ lexer.reset = reset;
 // give a chance to set `$text` afterwards
 lexer.setText = function (v)
 {
-  $text = v;
+  $text = v ? ''+v : '';
   $text_pos = 0;
 }
 // connection to the outer space
