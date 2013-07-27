@@ -95,8 +95,15 @@ function compile ()
 
 codeNode.on('change', compile)
 
-// compile the default example
-codeNode.setValue(localStorage.lastCode || '# type ruby code here\n3 + 2')
+var storedCode = localStorage.lastCode
+if (storedCode.length > 10000)
+{
+  if (window.confirm('The code from the last session is too large.\nThe editor may freeze forever.\n\nWe better erase it, OK?'))
+  {
+    storedCode = ''
+  }
+}
+codeNode.setValue(storedCode || '# type ruby code here\n3 + 2')
 codeNode.focus()
 
 }
