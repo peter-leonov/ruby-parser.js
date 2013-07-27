@@ -80,7 +80,49 @@ function assert_location (path,  line,col,  type, code)
   expect(node_loc).toEqual({line: line, col: col});
 }
 
+describe("lexer", function() {
 
+  it("test_at_eof_empty", function() {
+    assert_location
+    (
+      '/',  1,0,  'begin',
+      ""
+    )
+  });
+
+  it("test_at_eof_newline", function() {
+    assert_location
+    (
+      '/',  2,0,  'begin',
+      "\n"
+    )
+  });
+
+  it("test_at_eof_space", function() {
+    assert_location
+    (
+      '/',  1,1,  'begin',
+      " "
+    )
+  });
+
+  it("test_at_eof_spaces", function() {
+    assert_location
+    (
+      '/',  1,4,  'begin',
+      "    "
+    )
+  });
+
+  it("test_at_eof_newline_and_space", function() {
+    assert_location
+    (
+      '/',  2,1,  'begin',
+      "\n "
+    )
+  });
+
+});
 
 describe("locations", function() {
 

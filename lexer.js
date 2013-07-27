@@ -140,6 +140,12 @@ lexer.reset = reset;
 lexer.setText = function (v)
 {
   $text = v ? ''+v : '';
+  
+  // Force the code to end with extra newline.
+  // Having trailing newline helps the reported line number to be correct
+  // even at the end of file ;)
+  $text += '\n'
+
   $text_pos = 0;
 }
 // connection to the outer space
