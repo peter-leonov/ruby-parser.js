@@ -650,10 +650,11 @@ this.yylex = function yylex ()
   
   retry: for (;;)
   {
-  lexer.yylloc = get_location();
   lexer.last_state = lexer.lex_state;
+  c = nextc();
+  lexer.yylloc = get_location();
   the_giant_switch:
-  switch (c = nextc())
+  switch (c)
   {
     // different signs of the input end
     case '\0':    // NUL
