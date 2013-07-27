@@ -24,8 +24,28 @@ window.onload = function(){
 function $ (id) { return document.getElementById(id) }
 
 var
-  codeNode = CodeMirror($('code'), {mode: 'ruby', tabMode: 'shift', tabSize: 2, lineNumbers: true, pollInterval: 1e10, autofocus: true}),
-  jsonNode = CodeMirror($('json'), {mode: 'javascript', lineNumbers: true, readOnly: true}),
+  codeNode = CodeMirror
+  (
+    $('code'),
+    {
+      mode: 'ruby',
+      tabMode: 'shift',
+      tabSize: 2,
+      lineNumbers: true,
+      pollInterval: 1e10,
+      autofocus: true
+    }
+  ),
+  jsonNode = CodeMirror
+  (
+    $('json'),
+    {
+      mode: 'javascript',
+      lineNumbers: true,
+      readOnly: true,
+      lineWrapping: true
+    }
+  ),
   stderrNode = $('stderr')
 
 var parser = new RubyParser()
