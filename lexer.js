@@ -283,7 +283,7 @@ var str_dsym = STR_FUNC_SYMBOL | STR_FUNC_EXPAND;
 
 function ISUPPER (c)
 {
-  return 'A' <= c && c <= 'Z';
+  return ('A' <= c && c <= 'Z') || c.toLowerCase() != c;
 }
 function ISALPHA (c)
 {
