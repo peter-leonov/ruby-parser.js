@@ -248,8 +248,7 @@ top_stmts:
       $$ = [$2];
     };
 
-top_stmt
-  :
+top_stmt:
     stmt
   |
     keyword_BEGIN
@@ -475,8 +474,7 @@ command_asgn:
   ;
 
 
-expr
-  :
+expr:
     command_call
   |
     expr keyword_and expr
@@ -505,15 +503,13 @@ expr_value:
     expr
   ;
 
-command_call
-  :
+command_call:
     command
   |
     block_command
   ;
 
-block_command
-  :
+block_command:
     block_call
   |
     block_call dot_or_colon operation2 command_args
@@ -611,8 +607,7 @@ command:
     }
   ;
 
-mlhs
-  :
+mlhs:
     mlhs_basic
     {
       $$ = builder.multi_lhs($1);
@@ -700,8 +695,7 @@ mlhs_basic:
     }
   ;
 
-mlhs_item
-  :
+mlhs_item:
     mlhs_node
   |
     tLPAREN mlhs_inner rparen
@@ -710,8 +704,7 @@ mlhs_item
     }
   ;
 
-mlhs_head
-  :
+mlhs_head:
     mlhs_item ','
     {
       $$ = [ $1 ];
@@ -725,8 +718,7 @@ mlhs_head
     }
   ;
 
-mlhs_post
-  :
+mlhs_post:
     mlhs_item
     {
       $$ = [ $1 ];
@@ -740,8 +732,7 @@ mlhs_post
     }
   ;
 
-mlhs_node
-  :
+mlhs_node:
     user_variable
     {
       $$ = builder.assignable($1);
@@ -847,8 +838,7 @@ lhs:
     }
   ;
 
-cname
-  :
+cname:
     tIDENTIFIER
     {
       lexer.yyerror("class/module name must be CONSTANT");
@@ -857,8 +847,7 @@ cname
     tCONSTANT
   ;
 
-cpath
-  :
+cpath:
     tCOLON3 cname
     {
       $$ = builder.const_global($2);
@@ -902,16 +891,14 @@ fsym:
     symbol
   ;
 
-fitem
-  :
+fitem:
     fsym
     {}
   |
     dsym
   ;
 
-undef_list
-  :
+undef_list:
     fitem
     {
       $$ = [ $1 ];
@@ -929,8 +916,8 @@ undef_list
     }
   ;
 
-op
-  : '|'
+op:
+    '|'
   | '^'
   | '&'
   | tCMP
@@ -962,8 +949,8 @@ op
   | '`'
   ;
 
-reswords
-  : keyword__LINE__ | keyword__FILE__ | keyword__ENCODING__
+reswords:
+    keyword__LINE__ | keyword__FILE__ | keyword__ENCODING__
   | keyword_BEGIN | keyword_END
   | keyword_alias | keyword_and | keyword_begin
   | keyword_break | keyword_case | keyword_class | keyword_def
@@ -1322,8 +1309,7 @@ call_args:
     }
   ;
 
-command_args
-  :
+command_args:
     {
       $<val>$ = lexer.cmdarg_stack;
       lexer.CMDARG_PUSH(1);
@@ -2968,9 +2954,10 @@ f_optarg:
       }
   ;
 
-restarg_mark    : '*'
-        | tSTAR
-        ;
+restarg_mark:
+    '*'
+  | tSTAR
+  ;
 
 f_rest_arg:
     restarg_mark tIDENTIFIER
@@ -2988,9 +2975,10 @@ f_rest_arg:
     }
   ;
 
-blkarg_mark    : '&'
-        | tAMPER
-        ;
+blkarg_mark:
+    '&'
+  | tAMPER
+  ;
 
 f_block_arg:
     blkarg_mark tIDENTIFIER
@@ -3009,8 +2997,8 @@ f_block_arg:
     }
   ;
 
-opt_f_block_arg
-    : ',' f_block_arg
+opt_f_block_arg:
+    ',' f_block_arg
       {
         $$ = [ $2 ];
       }
