@@ -178,4 +178,22 @@ describe("locations", function() {
     )
   });
 
+  it("test_bodystmt", function() {
+    assert_location
+    (
+      '/',  1,0,  'kwbegin',
+      "begin; 1; rescue; 2; rescue; 3; else; 4; end"
+    )
+    assert_location
+    (
+      '/rescue',  1,5,  'rescue',
+      "begin; 1; rescue; 2; rescue; 3; else; 4; end"
+    )
+    assert_location
+    (
+      '/rescue/resbody',  1,18,  'resbody',
+      "begin; 1; rescue; 2; rescue; 3; else; 4; end"
+    )
+  });
+
 });

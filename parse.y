@@ -2222,7 +2222,9 @@ opt_rescue:
           exc_list = builder.array(exc_list)
         }
 
-        $$ = [ builder.rescue_body(exc_list, $3, $5) ].concat($6);
+        var rescue_body = builder.rescue_body(exc_list, $3, $5);
+        rescue_body.loc = @5;
+        $$ = [ rescue_body ].concat($6);
       }
   | none
       {
