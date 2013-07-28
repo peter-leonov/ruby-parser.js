@@ -1,7 +1,7 @@
 // prepare parser
 
 var RubyParser = require('../parse.js').RubyParser;
-RubyParser.prototype.print = function (msg) { throw msg }
+RubyParser.prototype.print = function () {};
 
 var parser = new RubyParser();
 // declare helper variables
