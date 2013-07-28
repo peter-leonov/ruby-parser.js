@@ -503,6 +503,18 @@ describe("Builder", function() {
       '$var = 10')
   });
 
+  it("test_error_asgn_back_ref", function() {
+    assert_parses(
+      s('error_asgn', '$&', s('int', 1)),
+      '$& = 1')
+  });
+
+  it("test_error_asgn_keyword", function() {
+    assert_parses(
+      s('error_asgn', 'self', s('int', 1)),
+      'self = 1')
+  });
+
   it("test_asgn_cmd", function() {
     assert_parses(
       s('lvasgn', 'foo', s('send', null, 'm', s('lvar', 'foo'))),

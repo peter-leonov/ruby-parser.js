@@ -194,14 +194,16 @@ Builder.prototype =
       case 'nil': case 'self': case 'true': case 'false':
       case '__FILE__': case '__LINE__': case '__ENCODING__':
         this.lexer.compile_error('TODO: invalid_assignment');
+        return n('error_asgn', [node.type].concat(children));
       break;
 
       case 'back_ref': case 'nth_ref':
         this.lexer.compile_error('TODO: backref_assignment');
+        return n('error_asgn', children);
       break;
     }
     
-    return null;
+    return n('error_asgn', [node.type].concat(children));
   },
   
   // 
