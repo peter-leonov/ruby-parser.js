@@ -22,9 +22,12 @@ function by_path (node, path)
 {
   path = path.split('/');
 
-  // remove the leading empty string
   if (path[0] == '')
-    path.shift();
+    // remove the leading empty root
+    path.shift()
+  else
+    // trick for checking root node type
+    node = [node];
 
   // remove the trailing empty string
   if (path[path.length-1] == '')
@@ -69,12 +72,15 @@ function by_path (node, path)
     throw 'empty selector result for "'+selector+'"'
   }
 
+  // compare the type of nodes
+  expect(node.type).toBe(selector);
+
   return node
 }
 
 // the main workhorse
 
-function assert_location (path,  line,col,  type, code)
+function assert_location (path,  line,col, code)
 {
   // do actual parsing
   var root = parser.parse(code, '(assert_parses)');
@@ -87,8 +93,6 @@ function assert_location (path,  line,col,  type, code)
   else
     node_loc = RubyParser.Lexer.unpack_location(node.loc);
 
-  // compare the type of nodes
-  expect(type).toBe(node.type);
   // copare their unpacked values (two hashes)
   expect(node_loc).toEqual({line: line, col: col});
 }
@@ -100,7 +104,7 @@ describe("lexer", function() {
   it("test_at_eof_empty", function() {
     assert_location
     (
-      '/',  1,0,  'begin',
+      'begin',  1,0,
       ""
     )
   });
@@ -108,7 +112,7 @@ describe("lexer", function() {
   it("test_at_eof_newline", function() {
     assert_location
     (
-      '/',  2,0,  'begin',
+      'begin',  2,0,
       "\n"
     )
   });
@@ -116,7 +120,7 @@ describe("lexer", function() {
   it("test_at_eof_space", function() {
     assert_location
     (
-      '/',  1,1,  'begin',
+      'begin',  1,1,
       " "
     )
   });
@@ -124,7 +128,7 @@ describe("lexer", function() {
   it("test_at_eof_spaces", function() {
     assert_location
     (
-      '/',  1,4,  'begin',
+      'begin',  1,4,
       "    "
     )
   });
@@ -132,7 +136,7 @@ describe("lexer", function() {
   it("test_at_eof_newline_and_space", function() {
     assert_location
     (
-      '/',  2,1,  'begin',
+      'begin',  2,1,
       "\n "
     )
   });
@@ -142,7 +146,7 @@ describe("lexer", function() {
   it("test_at_eol_empty", function() {
     assert_location
     (
-      '/',  1,0,  'int',
+      'int',  1,0,
       "7"
     )
   });
@@ -150,7 +154,7 @@ describe("lexer", function() {
   it("test_at_eol_newline", function() {
     assert_location
     (
-      '/',  2,0,  'int',
+      'int',  2,0,
       "\n7"
     )
   });
@@ -158,7 +162,7 @@ describe("lexer", function() {
   it("test_at_eol_space", function() {
     assert_location
     (
-      '/',  1,1,  'int',
+      'int',  1,1,
       " 7"
     )
   });
@@ -166,7 +170,7 @@ describe("lexer", function() {
   it("test_at_eol_spaces", function() {
     assert_location
     (
-      '/',  1,4,  'int',
+      'int',  1,4,
       "    7"
     )
   });
@@ -174,7 +178,7 @@ describe("lexer", function() {
   it("test_at_eol_newline_and_space", function() {
     assert_location
     (
-      '/',  2,1,  'int',
+      'int',  2,1,
       "\n 7"
     )
   });
@@ -186,7 +190,7 @@ describe("locations", function() {
   it("test_BEGIN", function() {
     assert_location
     (
-      '/1',  1,4,  'preexe',
+      '/preexe',  1,4,
       "1;  BEGIN {}"
     )
   });
@@ -194,22 +198,22 @@ describe("locations", function() {
   it("test_bodystmt", function() {
     assert_location
     (
-      '/',  1,0,  'kwbegin',
+      'kwbegin',  1,0,
       "begin; 1; rescue; 2; rescue; 3; else; 4; end"
     )
     assert_location
     (
-      '/rescue',  1,5,  'rescue',
+      '/rescue',  1,5,
       "begin; 1; rescue; 2; rescue; 3; else; 4; end"
     )
     assert_location
     (
-      '/rescue/resbody',  1,18,  'resbody',
+      '/rescue/resbody',  1,18,
       "begin; 1; rescue; 2; rescue; 3; else; 4; end"
     )
     assert_location
     (
-      '/rescue/resbody[1]',  1,29,  'resbody',
+      '/rescue/resbody[1]',  1,29,
       "begin; 1; rescue; 2; rescue; 3; else; 4; end"
     )
   });
