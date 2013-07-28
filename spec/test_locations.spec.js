@@ -82,6 +82,8 @@ function assert_location (path,  line,col,  type, code)
 
 describe("lexer", function() {
 
+  // EOF
+
   it("test_at_eof_empty", function() {
     assert_location
     (
@@ -119,6 +121,48 @@ describe("lexer", function() {
     (
       '/',  2,1,  'begin',
       "\n "
+    )
+  });
+
+  // EOL
+
+  it("test_at_eol_empty", function() {
+    assert_location
+    (
+      '/',  1,0,  'int',
+      "7"
+    )
+  });
+
+  it("test_at_eol_newline", function() {
+    assert_location
+    (
+      '/',  2,0,  'int',
+      "\n7"
+    )
+  });
+
+  it("test_at_eol_space", function() {
+    assert_location
+    (
+      '/',  1,1,  'int',
+      " 7"
+    )
+  });
+
+  it("test_at_eol_spaces", function() {
+    assert_location
+    (
+      '/',  1,4,  'int',
+      "    7"
+    )
+  });
+
+  it("test_at_eol_newline_and_space", function() {
+    assert_location
+    (
+      '/',  2,1,  'int',
+      "\n 7"
     )
   });
 
