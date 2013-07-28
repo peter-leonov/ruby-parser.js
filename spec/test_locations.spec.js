@@ -207,6 +207,11 @@ describe("locations", function() {
       '/rescue/resbody',  1,18,  'resbody',
       "begin; 1; rescue; 2; rescue; 3; else; 4; end"
     )
+    assert_location
+    (
+      '/rescue/resbody[1]',  1,29,  'resbody',
+      "begin; 1; rescue; 2; rescue; 3; else; 4; end"
+    )
   });
 
 });
