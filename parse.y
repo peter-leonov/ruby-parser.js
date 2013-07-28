@@ -283,6 +283,7 @@ bodystmt:
       //   begin or any other node from compstmt
       //   null, if all of arguments are empty
       $$ = builder.begin_body($1, rescue_bodies, else_, ensure);
+      if ($$) $$.loc = @1;
     };
 
 compstmt:
