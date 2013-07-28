@@ -41,6 +41,16 @@ function by_path (node, path)
     }
 
     // symbolic selector
+    
+    var nth = 0;
+    
+    var m = /(\w+)\[(\d+)\]/.exec(selector);
+    if (m)
+    {
+      selector = m[1];
+      nth = m[2];
+    }
+    
     // search throw all the node children for node with name `selector`
     for (var j = 0, jl = node/*.children*/.length; j < jl; j++)
     {
@@ -49,6 +59,9 @@ function by_path (node, path)
       if (child.type != selector)
         continue;
 
+      if (nth-- != 0) // it is not the node you are looking for
+        continue;
+      
       node = child;
       continue path;
     }
