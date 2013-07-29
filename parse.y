@@ -289,6 +289,7 @@ compstmt:
     stmts opt_terms
     {
       $$ = builder.compstmt($1);
+      if ($$) $$.loc = @1;
     };
 
 stmts:
@@ -327,6 +328,7 @@ stmt_or_begin:
     '{' top_compstmt '}'
     {
       $$ = builder.preexe($4);
+      $$.loc = @1;
     };
 
 stmt:
@@ -337,16 +339,19 @@ stmt:
     fitem
     {
       $$ = builder.alias($2, $4);
+      $$.loc = @1;
     }
   |
     keyword_alias tGVAR tGVAR
     {
       $$ = builder.alias_gvar_gvar($2, $3);
+      $$.loc = @1;
     }
   |
     keyword_alias tGVAR tBACK_REF
     {
       $$ = builder.alias_gvar_backref($2, $3);
+      $$.loc = @1;
     }
   |
     keyword_alias tGVAR tNTH_REF
@@ -358,28 +363,33 @@ stmt:
     keyword_undef undef_list
     {
       $$ = builder.undef_method($2);
+      $$.loc = @1;
     }
   |
     stmt modifier_if expr_value
     {
       // true branch, null, the body
       $$ = builder.condition_mod($1, null, $3);
+      $$.loc = @2;
     }
   |
     stmt modifier_unless expr_value
     {
       // null, false branch, the body
       $$ = builder.condition_mod(null, $1, $3);
+      $$.loc = @2;
     }
   |
     stmt modifier_while expr_value
     {
       $$ = builder.loop_mod('while', $1, $3);
+      $$.loc = @2;
     }
   |
     stmt modifier_until expr_value
     {
       $$ = builder.loop_mod('until', $1, $3);
+      $$.loc = @2;
     }
   |
     stmt modifier_rescue stmt
@@ -387,6 +397,7 @@ stmt:
       // exc_list, exc_var, compound_stmt
       var rescue_body = builder.rescue_body(null, null, $3);
       $$ = builder.begin_body($1, [ rescue_body ], null, null);
+      $$.loc = @2;
     }
   |
     keyword_END '{' compstmt '}'
@@ -397,6 +408,7 @@ stmt:
       }
       
       $$ = builder.postexe($3);
+      $$.loc = @1;
     }
   |
     command_asgn
@@ -404,58 +416,83 @@ stmt:
     mlhs '=' command_call
     {
       $$ = builder.multi_assign($1, $3);
+      $$.loc = @2;
     }
   |
     var_lhs tOP_ASGN command_call
     {
       $$ = builder.op_assign($1, $2, $3);
+      $$.loc = @2;
     }
   |
     primary_value '[' opt_call_args rbracket tOP_ASGN command_call
     {
-      $$ = builder.op_assign(builder.index($1, $3), $5, $6);
+      var index = builder.index($1, $3);
+      index.loc = @2;
+      $$ = builder.op_assign(index, $5, $6);
+      $$.loc = @5;
     }
   |
     primary_value '.' tIDENTIFIER tOP_ASGN command_call
     {
-      $$ = builder.op_assign(builder.call_method($1, $2, $3), $4, $5);
+      var call_method = builder.call_method($1, $2, $3);
+      call_method.loc = @2;
+      $$ = builder.op_assign(call_method, $4, $5);
+      $$.loc = @4;
     }
   |
     primary_value '.' tCONSTANT tOP_ASGN command_call
     {
-      $$ = builder.op_assign(builder.call_method($1, $2, $3), $4, $5);
+      var call_method = builder.call_method($1, $2, $3);
+      call_method.loc = @2;
+      $$ = builder.op_assign(call_method, $4, $5);
+      $$.loc = @4;
     }
   |
     primary_value tCOLON2 tCONSTANT tOP_ASGN command_call
     {
-      $$ = builder.op_assign(builder.call_method($1, $2, $3), $4, $5);
+      var call_method = builder.call_method($1, $2, $3);
+      call_method.loc = @2;
+      $$ = builder.op_assign(call_method, $4, $5);
+      $$.loc = @4;
     }
   |
     primary_value tCOLON2 tIDENTIFIER tOP_ASGN command_call
     {
-      $$ = builder.op_assign(builder.call_method($1, $2, $3), $4, $5);
+      var call_method = builder.call_method($1, $2, $3);
+      call_method.loc = @2;
+      $$ = builder.op_assign(call_method, $4, $5);
+      $$.loc = @4;
     }
   |
     backref tOP_ASGN command_call
     {
       // expected to return `null` as Ruby doesn't allow backref assignment
       $$ = builder.op_assign($1, $2, $3);
+      $$.loc = @2;
     }
   |
     lhs '=' mrhs
     {
       // mrhs is an array
-      $$ = builder.assign($1, builder.array($3));
+      var mrhs = builder.array($3);
+      mrhs.loc = @3;
+      $$ = builder.assign($1, mrhs);
+      $$.loc = @2;
     }
   |
     mlhs '=' arg_value
     {
       $$ = builder.multi_assign($1, $3);
+      $$.loc = @2;
     }
   |
     mlhs '=' mrhs
     {
-      $$ = builder.multi_assign($1, builder.array($3));
+      var mrhs = builder.array($3);
+      mrhs.loc = @3;
+      $$ = builder.multi_assign($1, mrhs);
+      $$.loc = @2;
     }
   |
     expr
@@ -465,11 +502,13 @@ command_asgn:
     lhs '=' command_call
     {
       $$ = builder.assign($1, $3);
+      $$.loc = @2;
     }
   |
     lhs '=' command_asgn
     {
       $$ = builder.assign($1, $3);
+      $$.loc = @2;
     }
   ;
 
@@ -480,20 +519,24 @@ expr:
     expr keyword_and expr
     {
       $$ = builder.logical_op('and', $1, $3);
+      $$.loc = @2;
     }
   | expr keyword_or expr
     {
       $$ = builder.logical_op('or', $1, $3);
+      $$.loc = @2;
     }
   |
     keyword_not opt_nl expr
     {
       $$ = builder.not_op($3);
+      $$.loc = @1;
     }
   |
     '!' command_call
     {
       $$ = builder.not_op($2);
+      $$.loc = @1;
     }
   |
     arg
@@ -515,6 +558,7 @@ block_command:
     block_call dot_or_colon operation2 command_args
     {
       $$ = builder.call_method($1, $2, $3, $4);
+      $$.loc = @3;
     }
   ;
 
@@ -545,65 +589,79 @@ command:
     fcall command_args  %prec tLOWEST
     {
       $$ = builder.call_method(null, null, $1, $2);
+      $$.loc = @1;
     }
   |
     fcall command_args cmd_brace_block
     {
       var method_call = builder.call_method(null, null, $1, $2);
+      method_call.loc = @1;
 
       var block = $3;
       $$ = builder.block(method_call, block.args, block.body);
+      $$.loc = @3; // TODO: check if guessed right
     }
   |
     primary_value '.' operation2 command_args  %prec tLOWEST
     {
       $$ = builder.call_method($1, $2, $3, $4);
+      $$.loc = @3;
     }
   |
     primary_value '.' operation2 command_args cmd_brace_block
     {
       var method_call = builder.call_method($1, $2, $3, $4);
+      method_call.loc = @3;
 
       var block = $5;
       $$ = builder.block(method_call, block.args, block.body);
+      $$.loc = @5; // TODO: check
     }
   |
     primary_value tCOLON2 operation2 command_args    %prec tLOWEST
     {
       $$ = builder.call_method($1, $2, $3, $4);
+      $$.loc = @3;
     }
   |
     primary_value tCOLON2 operation2 command_args cmd_brace_block
     {
       var method_call = builder.call_method($1, $2, $3, $4);
+      method_call.loc = @3;
 
       var block = $5;
       $$ = builder.block(method_call, block.args, block.body);
+      $$.loc = @5;
     }
   |
     keyword_super command_args
     {
       $$ = builder.keyword_cmd('super', $2);
+      $$.loc = @1;
     }
   |
     keyword_yield command_args
     {
       $$ = builder.keyword_cmd('yield', $2);
+      $$.loc = @1;
     }
   |
     keyword_return call_args
     {
       $$ = builder.keyword_cmd('return', $2);
+      $$.loc = @1;
     }
   |
     keyword_break call_args
     {
       $$ = builder.keyword_cmd('break', $2);
+      $$.loc = @1;
     }
   |
     keyword_next call_args
     {
       $$ = builder.keyword_cmd('next', $2);
+      $$.loc = @1;
     }
   ;
 
@@ -611,11 +669,13 @@ mlhs:
     mlhs_basic
     {
       $$ = builder.multi_lhs($1);
+      $$.loc = @1;
     }
   |
     tLPAREN mlhs_inner rparen
     {
       $$ = builder.begin($2);
+      $$.loc = @1;
     }
   ;
 
@@ -623,11 +683,13 @@ mlhs_inner:
     mlhs_basic
     {
       $$ = builder.multi_lhs($1);
+      $$.loc = @1;
     }
   |
     tLPAREN mlhs_inner rparen
     {
       $$ = builder.multi_lhs($2);
+      $$.loc = @1;
     }
   ;
 
@@ -643,53 +705,77 @@ mlhs_basic:
   |
     mlhs_head tSTAR mlhs_node
     {
+      var splat = builder.splat($3);
+      splat.loc = @2;
+      
       var mlhs_head = $1;
-      mlhs_head.push(builder.splat($3));
+      mlhs_head.push(splat);
       $$ = mlhs_head;
     }
   |
     mlhs_head tSTAR mlhs_node ',' mlhs_post
     {
+      var splat = builder.splat($3);
+      splat.loc = @2;
+      
       var mlhs_head = $1;
-      mlhs_head.push(builder.splat($3));
+      mlhs_head.push(splat);
       Array_push.apply(mlhs_head, $5);
       $$ = mlhs_head;
     }
   |
     mlhs_head tSTAR
     {
+      var splat = builder.splat_empty();
+      splat.loc = @2;
+      
       var mlhs_head = $1;
-      mlhs_head.push(builder.splat_empty());
+      mlhs_head.push(splat);
       $$ = mlhs_head;
     }
   |
     mlhs_head tSTAR ',' mlhs_post
     {
+      var splat = builder.splat_empty();
+      splat.loc = @2;
+      
       var mlhs_head = $1;
-      mlhs_head.push(builder.splat_empty());
+      mlhs_head.push(splat);
       Array_push.apply(mlhs_head, $4);
       $$ = mlhs_head;
     }
   |
     tSTAR mlhs_node
     {
-      $$ = [ builder.splat($2) ];
+      var splat = builder.splat($2);
+      splat.loc = @1;
+      
+      $$ = [ splat ];
     }
   |
     tSTAR mlhs_node ',' mlhs_post
     {
-      var ary = [ builder.splat($2) ];
+      var splat = builder.splat($2);
+      splat.loc = @1;
+      
+      var ary = [ splat ];
       Array_push.apply(ary, $4);
       $$ = ary;
     }
   |
     tSTAR
     {
-      $$ = [ builder.splat_empty() ];
+      var splat = builder.splat_empty();
+      splat.loc = @1;
+      
+      $$ = [ splat ];
     }
   | tSTAR ',' mlhs_post
     {
-      var ary = [ builder.splat_empty() ];
+      var splat = builder.splat_empty();
+      splat.loc = @1;
+      
+      var ary = [ splat ];
       Array_push.apply(ary, $3);
       $$ = ary;
     }
@@ -701,6 +787,7 @@ mlhs_item:
     tLPAREN mlhs_inner rparen
     {
       $$ = builder.begin($2);
+      $$.loc = @1;
     }
   ;
 
@@ -736,31 +823,37 @@ mlhs_node:
     user_variable
     {
       $$ = builder.assignable($1);
+      $$.loc = @1;
     }
   |
     keyword_variable
     {
       $$ = builder.assignable($1);
+      $$.loc = @1;
     }
   |
     primary_value '[' opt_call_args rbracket
     {
       $$ = builder.index_asgn($1, $3);
+      $$.loc = @2;
     }
   |
     primary_value '.' tIDENTIFIER
     {
       $$ = builder.attr_asgn($1, $2, $3);
+      $$.loc = @2;
     }
   |
     primary_value tCOLON2 tIDENTIFIER
     {
       $$ = builder.attr_asgn($1, $2, $3);
+      $$.loc = @2;
     }
   |
     primary_value '.' tCONSTANT
     {
       $$ = builder.attr_asgn($1, $2, $3);
+      $$.loc = @2;
     }
   |
     primary_value tCOLON2 tCONSTANT
@@ -769,6 +862,7 @@ mlhs_node:
         lexer.yyerror("dynamic constant assignment");
       
       $$ = builder.assignable(builder.const_fetch($1, $2, $3));
+      $$.loc = @2;
     }
   |
     tCOLON3 tCONSTANT
@@ -776,12 +870,16 @@ mlhs_node:
       if (lexer.in_def || lexer.in_single)
         lexer.yyerror("dynamic constant assignment");
       
-      $$ = builder.assignable(builder.const_global($2));
+      var const_ = builder.const_global($2);
+      const_.loc = @2;
+      $$ = builder.assignable(const_);
+      $$.loc = @1;
     }
   |
     backref
     {
       $$ = builder.assignable($1);
+      $$.loc = @1;
     }
   ;
 
@@ -789,52 +887,65 @@ lhs:
     user_variable
     {
       $$ = builder.assignable($1);
+      $$.loc = @1;
     }
   |
     keyword_variable
     {
       $$ = builder.assignable($1);
+      $$.loc = @1;
     }
   |
     primary_value '[' opt_call_args rbracket
     {
       $$ = builder.index_asgn($1, $3);
+      $$.loc = @2;
     }
   |
     primary_value '.' tIDENTIFIER
     {
       $$ = builder.attr_asgn($1, $2, $3);
+      $$.loc = @2;
     }
   |
     primary_value tCOLON2 tIDENTIFIER
     {
       $$ = builder.attr_asgn($1, $2, $3);
+      $$.loc = @2;
     }
   |
     primary_value '.' tCONSTANT
     {
       $$ = builder.attr_asgn($1, $2, $3);
+      $$.loc = @2;
     }
   |
     primary_value tCOLON2 tCONSTANT
     {
       if (lexer.in_def || lexer.in_single)
         lexer.yyerror("dynamic constant assignment");
-      
-      $$ = builder.assignable(builder.const_fetch($1, $2, $3));
+
+      var const_ = builder.const_fetch($1, $2, $3);
+      const_.loc = @2;
+      $$ = builder.assignable(const_);
+      $$.loc = @1;
     }
   |
     tCOLON3 tCONSTANT
     {
       if (lexer.in_def || lexer.in_single)
         lexer.yyerror("dynamic constant assignment");
-      
-      $$ = builder.assignable(builder.const_global($2));
+
+      var const_ = builder.const_global($2);
+      const_.loc = @2;
+      $$ = builder.assignable(const_);
+      $$.loc = @1;
     }
   |
     backref
     {
       $$ = builder.assignable($1);
+      $$.loc = @1;
     }
   ;
 
@@ -851,16 +962,19 @@ cpath:
     tCOLON3 cname
     {
       $$ = builder.const_global($2);
+      $$.loc = @2;
     }
   |
     cname
     {
       $$ = builder.const_($1);
+      $$.loc = @1;
     }
   |
     primary_value tCOLON2 cname
     {
       $$ = builder.const_fetch($1, $2, $3);
+      $$.loc = @2;
     }
   ;
 
@@ -886,6 +1000,7 @@ fsym:
     fname
     {
       $$ = builder.symbol($1);
+      $$.loc = @1;
     }
   |
     symbol
@@ -968,49 +1083,66 @@ arg:
     lhs '=' arg
     {
       $$ = builder.assign($1, $3);
+      $$.loc = @2;
     }
   |
     lhs '=' arg modifier_rescue arg
     {
       var rescue_body = builder.rescue_body(null, null, $5);
+      rescue_body.loc = @4;
+
       var rescue = builder.begin_body($3, [ rescue_body ], null, null);
+      rescue.loc = @3;
       $$ = builder.assign($1, rescue);
+      $$.loc = @2;
     }
   |
     var_lhs tOP_ASGN arg
     {
       $$ = builder.op_assign($1, $2, $3);
+      $$.loc = @2;
     }
   |
     var_lhs tOP_ASGN arg modifier_rescue arg
     {
       var rescue_body = builder.rescue_body(null, null, $5);
+      rescue_body.loc = @4;
       var rescue = builder.begin_body($3, [ rescue_body ], null, null);
+      rescue.loc = @3;
       $$ = builder.op_assign($1, $2, rescue);
+      $$.loc = @2;
     }
   |
     primary_value '[' opt_call_args rbracket tOP_ASGN arg
     {
       var index = builder.index($1, $3);
+      index.loc = @2;
       $$ = builder.op_assign(index, $5, $6);
+      $$.loc = @5;
     }
   |
     primary_value '.' tIDENTIFIER tOP_ASGN arg
     {
       var call_method = builder.call_method($1, $2, $3);
+      call_method.loc = @3;
       $$ = builder.op_assign(call_method, $4, $5);
+      $$.loc = @4;
     }
   |
     primary_value '.' tCONSTANT tOP_ASGN arg
     {
       var call_method = builder.call_method($1, $2, $3);
+      call_method.loc = @3;
       $$ = builder.op_assign(call_method, $4, $5);
+      $$.loc = @4;
     }
   |
     primary_value tCOLON2 tIDENTIFIER tOP_ASGN arg
     {
       var call_method = builder.call_method($1, $2, $3);
+      call_method.loc = @3;
       $$ = builder.op_assign(call_method, $4, $5);
+      $$.loc = @4;
     }
   |
     primary_value tCOLON2 tCONSTANT tOP_ASGN arg
@@ -1019,9 +1151,12 @@ arg:
       // if in_def?
       //   diagnostic(:error, :dynamic_const, val[2], [ val[3] ])
       // end
-      
-      var const_ = builder.assignable(builder.const_fetch($1, $2, $3));
-      $$ = builder.op_assign(const_, $4, $5);
+      var const_ = builder.const_fetch($1, $2, $3)
+      const_.loc = @3;
+      var assignable = builder.assignable(const_);
+      assignable.loc = @2;
+      $$ = builder.op_assign(assignable, $4, $5);
+      $$.loc = @4;
     }
   |
     tCOLON3 tCONSTANT tOP_ASGN arg
@@ -1031,173 +1166,212 @@ arg:
       //   diagnostic(:error, :dynamic_const, val[1], [ val[2] ])
       // end
       
-      var const_  = builder.assignable(builder.const_global($2));
-      $$ = builder.op_assign(const_, $3, $4);
+      var const_ = builder.const_global($2);
+      const_.loc = @2;
+      var assignable = builder.assignable(const_);
+      assignable.loc = @1;
+      $$ = builder.op_assign(assignable, $3, $4);
+      $$.loc = @3;
     }
   |
     backref tOP_ASGN arg
     {
-      // expected to return `null` as Ruby doesn't allow backref assignment
       $$ = builder.op_assign($1, $2, $3);
+      $$.loc = @2;
     }
   |
     arg tDOT2 arg
     {
       $$ = builder.range_inclusive($1, $3);
+      $$.loc = @2;
     }
   |
     arg tDOT3 arg
     {
       $$ = builder.range_exclusive($1, $3);
+      $$.loc = @2;
     }
   |
     arg '+' arg
     {
       $$ = builder.binary_op($1, $2, $3);
+      $$.loc = @2;
     }
   |
     arg '-' arg
     {
       $$ = builder.binary_op($1, $2, $3);
+      $$.loc = @2;
     }
   |
     arg '*' arg
     {
       $$ = builder.binary_op($1, $2, $3);
+      $$.loc = @2;
     }
   |
     arg '/' arg
     {
       $$ = builder.binary_op($1, $2, $3);
+      $$.loc = @2;
     }
   |
     arg '%' arg
     {
       $$ = builder.binary_op($1, $2, $3);
+      $$.loc = @2;
     }
   |
     arg tPOW arg
     {
       $$ = builder.binary_op($1, $2, $3);
+      $$.loc = @2;
     }
   |
     tUMINUS_NUM tINTEGER tPOW arg
     {
       var number = builder.integer($2, /*negate=*/false);
+      number.loc = @2;
       var binary  = builder.binary_op(number, $3, $4);
+      binary.loc = @3;
       $$ = builder.unary_op($<id>1, binary);
+      $$.loc = @1;
     }
   |
     tUMINUS_NUM tFLOAT tPOW arg
     {
       var number = builder.float_($2, /*negate=*/false);
+      number.loc = @2;
       var binary  = builder.binary_op(number, $3, $4);
+      binary.loc = @3;
       $$ = builder.unary_op($<id>1, binary);
+      $$.loc = @1;
     }
   |
     tUPLUS arg
     {
       $$ = builder.unary_op($1, $2);
+      $$.loc = @1;
     }
   |
     tUMINUS arg
     {
       $$ = builder.unary_op($1, $2);
+      $$.loc = @1;
     }
   |
     arg '|' arg
     {
       $$ = builder.binary_op($1, $2, $3);
+      $$.loc = @2;
     }
   |
     arg '^' arg
     {
       $$ = builder.binary_op($1, $2, $3);
+      $$.loc = @2;
     }
   |
     arg '&' arg
     {
       $$ = builder.binary_op($1, $2, $3);
+      $$.loc = @2;
     }
   |
     arg tCMP arg
     {
       $$ = builder.binary_op($1, $2, $3);
+      $$.loc = @2;
     }
   |
     arg '>' arg
     {
       $$ = builder.binary_op($1, $2, $3);
+      $$.loc = @2;
     }
   |
     arg tGEQ arg
     {
       $$ = builder.binary_op($1, $2, $3);
+      $$.loc = @2;
     }
   |
     arg '<' arg
     {
       $$ = builder.binary_op($1, $2, $3);
+      $$.loc = @2;
     }
   |
     arg tLEQ arg
     {
       $$ = builder.binary_op($1, $2, $3);
+      $$.loc = @2;
     }
   |
     arg tEQ arg
     {
       $$ = builder.binary_op($1, $2, $3);
+      $$.loc = @2;
     }
   |
     arg tEQQ arg
     {
       $$ = builder.binary_op($1, $2, $3);
+      $$.loc = @2;
     }
   |
     arg tNEQ arg
     {
       $$ = builder.binary_op($1, $2, $3);
+      $$.loc = @2;
     }
   |
     arg tMATCH arg
     {
       $$ = builder.match_op($1, $3);
+      $$.loc = @2;
     }
   |
     arg tNMATCH arg
     {
       $$ = builder.binary_op($1, $2, $3);
+      $$.loc = @2;
     }
   |
     '!' arg
     {
       $$ = builder.not_op($2);
+      $$.loc = @1;
     }
   |
     '~' arg
     {
        $$ = builder.unary_op($1, $2);
+       $$.loc = @1;
     }
   |
     arg tLSHFT arg
     {
       $$ = builder.binary_op($1, $2, $3);
+      $$.loc = @2;
     }
   |
     arg tRSHFT arg
     {
       $$ = builder.binary_op($1, $2, $3);
+      $$.loc = @2;
     }
   |
     arg tANDOP arg
     {
       $$ = builder.logical_op('and', $1, $3);
+      $$.loc = @2;
     }
   |
     arg tOROP arg
     {
       $$ = builder.logical_op('or', $1, $3);
+      $$.loc = @2;
     }
   |
     keyword_defined opt_nl
@@ -1209,11 +1383,13 @@ arg:
       lexer.in_defined = false;
       
       $$ = builder.keyword_cmd('defined?', [ $<ary>4 ]);
+      $$.loc = @1;
     }
   |
     arg '?' arg opt_nl ':' arg
     {
       $$ = builder.ternary($1, $3, $6);
+      $$.loc = @2;
     }
   |
     primary
@@ -1233,14 +1409,20 @@ aref_args:
   |
     args ',' assocs trailer
     {
+      var associate = builder.associate($3)
+      associate.loc = @2;
+
       var args = $1;
-      args.push(builder.associate($3));
+      args.push(associate);
       $$ = args;
     }
   |
     assocs trailer
     {
-      $$ = [ builder.associate($1) ];
+      var associate = builder.associate($1);
+      associate.loc = @1;
+
+      $$ = [ associate ];
     }
   ;
 
@@ -1269,13 +1451,19 @@ opt_call_args:
   | args ','
   | args ',' assocs ','
     {
+      var associate = builder.associate($3);
+      associate.loc = @1;
+
       var args = $1;
-      args.push(builder.associate($3));
+      args.push(associate);
       $$ = args;
     }
   | assocs ','
     {
-      $$ = [ builder.associate($1) ];
+      var associate = builder.associate($1);
+      associate.loc = @1;
+
+      $$ = [ associate ];
     }
   ;
 
@@ -1292,12 +1480,17 @@ call_args:
   |
     assocs opt_block_arg
     {
-      $$ = [ builder.associate($1) ].concat($2);
+      var associate = builder.associate($1);
+      associate.loc = @1;
+
+      $$ = [ associate ].concat($2);
     }
   |
     args ',' assocs opt_block_arg
     {
       var assocs = builder.associate($3);
+      $$.loc = @3;
+
       var args = $1;
       args.push(assocs);
       $$ = args.concat($4);
@@ -1327,6 +1520,7 @@ block_arg:
     tAMPER arg_value
     {
       $$ = builder.block_pass($2);
+      $$.loc = @1;
     }
   ;
 
@@ -1350,7 +1544,10 @@ args:
   |
     tSTAR arg_value
     {
-      $$ = [ builder.splat($2) ];
+      var splat = builder.splat($2);
+      splat.loc = @1;
+
+      $$ = [ splat ];
     }
   | args ',' arg_value
     {
@@ -1360,8 +1557,11 @@ args:
     }
   | args ',' tSTAR arg_value
     {
+      var splat = builder.splat($4);
+      splat.loc = @3;
+
       var args = $1;
-      args.push(builder.splat($4));
+      args.push(splat);
       $$ = args;
     }
   ;
@@ -1376,13 +1576,19 @@ mrhs:
     }
   | args ',' tSTAR arg_value
     {
+      var splat = builder.splat($4);
+      splat.loc = @3;
+
       var args = $1;
-      args.push(builder.splat($4));
+      args.push(splat);
       $$ = args;
     }
   | tSTAR arg_value
     {
-      $$ = [ builder.splat($2) ];
+      var splat = builder.splat($2);
+      splat.loc = @1;
+
+      $$ = [ splat ];
     }
   ;
 
@@ -1400,6 +1606,7 @@ primary:
   | tFID
       {
         $$ = builder.call_method(null, null, $1);
+        $$.loc = @1;
       }
   | k_begin
     {
@@ -1415,6 +1622,7 @@ primary:
       $<num>2;
       
       $$ = builder.begin_keyword($3);
+      $$.loc = @1;
     }
 
   // Here our grammars differ, ruby 2.1 may be the cause.
@@ -1430,6 +1638,7 @@ primary:
     /*opt_nl in whitequark parser, TODO*/ rparen
       {
         $$ = builder.begin(null);
+        $$.loc = @1;
       }
   
     // the rule B
@@ -1440,42 +1649,52 @@ primary:
     /*opt_nl in whitequark parser, TODO*/ rparen
       {
         $$ = builder.begin($2);
+        $$.loc = @1;
       }
   | tLPAREN compstmt ')'
       {
         $$ = builder.begin($2);
+        $$.loc = @1;
       }
   | primary_value tCOLON2 tCONSTANT
       {
         $$ = builder.const_fetch($1, $2, $3);
+        $$.loc = @3;
       }
   | tCOLON3 tCONSTANT
       {
         $$ = builder.const_global($2);
+        $$.loc = @2;
       }
   | tLBRACK aref_args ']'
       {
         $$ = builder.array($2);
+        $$.loc = @1;
       }
   | tLBRACE assoc_list '}'
       {
         $$ = builder.associate($2);
+        $$.loc = @1;
       }
   | keyword_return
       {
         $$ = builder.keyword_cmd('return');
+        $$.loc = @1;
       }
   | keyword_yield '(' call_args rparen
       {
         $$ = builder.keyword_cmd('yield', $3);
+        $$.loc = @1;
       }
   | keyword_yield '(' rparen
       {
         $$ = builder.keyword_cmd('yield');
+        $$.loc = @1;
       }
   | keyword_yield
       {
         $$ = builder.keyword_cmd('yield');
+        $$.loc = @1;
       }
   | keyword_defined opt_nl '('
       {
@@ -1484,37 +1703,45 @@ primary:
     expr rparen
       {
         lexer.in_defined = false;
-      
+
         $$ = builder.keyword_cmd('defined?', [ $5 ]);
+        $$.loc = @1;
       }
   | keyword_not '(' expr rparen
       {
         $$ = builder.not_op($3);
+        $$.loc = @1;
       }
   | keyword_not '(' rparen
       {
         // not ()
         $$ = builder.not_op(null);
+        $$.loc = @1;
       }
   | fcall brace_block
       {
         var method_call = builder.call_method(null, null, $1);
+        method_call.loc = @1;
 
         var block = $2;
         $$ = builder.block(method_call, block.args, block.body);
+        $$.loc = @2;
       }
   | method_call
   | method_call brace_block
       {
         var block = $2;
         $$ = builder.block($1, block.args, block.body);
+        $$.loc = @2;
       }
   | tLAMBDA lambda
       {
         var lambda_call = builder.call_lambda($1);
+        lambda_call.loc = @1;
 
         var lambda = $2;
         $$ = builder.block(lambda_call, lambda.args, lambda.body);
+        $$.loc = @2;
       }
   | k_if expr_value then
     compstmt
@@ -1522,6 +1749,7 @@ primary:
     k_end
       {
         $$ = builder.condition($2, $4, $5);
+        $$.loc = @1;
       }
   |
     k_unless expr_value then
@@ -1530,6 +1758,7 @@ primary:
     k_end
       {
         $$ = builder.condition($2, $5, $4);
+        $$.loc = @1;
       }
   | k_while
       {
@@ -1543,6 +1772,7 @@ primary:
     k_end
       {
         $$ = builder.loop('while', $3, $6);
+        $$.loc = @1;
       }
   |
     k_until
@@ -1557,6 +1787,7 @@ primary:
     k_end
       {
         $$ = builder.loop('until', $3, $6);
+        $$.loc = @1;
       }
   |
     k_case expr_value opt_terms
@@ -1567,6 +1798,7 @@ primary:
         var else_body = when_bodies.pop();
 
         $$ = builder.case_($2, when_bodies, else_body);
+        $$.loc = @1;
       }
   | k_case            opt_terms
     case_body
@@ -1576,6 +1808,7 @@ primary:
         var else_body = when_bodies.pop();
 
         $$ = builder.case_(null, when_bodies, else_body);
+        $$.loc = @1;
       }
   | k_for for_var keyword_in
       {
@@ -1589,6 +1822,7 @@ primary:
     k_end
       {
         $$ = builder.for_($2, $5, $8);
+        $$.loc = @1;
       }
   | k_class cpath superclass
       {
@@ -1603,11 +1837,12 @@ primary:
     k_end
       {
         $$ = builder.def_class($2, $3, $5);
-      
+        $$.loc = @1;
+
         // TODO: delete all these touching stuff:
         // touching this alters the parse.output
         $<num>4;
-      
+
         scope.pop();
       }
   | k_class tLSHFT expr
@@ -1625,7 +1860,8 @@ primary:
     k_end
       {
         $$ = builder.def_sclass($3, $7);
-      
+        $$.loc = @1;
+
         scope.pop();
         lexer.in_def = $<num>4;
         lexer.in_single = $<num>6;
@@ -1642,10 +1878,11 @@ primary:
     k_end
       {
         $$ = builder.def_module($2, $4);
+        $$.loc = @1;
 
         // touching this alters the parse.output
         $<num>3;
-      
+
         scope.pop();
       }
   | k_def fname
@@ -1658,10 +1895,11 @@ primary:
     k_end
       {
         $$ = builder.def_method($2, $4, $5);
-        
+        $$.loc = @1;
+
         // touching this alters the parse.output
         $<num>1; $<id>3;
-        
+
         scope.pop();
         lexer.in_def--;
       }
@@ -1681,6 +1919,7 @@ primary:
     k_end
       {
         $$ = builder.def_singleton($2, $5, $7, $8);
+        $$.loc = @1;
 
         scope.pop();
         lexer.in_single--;
@@ -1688,18 +1927,22 @@ primary:
   | keyword_break
       {
         $$ = builder.keyword_cmd('break');
+        $$.loc = @1;
       }
   | keyword_next
       {
         $$ = builder.keyword_cmd('next');
+        $$.loc = @1;
       }
   | keyword_redo
       {
         $$ = builder.keyword_cmd('redo');
+        $$.loc = @1;
       }
   | keyword_retry
       {
         $$ = builder.keyword_cmd('retry');
+        $$.loc = @1;
       }
   ;
 
@@ -1738,6 +1981,7 @@ if_tail:
     keyword_elsif expr_value then compstmt if_tail
     {
       $$ = builder.condition($2, $4, $5);
+      $$.loc = @1;
     }
   ;
 
@@ -1761,10 +2005,12 @@ f_marg:
         scope.declare(arg[0]);
         
         $$ = builder.arg(arg);
+        $$.loc = @1;
       }
   | tLPAREN f_margs rparen
       {
         $$ = builder.multi_lhs($2);
+        $$.loc = @2;
       }
   ;
 
@@ -2253,6 +2499,7 @@ strings:
     string
       {
         $$ = builder.string_compose($1);
+        $$.loc = @1;
       }
   ;
 
@@ -2260,7 +2507,9 @@ string:
     // in whitequark parser moved to `string1` as `tSTRING`
     tCHAR
      {
-       $$ = [ builder.string($1) ];
+       var string = builder.string($1);
+       string.loc = @1;
+       $$ = [ string ];
      }
   | string1
       {
@@ -2278,12 +2527,14 @@ string1:
     tSTRING_BEG string_contents tSTRING_END
       {
         $$ = builder.string_compose($2);
+        $$.loc = @1;
       }
   // // here the whitequark parser differs a little
   // // it's a new name for tCHAR, may be from ruby 2.1
   // | tSTRING 
   // {
   //   $$ = builder.string($1);
+  //   $$.loc = @1; TODO: add this line :)
   // }
   ;
 
@@ -2291,6 +2542,7 @@ xstring:
     tXSTRING_BEG xstring_contents tSTRING_END
       {
         $$ = builder.xstring_compose($2);
+        $$.loc = @1;
       }
   ;
 
@@ -2298,7 +2550,9 @@ regexp:
     tREGEXP_BEG regexp_contents tREGEXP_END /* tREGEXP_OPT in WP */
       {
         var opts = builder.regexp_options($3); // tREGEXP_OPT in WP
+        opts.loc = @3;
         $$ = builder.regexp_compose($2, opts);
+        $$.loc = @1;
       }
   ;
 
@@ -2306,10 +2560,12 @@ words:
     tWORDS_BEG ' ' tSTRING_END // remover in WP
       {
         $$ = builder.words_compose([]);
+        $$.loc = @1;
       }
   | tWORDS_BEG word_list tSTRING_END
       {
         $$ = builder.words_compose($2);
+        $$.loc = @1;
       }
   ;
 
@@ -2320,8 +2576,11 @@ word_list:
       }
   | word_list word ' '
       {
+        var word = builder.word($2);
+        word.loc = @1;
+
         var word_list = $1;
-        word_list.push(builder.word($2));
+        word_list.push(word);
         $$ = word_list;
       }
   ;
@@ -2343,10 +2602,12 @@ symbols:
     tSYMBOLS_BEG ' ' tSTRING_END
       {
         $$ = builder.symbols_compose([]);
+        $$.loc = @1;
       }
   | tSYMBOLS_BEG symbol_list tSTRING_END
       {
         $$ = builder.symbols_compose($2);
+        $$.loc = @1;
       }
   ;
 
@@ -2357,8 +2618,11 @@ symbol_list:
       }
   | symbol_list word ' '
       {
+        var word = builder.word($2);
+        word.loc = @1;
+
         var symbol_list = $1;
-        symbol_list.push(builder.word($2));
+        symbol_list.push(word);
         $$ = symbol_list;
       }
   ;
@@ -2367,10 +2631,12 @@ qwords:
     tQWORDS_BEG ' ' tSTRING_END
       {
         $$ = builder.words_compose([]);
+        $$.loc = @1;
       }
   | tQWORDS_BEG qword_list tSTRING_END
       {
         $$ = builder.words_compose($2);
+        $$.loc = @1;
       }
   ;
 
@@ -2378,10 +2644,12 @@ qsymbols:
     tQSYMBOLS_BEG ' ' tSTRING_END
       {
         $$ = builder.symbols_compose([]);
+        $$.loc = @1;
       }
   | tQSYMBOLS_BEG qsym_list tSTRING_END
       {
         $$ = builder.symbols_compose($2);
+        $$.loc = @1;
       }
   ;
 
@@ -2392,8 +2660,11 @@ qword_list:
       }
   | qword_list tSTRING_CONTENT ' '
       {
+        var string = builder.string($2);
+        string.loc = @2;
+
         var qword_list = $1;
-        qword_list.push(builder.string($2));
+        qword_list.push(string);
         $$ = qword_list;
       }
   ;
@@ -2495,6 +2766,7 @@ string_content:
         lexer.brace_nest = $<num>4;
         
         $$ = builder.begin($5); // the compstmt
+        if ($$) $$.loc = @5;
       }
   ;
 
