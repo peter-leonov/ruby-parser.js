@@ -2405,8 +2405,11 @@ qsym_list:
       }
   | qsym_list tSTRING_CONTENT ' '
       {
+        var symbol = builder.symbol($2);
+        symbol.loc = @2;
+
         var qsym_list = $1;
-        qsym_list.push(builder.symbol($2));
+        qsym_list.push(symbol);
         $$ = qsym_list;
       }
   ;
@@ -2454,6 +2457,7 @@ string_content:
     tSTRING_CONTENT
       {
         $$ = builder.string($1);
+        $$.loc = @1;
       }
   | tSTRING_DVAR
       {
@@ -2498,16 +2502,19 @@ string_dvar:
     tGVAR
     {
       $$ = builder.gvar($1);
+      $$.loc = @1;
     }
   |
     tIVAR
     {
       $$ = builder.ivar($1);
+      $$.loc = @1;
     }
   |
     tCVAR
     {
       $$ = builder.cvar($1);
+      $$.loc = @1;
     }
   |
     backref
@@ -2518,6 +2525,7 @@ symbol:
     {
       lexer.lex_state = EXPR_END;
       $$ = builder.symbol($2);
+      $$.loc = @2;
     }
   ;
 
@@ -2535,6 +2543,7 @@ dsym:
         lexer.lex_state = EXPR_END;
         
         $$ = builder.symbol_compose($2);
+        $$.loc = @1;
       }
   ;
 
@@ -2542,18 +2551,22 @@ numeric:
     tINTEGER
       {
         $$ = builder.integer($1, /*negate=*/false);
+        $$.loc = @1;
       }
   | tFLOAT
       {
         $$ = builder.float_($1, /*negate=*/false);
+        $$.loc = @1;
       }
   | tUMINUS_NUM tINTEGER           %prec tLOWEST
       {
         $$ = builder.integer($2, /*negate=*/true);
+        $$.loc = @1;
       }
   | tUMINUS_NUM tFLOAT           %prec tLOWEST
       {
         $$ = builder.float_($2, /*negate=*/true);
+        $$.loc = @1;
       }
   ;
 
@@ -2561,22 +2574,27 @@ user_variable:
     tIDENTIFIER
       {
         $$ = builder.ident($1);
+        $$.loc = @1;
       }
   | tIVAR
       {
         $$ = builder.ivar($1);
+        $$.loc = @1;
       }
   | tGVAR
       {
         $$ = builder.gvar($1);
+        $$.loc = @1;
       }
   | tCONSTANT
       {
         $$ = builder.const_($1);
+        $$.loc = @1;
       }
   | tCVAR
       {
         $$ = builder.cvar($1);
+        $$.loc = @1;
       }
   ;
 
@@ -2584,36 +2602,43 @@ keyword_variable:
     keyword_nil
     {
       $$ = builder.nil();
+      $$.loc = @1;
     }
   |
     keyword_self
     {
       $$ = builder.self();
+      $$.loc = @1;
     }
   |
     keyword_true
     {
       $$ = builder.true_();
+      $$.loc = @1;
     }
   |
     keyword_false
     {
       $$ = builder.false_();
+      $$.loc = @1;
     }
   |
     keyword__FILE__
     {
       $$ = builder._FILE_(lexer.filename);
+      $$.loc = @1;
     }
   |
     keyword__LINE__
     {
       $$ = builder._LINE_(lexer.ruby_sourceline);
+      $$.loc = @1;
     }
   |
     keyword__ENCODING__
     {
       $$ = builder._ENCODING_();
+      $$.loc = @1;
     }
   ;
 
@@ -2621,11 +2646,13 @@ var_ref:
     user_variable
     {
       $$ = builder.accessible($1);
+      $$.loc = @1;
     }
   |
     keyword_variable
     {
       $$ = builder.accessible($1);
+      $$.loc = @1;
     }
   ;
 
@@ -2633,11 +2660,13 @@ var_lhs:
     user_variable
     {
       $$ = builder.assignable($1);
+      $$.loc = @1;
     }
   |
     keyword_variable
     {
       $$ = builder.assignable($1);
+      $$.loc = @1;
     }
   ;
 
@@ -2645,11 +2674,13 @@ backref:
     tNTH_REF
     {
       $$ = builder.nth_ref($1);
+      $$.loc = @1;
     }
   |
     tBACK_REF
     {
       $$ = builder.back_ref($1);
+      $$.loc = @1;
     }
   ;
 
@@ -2678,6 +2709,7 @@ f_arglist:
     '(' f_args rparen
     {
       $$ = builder.args($2);
+      $$.loc = @1;
       
       lexer.lex_state = EXPR_BEG;
       lexer.command_start = true;
@@ -2685,6 +2717,7 @@ f_arglist:
   | f_args term
     {
       $$ = builder.args($1);
+      $$.loc = @1;
       
       lexer.lex_state = EXPR_BEG;
       lexer.command_start = true;
@@ -2817,10 +2850,12 @@ f_arg_item:
       scope.declare(f_norm_arg[0]);
       
       $$ = builder.arg(f_norm_arg);
+      $$.loc = @1;
     }
   | tLPAREN f_margs rparen
     {
       $$ = builder.multi_lhs($2);
+      $$.loc = @1;
     }
   ;
 
@@ -2847,6 +2882,7 @@ f_kw:
         scope.declare(label[0]);
 
         $$ = builder.kwoptarg(label, $2);
+        $$.loc = @1;
       }
   ;
 
@@ -2859,6 +2895,7 @@ f_block_kw:
         scope.declare(label[0]);
 
         $$ = builder.kwoptarg(label, $2);
+        $$.loc = @1;
       }
   ;
 
@@ -2899,12 +2936,16 @@ f_kwrest:
       {
         var ident = $2;
         scope.declare(ident[0]);
-        
-        $$ = [ builder.kwrestarg(ident) ];
+
+        var kwrestarg = builder.kwrestarg(ident);
+        kwrestarg.loc = @1;
+        $$ = [ kwrestarg ];
       }
   | kwrest_mark
       {
-        $$ = [ builder.kwrestarg() ];
+        var kwrestarg = builder.kwrestarg();
+        kwrestarg.loc = @1;
+        $$ = [ kwrestarg ];
       }
   ;
 
@@ -2915,6 +2956,7 @@ f_opt:
         scope.declare(ident[0]);
         
         $$ = builder.optarg(ident, $3);
+        $$.loc = @1;
       }
   ;
 
@@ -2925,6 +2967,7 @@ f_block_opt:
         scope.declare(ident[0]);
         
         $$ = builder.optarg(ident, $3);
+        $$.loc = @1;
       }
   ;
 
@@ -2966,12 +3009,15 @@ f_rest_arg:
       scope.declare(ident[0]);
       // if (!is_local_id($2)) // TODO
       //   lexer.yyerror("rest argument must be local variable");
-      
-      $$ = [ builder.restarg(ident) ];
+      var restarg = builder.restarg(ident);
+      restarg.loc = @1;
+      $$ = [ restarg ];
     }
   | restarg_mark
     {
-      $$ = [ builder.restarg() ];
+      var restarg = builder.restarg();
+      restarg.loc = @1;
+      $$ = [ restarg ];
     }
   ;
 
@@ -2993,7 +3039,7 @@ f_block_arg:
       scope.declare(ident[0]);
 
       $$ = builder.blockarg(ident);
-      
+      $$.loc = @1;
     }
   ;
 
@@ -3045,14 +3091,17 @@ assoc:
     arg_value tASSOC arg_value
     {
       $$ = builder.pair($1, $3);
+      $$.loc = @2;
     }
   | tLABEL arg_value
     {
       $$ = builder.pair_keyword($1, $2);
+      $$.loc = @1;
     }
   | tDSTAR arg_value
     {
       $$ = builder.kwsplat($2);
+      $$.loc = @1;
     }
   ;
 
