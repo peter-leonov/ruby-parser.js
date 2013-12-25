@@ -2838,4 +2838,13 @@ describe("Builder", function() {
               s('const', null, 'LoadError')), null, null), null)),
       'begin; rescue LoadError; else; end')
   });
+  
+  it("test_bug_heredoc_do", function() {
+    assert_parses(
+      s('block',
+        s('send', null, 'f',
+          s('dstr')),
+        s('args'), null),
+      'f <<-TABLE do\nTABLE\nend')
+  });
 });
