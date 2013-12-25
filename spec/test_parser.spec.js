@@ -2829,4 +2829,13 @@ describe("Builder", function() {
       'def foo\n=begin\n=end\nend')
   });
   
+  it("test_bug_rescue_empty_else", function() {
+    assert_parses(
+      s('kwbegin',
+        s('rescue', null,
+          s('resbody',
+            s('array',
+              s('const', null, 'LoadError')), null, null), null)),
+      'begin; rescue LoadError; else; end')
+  });
 });
