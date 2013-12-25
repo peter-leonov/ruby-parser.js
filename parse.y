@@ -1016,23 +1016,13 @@ arg:
   |
     primary_value tCOLON2 tCONSTANT tOP_ASGN arg
     {
-      // TODO
-      // if in_def?
-      //   diagnostic(:error, :dynamic_const, val[2], [ val[3] ])
-      // end
-      
-      var const_ = builder.assignable(builder.const_fetch($1, $2, $3));
+      var const_ = builder.const_op_assignable(builder.const_fetch($1, $2, $3));
       $$ = builder.op_assign(const_, $4, $5);
     }
   |
     tCOLON3 tCONSTANT tOP_ASGN arg
     {
-      // TODO
-      // if in_def?
-      //   diagnostic(:error, :dynamic_const, val[1], [ val[2] ])
-      // end
-      
-      var const_  = builder.assignable(builder.const_global($2));
+      var const_  = builder.const_op_assignable(builder.const_global($2));
       $$ = builder.op_assign(const_, $3, $4);
     }
   |

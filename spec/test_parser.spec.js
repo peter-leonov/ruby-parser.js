@@ -782,6 +782,20 @@ describe("Builder", function() {
         s('casgn', s('const', null, 'B'), 'A'), '+',
         s('int', 1)),
       'B::A += 1')
+
+    assert_parses(
+      s('def', 'x', s('args'),
+        s('or_asgn',
+          s('casgn', s('self'), 'A'),
+          s('int', 1))),
+      'def x; self::A ||= 1; end')
+
+    assert_parses(
+      s('def', 'x', s('args'),
+        s('or_asgn',
+          s('casgn', s('cbase'), 'A'),
+          s('int', 1))),
+      'def x; ::A ||= 1; end')
   });
 
   it("test_const_op_asgn_invalid", function() {

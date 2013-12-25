@@ -306,6 +306,11 @@ Builder.prototype =
     return lhs;
   },
   
+  const_op_assignable: function (node)
+  {
+    return n('casgn', node/*.children*/)
+  },
+  
   _LINE_: function (ruby_sourceline)
   {
     return n('__LINE__', [ ruby_sourceline ]);
