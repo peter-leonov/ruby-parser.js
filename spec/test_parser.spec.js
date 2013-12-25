@@ -2872,4 +2872,31 @@ describe("Builder", function() {
         s('send', null, 'scope')),
       '->(scope) {}; scope')
   });
+  
+  it("test_bug_cmdarg", function() {
+    assert_parses(
+      s('send', null, 'assert',
+        s('send', null, 'dogs')),
+      'assert dogs')
+
+    assert_parses(
+      s('send', null, 'assert',
+        s('hash',
+          s('pair', s('sym', 'do'), s('true')))),
+      'assert do: true')
+
+    assert_parses(
+      s('send', null, 'f',
+        s('hash',
+          s('pair',
+            s('sym', 'x'),
+            s('block',
+              s('send', null, 'lambda'),
+              s('args'),
+              s('block',
+                s('send', null, 'meth'),
+                s('args'), null))))),
+      'f x: -> do meth do end end')
+  });
+
 });
