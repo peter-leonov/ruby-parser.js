@@ -73,7 +73,7 @@ describe("Builder", function() {
 
   it("test_int___LINE__", function() {
     assert_parses(
-      s('int', 1),
+      s('__LINE__', 1),
       '__LINE__')
   });
   
@@ -131,7 +131,7 @@ describe("Builder", function() {
 
   it("test_string___FILE__", function() {
     assert_parses(
-      s('str', '(assert_parses)'),
+      s('__FILE__', '(assert_parses)'),
       '__FILE__')
   });
 
