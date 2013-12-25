@@ -196,6 +196,16 @@ describe("Builder", function() {
       '/foo#{bar}baz/')
   });
 
+  it("test_regexp_encoding", function() {
+    assert_parses(
+      s('match_with_lvasgn',
+        s('regexp',
+          s('str', '\xa8'),
+          s('regopt', 'n')),
+        s('dstr')),
+      '/\xa8/n =~ ""')
+  });
+
   // Arrays
 
   it("test_array_plain", function() {
