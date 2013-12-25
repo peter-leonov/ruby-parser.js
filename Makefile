@@ -9,10 +9,10 @@ bison:
 # different builds for different purposes
 
 build: bison
-	cpp -E -CC -P parse.js.src > parse.js
+	cpp -E -P parse.js.src > parse.js
 
 build_debug: bison
-	cpp -E -CC -P -DDEBUG -DYYDEBUG parse.js.src > parse.js
+	cpp -E -P -DDEBUG -DYYDEBUG parse.js.src > parse.js
 
 
 
