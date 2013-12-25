@@ -2847,4 +2847,15 @@ describe("Builder", function() {
         s('args'), null),
       'f <<-TABLE do\nTABLE\nend')
   });
+  
+  it("test_bug_lambda_leakage", function() {
+    assert_parses(
+      s('begin',
+        s('block',
+          s('send', null, 'lambda'),
+          s('args',
+            s('arg', 'scope')), null),
+        s('send', null, 'scope')),
+      '->(scope) {}; scope')
+  });
 });
