@@ -762,17 +762,11 @@ mlhs_node
   |
     primary_value tCOLON2 tCONSTANT
     {
-      if (lexer.in_def || lexer.in_single)
-        lexer.yyerror("dynamic constant assignment");
-      
       $$ = builder.assignable(builder.const_fetch($1, $2, $3));
     }
   |
     tCOLON3 tCONSTANT
     {
-      if (lexer.in_def || lexer.in_single)
-        lexer.yyerror("dynamic constant assignment");
-      
       $$ = builder.assignable(builder.const_global($2));
     }
   |
@@ -815,17 +809,11 @@ lhs:
   |
     primary_value tCOLON2 tCONSTANT
     {
-      if (lexer.in_def || lexer.in_single)
-        lexer.yyerror("dynamic constant assignment");
-      
       $$ = builder.assignable(builder.const_fetch($1, $2, $3));
     }
   |
     tCOLON3 tCONSTANT
     {
-      if (lexer.in_def || lexer.in_single)
-        lexer.yyerror("dynamic constant assignment");
-      
       $$ = builder.assignable(builder.const_global($2));
     }
   |
