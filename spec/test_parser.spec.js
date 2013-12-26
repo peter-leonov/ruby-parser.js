@@ -1614,6 +1614,13 @@ describe("Builder", function() {
       '|**baz, &b|')
   });
   
+  it("test_block_kwarg", function() {
+    assert_parses_blockargs(
+      s('args',
+        s('kwarg', 'foo')),
+      '|foo:|')
+  });
+  
   it("test_arg_invalid", function() {
     // assert_diagnoses
   });
