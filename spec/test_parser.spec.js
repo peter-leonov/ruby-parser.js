@@ -135,6 +135,11 @@ describe("Builder", function() {
       '__FILE__')
   });
 
+  it("test_character", function() {
+    assert_parses(
+      s('str', 'a'),
+      '?a')
+  });
 
   // Symbols
 
