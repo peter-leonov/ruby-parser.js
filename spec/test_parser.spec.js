@@ -1933,6 +1933,11 @@ describe("Builder", function() {
 
     assert_parses(
       s('block', s('send', null, 'lambda'),
+        s('args', s('restarg')), null),
+      '-> * { }')
+
+    assert_parses(
+      s('block', s('send', null, 'lambda'),
         s('args'), null),
       '-> do end')
   });
