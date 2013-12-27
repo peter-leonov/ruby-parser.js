@@ -1,38 +1,12 @@
 
 
-/* A Bison parser, made by GNU Bison 2.7.12-4996.  */
 
-/* Skeleton implementation for Bison LALR(1) parsers in JavaScript
-   
-      Copyright (C) 2007-2013 Free Software Foundation, Inc.
-   
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-   
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-   
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-/* As a special exception, you may create a larger work that contains
-   part or all of the Bison parser skeleton and distribute that work
-   under terms of your choice, so long as that work isn't itself a
-   parser generator using the skeleton or a modified version thereof
-   as a parser skeleton.  Alternatively, if you modify or redistribute
-   the parser skeleton itself, you may (at your option) remove this
-   special exception, which will cause the skeleton and the resulting
-   Bison output files to be licensed under the GNU General Public
-   License without this special exception.
-   
-   This special exception was added by the Free Software Foundation in
-   version 2.2 of Bison.  */
 
-/* First part of user declarations.  */
+
+
+
+
 
 
 
@@ -61,6 +35,7 @@ var Array_push = Array.prototype.push;
 function $ (c) { return c.charCodeAt(0) }
 function $$ (code) { return String.fromCharCode(code) }
 
+
 // port of the Builder class from https://github.com/whitequark/parser
 
 // TODO: yyerror("Can't change the value of self");
@@ -86,6 +61,7 @@ function Builder ()
 }
 
 ;(function(){ // builder namespace
+
 
 // methods-in-constructor pattern used for performance, simplicity
 // and, of course, readability
@@ -154,6 +130,7 @@ function Scope ()
 }
 
 Builder.Scope = Scope;
+
 function n (type, children)
 {
   children.type = type;
@@ -185,6 +162,7 @@ function toPlain (node)
 
 Builder.toPlain = toPlain;
 Builder.createNode = n;
+
 
 
 
@@ -221,7 +199,7 @@ Builder.prototype =
         return null;
 
       case 'begin':
-        var children = cond/*.children*/;
+        var children = cond;
         if (children.length == 1)
         {
           var last = children[0];
@@ -233,14 +211,14 @@ Builder.prototype =
         }
 
       case 'and': case 'or':
-        var children = cond/*.children*/;
+        var children = cond;
         children[0] = this.check_condition(children[0]); // lhs
         children[1] = this.check_condition(children[1]); // rhs
 
         return cond;
 
       case 'irange': case 'erange':
-        var children = cond/*.children*/;
+        var children = cond;
         children[0] = this.check_condition(children[0]); // lhs
         children[1] = this.check_condition(children[1]); // rhs
 
@@ -297,7 +275,7 @@ Builder.prototype =
     switch (node.type)
     {
       case 'ident':
-        var name = node/*.children*/[0];
+        var name = node[0];
         if (this.scope.is_declared(name))
         {
           return n('lvar', [ name ]);
@@ -308,11 +286,11 @@ Builder.prototype =
         }
 
       case '__FILE__':
-        return n('str', [ node[0] ]);
+        return n('__FILE__', [ node[0] ]);
 
       case '__LINE__':
         // TODO: use line from node value
-        return n('int', [ this.lexer.ruby_sourceline ]); 
+        return n('__LINE__', [ this.lexer.ruby_sourceline ]);
 
       case '__ENCODING__':
         return n('const', [ n('const', [ null, 'Encoding'], null), 'UTF_8' ])
@@ -334,7 +312,7 @@ Builder.prototype =
 
   assignable: function (node)
   {
-    var children = node/*.children*/;
+    var children = node;
     switch (node.type)
     {
       case 'ident':
@@ -412,7 +390,7 @@ Builder.prototype =
     return node;
   },
   
-  begin_body: function (compound_stmt, rescue_bodies /*=[]*/, else_, ensure)
+  begin_body: function (compound_stmt, rescue_bodies , else_, ensure)
   {
     if (rescue_bodies.length)
     {
@@ -455,7 +433,7 @@ Builder.prototype =
     if (body.begin_from_compstmt)
     {
       // Synthesized (begin) from compstmt "a; b".
-      return n('kwbegin', body/*.children*/);
+      return n('kwbegin', body);
     }
     
     return n('kwbegin', [ body ])
@@ -465,6 +443,11 @@ Builder.prototype =
   {
     lhs.push(rhs);
     return lhs;
+  },
+  
+  const_op_assignable: function (node)
+  {
+    return n('casgn', node)
   },
   
   _LINE_: function (ruby_sourceline)
@@ -732,7 +715,7 @@ Builder.prototype =
           break;
 
         case 'mlhs':
-          this.check_duplicate_args(this_arg/*.children*/, map);
+          this.check_duplicate_args(this_arg, map);
       }
     }
   },
@@ -783,7 +766,7 @@ Builder.prototype =
     {
       // Synthesized (begin) from compstmt "a; b" or (mlhs)
       // from multi_lhs "(a, b) = *foo".
-      return n(body.type, body/*.children*/);
+      return n(body.type, body);
     }
     
     return n('begin', [ body ]);
@@ -990,7 +973,7 @@ Builder.prototype =
           symbols.push(n('sym', [ value ]));
           break;
         case 'dstr':
-          symbols.push(n('dsym', part/*.children*/));
+          symbols.push(n('dsym', part));
           break;
         default:
           symbols.push(part);
@@ -1005,7 +988,7 @@ Builder.prototype =
     if (this.collapse_string_parts(parts))
     {
       var str = parts[0];
-      return n('sym', [ str/*.children*/[0] ]);
+      return n('sym', [ str[0] ]);
     }
     else
     {
@@ -1039,8 +1022,8 @@ Builder.prototype =
     if
     (
          receiver.type == 'regexp'
-      && receiver/*.children*/.length == 2
-      && receiver/*.children*/[0].type == 'str'
+      && receiver.length == 2
+      && receiver[0].type == 'str'
     )
     {
 
@@ -1065,6 +1048,7 @@ Builder.prototype =
 }
 
 })(); // builder namespace
+
 
 
 
@@ -1187,7 +1171,7 @@ var
 
 
 // here goes all the lexer code that depends on token numbers
-/* "%code lexer" blocks.  */
+
 
 
 
@@ -1198,6 +1182,7 @@ var
 //   var keyword_module = 259;
 // 
 // and so on.
+
 
 // expose the constants to outer world (e.g. parser)
 
@@ -1585,6 +1570,10 @@ function nextc ()
         lexer.heredoc_end = 0;
       }
       lexer.ruby_sourceline++;
+
+
+
+
       lexer.line_count++;
       $lex_pbeg = $lex_p = 0;
       $lex_pend = v.length;
@@ -1645,6 +1634,7 @@ function peek_n (c, n)
 // that means `blablabla` or empty string (to prevent deep search)
 function match_grex (rex)
 {
+
   rex.lastIndex = $lex_p;
   // there is always a match or an empty string in [0]
   return rex.exec($lex_lastline);
@@ -1653,6 +1643,7 @@ function match_grex (rex)
 // treats the empty match as a `false`
 function test_grex (rex)
 {
+
   rex.lastIndex = $lex_p;
   // there is always a match for an empty string
   rex.test($lex_lastline);
@@ -1665,17 +1656,25 @@ function pushback (c)
 {
   if (c == '')
   {
+
+
+
+
     return;
   }
   
   $lex_p--;
+
+
+
+
 }
 
 // was begin af a line (`^` in terms of regexps) before last `nextc()`,
 // that true if we're here "a|bc" of here "abc\na|bc"
 function was_bol ()
 {
-  return $lex_p === /*$lex_pbeg +*/ 1; // $lex_pbeg never changes
+  return $lex_p ===  1; // $lex_pbeg never changes
 }
 
 
@@ -1704,7 +1703,7 @@ function tokfix ()
   var tok_end = (lexer.ruby_sourceline << 10) + ($lex_p & 0x3ff);
   lexer.yyloc = new Location($tok_beg, tok_end);
   
-  /* was: tokenbuf[tokidx]='\0'*/
+  
 }
 function tok () { return $tokenbuf; }
 function toklen () { return $tokenbuf.length; }
@@ -1966,7 +1965,7 @@ this.yylex = function yylex ()
     {
       if (was_bol())
       {
-        /* skip embedded rd document */
+        
         if (match_grex(/begin[\n \t]|/g)[0])
         {
           for (;;)
@@ -2593,11 +2592,11 @@ this.yylex = function yylex ()
         return tLAMBEG;
       }
       if (IS_ARG() || IS_lex_state(EXPR_END | EXPR_ENDFN))
-        t = $('{');                /* block (primary) */
+        t = $('{');                
       else if (IS_lex_state(EXPR_ENDARG))
-        t = tLBRACE_ARG;        /* block (expr) */
+        t = tLBRACE_ARG;        
       else
-        t = tLBRACE;            /* hash */
+        t = tLBRACE;            
       lexer.COND_PUSH(0);
       lexer.CMDARG_PUSH(0);
       lexer.lex_state = EXPR_BEG;
@@ -2760,7 +2759,7 @@ this.yylex = function yylex ()
       c = nextc();
       switch (c)
       {
-        case '_':              /* $_: last read line string */
+        case '_':              
           c = nextc();
           if (parser_is_identchar(c))
           {
@@ -2770,23 +2769,23 @@ this.yylex = function yylex ()
           }
           pushback(c);
           c = '_';
-          /* fall through */
-        case '~':              /* $~: match-data */
-        case '*':              /* $*: argv */
-        case '$':              /* $$: pid */
-        case '?':              /* $?: last status */
-        case '!':              /* $!: error string */
-        case '@':              /* $@: error position */
-        case '/':              /* $/: input record separator */
-        case '\\':             /* $\: output record separator */
-        case ';':              /* $;: field separator */
-        case ',':              /* $,: output field separator */
-        case '.':              /* $.: last read line number */
-        case '=':              /* $=: ignorecase */
-        case ':':              /* $:: load path */
-        case '<':              /* $<: reading filename */
-        case '>':              /* $>: default output handle */
-        case '\"':             /* $": already loaded files */
+          
+        case '~':              
+        case '*':              
+        case '$':              
+        case '?':              
+        case '!':              
+        case '@':              
+        case '/':              
+        case '\\':             
+        case ';':              
+        case ',':              
+        case '.':              
+        case '=':              
+        case ':':              
+        case '<':              
+        case '>':              
+        case '\"':             
           tokadd('$'+c);
           tokfix();
           lexer.yylval = tok(); // ID: intern string
@@ -2809,10 +2808,10 @@ this.yylex = function yylex ()
           lexer.yylval = tok(); // ID, intern string
           return tGVAR;
 
-        case '&':              /* $&: last match */
-        case '`':              /* $`: string before last match */
-        case '\'':             /* $': string after last match */
-        case '+':              /* $+: string matches last paren. */
+        case '&':              
+        case '`':              
+        case '\'':             
+        case '+':              
           if (IS_lex_state_for(lexer.last_state, EXPR_FNAME))
           {
             tokadd('$'+c);
@@ -3229,7 +3228,7 @@ function here_document (here)
   // try to find all the `#{}` stuff here
   else
   {
-    /*      int mb = ENC_CODERANGE_7BIT, *mbp = &mb; */
+    
     newtok();
     if (c == '#')
     {
@@ -3439,7 +3438,7 @@ function tokadd_string (func, term, paren, str_term)
           }
           else if ((func & STR_FUNC_QWORDS) && ISSPACE(c))
           {
-            /* ignore backslashed spaces in %w */
+            
           }
           else if (c != term && !(paren && c == paren))
           {
@@ -3495,12 +3494,12 @@ function tokadd_escape ()
   switch (c = nextc())
   {
     case '\n':
-      return true;                 /* just ignore */
+      return true;                 
 
     case '0':
     case '1':
     case '2':
-    case '3':                  /* octal constant */
+    case '3':                  
     case '4':
     case '5':
     case '6':
@@ -3522,7 +3521,7 @@ function tokadd_escape ()
     }
     return true;
 
-    case 'x':                  /* hex constant */
+    case 'x':                  
       {
         // was: tok_hex(&numlen);
         
@@ -3612,34 +3611,34 @@ function read_escape (flags)
   var c = nextc();
   switch (c)
   {
-    case '\\':                 /* Backslash */
+    case '\\':                 
       return c;
 
-    case 'n':                  /* newline */
+    case 'n':                  
       return '\n';
 
-    case 't':                  /* horizontal tab */
+    case 't':                  
       return '\t';
 
-    case 'r':                  /* carriage-return */
+    case 'r':                  
       return '\r';
 
-    case 'f':                  /* form-feed */
+    case 'f':                  
       return '\f';
 
-    case 'v':                  /* vertical tab */
+    case 'v':                  
       return '\v'; // \13
 
-    case 'a':                  /* alarm(bell) */
+    case 'a':                  
       return '\a'; // \007
 
-    case 'e':                  /* escape */
+    case 'e':                  
       return '\x1b'; // 033
 
     case '0':
     case '1':
     case '2':
-    case '3':                  /* octal constant */
+    case '3':                  
     case '4':
     case '5':
     case '6':
@@ -3651,7 +3650,7 @@ function read_escape (flags)
       $lex_p += oct.length;
       return c;
 
-    case 'x':                  /* hex constant */
+    case 'x':                  
       // was: c = tok_hex(&numlen);
       var hex = match_grex(/[0-9a-fA-F]{1,2}|/g)[0];
       if (!hex)
@@ -3663,10 +3662,10 @@ function read_escape (flags)
       c = $$(parseInt(hex, 16));
       return c;
 
-    case 'b':                  /* backspace */
+    case 'b':                  
       return '\x08'; // \010
 
-    case 's':                  /* space */
+    case 's':                  
       return ' ';
 
     case 'M':
@@ -3740,15 +3739,15 @@ function read_escape (flags)
   }
 }
 
-/* return value is for \u3042 */
+
 function parser_tokadd_utf8 (string_literal, symbol_literal, regexp_literal)
 {
-  /*
-   * If string_literal is true, then we allow multiple codepoints
-   * in \u{}, and add the codepoints to the current token.
-   * Otherwise we're parsing a character literal and return a single
-   * codepoint without adding it
-   */
+  
+
+
+
+
+
 
   if (regexp_literal)
   {
@@ -3866,7 +3865,7 @@ function start_num (c)
     c = nextc();
     if (c == 'x' || c == 'X')
     {
-      /* hexadecimal */
+      
       c = nextc();
       if (c != '' && ISXDIGIT(c))
       {
@@ -3900,7 +3899,7 @@ function start_num (c)
     }
     if (c == 'b' || c == 'B')
     {
-      /* binary */
+      
       c = nextc();
       if (c == '0' || c == '1')
       {
@@ -3934,7 +3933,7 @@ function start_num (c)
     }
     if (c == 'd' || c == 'D')
     {
-      /* decimal */
+      
       c = nextc();
       if (c != '' && ISDIGIT(c))
       {
@@ -3968,13 +3967,13 @@ function start_num (c)
     }
     // was: if (c == '_')
     // was: {
-    // was:   /* 0_0 */
+    // was:   
     // was:   goto octal_number;
     // was: }
     // and moved after the next if block
     if (c == 'o' || c == 'O')
     {
-      /* prefixed octal */
+      
       c = nextc();
       if (c == '' || c == '_' || !ISDIGIT(c))
       {
@@ -3984,7 +3983,7 @@ function start_num (c)
     }
     if ((c >= '0' && c <= '7') || c == '_')
     {
-      /* octal */
+      
       // was:  octal_number:
       do
       {
@@ -4106,7 +4105,7 @@ function start_num (c)
         nondigit = c;
         break;
 
-      case '_':          /* `_' in number just ignored */
+      case '_':          
         if (nondigit)
           break goto_decode_num; // was: goto decode_num;
         nondigit = c;
@@ -4161,7 +4160,7 @@ var ruby_global_name_punct_bits =
 
 function is_global_name_punct (c)
 {
-  if (c <= ' '/*0x20*/ || /*0x7e*/ '~' < c)
+  if (c <= ' ' ||  '~' < c)
     return false;
   return ruby_global_name_punct_bits[c];
 }
@@ -4323,12 +4322,13 @@ Location.prototype.inspect = function ()
 
 
 
-/**
- * A Bison parser, automatically generated from <tt>parse.y</tt>.
- *
- * @author LALR (1) parser skeleton written by Paolo Bonzini.
- * @author JavaScript skeleton ported by Peter Leonov.
- */
+
+
+
+
+
+
+
 
 
 // Instantiates the Bison-generated parser.
@@ -4346,6 +4346,7 @@ function YYParser ()
   
   // True if verbose error messages are enabled.
   this.errorVerbose = true;
+
 
   
 
@@ -4389,20 +4390,20 @@ function YYParser ()
   // Share with `action()`
   var yystack, yyvs;
 
-  /**
-   * Parse input from the scanner that was specified at object construction
-   * time.  Return whether the end of the input was reached successfully.
-   *
-   * @return <tt>true</tt> if the parsing succeeds.  Note that this does not
-   *          imply that there were no syntax errors.
-   */
+  
+
+
+
+
+
+
   this.parse = function parse ()
   {
     // Lookahead and lookahead in internal form.
     var yychar = yyempty_;
     var yytoken = 0;
 
-    /* State.  */
+    
     var yyn = 0;
     var yylen = 0;
     var yystate = 0;
@@ -4411,7 +4412,7 @@ function YYParser ()
     yystack = this.yystack = new YYParser.Stack();
     yyvs = yystack.valueStack;
 
-    /* Error handling.  */
+    
     var yynerrs_ = 0;
 
     // Semantic value of the lookahead.
@@ -4684,12 +4685,12 @@ function YYParser ()
 
   function yyaction (yyn, yylen)
   {
-    /* If YYLEN is nonzero, implement the default value of the action:
-       `$$ = $1'.  Otherwise, use the top of the stack.
+    
 
-       Otherwise, the following line sets YYVAL to garbage.
-       This behavior is undocumented and Bison
-       users should not rely upon it.  */
+
+
+
+
     // var yyval; moved up in scope chain to share with actions
     // if (yylen > 0)
     //   yyval = yystack.valueAt(yylen - 1);
@@ -7822,6 +7823,7 @@ function YYParser ()
     1876,  1879,  1880,  1882,  1884,  1886,  1888,  1890,  1893
     //[
   ];
+
   // YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.
   var yytranslate_table_ =
   [
@@ -7882,44 +7884,15 @@ YYParser.prototype =
 {
   // Report on the debug stream that the rule yyrule is going to be reduced.
 
+
   // Generate an error message.
   yysyntax_error: function yysyntax_error (yystate, tok)
   {
     if (!this.errorVerbose)
       return "syntax error";
 
-    /*
-    There are many possibilities here to consider:
-     - Assume YYFAIL is not used.  It's too flawed to consider.
-       See
-       <http://lists.gnu.org/archive/html/bison-patches/2009-12/msg00024.html>
-       for details.  YYERROR is fine as it does not invoke this
-       function.
-     - If this state is a consistent state with a default action,
-       then the only way this function was invoked is if the
-       default action is an error action.  In that case, don't
-       check for expected tokens because there are none.
-     - The only way there can be no lookahead present (in tok) is
-       if this state is a consistent state with a default action.
-       Thus, detecting the absence of a lookahead is sufficient to
-       determine that there is no unexpected or expected token to
-       report.  In that case, just report a simple "syntax error".
-     - Don't assume there isn't a lookahead just because this
-       state is a consistent state with a default action.  There
-       might have been a previous inconsistent state, consistent
-       state with a non-default action, or user semantic action
-       that manipulated yychar.  (However, yychar is currently out
-       of scope during semantic actions.)
-     - Of course, the expected token list depends on states to
-       have correct lookahead information, and it depends on the
-       parser not to perform extra reductions after fetching a
-       lookahead from the scanner and before detecting a syntax
-       error.  Thus, state merging (from LALR or IELR) and default
-       reductions corrupt the expected token list.  However, the
-       list is correct for canonical LR with one exception: it
-       will still contain any token that will not be accepted due
-       to an error action in a later state.
-    */
+    
+
 
     if (tok == this.yyempty_)
       return "syntax error (empty token)";
@@ -7971,11 +7944,11 @@ YYParser.prototype =
     }
     return res;
 
-    /* Return YYSTR after stripping away unnecessary quotes and
-       backslashes, so that it's suitable for yyerror.  The heuristic is
-       that double-quoting is unnecessary unless the string contains an
-       apostrophe, a comma, or backslash (other than backslash-backslash).
-       YYSTR is taken from yytname.  */
+    
+
+
+
+
     function yytnamerr_ (yystr)
     {
       if (yystr[0] == '"')
@@ -8059,7 +8032,7 @@ YYParser.Stack = function Stack ()
 function YYActions ()
 {
 
-/* "%code actions" blocks.  */
+
 
 
 
@@ -8918,9 +8891,6 @@ this.table =
 {
   
     {
-      if (lexer.in_def || lexer.in_single)
-        lexer.yyerror("dynamic constant assignment");
-      
       yyval = builder.assignable(builder.const_fetch(yyvs[yyvs.length-1-((3-(1)))], yyvs[yyvs.length-1-((3-(2)))], yyvs[yyvs.length-1-((3-(3)))]));
     };
   
@@ -8930,9 +8900,6 @@ this.table =
 {
   
     {
-      if (lexer.in_def || lexer.in_single)
-        lexer.yyerror("dynamic constant assignment");
-      
       yyval = builder.assignable(builder.const_global(yyvs[yyvs.length-1-((2-(2)))]));
     };
   
@@ -9005,9 +8972,6 @@ this.table =
 {
   
     {
-      if (lexer.in_def || lexer.in_single)
-        lexer.yyerror("dynamic constant assignment");
-      
       yyval = builder.assignable(builder.const_fetch(yyvs[yyvs.length-1-((3-(1)))], yyvs[yyvs.length-1-((3-(2)))], yyvs[yyvs.length-1-((3-(3)))]));
     };
   
@@ -9017,9 +8981,6 @@ this.table =
 {
   
     {
-      if (lexer.in_def || lexer.in_single)
-        lexer.yyerror("dynamic constant assignment");
-      
       yyval = builder.assignable(builder.const_global(yyvs[yyvs.length-1-((2-(2)))]));
     };
   
@@ -9217,12 +9178,7 @@ this.table =
 {
   
     {
-      // TODO
-      // if in_def?
-      //   diagnostic(:error, :dynamic_const, val[2], [ val[3] ])
-      // end
-      
-      var const_ = builder.assignable(builder.const_fetch(yyvs[yyvs.length-1-((5-(1)))], yyvs[yyvs.length-1-((5-(2)))], yyvs[yyvs.length-1-((5-(3)))]));
+      var const_ = builder.const_op_assignable(builder.const_fetch(yyvs[yyvs.length-1-((5-(1)))], yyvs[yyvs.length-1-((5-(2)))], yyvs[yyvs.length-1-((5-(3)))]));
       yyval = builder.op_assign(const_, yyvs[yyvs.length-1-((5-(4)))], yyvs[yyvs.length-1-((5-(5)))]);
     };
   
@@ -9232,12 +9188,7 @@ this.table =
 {
   
     {
-      // TODO
-      // if in_def?
-      //   diagnostic(:error, :dynamic_const, val[1], [ val[2] ])
-      // end
-      
-      var const_  = builder.assignable(builder.const_global(yyvs[yyvs.length-1-((4-(2)))]));
+      var const_  = builder.const_op_assignable(builder.const_global(yyvs[yyvs.length-1-((4-(2)))]));
       yyval = builder.op_assign(const_, yyvs[yyvs.length-1-((4-(3)))], yyvs[yyvs.length-1-((4-(4)))]);
     };
   
@@ -9329,7 +9280,7 @@ this.table =
 {
   
     {
-      var number = builder.integer(yyvs[yyvs.length-1-((4-(2)))], /*negate=*/false);
+      var number = builder.integer(yyvs[yyvs.length-1-((4-(2)))], false);
       var binary  = builder.binary_op(number, yyvs[yyvs.length-1-((4-(3)))], yyvs[yyvs.length-1-((4-(4)))]);
       yyval = builder.unary_op(yyvs[yyvs.length-1-((4-(1)))], binary);
     };
@@ -9340,7 +9291,7 @@ this.table =
 {
   
     {
-      var number = builder.float_(yyvs[yyvs.length-1-((4-(2)))], /*negate=*/false);
+      var number = builder.float_(yyvs[yyvs.length-1-((4-(2)))], false);
       var binary  = builder.binary_op(number, yyvs[yyvs.length-1-((4-(3)))], yyvs[yyvs.length-1-((4-(4)))]);
       yyval = builder.unary_op(yyvs[yyvs.length-1-((4-(1)))], binary);
     };
@@ -10285,7 +10236,7 @@ this.table =
   
     {
         lexer.in_single++;
-        lexer.lex_state = EXPR_ENDFN; /* force for args */
+        lexer.lex_state = EXPR_ENDFN; 
         scope.push_static();
       };
   
@@ -11574,7 +11525,7 @@ this.table =
 {
   
     {
-        yyval = builder.integer(yyvs[yyvs.length-1-((1-(1)))], /*negate=*/false);
+        yyval = builder.integer(yyvs[yyvs.length-1-((1-(1)))], false);
       };
   
   return yyval;
@@ -11583,7 +11534,7 @@ this.table =
 {
   
     {
-        yyval = builder.float_(yyvs[yyvs.length-1-((1-(1)))], /*negate=*/false);
+        yyval = builder.float_(yyvs[yyvs.length-1-((1-(1)))], false);
       };
   
   return yyval;
@@ -11592,7 +11543,7 @@ this.table =
 {
   
     {
-        yyval = builder.integer(yyvs[yyvs.length-1-((2-(2)))], /*negate=*/true);
+        yyval = builder.integer(yyvs[yyvs.length-1-((2-(2)))], true);
       };
   
   return yyval;
@@ -11601,7 +11552,7 @@ this.table =
 {
   
     {
-        yyval = builder.float_(yyvs[yyvs.length-1-((2-(2)))], /*negate=*/true);
+        yyval = builder.float_(yyvs[yyvs.length-1-((2-(2)))], true);
       };
   
   return yyval;
@@ -12545,6 +12496,7 @@ else
 }
 
 })(); // whole parser and lexer namespace start
+
 
 
 

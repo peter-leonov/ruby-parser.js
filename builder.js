@@ -147,11 +147,11 @@ Builder.prototype =
         }
 
       case '__FILE__':
-        return n('str', [ node[0] ]);
+        return n('__FILE__', [ node[0] ]);
 
       case '__LINE__':
         // TODO: use line from node value
-        return n('int', [ this.lexer.ruby_sourceline ]); 
+        return n('__LINE__', [ this.lexer.ruby_sourceline ]);
 
       case '__ENCODING__':
         return n('const', [ n('const', [ null, 'Encoding'], null), 'UTF_8' ])
@@ -304,6 +304,11 @@ Builder.prototype =
   {
     lhs.push(rhs);
     return lhs;
+  },
+  
+  const_op_assignable: function (node)
+  {
+    return n('casgn', node/*.children*/)
   },
   
   _LINE_: function (ruby_sourceline)

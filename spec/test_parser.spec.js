@@ -73,7 +73,7 @@ describe("Builder", function() {
 
   it("test_int___LINE__", function() {
     assert_parses(
-      s('int', 1),
+      s('__LINE__', 1),
       '__LINE__')
   });
   
@@ -131,8 +131,28 @@ describe("Builder", function() {
 
   it("test_string___FILE__", function() {
     assert_parses(
-      s('str', '(assert_parses)'),
+      s('__FILE__', '(assert_parses)'),
       '__FILE__')
+  });
+
+  it("test_character", function() {
+    assert_parses(
+      s('str', 'a'),
+      '?a')
+  });
+
+  it("test_heredoc", function() {
+    assert_parses(
+      s('str', "foo\nbar\n"),
+      '<<HERE\nfoo\nbar\nHERE')
+
+    assert_parses(
+      s('str', "foo\nbar\n"),
+      "<<'HERE'\nfoo\nbar\nHERE")
+
+    assert_parses(
+      s('xstr', s('str', "foo\nbar\n")),
+      '<<`HERE`\nfoo\nbar\nHERE')
   });
 
 
@@ -194,6 +214,16 @@ describe("Builder", function() {
         s('str', 'baz'),
         s('regopt')),
       '/foo#{bar}baz/')
+  });
+
+  it("test_regexp_encoding", function() {
+    assert_parses(
+      s('match_with_lvasgn',
+        s('regexp',
+          s('str', '\xa8'),
+          s('regopt', 'n')),
+        s('dstr')),
+      '/\xa8/n =~ ""')
   });
 
   // Arrays
@@ -782,6 +812,20 @@ describe("Builder", function() {
         s('casgn', s('const', null, 'B'), 'A'), '+',
         s('int', 1)),
       'B::A += 1')
+
+    assert_parses(
+      s('def', 'x', s('args'),
+        s('or_asgn',
+          s('casgn', s('self'), 'A'),
+          s('int', 1))),
+      'def x; self::A ||= 1; end')
+
+    assert_parses(
+      s('def', 'x', s('args'),
+        s('or_asgn',
+          s('casgn', s('cbase'), 'A'),
+          s('int', 1))),
+      'def x; ::A ||= 1; end')
   });
 
   it("test_const_op_asgn_invalid", function() {
@@ -1590,6 +1634,13 @@ describe("Builder", function() {
       '|**baz, &b|')
   });
   
+  it("test_block_kwarg", function() {
+    assert_parses_blockargs(
+      s('args',
+        s('kwarg', 'foo')),
+      '|foo:|')
+  });
+  
   it("test_arg_invalid", function() {
     // assert_diagnoses
   });
@@ -1894,6 +1945,11 @@ describe("Builder", function() {
       s('block', s('send', null, 'lambda'),
         s('args'), null),
       '->{ }')
+
+    assert_parses(
+      s('block', s('send', null, 'lambda'),
+        s('args', s('restarg')), null),
+      '-> * { }')
 
     assert_parses(
       s('block', s('send', null, 'lambda'),
@@ -2829,4 +2885,60 @@ describe("Builder", function() {
       'def foo\n=begin\n=end\nend')
   });
   
+  it("test_bug_rescue_empty_else", function() {
+    assert_parses(
+      s('kwbegin',
+        s('rescue', null,
+          s('resbody',
+            s('array',
+              s('const', null, 'LoadError')), null, null), null)),
+      'begin; rescue LoadError; else; end')
+  });
+  
+  it("test_bug_heredoc_do", function() {
+    assert_parses(
+      s('block',
+        s('send', null, 'f',
+          s('dstr')),
+        s('args'), null),
+      'f <<-TABLE do\nTABLE\nend')
+  });
+  
+  it("test_bug_lambda_leakage", function() {
+    assert_parses(
+      s('begin',
+        s('block',
+          s('send', null, 'lambda'),
+          s('args',
+            s('arg', 'scope')), null),
+        s('send', null, 'scope')),
+      '->(scope) {}; scope')
+  });
+  
+  it("test_bug_cmdarg", function() {
+    assert_parses(
+      s('send', null, 'assert',
+        s('send', null, 'dogs')),
+      'assert dogs')
+
+    assert_parses(
+      s('send', null, 'assert',
+        s('hash',
+          s('pair', s('sym', 'do'), s('true')))),
+      'assert do: true')
+
+    assert_parses(
+      s('send', null, 'f',
+        s('hash',
+          s('pair',
+            s('sym', 'x'),
+            s('block',
+              s('send', null, 'lambda'),
+              s('args'),
+              s('block',
+                s('send', null, 'meth'),
+                s('args'), null))))),
+      'f x: -> do meth do end end')
+  });
+
 });
