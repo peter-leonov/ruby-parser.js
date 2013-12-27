@@ -141,6 +141,21 @@ describe("Builder", function() {
       '?a')
   });
 
+  it("test_heredoc", function() {
+    assert_parses(
+      s('str', "foo\nbar\n"),
+      '<<HERE\nfoo\nbar\nHERE')
+
+    assert_parses(
+      s('str', "foo\nbar\n"),
+      "<<'HERE'\nfoo\nbar\nHERE")
+
+    assert_parses(
+      s('xstr', s('str', "foo\nbar\n")),
+      '<<`HERE`\nfoo\nbar\nHERE')
+  });
+
+
   // Symbols
 
   it("test_symbol_plain", function() {
