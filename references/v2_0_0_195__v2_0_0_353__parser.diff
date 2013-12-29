@@ -1,0 +1,64 @@
+diff --git a/references/ruby-2.0.0-p195-parse.y b/references/ruby-2.0.0-p353-parse.y
+index 3328cf5..f39c2a2 100644
+--- a/references/ruby-2.0.0-p195-parse.y
++++ b/references/ruby-2.0.0-p353-parse.y
+@@ -306,8 +306,6 @@ struct parser_params {
+ static int parser_yyerror(struct parser_params*, const char*);
+ #define yyerror(msg) parser_yyerror(parser, (msg))
+ 
+-#define YYLEX_PARAM parser
+-
+ #define lex_strterm		(parser->parser_lex_strterm)
+ #define lex_state		(parser->parser_lex_state)
+ #define cond_stack		(parser->parser_cond_stack)
+@@ -350,7 +348,11 @@ static int parser_yyerror(struct parser_params*, const char*);
+ #define ruby_coverage		(parser->coverage)
+ #endif
+ 
++#if YYPURE
+ static int yylex(void*, void*);
++#else
++static int yylex(void*);
++#endif
+ 
+ #ifndef RIPPER
+ #define yyparse ruby_yyparse
+@@ -680,7 +682,8 @@ static void token_info_pop(struct parser_params*, const char *token);
+ #endif
+ %}
+ 
+-%pure_parser
++%pure-parser
++%lex-param {struct parser_params *parser}
+ %parse-param {struct parser_params *parser}
+ 
+ %union {
+@@ -3459,13 +3462,17 @@ lambda		:   {
+ 			lpar_beg = ++paren_nest;
+ 		    }
+ 		  f_larglist
++		    {
++			$<num>$ = ruby_sourceline;
++		    }
+ 		  lambda_body
+ 		    {
+ 			lpar_beg = $<num>2;
+ 		    /*%%%*/
+-			$$ = NEW_LAMBDA($3, $4);
++			$$ = NEW_LAMBDA($3, $5);
++			nd_set_line($$, $<num>4);
+ 		    /*%
+-			$$ = dispatch2(lambda, $3, $4);
++			$$ = dispatch2(lambda, $3, $5);
+ 		    %*/
+ 			dyna_pop($<vars>1);
+ 		    }
+@@ -9908,8 +9915,6 @@ static const struct {
+ } op_tbl[] = {
+     {tDOT2,	".."},
+     {tDOT3,	"..."},
+-    {'+',	"+(binary)"},
+-    {'-',	"-(binary)"},
+     {tPOW,	"**"},
+     {tDSTAR,	"**"},
+     {tUPLUS,	"+@"},

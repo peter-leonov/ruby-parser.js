@@ -1982,13 +1982,17 @@ lambda:
       lexer.lpar_beg = ++lexer.paren_nest;
     }
     f_larglist
+    {
+      // $<num>$ = lexer.ruby_sourceline;
+    }
     lambda_body
     {
       lexer.lpar_beg = $<num>2;
       // touching this alters the parse.output
       $<vars>1;
+      $<num>4; // nd_set_line($$, $<num>4);
       
-      $$ = { args: $3, body: $4 };
+      $$ = { args: $3, body: $5 };
     }
   ;
 
