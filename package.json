@@ -1,0 +1,12 @@
+{
+  "name": "ruby-parser.js",
+  "version": "0.0.1",
+  "description": "Ruby parser written in JavaScript",
+  "main": "./index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/otupman/ruby-parser.js"
+  },
+  "dependencies": {},
+  "licence": "Mixed"
+}
