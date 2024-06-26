@@ -2,7 +2,7 @@
 
 ### playground
 
-Better see it once than hear thousand times: [Ruby to JSON online](http://peter-leonov.github.io/ruby-parser.js/) :)
+Better see it once than hear thousand times: [Ruby to JSON online](https://peter-leonov.github.io/ruby-parser.js/) :)
 
 ### binary plus
 
